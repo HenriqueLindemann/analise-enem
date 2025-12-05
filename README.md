@@ -1,20 +1,9 @@
 # Análise de Dados do ENEM 2021 (Protótipo / Prova de Conceito)
 
+Este projeto realiza uma análise estatística detalhada do desempenho de um participante no ENEM 2021, utilizando os Microdados oficiais. Ele oferece tanto uma comparação geral com a população (percentis, histogramas) quanto uma análise pedagógica usando a Teoria de Resposta ao Item (TRI).
+
 > ⚠️ **Aviso:** Este projeto é uma **versão inicial (Proof of Concept)**. Ele foi desenvolvido para validar a viabilidade de cruzar dados de desempenho individual com os microdados públicos do INEP.
 
-O software realiza uma análise estatística detalhada e pedagógica (TRI) de um participante, mas possui limitações de escopo intencionais neste estágio.
-
-## 🚧 Limitações Atuais
-
-Como trata-se de um protótipo muito inicial, considere os seguintes pontos:
-
-1.  **Foco Exclusivo no ENEM 2021**: O código está hardcoded para a estrutura de arquivos e dicionários de dados de 2021. Não suporta outros anos.
-2.  **Seleção de Língua Estrangeira**: O script detecta automaticamente a língua escolhida (Inglês ou Espanhol) baseada nos dados do participante, mas não oferece interface para simulação ou troca manual.
-3.  **Escalabilidade**: Projetado para analisar um único participante por vez através de arquivo de configuração.
-
-## 📋 Pré-requisitos
-
-- Python 3.8+
 - Bibliotecas Python: `pandas`, `numpy`, `matplotlib`, `seaborn`
 
 ```bash
@@ -28,9 +17,7 @@ pip install pandas numpy matplotlib seaborn
   - Crie uma pasta chamada `DADOS/` na raiz deste projeto (caso não exista).
   - Extraia os arquivos `MICRODADOS_ENEM_2021.csv` e `ITENS_PROVA_2021.csv` para dentro da pasta `DADOS/`.
 
-## 🚀 Fluxo de Análise Automatizado
-
-Simplificamos todo o processo em um único fluxo.
+## Como Usar
 
 ### 1. Configurar as Notas
 Abra o arquivo `config.py` e insira as 5 notas do participante que você deseja analisar.
@@ -43,7 +30,7 @@ NOTAS_PARTICIPANTE = {
     # ... insira as outras notas aqui
 }
 ```
-> **Importante:** As notas devem corresponder **exatamente** a um participante existente nos Microdados para que a análise TRI (Item Response Theory) consiga recuperar o gabarito e as respostas individuais.
+> **Importante:** As notas de exemplo em `config.py` são de um participante real. Para que a análise TRI funcione corretamente, as notas inseridas devem corresponder exatamente a um participante existente nos Microdados, caso contrário, as buscas não encontrarão um "match".
 
 ### 2. Executar a Automação
 Utilize o script de automação que limpa resultados anteriores, realiza os cálculos e gera todos os gráficos de uma só vez.
@@ -59,7 +46,7 @@ chmod +x run_analysis.sh
 3.  **Visualizações Gerais (`visualizacoes_analise.py`)**: Gera histogramas, boxplots e radar charts na pasta `graficos/`.
 4.  **Análise TRI (`analise_tri_final.py`)**: Busca o participante, recupera as respostas questão a questão e cruza com a dificuldade (Parâmetro B) dos itens, gerando diagnósticos pedagógicos na pasta `graficos_tri/`.
 
-## 📂 Estrutura do Projeto
+## Estrutura do Projeto
 
 - `run_analysis.sh`: Script orquestrador da automação.
 - `config.py`: Configuração das notas do participante.
