@@ -1,0 +1,14 @@
+# Ignorar dados pesados
+DADOS/
+PROVAS E GABARITOS/
+LEIA-ME E DOCUMENTOS TÉCNICOS/
+DICIONÁRIO/
+INPUTS/
+
+# Ignorar arquivos gerados
+graficos/
+graficos_tri/
+__pycache__/
+*.pyc
+
+.claude/
