@@ -4,7 +4,7 @@ Calculador de notas do ENEM usando **Teoria de Resposta ao Item (TRI)** com alta
 
 Este módulo foi desenvolvido através de engenharia reversa dos microdados oficiais do INEP e permite calcular a nota de qualquer prova do ENEM de **2009 a 2024**.
 
-> **Nota:** Este projeto ainda está em desenvolvimento. Nem todas as provas têm erro baixo calibrado. Futuramente será disponibilizada uma lista de códigos de provas validados.
+> **Nota:** Este projeto ainda está em desenvolvimento. Nem todas as provas têm erro baixo calibrado. Futuramente será disponibilizada uma lista de códigos de provas validados. Por Exemplo, provas do ENEM 2017 têm erro alto e resultado não deve ser considerado.
 
 ## Funcionalidades
 
@@ -218,6 +218,6 @@ por favor mantenha a referência à fonte original.
 ## Autor
 
 Desenvolvido por **Henrique Lindemann**  
-Estudante de Engenharia de Computação - UFRGS
+Estudante de Engenharia de Computação - Universidade Federal do Rio Grande do Sul (UFRGS)
 
 LinkedIn: [linkedin.com/in/henriquelindemann](https://www.linkedin.com/in/henriquelindemann/)
