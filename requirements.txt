@@ -1,0 +1,13 @@
+# TRI ENEM - Dependências
+# pip install -r requirements.txt
+
+# Cálculo numérico
+numpy>=1.20.0
+scipy>=1.7.0
+
+# Manipulação de dados
+pandas>=1.3.0
+
+# Opcional: Visualizações (apenas para archived/)
+# matplotlib>=3.4.0
+# seaborn>=0.11.0

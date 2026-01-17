@@ -1,0 +1,3331 @@
+{
+  "_metadata": {
+    "descricao": "Mapeamento de provas ENEM por aplicacao e cor",
+    "metodologia": "Top 4 provas por participantes = 1a aplicacao",
+    "limitacoes": [
+      "Classificacao baseada em numero de participantes (inferencia)",
+      "Nao distingue 2a aplicacao de PPL",
+      "Cores podem estar incorretas em anos antigos",
+      "Requer validacao manual para uso critico"
+    ],
+    "trabalhos_futuros": [
+      "Validar cores com cadernos reais",
+      "Mapear padroes de codigo por ano",
+      "Integrar dados oficiais INEP"
+    ],
+    "confiabilidade": {
+      "primeira_aplicacao": "ALTA - Top 4 por participantes",
+      "outras_aplicacoes": "BAIXA - Mistura 2a aplicacao, PPL, adaptadas"
+    }
+  },
+  "2009": {
+    "MT": {
+      "primeira_aplicacao": [
+        {
+          "cor": "AMARELO",
+          "codigo": 61,
+          "participantes": 632832
+        },
+        {
+          "cor": "CINZA",
+          "codigo": 62,
+          "participantes": 614684
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 63,
+          "participantes": 605604
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 64,
+          "participantes": 582468
+        }
+      ],
+      "outras_aplicacoes": [
+        {
+          "cor": "AMARELO",
+          "codigo": 77,
+          "participantes": 1556
+        },
+        {
+          "cor": "CINZA",
+          "codigo": 78,
+          "participantes": 1439
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 79,
+          "participantes": 1438
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 80,
+          "participantes": 1371
+        },
+        {
+          "cor": "COR_DESCONHECIDA",
+          "codigo": 84,
+          "participantes": 103
+        }
+      ]
+    },
+    "CN": {
+      "primeira_aplicacao": [
+        {
+          "cor": "AZUL",
+          "codigo": 49,
+          "participantes": 672170
+        },
+        {
+          "cor": "AMARELO",
+          "codigo": 50,
+          "participantes": 638427
+        },
+        {
+          "cor": "BRANCO",
+          "codigo": 51,
+          "participantes": 632001
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 52,
+          "participantes": 612995
+        }
+      ],
+      "outras_aplicacoes": [
+        {
+          "cor": "AZUL",
+          "codigo": 65,
+          "participantes": 1673
+        },
+        {
+          "cor": "AMARELO",
+          "codigo": 66,
+          "participantes": 1564
+        },
+        {
+          "cor": "BRANCO",
+          "codigo": 67,
+          "participantes": 1492
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 68,
+          "participantes": 1443
+        },
+        {
+          "cor": "COR_DESCONHECIDA",
+          "codigo": 81,
+          "participantes": 131
+        }
+      ]
+    },
+    "CH": {
+      "primeira_aplicacao": [
+        {
+          "cor": "AZUL",
+          "codigo": 53,
+          "participantes": 672170
+        },
+        {
+          "cor": "AMARELO",
+          "codigo": 54,
+          "participantes": 638427
+        },
+        {
+          "cor": "BRANCO",
+          "codigo": 55,
+          "participantes": 632001
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 56,
+          "participantes": 612995
+        }
+      ],
+      "outras_aplicacoes": [
+        {
+          "cor": "AZUL",
+          "codigo": 69,
+          "participantes": 1673
+        },
+        {
+          "cor": "AMARELO",
+          "codigo": 70,
+          "participantes": 1564
+        },
+        {
+          "cor": "BRANCO",
+          "codigo": 71,
+          "participantes": 1492
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 72,
+          "participantes": 1443
+        },
+        {
+          "cor": "COR_DESCONHECIDA",
+          "codigo": 82,
+          "participantes": 131
+        }
+      ]
+    },
+    "LC": {
+      "primeira_aplicacao": [
+        {
+          "cor": "AMARELO",
+          "codigo": 57,
+          "participantes": 632832
+        },
+        {
+          "cor": "CINZA",
+          "codigo": 58,
+          "participantes": 614684
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 59,
+          "participantes": 605604
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 60,
+          "participantes": 582468
+        }
+      ],
+      "outras_aplicacoes": [
+        {
+          "cor": "AMARELO",
+          "codigo": 73,
+          "participantes": 1556
+        },
+        {
+          "cor": "CINZA",
+          "codigo": 74,
+          "participantes": 1439
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 75,
+          "participantes": 1438
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 76,
+          "participantes": 1371
+        },
+        {
+          "cor": "COR_DESCONHECIDA",
+          "codigo": 83,
+          "participantes": 103
+        }
+      ]
+    }
+  },
+  "2010": {
+    "MT": {
+      "primeira_aplicacao": [
+        {
+          "cor": "AMARELO",
+          "codigo": 97,
+          "participantes": 2205034
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 99,
+          "participantes": 819013
+        },
+        {
+          "cor": "CINZA",
+          "codigo": 98,
+          "participantes": 809296
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 100,
+          "participantes": 778269
+        }
+      ],
+      "outras_aplicacoes": []
+    },
+    "CN": {
+      "primeira_aplicacao": [
+        {
+          "cor": "AZUL",
+          "codigo": 89,
+          "participantes": 2121088
+        },
+        {
+          "cor": "BRANCO",
+          "codigo": 91,
+          "participantes": 852571
+        },
+        {
+          "cor": "AMARELO",
+          "codigo": 90,
+          "participantes": 818158
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 92,
+          "participantes": 815108
+        }
+      ],
+      "outras_aplicacoes": [
+        {
+          "cor": "AZUL",
+          "codigo": 105,
+          "participantes": 1329
+        },
+        {
+          "cor": "BRANCO",
+          "codigo": 107,
+          "participantes": 1151
+        },
+        {
+          "cor": "AMARELO",
+          "codigo": 106,
+          "participantes": 1127
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 108,
+          "participantes": 1080
+        }
+      ]
+    },
+    "CH": {
+      "primeira_aplicacao": [
+        {
+          "cor": "AZUL",
+          "codigo": 85,
+          "participantes": 2121088
+        },
+        {
+          "cor": "BRANCO",
+          "codigo": 87,
+          "participantes": 852571
+        },
+        {
+          "cor": "AMARELO",
+          "codigo": 86,
+          "participantes": 818158
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 88,
+          "participantes": 815108
+        }
+      ],
+      "outras_aplicacoes": [
+        {
+          "cor": "AZUL",
+          "codigo": 101,
+          "participantes": 1329
+        },
+        {
+          "cor": "BRANCO",
+          "codigo": 103,
+          "participantes": 1151
+        },
+        {
+          "cor": "AMARELO",
+          "codigo": 102,
+          "participantes": 1127
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 104,
+          "participantes": 1080
+        }
+      ]
+    },
+    "LC": {
+      "primeira_aplicacao": [
+        {
+          "cor": "AMARELO",
+          "codigo": 93,
+          "participantes": 2205034
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 95,
+          "participantes": 819013
+        },
+        {
+          "cor": "CINZA",
+          "codigo": 94,
+          "participantes": 809296
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 96,
+          "participantes": 778269
+        }
+      ],
+      "outras_aplicacoes": []
+    }
+  },
+  "2011": {
+    "MT": {
+      "primeira_aplicacao": [
+        {
+          "cor": "AMARELO",
+          "codigo": 129,
+          "participantes": 2504003
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 131,
+          "participantes": 978571
+        },
+        {
+          "cor": "CINZA",
+          "codigo": 130,
+          "participantes": 958723
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 132,
+          "participantes": 925634
+        }
+      ],
+      "outras_aplicacoes": []
+    },
+    "CN": {
+      "primeira_aplicacao": [
+        {
+          "cor": "AZUL",
+          "codigo": 121,
+          "participantes": 2422466
+        },
+        {
+          "cor": "BRANCO",
+          "codigo": 123,
+          "participantes": 1007247
+        },
+        {
+          "cor": "AMARELO",
+          "codigo": 122,
+          "participantes": 983318
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 124,
+          "participantes": 953900
+        }
+      ],
+      "outras_aplicacoes": []
+    },
+    "CH": {
+      "primeira_aplicacao": [
+        {
+          "cor": "AZUL",
+          "codigo": 117,
+          "participantes": 2422466
+        },
+        {
+          "cor": "BRANCO",
+          "codigo": 119,
+          "participantes": 1007247
+        },
+        {
+          "cor": "AMARELO",
+          "codigo": 118,
+          "participantes": 983318
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 120,
+          "participantes": 953900
+        }
+      ],
+      "outras_aplicacoes": []
+    },
+    "LC": {
+      "primeira_aplicacao": [
+        {
+          "cor": "AMARELO",
+          "codigo": 125,
+          "participantes": 2504003
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 127,
+          "participantes": 978571
+        },
+        {
+          "cor": "CINZA",
+          "codigo": 126,
+          "participantes": 958723
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 128,
+          "participantes": 925634
+        }
+      ],
+      "outras_aplicacoes": []
+    }
+  },
+  "2012": {
+    "MT": {
+      "primeira_aplicacao": [
+        {
+          "cor": "AMARELA",
+          "codigo": 149,
+          "participantes": 1067089
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 151,
+          "participantes": 1037858
+        },
+        {
+          "cor": "CINZA",
+          "codigo": 150,
+          "participantes": 1013485
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 152,
+          "participantes": 975027
+        }
+      ],
+      "outras_aplicacoes": [
+        {
+          "cor": "CINZA",
+          "codigo": 156,
+          "participantes": 425
+        }
+      ]
+    },
+    "CN": {
+      "primeira_aplicacao": [
+        {
+          "cor": "AZUL",
+          "codigo": 141,
+          "participantes": 1101221
+        },
+        {
+          "cor": "BRANCA",
+          "codigo": 143,
+          "participantes": 1070411
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 142,
+          "participantes": 1037685
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 144,
+          "participantes": 1009248
+        }
+      ],
+      "outras_aplicacoes": [
+        {
+          "cor": "BRANCA",
+          "codigo": 153,
+          "participantes": 233
+        }
+      ]
+    },
+    "CH": {
+      "primeira_aplicacao": [
+        {
+          "cor": "AZUL",
+          "codigo": 137,
+          "participantes": 1101221
+        },
+        {
+          "cor": "BRANCA",
+          "codigo": 139,
+          "participantes": 1070411
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 138,
+          "participantes": 1037685
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 140,
+          "participantes": 1009248
+        }
+      ],
+      "outras_aplicacoes": [
+        {
+          "cor": "BRANCA",
+          "codigo": 154,
+          "participantes": 233
+        }
+      ]
+    },
+    "LC": {
+      "primeira_aplicacao": [
+        {
+          "cor": "AMARELA",
+          "codigo": 145,
+          "participantes": 1067089
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 147,
+          "participantes": 1037858
+        },
+        {
+          "cor": "CINZA",
+          "codigo": 146,
+          "participantes": 1013485
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 148,
+          "participantes": 975027
+        }
+      ],
+      "outras_aplicacoes": [
+        {
+          "cor": "CINZA",
+          "codigo": 155,
+          "participantes": 425
+        }
+      ]
+    }
+  },
+  "2013": {
+    "MT": {
+      "primeira_aplicacao": [
+        {
+          "cor": "AMARELO",
+          "codigo": 179,
+          "participantes": 3456013
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 181,
+          "participantes": 1275826
+        },
+        {
+          "cor": "CINZA",
+          "codigo": 180,
+          "participantes": 1243798
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 182,
+          "participantes": 1196970
+        }
+      ],
+      "outras_aplicacoes": [
+        {
+          "cor": "CINZA",
+          "codigo": 190,
+          "participantes": 956
+        }
+      ]
+    },
+    "CN": {
+      "primeira_aplicacao": [
+        {
+          "cor": "AZUL",
+          "codigo": 171,
+          "participantes": 3327907
+        },
+        {
+          "cor": "BRANCO",
+          "codigo": 173,
+          "participantes": 1321266
+        },
+        {
+          "cor": "AMARELO",
+          "codigo": 172,
+          "participantes": 1279025
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 174,
+          "participantes": 1244399
+        }
+      ],
+      "outras_aplicacoes": [
+        {
+          "cor": "BRANCO",
+          "codigo": 188,
+          "participantes": 966
+        }
+      ]
+    },
+    "CH": {
+      "primeira_aplicacao": [
+        {
+          "cor": "AZUL",
+          "codigo": 167,
+          "participantes": 3327907
+        },
+        {
+          "cor": "BRANCO",
+          "codigo": 169,
+          "participantes": 1321266
+        },
+        {
+          "cor": "AMARELO",
+          "codigo": 168,
+          "participantes": 1279025
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 170,
+          "participantes": 1244399
+        }
+      ],
+      "outras_aplicacoes": [
+        {
+          "cor": "BRANCO",
+          "codigo": 187,
+          "participantes": 966
+        }
+      ]
+    },
+    "LC": {
+      "primeira_aplicacao": [
+        {
+          "cor": "AMARELO",
+          "codigo": 175,
+          "participantes": 3456013
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 177,
+          "participantes": 1275826
+        },
+        {
+          "cor": "CINZA",
+          "codigo": 176,
+          "participantes": 1243798
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 178,
+          "participantes": 1196970
+        }
+      ],
+      "outras_aplicacoes": [
+        {
+          "cor": "CINZA",
+          "codigo": 189,
+          "participantes": 956
+        }
+      ]
+    }
+  },
+  "2014": {
+    "MT": {
+      "primeira_aplicacao": [
+        {
+          "cor": "AMARELO",
+          "codigo": 207,
+          "participantes": 4298204
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 209,
+          "participantes": 1514920
+        },
+        {
+          "cor": "CINZA",
+          "codigo": 208,
+          "participantes": 1481040
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 210,
+          "participantes": 1426037
+        }
+      ],
+      "outras_aplicacoes": [
+        {
+          "cor": "CINZA-LEDOR",
+          "codigo": 218,
+          "participantes": 1091
+        },
+        {
+          "cor": "CINZA",
+          "codigo": 214,
+          "participantes": 956
+        }
+      ]
+    },
+    "CN": {
+      "primeira_aplicacao": [
+        {
+          "cor": "AZUL",
+          "codigo": 199,
+          "participantes": 4165100
+        },
+        {
+          "cor": "BRANCO",
+          "codigo": 201,
+          "participantes": 1560652
+        },
+        {
+          "cor": "AMARELO",
+          "codigo": 200,
+          "participantes": 1520508
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 202,
+          "participantes": 1474870
+        }
+      ],
+      "outras_aplicacoes": [
+        {
+          "cor": "BRANCO-LEDOR",
+          "codigo": 216,
+          "participantes": 1118
+        }
+      ]
+    },
+    "CH": {
+      "primeira_aplicacao": [
+        {
+          "cor": "AZUL",
+          "codigo": 195,
+          "participantes": 4165100
+        },
+        {
+          "cor": "BRANCO",
+          "codigo": 197,
+          "participantes": 1560652
+        },
+        {
+          "cor": "AMARELO",
+          "codigo": 196,
+          "participantes": 1520508
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 198,
+          "participantes": 1474870
+        }
+      ],
+      "outras_aplicacoes": [
+        {
+          "cor": "BRANCO-LEDOR",
+          "codigo": 215,
+          "participantes": 1118
+        }
+      ]
+    },
+    "LC": {
+      "primeira_aplicacao": [
+        {
+          "cor": "AMARELO",
+          "codigo": 203,
+          "participantes": 4298204
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 205,
+          "participantes": 1514920
+        },
+        {
+          "cor": "CINZA",
+          "codigo": 204,
+          "participantes": 1481040
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 206,
+          "participantes": 1426037
+        }
+      ],
+      "outras_aplicacoes": [
+        {
+          "cor": "CINZA-LEDOR",
+          "codigo": 217,
+          "participantes": 1091
+        },
+        {
+          "cor": "CINZA",
+          "codigo": 213,
+          "participantes": 956
+        }
+      ]
+    }
+  },
+  "2015": {
+    "MT": {
+      "primeira_aplicacao": [
+        {
+          "cor": "AMARELO",
+          "codigo": 243,
+          "participantes": 1470298
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 245,
+          "participantes": 1428885
+        },
+        {
+          "cor": "CINZA",
+          "codigo": 244,
+          "participantes": 1386745
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 246,
+          "participantes": 1332697
+        }
+      ],
+      "outras_aplicacoes": [
+        {
+          "cor": "CINZA",
+          "codigo": 254,
+          "participantes": 3019
+        },
+        {
+          "cor": "AMARELO",
+          "codigo": 283,
+          "participantes": 1040
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 285,
+          "participantes": 978
+        },
+        {
+          "cor": "CINZA",
+          "codigo": 284,
+          "participantes": 966
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 286,
+          "participantes": 912
+        }
+      ]
+    },
+    "CN": {
+      "primeira_aplicacao": [
+        {
+          "cor": "AZUL",
+          "codigo": 235,
+          "participantes": 1500556
+        },
+        {
+          "cor": "BRANCO",
+          "codigo": 237,
+          "participantes": 1460681
+        },
+        {
+          "cor": "AMARELO",
+          "codigo": 236,
+          "participantes": 1414064
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 238,
+          "participantes": 1373197
+        }
+      ],
+      "outras_aplicacoes": [
+        {
+          "cor": "BRANCO",
+          "codigo": 252,
+          "participantes": 3111
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 275,
+          "participantes": 932
+        },
+        {
+          "cor": "BRANCO",
+          "codigo": 277,
+          "participantes": 867
+        },
+        {
+          "cor": "AMARELO",
+          "codigo": 276,
+          "participantes": 859
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 278,
+          "participantes": 824
+        }
+      ]
+    },
+    "CH": {
+      "primeira_aplicacao": [
+        {
+          "cor": "AZUL",
+          "codigo": 231,
+          "participantes": 1500556
+        },
+        {
+          "cor": "BRANCO",
+          "codigo": 233,
+          "participantes": 1460681
+        },
+        {
+          "cor": "AMARELO",
+          "codigo": 232,
+          "participantes": 1414064
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 234,
+          "participantes": 1373197
+        }
+      ],
+      "outras_aplicacoes": [
+        {
+          "cor": "BRANCO",
+          "codigo": 251,
+          "participantes": 3111
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 271,
+          "participantes": 932
+        },
+        {
+          "cor": "BRANCO",
+          "codigo": 273,
+          "participantes": 867
+        },
+        {
+          "cor": "AMARELO",
+          "codigo": 272,
+          "participantes": 859
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 274,
+          "participantes": 824
+        }
+      ]
+    },
+    "LC": {
+      "primeira_aplicacao": [
+        {
+          "cor": "AMARELO",
+          "codigo": 239,
+          "participantes": 1470298
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 241,
+          "participantes": 1428885
+        },
+        {
+          "cor": "CINZA",
+          "codigo": 240,
+          "participantes": 1386745
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 242,
+          "participantes": 1332697
+        }
+      ],
+      "outras_aplicacoes": [
+        {
+          "cor": "CINZA",
+          "codigo": 253,
+          "participantes": 3019
+        },
+        {
+          "cor": "AMARELO",
+          "codigo": 279,
+          "participantes": 1040
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 281,
+          "participantes": 978
+        },
+        {
+          "cor": "CINZA",
+          "codigo": 280,
+          "participantes": 966
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 282,
+          "participantes": 912
+        }
+      ]
+    }
+  },
+  "2016": {
+    "MT": {
+      "primeira_aplicacao": [
+        {
+          "cor": "AMARELA",
+          "codigo": 304,
+          "participantes": 1496488
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 303,
+          "participantes": 1447465
+        },
+        {
+          "cor": "CINZA",
+          "codigo": 306,
+          "participantes": 1403296
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 305,
+          "participantes": 1341448
+        }
+      ],
+      "outras_aplicacoes": [
+        {
+          "cor": "AMARELA",
+          "codigo": 367,
+          "participantes": 41184
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 366,
+          "participantes": 39858
+        },
+        {
+          "cor": "CINZA",
+          "codigo": 369,
+          "participantes": 38084
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 368,
+          "participantes": 36221
+        },
+        {
+          "cor": "CINZA",
+          "codigo": 310,
+          "participantes": 745
+        }
+      ]
+    },
+    "CN": {
+      "primeira_aplicacao": [
+        {
+          "cor": "AZUL",
+          "codigo": 291,
+          "participantes": 1535085
+        },
+        {
+          "cor": "BRANCA",
+          "codigo": 293,
+          "participantes": 1483706
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 292,
+          "participantes": 1433420
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 294,
+          "participantes": 1385828
+        }
+      ],
+      "outras_aplicacoes": [
+        {
+          "cor": "AZUL",
+          "codigo": 351,
+          "participantes": 42353
+        },
+        {
+          "cor": "BRANCA",
+          "codigo": 353,
+          "participantes": 41216
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 352,
+          "participantes": 38593
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 354,
+          "participantes": 37317
+        },
+        {
+          "cor": "BRANCA",
+          "codigo": 307,
+          "participantes": 1065
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 331,
+          "participantes": 129
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 332,
+          "participantes": 118
+        },
+        {
+          "cor": "BRANCA",
+          "codigo": 333,
+          "participantes": 108
+        }
+      ]
+    },
+    "CH": {
+      "primeira_aplicacao": [
+        {
+          "cor": "AZUL",
+          "codigo": 295,
+          "participantes": 1535085
+        },
+        {
+          "cor": "BRANCA",
+          "codigo": 297,
+          "participantes": 1483706
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 296,
+          "participantes": 1433420
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 298,
+          "participantes": 1385828
+        }
+      ],
+      "outras_aplicacoes": [
+        {
+          "cor": "AZUL",
+          "codigo": 356,
+          "participantes": 42353
+        },
+        {
+          "cor": "BRANCA",
+          "codigo": 358,
+          "participantes": 41216
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 357,
+          "participantes": 38593
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 359,
+          "participantes": 37317
+        },
+        {
+          "cor": "BRANCA",
+          "codigo": 308,
+          "participantes": 1065
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 336,
+          "participantes": 129
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 337,
+          "participantes": 118
+        },
+        {
+          "cor": "BRANCA",
+          "codigo": 338,
+          "participantes": 108
+        }
+      ]
+    },
+    "LC": {
+      "primeira_aplicacao": [
+        {
+          "cor": "AMARELA",
+          "codigo": 300,
+          "participantes": 1496488
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 299,
+          "participantes": 1447465
+        },
+        {
+          "cor": "CINZA",
+          "codigo": 302,
+          "participantes": 1403296
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 301,
+          "participantes": 1341448
+        }
+      ],
+      "outras_aplicacoes": [
+        {
+          "cor": "AMARELA",
+          "codigo": 362,
+          "participantes": 41184
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 361,
+          "participantes": 39858
+        },
+        {
+          "cor": "CINZA",
+          "codigo": 364,
+          "participantes": 38084
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 363,
+          "participantes": 36221
+        },
+        {
+          "cor": "CINZA",
+          "codigo": 309,
+          "participantes": 745
+        }
+      ]
+    }
+  },
+  "2017": {
+    "MT": {
+      "primeira_aplicacao": [
+        {
+          "cor": "AMARELA",
+          "codigo": 404,
+          "participantes": 1113123
+        },
+        {
+          "cor": "CINZA",
+          "codigo": 406,
+          "participantes": 1107238
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 403,
+          "participantes": 1107111
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 405,
+          "participantes": 1107045
+        }
+      ],
+      "outras_aplicacoes": [
+        {
+          "cor": "VERDE",
+          "codigo": 414,
+          "participantes": 2416
+        },
+        {
+          "cor": "LARANJA",
+          "codigo": 410,
+          "participantes": 564
+        }
+      ]
+    },
+    "CN": {
+      "primeira_aplicacao": [
+        {
+          "cor": "AMARELA",
+          "codigo": 392,
+          "participantes": 1113123
+        },
+        {
+          "cor": "CINZA",
+          "codigo": 393,
+          "participantes": 1107238
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 391,
+          "participantes": 1107111
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 394,
+          "participantes": 1107045
+        }
+      ],
+      "outras_aplicacoes": [
+        {
+          "cor": "VERDE",
+          "codigo": 411,
+          "participantes": 2416
+        },
+        {
+          "cor": "LARANJA",
+          "codigo": 407,
+          "participantes": 564
+        }
+      ]
+    },
+    "CH": {
+      "primeira_aplicacao": [
+        {
+          "cor": "AZUL",
+          "codigo": 395,
+          "participantes": 1179817
+        },
+        {
+          "cor": "BRANCA",
+          "codigo": 397,
+          "participantes": 1172978
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 396,
+          "participantes": 1172847
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 398,
+          "participantes": 1171611
+        }
+      ],
+      "outras_aplicacoes": [
+        {
+          "cor": "VERDE",
+          "codigo": 412,
+          "participantes": 2493
+        },
+        {
+          "cor": "LARANJA",
+          "codigo": 408,
+          "participantes": 587
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 435,
+          "participantes": 275
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 438,
+          "participantes": 267
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 436,
+          "participantes": 248
+        },
+        {
+          "cor": "BRANCA",
+          "codigo": 437,
+          "participantes": 242
+        }
+      ]
+    },
+    "LC": {
+      "primeira_aplicacao": [
+        {
+          "cor": "AZUL",
+          "codigo": 399,
+          "participantes": 1179817
+        },
+        {
+          "cor": "BRANCA",
+          "codigo": 402,
+          "participantes": 1172978
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 400,
+          "participantes": 1172847
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 401,
+          "participantes": 1171611
+        }
+      ],
+      "outras_aplicacoes": [
+        {
+          "cor": "VERDE",
+          "codigo": 413,
+          "participantes": 2493
+        },
+        {
+          "cor": "LARANJA",
+          "codigo": 409,
+          "participantes": 587
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 439,
+          "participantes": 275
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 442,
+          "participantes": 267
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 440,
+          "participantes": 248
+        },
+        {
+          "cor": "BRANCA",
+          "codigo": 441,
+          "participantes": 242
+        }
+      ]
+    }
+  },
+  "2018": {
+    "MT": {
+      "primeira_aplicacao": [
+        {
+          "cor": "AMARELA",
+          "codigo": 460,
+          "participantes": 981496
+        },
+        {
+          "cor": "CINZA",
+          "codigo": 462,
+          "participantes": 974252
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 459,
+          "participantes": 973429
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 461,
+          "participantes": 973310
+        }
+      ],
+      "outras_aplicacoes": [
+        {
+          "cor": "VERDE",
+          "codigo": 470,
+          "participantes": 2052
+        },
+        {
+          "cor": "LARANJA",
+          "codigo": 466,
+          "participantes": 546
+        }
+      ]
+    },
+    "CN": {
+      "primeira_aplicacao": [
+        {
+          "cor": "AMARELA",
+          "codigo": 448,
+          "participantes": 981496
+        },
+        {
+          "cor": "CINZA",
+          "codigo": 449,
+          "participantes": 974252
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 447,
+          "participantes": 973429
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 450,
+          "participantes": 973310
+        }
+      ],
+      "outras_aplicacoes": [
+        {
+          "cor": "VERDE",
+          "codigo": 467,
+          "participantes": 2052
+        },
+        {
+          "cor": "LARANJA",
+          "codigo": 463,
+          "participantes": 546
+        }
+      ]
+    },
+    "CH": {
+      "primeira_aplicacao": [
+        {
+          "cor": "AZUL",
+          "codigo": 451,
+          "participantes": 1041549
+        },
+        {
+          "cor": "BRANCA",
+          "codigo": 453,
+          "participantes": 1034562
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 452,
+          "participantes": 1034414
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 454,
+          "participantes": 1033871
+        }
+      ],
+      "outras_aplicacoes": [
+        {
+          "cor": "VERDE",
+          "codigo": 468,
+          "participantes": 2165
+        },
+        {
+          "cor": "LARANJA",
+          "codigo": 464,
+          "participantes": 566
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 492,
+          "participantes": 299
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 494,
+          "participantes": 289
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 491,
+          "participantes": 282
+        },
+        {
+          "cor": "BRANCA",
+          "codigo": 493,
+          "participantes": 253
+        }
+      ]
+    },
+    "LC": {
+      "primeira_aplicacao": [
+        {
+          "cor": "AZUL",
+          "codigo": 455,
+          "participantes": 1041549
+        },
+        {
+          "cor": "BRANCA",
+          "codigo": 458,
+          "participantes": 1034562
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 456,
+          "participantes": 1034414
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 457,
+          "participantes": 1033871
+        }
+      ],
+      "outras_aplicacoes": [
+        {
+          "cor": "VERDE",
+          "codigo": 469,
+          "participantes": 2165
+        },
+        {
+          "cor": "LARANJA",
+          "codigo": 465,
+          "participantes": 566
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 496,
+          "participantes": 299
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 498,
+          "participantes": 289
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 495,
+          "participantes": 282
+        },
+        {
+          "cor": "BRANCA",
+          "codigo": 497,
+          "participantes": 253
+        }
+      ]
+    }
+  },
+  "2019": {
+    "MT": {
+      "primeira_aplicacao": [
+        {
+          "cor": "CINZA",
+          "codigo": 518,
+          "participantes": 933535
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 516,
+          "participantes": 925530
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 515,
+          "participantes": 924465
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 517,
+          "participantes": 924211
+        }
+      ],
+      "outras_aplicacoes": [
+        {
+          "cor": "VERDE",
+          "codigo": 526,
+          "participantes": 2089
+        },
+        {
+          "cor": "LARANJA",
+          "codigo": 522,
+          "participantes": 505
+        }
+      ]
+    },
+    "CN": {
+      "primeira_aplicacao": [
+        {
+          "cor": "CINZA",
+          "codigo": 505,
+          "participantes": 933535
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 504,
+          "participantes": 925530
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 503,
+          "participantes": 924465
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 506,
+          "participantes": 924211
+        }
+      ],
+      "outras_aplicacoes": [
+        {
+          "cor": "VERDE",
+          "codigo": 523,
+          "participantes": 2089
+        },
+        {
+          "cor": "LARANJA",
+          "codigo": 519,
+          "participantes": 505
+        }
+      ]
+    },
+    "CH": {
+      "primeira_aplicacao": [
+        {
+          "cor": "AMARELA",
+          "codigo": 508,
+          "participantes": 986473
+        },
+        {
+          "cor": "BRANCA",
+          "codigo": 509,
+          "participantes": 978235
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 507,
+          "participantes": 978165
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 510,
+          "participantes": 977435
+        }
+      ],
+      "outras_aplicacoes": [
+        {
+          "cor": "VERDE",
+          "codigo": 524,
+          "participantes": 2206
+        },
+        {
+          "cor": "LARANJA",
+          "codigo": 520,
+          "participantes": 532
+        }
+      ]
+    },
+    "LC": {
+      "primeira_aplicacao": [
+        {
+          "cor": "AMARELA",
+          "codigo": 512,
+          "participantes": 986473
+        },
+        {
+          "cor": "BRANCA",
+          "codigo": 514,
+          "participantes": 978235
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 511,
+          "participantes": 978165
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 513,
+          "participantes": 977435
+        }
+      ],
+      "outras_aplicacoes": [
+        {
+          "cor": "VERDE",
+          "codigo": 525,
+          "participantes": 2206
+        },
+        {
+          "cor": "LARANJA",
+          "codigo": 521,
+          "participantes": 532
+        }
+      ]
+    }
+  },
+  "2020": {
+    "MT": {
+      "primeira_aplicacao": [
+        {
+          "cor": "ROSA",
+          "codigo": 589,
+          "participantes": 632575
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 588,
+          "participantes": 625032
+        },
+        {
+          "cor": "CINZA",
+          "codigo": 590,
+          "participantes": 624878
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 587,
+          "participantes": 624708
+        }
+      ],
+      "outras_aplicacoes": [
+        {
+          "cor": "AZUL",
+          "codigo": 667,
+          "participantes": 15643
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 669,
+          "participantes": 15582
+        },
+        {
+          "cor": "CINZA",
+          "codigo": 670,
+          "participantes": 15575
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 668,
+          "participantes": 15506
+        },
+        {
+          "cor": "CINZA",
+          "codigo": 698,
+          "participantes": 6655
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 695,
+          "participantes": 6645
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 697,
+          "participantes": 6583
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 696,
+          "participantes": 6538
+        },
+        {
+          "cor": "VERDE",
+          "codigo": 595,
+          "participantes": 1160
+        },
+        {
+          "cor": "LARANJA",
+          "codigo": 594,
+          "participantes": 360
+        }
+      ]
+    },
+    "CN": {
+      "primeira_aplicacao": [
+        {
+          "cor": "ROSA",
+          "codigo": 600,
+          "participantes": 632575
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 598,
+          "participantes": 625032
+        },
+        {
+          "cor": "CINZA",
+          "codigo": 599,
+          "participantes": 624878
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 597,
+          "participantes": 624708
+        }
+      ],
+      "outras_aplicacoes": [
+        {
+          "cor": "AZUL",
+          "codigo": 677,
+          "participantes": 15643
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 680,
+          "participantes": 15582
+        },
+        {
+          "cor": "CINZA",
+          "codigo": 679,
+          "participantes": 15575
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 678,
+          "participantes": 15506
+        },
+        {
+          "cor": "CINZA",
+          "codigo": 702,
+          "participantes": 6655
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 699,
+          "participantes": 6645
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 701,
+          "participantes": 6583
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 700,
+          "participantes": 6538
+        },
+        {
+          "cor": "VERDE",
+          "codigo": 605,
+          "participantes": 1160
+        },
+        {
+          "cor": "LARANJA",
+          "codigo": 604,
+          "participantes": 360
+        }
+      ]
+    },
+    "CH": {
+      "primeira_aplicacao": [
+        {
+          "cor": "ROSA",
+          "codigo": 570,
+          "participantes": 670868
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 568,
+          "participantes": 663819
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 567,
+          "participantes": 663654
+        },
+        {
+          "cor": "BRANCA",
+          "codigo": 569,
+          "participantes": 663616
+        }
+      ],
+      "outras_aplicacoes": [
+        {
+          "cor": "ROSA",
+          "codigo": 650,
+          "participantes": 15506
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 648,
+          "participantes": 15499
+        },
+        {
+          "cor": "BRANCA",
+          "codigo": 649,
+          "participantes": 15472
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 647,
+          "participantes": 15316
+        },
+        {
+          "cor": "BRANCA",
+          "codigo": 689,
+          "participantes": 7249
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 687,
+          "participantes": 7237
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 690,
+          "participantes": 7197
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 688,
+          "participantes": 7122
+        },
+        {
+          "cor": "VERDE",
+          "codigo": 575,
+          "participantes": 1205
+        },
+        {
+          "cor": "LARANJA",
+          "codigo": 574,
+          "participantes": 380
+        }
+      ]
+    },
+    "LC": {
+      "primeira_aplicacao": [
+        {
+          "cor": "ROSA",
+          "codigo": 579,
+          "participantes": 670868
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 578,
+          "participantes": 663819
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 577,
+          "participantes": 663654
+        },
+        {
+          "cor": "BRANCA",
+          "codigo": 580,
+          "participantes": 663616
+        }
+      ],
+      "outras_aplicacoes": [
+        {
+          "cor": "ROSA",
+          "codigo": 659,
+          "participantes": 15506
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 658,
+          "participantes": 15499
+        },
+        {
+          "cor": "BRANCA",
+          "codigo": 660,
+          "participantes": 15472
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 657,
+          "participantes": 15316
+        },
+        {
+          "cor": "BRANCA",
+          "codigo": 693,
+          "participantes": 7249
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 691,
+          "participantes": 7237
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 694,
+          "participantes": 7197
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 692,
+          "participantes": 7122
+        },
+        {
+          "cor": "VERDE",
+          "codigo": 585,
+          "participantes": 1205
+        },
+        {
+          "cor": "LARANJA",
+          "codigo": 584,
+          "participantes": 380
+        }
+      ]
+    }
+  },
+  "2021": {
+    "MT": {
+      "primeira_aplicacao": [
+        {
+          "cor": "AMARELA",
+          "codigo": 900,
+          "participantes": 540520
+        },
+        {
+          "cor": "CINZA",
+          "codigo": 902,
+          "participantes": 534778
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 901,
+          "participantes": 534535
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 899,
+          "participantes": 533925
+        }
+      ],
+      "outras_aplicacoes": [
+        {
+          "cor": "AMARELA",
+          "codigo": 1036,
+          "participantes": 16489
+        },
+        {
+          "cor": "CINZA",
+          "codigo": 1038,
+          "participantes": 16228
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 1037,
+          "participantes": 16174
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 1035,
+          "participantes": 16083
+        },
+        {
+          "cor": "CINZA",
+          "codigo": 1010,
+          "participantes": 8623
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 1007,
+          "participantes": 8585
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 1008,
+          "participantes": 8514
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 1009,
+          "participantes": 8474
+        },
+        {
+          "cor": "VERDE",
+          "codigo": 907,
+          "participantes": 874
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 980,
+          "participantes": 449
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 981,
+          "participantes": 431
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 979,
+          "participantes": 430
+        },
+        {
+          "cor": "CINZA",
+          "codigo": 982,
+          "participantes": 421
+        },
+        {
+          "cor": "LARANJA",
+          "codigo": 906,
+          "participantes": 311
+        }
+      ]
+    },
+    "CN": {
+      "primeira_aplicacao": [
+        {
+          "cor": "AMARELA",
+          "codigo": 910,
+          "participantes": 540520
+        },
+        {
+          "cor": "CINZA",
+          "codigo": 911,
+          "participantes": 534778
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 912,
+          "participantes": 534535
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 909,
+          "participantes": 533925
+        }
+      ],
+      "outras_aplicacoes": [
+        {
+          "cor": "AMARELA",
+          "codigo": 1046,
+          "participantes": 16489
+        },
+        {
+          "cor": "CINZA",
+          "codigo": 1047,
+          "participantes": 16228
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 1048,
+          "participantes": 16174
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 1045,
+          "participantes": 16083
+        },
+        {
+          "cor": "CINZA",
+          "codigo": 1014,
+          "participantes": 8623
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 1011,
+          "participantes": 8585
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 1012,
+          "participantes": 8514
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 1013,
+          "participantes": 8474
+        },
+        {
+          "cor": "VERDE",
+          "codigo": 917,
+          "participantes": 874
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 990,
+          "participantes": 449
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 992,
+          "participantes": 431
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 989,
+          "participantes": 430
+        },
+        {
+          "cor": "CINZA",
+          "codigo": 991,
+          "participantes": 421
+        },
+        {
+          "cor": "LARANJA",
+          "codigo": 916,
+          "participantes": 311
+        }
+      ]
+    },
+    "CH": {
+      "primeira_aplicacao": [
+        {
+          "cor": "AMARELA",
+          "codigo": 880,
+          "participantes": 571150
+        },
+        {
+          "cor": "BRANCA",
+          "codigo": 881,
+          "participantes": 563999
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 882,
+          "participantes": 563957
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 879,
+          "participantes": 563554
+        }
+      ],
+      "outras_aplicacoes": [
+        {
+          "cor": "AMARELA",
+          "codigo": 1016,
+          "participantes": 19114
+        },
+        {
+          "cor": "BRANCA",
+          "codigo": 1017,
+          "participantes": 18778
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 1015,
+          "participantes": 18725
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 1018,
+          "participantes": 18693
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 1000,
+          "participantes": 9337
+        },
+        {
+          "cor": "BRANCA",
+          "codigo": 1001,
+          "participantes": 9250
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 999,
+          "participantes": 9216
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 1002,
+          "participantes": 9180
+        },
+        {
+          "cor": "VERDE",
+          "codigo": 887,
+          "participantes": 916
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 960,
+          "participantes": 560
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 959,
+          "participantes": 552
+        },
+        {
+          "cor": "BRANCA",
+          "codigo": 961,
+          "participantes": 544
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 962,
+          "participantes": 530
+        },
+        {
+          "cor": "LARANJA",
+          "codigo": 886,
+          "participantes": 324
+        }
+      ]
+    },
+    "LC": {
+      "primeira_aplicacao": [
+        {
+          "cor": "AMARELA",
+          "codigo": 890,
+          "participantes": 571150
+        },
+        {
+          "cor": "BRANCA",
+          "codigo": 892,
+          "participantes": 563999
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 891,
+          "participantes": 563957
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 889,
+          "participantes": 563554
+        }
+      ],
+      "outras_aplicacoes": [
+        {
+          "cor": "AMARELA",
+          "codigo": 1026,
+          "participantes": 19114
+        },
+        {
+          "cor": "BRANCA",
+          "codigo": 1028,
+          "participantes": 18778
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 1025,
+          "participantes": 18725
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 1027,
+          "participantes": 18693
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 1004,
+          "participantes": 9337
+        },
+        {
+          "cor": "BRANCA",
+          "codigo": 1005,
+          "participantes": 9250
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 1003,
+          "participantes": 9216
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 1006,
+          "participantes": 9180
+        },
+        {
+          "cor": "VERDE",
+          "codigo": 897,
+          "participantes": 916
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 970,
+          "participantes": 560
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 969,
+          "participantes": 552
+        },
+        {
+          "cor": "BRANCA",
+          "codigo": 972,
+          "participantes": 544
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 971,
+          "participantes": 530
+        },
+        {
+          "cor": "LARANJA",
+          "codigo": 896,
+          "participantes": 324
+        }
+      ]
+    }
+  },
+  "2022": {
+    "MT": {
+      "primeira_aplicacao": [
+        {
+          "cor": "CINZA",
+          "codigo": 1078,
+          "participantes": 586191
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 1075,
+          "participantes": 578780
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 1077,
+          "participantes": 578711
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 1076,
+          "participantes": 578696
+        }
+      ],
+      "outras_aplicacoes": [
+        {
+          "cor": "ROSA",
+          "codigo": 1185,
+          "participantes": 7502
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 1183,
+          "participantes": 7425
+        },
+        {
+          "cor": "CINZA",
+          "codigo": 1186,
+          "participantes": 7367
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 1184,
+          "participantes": 7348
+        },
+        {
+          "cor": "VERDE",
+          "codigo": 1083,
+          "participantes": 949
+        },
+        {
+          "cor": "CINZA",
+          "codigo": 1158,
+          "participantes": 540
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 1156,
+          "participantes": 533
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 1155,
+          "participantes": 513
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 1157,
+          "participantes": 501
+        },
+        {
+          "cor": "LARANJA",
+          "codigo": 1082,
+          "participantes": 339
+        }
+      ]
+    },
+    "CN": {
+      "primeira_aplicacao": [
+        {
+          "cor": "CINZA",
+          "codigo": 1087,
+          "participantes": 586191
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 1085,
+          "participantes": 578780
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 1088,
+          "participantes": 578711
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 1086,
+          "participantes": 578696
+        }
+      ],
+      "outras_aplicacoes": [
+        {
+          "cor": "ROSA",
+          "codigo": 1189,
+          "participantes": 7502
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 1187,
+          "participantes": 7425
+        },
+        {
+          "cor": "CINZA",
+          "codigo": 1190,
+          "participantes": 7367
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 1188,
+          "participantes": 7348
+        },
+        {
+          "cor": "VERDE",
+          "codigo": 1093,
+          "participantes": 949
+        },
+        {
+          "cor": "CINZA",
+          "codigo": 1167,
+          "participantes": 540
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 1166,
+          "participantes": 533
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 1165,
+          "participantes": 513
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 1168,
+          "participantes": 501
+        },
+        {
+          "cor": "LARANJA",
+          "codigo": 1092,
+          "participantes": 339
+        }
+      ]
+    },
+    "CH": {
+      "primeira_aplicacao": [
+        {
+          "cor": "BRANCA",
+          "codigo": 1057,
+          "participantes": 621146
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 1055,
+          "participantes": 613221
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 1058,
+          "participantes": 612395
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 1056,
+          "participantes": 612198
+        }
+      ],
+      "outras_aplicacoes": [
+        {
+          "cor": "ROSA",
+          "codigo": 1178,
+          "participantes": 8123
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 1176,
+          "participantes": 8037
+        },
+        {
+          "cor": "BRANCA",
+          "codigo": 1177,
+          "participantes": 8034
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 1175,
+          "participantes": 8000
+        },
+        {
+          "cor": "VERDE",
+          "codigo": 1063,
+          "participantes": 1002
+        },
+        {
+          "cor": "LARANJA",
+          "codigo": 1062,
+          "participantes": 349
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 1136,
+          "participantes": 244
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 1135,
+          "participantes": 243
+        },
+        {
+          "cor": "BRANCA",
+          "codigo": 1137,
+          "participantes": 237
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 1138,
+          "participantes": 213
+        }
+      ]
+    },
+    "LC": {
+      "primeira_aplicacao": [
+        {
+          "cor": "BRANCA",
+          "codigo": 1068,
+          "participantes": 621146
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 1065,
+          "participantes": 613221
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 1067,
+          "participantes": 612395
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 1066,
+          "participantes": 612198
+        }
+      ],
+      "outras_aplicacoes": [
+        {
+          "cor": "ROSA",
+          "codigo": 1182,
+          "participantes": 8123
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 1180,
+          "participantes": 8037
+        },
+        {
+          "cor": "BRANCA",
+          "codigo": 1181,
+          "participantes": 8034
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 1179,
+          "participantes": 8000
+        },
+        {
+          "cor": "VERDE",
+          "codigo": 1073,
+          "participantes": 1002
+        },
+        {
+          "cor": "LARANJA",
+          "codigo": 1072,
+          "participantes": 349
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 1146,
+          "participantes": 244
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 1145,
+          "participantes": 243
+        },
+        {
+          "cor": "BRANCA",
+          "codigo": 1148,
+          "participantes": 237
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 1147,
+          "participantes": 213
+        }
+      ]
+    }
+  },
+  "2023": {
+    "MT": {
+      "primeira_aplicacao": [
+        {
+          "cor": "ROSA",
+          "codigo": 1213,
+          "participantes": 674819
+        },
+        {
+          "cor": "CINZA",
+          "codigo": 1214,
+          "participantes": 669321
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 1212,
+          "participantes": 668909
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 1211,
+          "participantes": 668204
+        }
+      ],
+      "outras_aplicacoes": [
+        {
+          "cor": "ROSA",
+          "codigo": 1215,
+          "participantes": 3319
+        },
+        {
+          "cor": "CINZA",
+          "codigo": 1294,
+          "participantes": 1313
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 1293,
+          "participantes": 1301
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 1291,
+          "participantes": 1297
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 1292,
+          "participantes": 1293
+        },
+        {
+          "cor": "VERDE",
+          "codigo": 1219,
+          "participantes": 1212
+        },
+        {
+          "cor": "LARANJA",
+          "codigo": 1218,
+          "participantes": 673
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 1216,
+          "participantes": 646
+        },
+        {
+          "cor": "LARANJA",
+          "codigo": 1217,
+          "participantes": 120
+        }
+      ]
+    },
+    "CN": {
+      "primeira_aplicacao": [
+        {
+          "cor": "ROSA",
+          "codigo": 1223,
+          "participantes": 674819
+        },
+        {
+          "cor": "CINZA",
+          "codigo": 1224,
+          "participantes": 669321
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 1222,
+          "participantes": 668909
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 1221,
+          "participantes": 668204
+        }
+      ],
+      "outras_aplicacoes": [
+        {
+          "cor": "ROSA",
+          "codigo": 1225,
+          "participantes": 3319
+        },
+        {
+          "cor": "CINZA",
+          "codigo": 1303,
+          "participantes": 1313
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 1304,
+          "participantes": 1301
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 1301,
+          "participantes": 1297
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 1302,
+          "participantes": 1293
+        },
+        {
+          "cor": "VERDE",
+          "codigo": 1229,
+          "participantes": 1212
+        },
+        {
+          "cor": "LARANJA",
+          "codigo": 1228,
+          "participantes": 673
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 1226,
+          "participantes": 646
+        },
+        {
+          "cor": "LARANJA",
+          "codigo": 1227,
+          "participantes": 120
+        }
+      ]
+    },
+    "CH": {
+      "primeira_aplicacao": [
+        {
+          "cor": "ROSA",
+          "codigo": 1194,
+          "participantes": 707167
+        },
+        {
+          "cor": "BRANCA",
+          "codigo": 1193,
+          "participantes": 701519
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 1192,
+          "participantes": 701475
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 1191,
+          "participantes": 701099
+        }
+      ],
+      "outras_aplicacoes": [
+        {
+          "cor": "ROSA",
+          "codigo": 1195,
+          "participantes": 3471
+        },
+        {
+          "cor": "BRANCA",
+          "codigo": 1273,
+          "participantes": 1295
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 1272,
+          "participantes": 1290
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 1271,
+          "participantes": 1274
+        },
+        {
+          "cor": "VERDE",
+          "codigo": 1199,
+          "participantes": 1273
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 1274,
+          "participantes": 1272
+        },
+        {
+          "cor": "LARANJA",
+          "codigo": 1198,
+          "participantes": 704
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 1196,
+          "participantes": 679
+        },
+        {
+          "cor": "LARANJA",
+          "codigo": 1197,
+          "participantes": 125
+        }
+      ]
+    },
+    "LC": {
+      "primeira_aplicacao": [
+        {
+          "cor": "ROSA",
+          "codigo": 1203,
+          "participantes": 707168
+        },
+        {
+          "cor": "BRANCA",
+          "codigo": 1204,
+          "participantes": 701518
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 1202,
+          "participantes": 701475
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 1201,
+          "participantes": 701099
+        }
+      ],
+      "outras_aplicacoes": [
+        {
+          "cor": "ROSA",
+          "codigo": 1205,
+          "participantes": 3471
+        },
+        {
+          "cor": "BRANCA",
+          "codigo": 1284,
+          "participantes": 1295
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 1282,
+          "participantes": 1290
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 1281,
+          "participantes": 1274
+        },
+        {
+          "cor": "VERDE",
+          "codigo": 1209,
+          "participantes": 1273
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 1283,
+          "participantes": 1272
+        },
+        {
+          "cor": "LARANJA",
+          "codigo": 1208,
+          "participantes": 704
+        },
+        {
+          "cor": "ROSA",
+          "codigo": 1206,
+          "participantes": 679
+        },
+        {
+          "cor": "LARANJA",
+          "codigo": 1207,
+          "participantes": 125
+        }
+      ]
+    }
+  },
+  "2024": {
+    "MT": {
+      "primeira_aplicacao": [
+        {
+          "cor": "VERDE",
+          "codigo": 1409,
+          "participantes": 756397
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 1408,
+          "participantes": 747639
+        },
+        {
+          "cor": "CINZA",
+          "codigo": 1410,
+          "participantes": 747330
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 1407,
+          "participantes": 746854
+        }
+      ],
+      "outras_aplicacoes": [
+        {
+          "cor": "VERDE",
+          "codigo": 1411,
+          "participantes": 3282
+        },
+        {
+          "cor": "LARANJA",
+          "codigo": 1414,
+          "participantes": 1319
+        },
+        {
+          "cor": "ROXA",
+          "codigo": 1415,
+          "participantes": 1225
+        },
+        {
+          "cor": "VERDE",
+          "codigo": 1412,
+          "participantes": 701
+        },
+        {
+          "cor": "CINZA",
+          "codigo": 1366,
+          "participantes": 64
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 1364,
+          "participantes": 59
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 1363,
+          "participantes": 58
+        },
+        {
+          "cor": "VERDE",
+          "codigo": 1365,
+          "participantes": 53
+        }
+      ]
+    },
+    "CN": {
+      "primeira_aplicacao": [
+        {
+          "cor": "VERDE",
+          "codigo": 1421,
+          "participantes": 756397
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 1420,
+          "participantes": 747639
+        },
+        {
+          "cor": "CINZA",
+          "codigo": 1422,
+          "participantes": 747330
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 1419,
+          "participantes": 746854
+        }
+      ],
+      "outras_aplicacoes": [
+        {
+          "cor": "VERDE",
+          "codigo": 1423,
+          "participantes": 3282
+        },
+        {
+          "cor": "LARANJA",
+          "codigo": 1426,
+          "participantes": 1319
+        },
+        {
+          "cor": "ROXA",
+          "codigo": 1427,
+          "participantes": 1225
+        },
+        {
+          "cor": "VERDE",
+          "codigo": 1424,
+          "participantes": 701
+        },
+        {
+          "cor": "CINZA",
+          "codigo": 1375,
+          "participantes": 64
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 1374,
+          "participantes": 59
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 1373,
+          "participantes": 58
+        },
+        {
+          "cor": "VERDE",
+          "codigo": 1376,
+          "participantes": 53
+        }
+      ]
+    },
+    "CH": {
+      "primeira_aplicacao": [
+        {
+          "cor": "VERDE",
+          "codigo": 1386,
+          "participantes": 797364
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 1383,
+          "participantes": 788173
+        },
+        {
+          "cor": "BRANCA",
+          "codigo": 1385,
+          "participantes": 787903
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 1384,
+          "participantes": 787563
+        }
+      ],
+      "outras_aplicacoes": [
+        {
+          "cor": "VERDE",
+          "codigo": 1387,
+          "participantes": 3505
+        },
+        {
+          "cor": "LARANJA",
+          "codigo": 1390,
+          "participantes": 1413
+        },
+        {
+          "cor": "ROXA",
+          "codigo": 1391,
+          "participantes": 1289
+        },
+        {
+          "cor": "VERDE",
+          "codigo": 1388,
+          "participantes": 745
+        }
+      ]
+    },
+    "LC": {
+      "primeira_aplicacao": [
+        {
+          "cor": "VERDE",
+          "codigo": 1397,
+          "participantes": 797364
+        },
+        {
+          "cor": "AZUL",
+          "codigo": 1395,
+          "participantes": 788173
+        },
+        {
+          "cor": "BRANCA",
+          "codigo": 1398,
+          "participantes": 787903
+        },
+        {
+          "cor": "AMARELA",
+          "codigo": 1396,
+          "participantes": 787563
+        }
+      ],
+      "outras_aplicacoes": [
+        {
+          "cor": "VERDE",
+          "codigo": 1399,
+          "participantes": 3505
+        },
+        {
+          "cor": "LARANJA",
+          "codigo": 1402,
+          "participantes": 1413
+        },
+        {
+          "cor": "ROXA",
+          "codigo": 1403,
+          "participantes": 1289
+        },
+        {
+          "cor": "VERDE",
+          "codigo": 1400,
+          "participantes": 745
+        }
+      ]
+    }
+  }
+}

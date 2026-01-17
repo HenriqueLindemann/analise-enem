@@ -1,14 +1,48 @@
-# Ignorar dados pesados
-DADOS/
-PROVAS E GABARITOS/
-LEIA-ME E DOCUMENTOS TÉCNICOS/
-DICIONÁRIO/
-INPUTS/
+# ===========================================
+# TRI ENEM - Calculador de Notas do ENEM
+# ===========================================
 
-# Ignorar arquivos gerados
+# Microdados INEP (muito grandes para Git - baixar do portal INEP)
+# https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/microdados/enem
+microdados/
+microdados_limpos/
+DADOS/
+
+# Outputs de análise
 graficos/
 graficos_tri/
+resultados/
+
+# Arquivos de dados
+*.csv
+
+# Python
 __pycache__/
 *.pyc
+*.pyo
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
 
-.claude/
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Sistema
+.DS_Store
+Thumbs.db
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Logs
+*.log

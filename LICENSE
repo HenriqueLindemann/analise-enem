@@ -1,0 +1,38 @@
+Licenca de Uso - TRI ENEM
+==========================
+
+Copyright (c) 2024-2026 Henrique Lindemann
+
+PERMISSOES:
+-----------
+- Uso pessoal e educacional: PERMITIDO
+- Modificacao para uso proprio: PERMITIDO
+- Distribuicao com atribuicao: PERMITIDO
+- Uso em projetos academicos: PERMITIDO
+- Uso em projetos open-source sem fins lucrativos: PERMITIDO
+
+RESTRICOES:
+-----------
+- Uso comercial: NAO PERMITIDO sem autorizacao previa
+- Venda do software ou derivados: NAO PERMITIDO
+- Remocao da atribuicao ao autor: NAO PERMITIDO
+
+ATRIBUICAO:
+-----------
+Ao utilizar este projeto em outros trabalhos, por favor inclua:
+- Nome do autor: Henrique Lindemann
+- Link para o repositorio original: https://github.com/HenriqueLindemann/analise-enem
+- Mencao de que o codigo foi modificado (se aplicavel)
+
+ISENCAO DE RESPONSABILIDADE:
+----------------------------
+Este software e fornecido "como esta", sem garantias de qualquer tipo.
+As notas calculadas sao estimativas e podem diferir das notas oficiais do INEP.
+O autor nao se responsabiliza por decisoes tomadas com base nos resultados
+gerados por este software.
+
+CONTATO:
+--------
+Para solicitacoes de uso comercial ou duvidas sobre a licenca:
+LinkedIn: https://www.linkedin.com/in/henriquelindemann/
+Email: hlindemann@inf.ufrgs.br
