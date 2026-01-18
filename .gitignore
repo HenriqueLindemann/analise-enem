@@ -2,11 +2,14 @@
 # TRI ENEM - Calculador de Notas do ENEM
 # ===========================================
 
-# Microdados INEP (muito grandes para Git - baixar do portal INEP)
+# Microdados INEP originais (muito grandes - baixar do portal INEP)
 # https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/microdados/enem
 microdados/
-microdados_limpos/
 DADOS/
+
+# Microdados limpos - manter estrutura mas ignorar arquivos grandes
+microdados_limpos/**/DADOS_ENEM*.csv
+# Nota: ITENS_PROVA*.csv são incluídos (pequenos, essenciais para cálculo)
 
 # Outputs de análise
 graficos/
@@ -15,9 +18,6 @@ resultados/
 
 # Relatórios PDF gerados
 relatorios/*.pdf
-
-# Arquivos de dados
-*.csv
 
 # Python
 __pycache__/
