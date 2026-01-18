@@ -161,13 +161,12 @@ class RelatorioPDF:
         # Disclaimer
         elementos.append(Paragraph(
             "<b>AVISO:</b> Cálculo aproximado por engenharia reversa dos microdados INEP. "
-            "Precisão varia por prova. Algumas provas (LC antigos, reaplicações) podem ter erro maior. "
-            "Use como referência, não como valor oficial.",
+            "Precisão varia por prova. Use como referência, não como valor oficial.",
             self.styles['Disclaimer']
         ))
         
         elementos.append(Paragraph(
-            "<b>USO COMERCIAL PROIBIDO</b> sem autorização prévia do autor.",
+            "<b>Licença:</b> PolyForm Noncommercial 1.0.0 — Uso comercial proibido sem autorização.",
             self.styles['Disclaimer']
         ))
         
@@ -176,7 +175,7 @@ class RelatorioPDF:
         # Assinatura
         elementos.append(Paragraph(
             f"Gerado em {dados.data_geracao.strftime('%d/%m/%Y %H:%M')} | "
-            f"<b>Calculador de Nota TRI</b> — Software Livre | "
+            f"© Henrique Lindemann | "
             f"github.com/HenriqueLindemann/analise-enem",
             self.styles['Disclaimer']
         ))

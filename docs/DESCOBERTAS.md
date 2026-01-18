@@ -8,21 +8,7 @@ Módulo completo para cálculo de notas TRI do ENEM, validado para **2009-2024**
 - **R² ≈ 1.0000** para todas as áreas calibradas
 - Interface modular que aceita sempre **45 respostas**
 
-## 2. Arquitetura do Módulo
-
-```
-tri_enem/
-├── __init__.py         # Exports e versão
-├── simulador.py        # SimuladorNota - interface simplificada  ⭐
-├── calculador.py       # CalculadorTRI - motor de cálculo
-├── calibrador.py       # Calibrador - descoberta de coeficientes
-├── coeficientes.py     # Carrega coeficientes de JSON
-├── coeficientes_data.json  # Dados calibrados
-├── tradutor.py         # Tradução LC entre anos
-└── DESCOBERTAS.md      # Esta documentação
-```
-
-## 3. Interface Simplificada (Recomendada)
+## 2. Interface Simplificada (Recomendada)
 
 ```python
 from tri_enem import SimuladorNota
@@ -46,9 +32,9 @@ resultado = sim.calcular('LC', 2023, respostas, lingua='ingles', co_prova=1201)
 Mesmas respostas em provas diferentes resultam em notas diferentes
 porque cada cor tem gabarito em ordem diferente.
 
-## 4. Descobertas Importantes
+## 3. Descobertas Importantes
 
-### 4.1 Fórmula de Transformação
+### 3.1 Fórmula de Transformação
 
 O INEP **NÃO** usa `nota = 100*θ + 500`. Cada área tem coeficientes distintos:
 
@@ -59,7 +45,7 @@ O INEP **NÃO** usa `nota = 100*θ + 500`. Cada área tem coeficientes distintos
 | CH   | 112.3     | 501.5         |
 | LC   | 108.1     | 500.0         |
 
-### 4.2 Estrutura LC ao Longo dos Anos
+### 3.2 Estrutura LC ao Longo dos Anos
 
 **Obstáculo**: A prova LC tem estruturas diferentes nos arquivos:
 
@@ -81,19 +67,19 @@ O INEP **NÃO** usa `nota = 100*θ + 500`. Cada área tem coeficientes distintos
 - Provas Principais (577-580): Calibração Perfeita (R²=1.0).
 - Provas Digitais (691-694): Sofrem com duplicação de itens no arquivo (Digital vs Impresso). Implementada deduplicação, elevando R² de ~0 para ~0.6.
 
-### 4.3 Indexação de Respostas
+### 3.3 Indexação de Respostas
 
 **Obstáculo**: `CO_POSICAO` representa posição global na prova (MT: 136-180).
 
 **Solução**: Usar índice na lista ordenada, não `CO_POSICAO`.
 
-### 4.4 Amostragem Estratificada
+### 3.4 Amostragem Estratificada
 
 Para calibração precisa:
 - Amostragem por faixas de nota (0-500, 500-600, 600-700, 700-800, 800+)
 - Garante representação de notas altas
 
-## 5. Metodologia TRI
+## 4. Metodologia TRI
 
 1. **Modelo ML3**: 3 parâmetros (a=discriminação, b=dificuldade, c=chute)
 2. **Prior N(0,1)**: Normal padrão
@@ -101,7 +87,7 @@ Para calibração precisa:
 4. **Quadratura**: 80 pontos Gauss-Hermite
 5. **Estimação**: EAP (Expected a Posteriori)
 
-## 6. Calibração
+## 5. Calibração
 
 ### Executar calibração
 
@@ -117,7 +103,7 @@ print(cal.resumo_calibracao(resultados))
 
 Os coeficientes são salvos em `coeficientes_data.json` e carregados automaticamente.
 
-## 7. Coeficientes por Ano (Resumo)
+## 6. Coeficientes por Ano (Resumo)
 
 | Ano  | MT Slope | CN Slope | CH Slope | LC Slope | Status |
 |------|----------|----------|----------|----------|--------|
@@ -130,13 +116,13 @@ Os coeficientes são salvos em `coeficientes_data.json` e carregados automaticam
 > [!NOTE]
 > Coeficientes são notavelmente estáveis ao longo dos anos (σ < 0.1%)
 
-## 8. Limitações Conhecidas
+## 7. Limitações Conhecidas
 
 1. **Notas extremas (900+)**: Erro pode chegar a ~5 pontos
 2. **Provas especiais**: PPL/reaplicação podem ter pequenas variações
 3. **LC antigos**: Precisão pode ser menor se estrutura mudou
 
-## 8.1 Notas sobre Codigos de Prova (CO_PROVA)
+### 7.1 Notas sobre Codigos de Prova (CO_PROVA)
 
 O mapeamento de codigos de prova para cores/aplicacoes foi gerado automaticamente
 e pode conter imprecisoes. Pontos de atencao para debug futuro:
@@ -157,7 +143,7 @@ Para regenerar o mapeamento:
 python tools/gerar_mapeamento_aplicacoes.py
 ```
 
-## 9. Validação
+## 8. Validação
 
 Testado com:
 - 16 anos (2009-2024)
@@ -165,7 +151,7 @@ Testado com:
 - 200+ participantes por prova (amostragem estratificada)
 
 
-## 10. Notas
+## 9. Notas
 
 LC fix: Filtro automático remove "99999" baseado em TP_LINGUA
 CN 2018: Precisa recalibração (slope atual=119, esperado~113)

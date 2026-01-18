@@ -225,10 +225,15 @@ Contribuições são bem-vindas! Especialmente:
 
 ## Licença
 
-**Uso livre para fins educacionais e não-comerciais.**
+Este projeto usa a licença [PolyForm Noncommercial 1.0.0](https://polyformproject.org/licenses/noncommercial/1.0.0).
 
-Uso comercial é restrito. Ao utilizar este projeto em outros trabalhos sem fins lucrativos, 
-por favor mantenha a referência à fonte original.
+**Resumo:**
+- ✅ Uso pessoal, educacional e de pesquisa
+- ✅ Modificar e distribuir (mantendo a licença)
+- ✅ Uso por instituições educacionais e organizações sem fins lucrativos
+- ❌ Uso comercial sem autorização prévia
+
+Para uso comercial, entre em contato com o autor.
 
 ## Autor
 
