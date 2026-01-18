@@ -10,6 +10,7 @@ Este módulo foi desenvolvido através de engenharia reversa dos microdados ofic
 
 - **Cálculo de nota TRI** com alta precisão (erro médio < 0.5 pontos para provas calibradas)
 - **Análise de impacto de erros** - descubra quais questões mais afetaram sua nota
+- **Relatórios em PDF** - gere relatórios gráficos detalhados da sua prova
 - **Suporte a todas as áreas**: Matemática, Ciências da Natureza, Ciências Humanas e Linguagens
 - **Suporte a Inglês e Espanhol** para Linguagens e Códigos
 - **Anos suportados**: 2009 a 2024
@@ -102,6 +103,18 @@ for i, erro in enumerate(impactos[:5], 1):
     print(f"     Dificuldade: {erro['param_b']:.2f} | Gabarito: {erro['gabarito']}")
 ```
 
+### Geração de Relatório PDF
+
+Gere um relatório detalhado em PDF com suas notas e análise de cada questão:
+
+**Forma mais fácil:** Edite `meu_simulado.py` e defina `GERAR_PDF = True`
+
+O PDF será salvo em `./relatorios/` e inclui:
+- **Resumo das notas** por área
+- **Erros ordenados por impacto** - quanto ganharia se acertasse cada questão
+- **Acertos ordenados por contribuição** - quanto perderia se errasse
+- **Dificuldade (parâmetro b)** de cada questão
+
 ## Estrutura do Projeto
 
 ```
@@ -112,7 +125,9 @@ analise-enem/
 │       ├── calculador.py   # Motor de cálculo TRI
 │       ├── calibrador.py   # Calibração de coeficientes
 │       ├── coeficientes.py # Carrega coeficientes
-│       └── tradutor.py     # Tratamento especial para LC
+│       ├── tradutor.py     # Tratamento especial para LC
+│       ├── config.py       # Configurações de dificuldade
+│       └── relatorios/     # Gerador de relatórios PDF
 │
 ├── examples/               # Exemplos de uso
 ├── tests/                  # Testes de validação

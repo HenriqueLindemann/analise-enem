@@ -1,145 +1,158 @@
+﻿#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
-===============================================================================
-                    MEU SIMULADO ENEM - Calculador de Nota TRI
-===============================================================================
-
-Este arquivo permite calcular sua nota do ENEM usando a Teoria de Resposta ao
-Item (TRI), o mesmo metodo usado pelo INEP.
+MEU SIMULADO ENEM - Calculador de Nota TRI
 
 COMO USAR:
-    1. Preencha suas respostas abaixo (45 letras por area: A, B, C, D ou E)
-    2. Escolha o ano e CODIGO DA PROVA (ver tabela abaixo ou docs/GUIA_PROVAS.md)
-    3. Execute este arquivo: python meu_simulado.py
-    4. Veja sua nota estimada!
-
-IMPORTANTE:
-    - Use "." para questoes em branco ou que nao quer considerar
-    - Cada area deve ter exatamente 45 respostas
-    - Para Linguagens (LC), informe tambem a lingua estrangeira
-    - O CODIGO DA PROVA é EXTREMAMENTE importante para precisao!
-
-CODIGOS DE PROVA - 1a APLICACAO (mais comuns):
-    Consulte docs/GUIA_PROVAS.md para lista completa.
-    
-    Exemplo 2023 MT: AZUL=1211, AMARELA=1212, ROSA=1213, CINZA=1214
-    Exemplo 2024 MT: AZUL=1407, AMARELA=1408, VERDE=1409, CINZA=1410
-
-AVISO: O mapeamento de cores foi inferido por numero de participantes.
-       Consulte docs/GUIA_PROVAS.md para detalhes e limitacoes.
+    1. Preencha suas respostas abaixo (45 letras: A, B, C, D, E ou .)
+    2. Defina o ano e codigo da prova
+    3. Execute: python meu_simulado.py
+    4. Veja sua nota e gere um relatorio PDF!
 
 Desenvolvido por Henrique Lindemann - Eng. Computacao UFRGS
-https://www.linkedin.com/in/henriquelindemann/
-===============================================================================
 """
 
-# ==============================================================================
-#                           CONFIGURE AQUI SEU SIMULADO
-# ==============================================================================
+# ============================================================================
+#                           CONFIGURACOES
+# ============================================================================
 
-# Ano da prova (2009 a 2024)
-ANO = 2023
+ANO = 2024
 
-# Codigo da prova (consulte docs/GUIA_PROVAS.md)
-# Deixe None para usar a primeira prova disponivel (pode nao ser a sua!)
-# Exemplos 2023: MT Azul=1211, CN Azul=1221, CH Azul=1191, LC Azul=1201
-CO_PROVA_MT = None  # Ex: 1211 para Azul 2023
-CO_PROVA_CN = None  # Ex: 1221 para Azul 2023
-CO_PROVA_CH = None  # Ex: 1191 para Azul 2023
-CO_PROVA_LC = None  # Ex: 1201 para Azul 2023
+# Codigos de prova (consulte docs/GUIA_PROVAS.md)
+CO_PROVA_MT = 1410
+CO_PROVA_CN = 1422
+CO_PROVA_CH = 1384
+CO_PROVA_LC = 1396
 
-# Lingua estrangeira para Linguagens (LC): 'ingles' ou 'espanhol'
-LINGUA = 'ingles'
+LINGUA = 'ingles'  # ou 'espanhol'
 
-# ------------------------------------------------------------------------------
-# SUAS RESPOSTAS - Preencha com 45 letras (A, B, C, D, E) ou "." para em branco
-# ------------------------------------------------------------------------------
+# Suas respostas (45 caracteres cada)
+RESPOSTAS_MT = 'DBCEECACBDBAADDDDDDCBCDCCAADACCEBBECADACBADDD'
+RESPOSTAS_CN = 'DBCCCBBDEBBCEEDDBECCBCBCAADDDDABBECBCEECEAACD'
+RESPOSTAS_CH = 'BADDBCDCECADEBBBEBCEBADACBCADEDBEACBAECAECEDA'
+RESPOSTAS_LC = 'AACEADADECBBDBDEBDADCCBEDDCDEBBDEDDEBDCECEDDC'
 
-# Matematica e suas Tecnologias (MT) - 45 questoes
-RESPOSTAS_MT = "............................................."
-# Exemplo:   "CEAEACCCDABCDAACEDDBAAEBABDDEEBDAECABDBCBCADE"
+# Opcoes de relatorio
+GERAR_PDF = True
+NOME_PDF = None  # None = nome automatico
+TITULO_RELATORIO = 'Meu Simulado ENEM'
 
-# Ciencias da Natureza e suas Tecnologias (CN) - 45 questoes
-RESPOSTAS_CN = "............................................."
-# Exemplo:   "ABCDEABCDEABCDEABCDEABCDEABCDEABCDEABCDEABCDE"
-
-# Ciencias Humanas e suas Tecnologias (CH) - 45 questoes
-RESPOSTAS_CH = "............................................."
-# Exemplo:   "ABCDEABCDEABCDEABCDEABCDEABCDEABCDEABCDEABCDE"
-
-# Linguagens, Codigos e suas Tecnologias (LC) - 45 questoes
-RESPOSTAS_LC = "............................................."
-# Exemplo:   "ABCDEABCDEABCDEABCDEABCDEABCDEABCDEABCDEABCDE"
-
-
-# ==============================================================================
-#                    NAO PRECISA MODIFICAR ABAIXO DESTA LINHA
-# ==============================================================================
+# ============================================================================
+#                    NAO MODIFIQUE ABAIXO DESTA LINHA
+# ============================================================================
 
 import sys
 from pathlib import Path
+from datetime import datetime
 
-# Adiciona o modulo ao path (funciona em Windows, Linux e Mac)
 sys.path.insert(0, str(Path(__file__).parent / 'src'))
+from tri_enem import CalculadorTRI
+from tri_enem.config import NOMES_AREAS
 
-from tri_enem import SimuladorNota
 
-
-def validar_respostas(respostas, area):
-    """Valida se as respostas estao no formato correto."""
+def validar_respostas(respostas, nome):
     if len(respostas) != 45:
-        print(f"ERRO: {area} deve ter 45 respostas, voce colocou {len(respostas)}")
+        print(f"ERRO: {nome} deve ter 45 respostas, tem {len(respostas)}")
         return False
-    
     invalidas = [c for c in respostas.upper() if c not in 'ABCDE.']
     if invalidas:
-        print(f"ERRO: {area} tem caracteres invalidos: {set(invalidas)}")
-        print("      Use apenas A, B, C, D, E ou . (ponto para em branco)")
+        print(f"ERRO: {nome} tem caracteres invalidos: {set(invalidas)}")
         return False
-    
     return True
 
 
-def calcular_nota(sim, area, ano, respostas, lingua=None, co_prova=None):
-    """Calcula a nota de uma area."""
-    # Verifica se todas as respostas sao pontos (nao respondeu)
+def calcular_e_analisar(calc, area, ano, respostas, lingua=None, co_prova=None):
     if respostas == "." * 45:
         return None
-    
     try:
-        if area == 'LC':
-            resultado = sim.calcular(area, ano, respostas, lingua=lingua, co_prova=co_prova)
-        else:
-            resultado = sim.calcular(area, ano, respostas, co_prova=co_prova)
-        return resultado
+        tp_lingua = 0 if lingua == 'ingles' else 1 if area == 'LC' else None
+        analise = calc.analisar_todas_questoes(ano, area, co_prova, respostas, tp_lingua)
+        
+        # Verificar precisão da prova
+        aviso = None
+        try:
+            from tri_enem.relatorios import verificar_precisao_prova
+            precisao = verificar_precisao_prova(ano, area, co_prova)
+            if precisao.get('aviso'):
+                aviso = precisao['aviso']
+        except:
+            pass
+        
+        return {
+            'sigla': area,
+            'nome': NOMES_AREAS.get(area, area),
+            'ano': ano,
+            'co_prova': co_prova,
+            'nota': analise['nota'],
+            'theta': analise['theta'],
+            'acertos': analise['total_acertos'],
+            'total_itens': analise['total_itens'],
+            'questoes_acertadas': analise['acertos'],
+            'questoes_erradas': analise['erros'],
+            'lingua': lingua if area == 'LC' else None,
+            'aviso_precisao': aviso,
+        }
     except Exception as e:
         print(f"Erro ao calcular {area}: {e}")
         return None
 
 
-# Mapa de codigos de prova por area
-CODIGOS_PROVA = {
-    'MT': CO_PROVA_MT,
-    'CN': CO_PROVA_CN,
-    'CH': CO_PROVA_CH,
-    'LC': CO_PROVA_LC
-}
+def gerar_relatorio_pdf(resultados, ano, titulo, nome_arquivo=None):
+    try:
+        from tri_enem.relatorios import RelatorioPDF, DadosRelatorio
+        from tri_enem.relatorios.base import AreaAnalise, QuestaoAnalise
+    except ImportError:
+        print("Instale reportlab: pip install reportlab")
+        return None
+    
+    dados = DadosRelatorio(titulo=titulo, ano_prova=ano)
+    
+    for r in resultados:
+        questoes = []
+        for q in r['questoes_acertadas']:
+            questoes.append(QuestaoAnalise(
+                posicao=q['posicao'], gabarito=q['gabarito'],
+                resposta_dada=q['resposta_dada'], acertou=True,
+                param_a=q['param_a'], param_b=q['param_b'], param_c=q['param_c'],
+                impacto=q['perda_se_errasse'], co_item=q.get('co_item'),
+            ))
+        for q in r['questoes_erradas']:
+            questoes.append(QuestaoAnalise(
+                posicao=q['posicao'], gabarito=q['gabarito'],
+                resposta_dada=q['resposta_dada'], acertou=False,
+                param_a=q['param_a'], param_b=q['param_b'], param_c=q['param_c'],
+                impacto=q['ganho_se_acertasse'], co_item=q.get('co_item'),
+            ))
+        
+        area = AreaAnalise(
+            sigla=r['sigla'], nome=r['nome'], ano=r['ano'], co_prova=r['co_prova'],
+            nota=r['nota'], theta=r['theta'], acertos=r['acertos'],
+            total_itens=r['total_itens'], questoes=questoes, lingua=r.get('lingua'),
+        )
+        dados.areas.append(area)
+    
+    if not nome_arquivo:
+        nome_arquivo = f"relatorios/resultado_enem_{ano}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+    
+    try:
+        relatorio = RelatorioPDF()
+        return relatorio.gerar(dados, nome_arquivo)
+    except Exception as e:
+        print(f"Erro ao gerar PDF: {e}")
+        import traceback
+        traceback.print_exc()
+        return None
+
+
+CODIGOS = {'MT': CO_PROVA_MT, 'CN': CO_PROVA_CN, 'CH': CO_PROVA_CH, 'LC': CO_PROVA_LC}
 
 
 def main():
     print()
     print("=" * 60)
-    print("           CALCULADOR DE NOTA TRI - ENEM", ANO)
+    print(f"           CALCULADOR DE NOTA TRI - ENEM {ANO}")
     print("=" * 60)
-    print()
     
-    # Mostrar aviso sobre codigos
-    if all(v is None for v in CODIGOS_PROVA.values()):
-        print("AVISO: Nenhum codigo de prova especificado.")
-        print("       O sistema usara a primeira prova disponivel.")
-        print("       Para maior precisao, consulte docs/GUIA_PROVAS.md")
-        print()
-    
-    # Validar todas as respostas
     areas = {
         'MT': ('Matematica', RESPOSTAS_MT),
         'CN': ('Ciencias da Natureza', RESPOSTAS_CN),
@@ -147,57 +160,59 @@ def main():
         'LC': ('Linguagens', RESPOSTAS_LC),
     }
     
-    todas_validas = True
-    for sigla, (nome, respostas) in areas.items():
-        if respostas != "." * 45:  # So valida se preencheu algo
-            if not validar_respostas(respostas, nome):
-                todas_validas = False
+    for sigla, (nome, resp) in areas.items():
+        if resp != "." * 45 and not validar_respostas(resp, nome):
+            return
     
-    if not todas_validas:
-        print("\nCorrija os erros acima e execute novamente.")
-        return
+    print("\nCarregando dados...")
+    calc = CalculadorTRI()
     
-    # Inicializar simulador
-    print("Carregando dados...")
-    sim = SimuladorNota()
-    
-    # Calcular notas
-    print()
-    print("-" * 60)
+    print("\n" + "-" * 60)
     print("RESULTADOS")
     print("-" * 60)
     
+    resultados = []
     notas = {}
-    for sigla, (nome, respostas) in areas.items():
-        if respostas == "." * 45:
-            print(f"{nome:.<30} NAO PREENCHIDO")
+    avisos = []
+    
+    for sigla, (nome, resp) in areas.items():
+        if resp == "." * 45:
+            print(f"{nome:.<35} NAO PREENCHIDO")
             continue
         
-        co_prova = CODIGOS_PROVA.get(sigla)
-        resultado = calcular_nota(sim, sigla, ANO, respostas, 
+        res = calcular_e_analisar(calc, sigla, ANO, resp,
                                   lingua=LINGUA if sigla == 'LC' else None,
-                                  co_prova=co_prova)
-        
-        if resultado:
-            notas[sigla] = resultado.nota
-            prova_info = f"prova {resultado.co_prova}" if resultado.co_prova else ""
-            print(f"{nome:.<30} {resultado.nota:>6.1f} pontos ({resultado.acertos}/{resultado.total_itens} acertos) {prova_info}")
-        else:
-            print(f"{nome:.<30} ERRO NO CALCULO")
+                                  co_prova=CODIGOS.get(sigla))
+        if res:
+            resultados.append(res)
+            notas[sigla] = res['nota']
+            print(f"{nome:.<35} {res['nota']:>6.1f} pts ({res['acertos']}/{res['total_itens']})")
+            if res.get('aviso_precisao'):
+                avisos.append(f"  {sigla}: {res['aviso_precisao']}")
     
-    # Media (se calculou mais de uma area)
-    if len(notas) > 0:
-        media = sum(notas.values()) / len(notas)
+    if notas:
         print("-" * 60)
-        print(f"{'MEDIA (sem redacao)':.<30} {media:>6.1f} pontos")
+        print(f"{'MEDIA':.<35} {sum(notas.values())/len(notas):>6.1f} pts")
     
-    print()
-    print("=" * 60)
-    print("ATENCAO: Esta e uma estimativa. A nota oficial pode variar.")
-    print("         Nem todas as provas foram totalmente calibradas.")
-    print("=" * 60)
-    print()
+    # Mostrar avisos de precisão
+    if avisos:
+        print("\n" + "-" * 60)
+        print("AVISOS DE PRECISAO:")
+        for aviso in avisos:
+            print(aviso)
+    
+    if GERAR_PDF and resultados:
+        print("\n" + "-" * 60)
+        print("Gerando relatorio PDF...")
+        caminho = gerar_relatorio_pdf(resultados, ANO, TITULO_RELATORIO, NOME_PDF)
+        if caminho:
+            print(f"Relatorio salvo: {caminho}")
+    
+    print("\n" + "=" * 60)
+    print("Calculo aproximado - erro tipico < 1 ponto para provas calibradas")
+    print("Contribua: github.com/HenriqueLindemann/analise-enem")
+    print("=" * 60 + "\n")
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

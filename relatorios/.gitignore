@@ -1,0 +1,5 @@
+# Ignorar PDFs gerados (são resultados pessoais)
+*.pdf
+
+# Manter a pasta no git
+!.gitkeep
