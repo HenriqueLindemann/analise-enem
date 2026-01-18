@@ -320,18 +320,22 @@ class CalculadorTRI:
         
         impactos = []
         
-        for i, (resp, item) in enumerate(zip(respostas_bin, itens)):
+        # Mapear índice na string para o item correspondente
+        for idx, (resp, item) in enumerate(zip(respostas_bin, itens)):
             if resp == 0 and not item.abandonado:
                 respostas_mod = respostas_bin.copy()
-                respostas_mod[i] = 1
+                respostas_mod[idx] = 1
                 
                 theta_mod = self.estimar_theta_eap(respostas_mod, itens)
                 nota_mod = self.transformar_escala(theta_mod, ano, area)
                 
+                # idx é o índice na lista de itens, que corresponde ao índice na string de respostas
+                resposta_dada = respostas_str[idx] if idx < len(respostas_str) else '?'
+                
                 impactos.append({
                     'posicao': item.posicao,
                     'gabarito': item.gabarito,
-                    'resposta_dada': respostas_str[item.posicao - 1] if item.posicao - 1 < len(respostas_str) else '?',
+                    'resposta_dada': resposta_dada,
                     'param_a': item.param_a,
                     'param_b': item.param_b,
                     'param_c': item.param_c,
