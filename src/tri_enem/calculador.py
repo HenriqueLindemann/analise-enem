@@ -344,3 +344,71 @@ class CalculadorTRI:
         
         impactos.sort(key=lambda x: x['ganho_potencial'], reverse=True)
         return impactos
+    
+    def analisar_todas_questoes(self, ano: int, area: str, co_prova: int,
+                                 respostas_str: str, tp_lingua: Optional[int] = None) -> Dict:
+        """
+        Analisa TODAS as questões da prova (acertos e erros).
+        
+        Para cada questão retorna:
+        - Status (acerto/erro)
+        - Ganho potencial (se errasse) ou ganho obtido (se acertou)
+        - Dificuldade relativa
+        - Parâmetros TRI
+        
+        Returns:
+            Dict com 'nota', 'theta', 'acertos', 'erros' e listas detalhadas
+        """
+        itens = self.carregar_itens(ano, area, co_prova, tp_lingua)
+        respostas_bin = self.converter_respostas(respostas_str, itens)
+        
+        theta_original = self.estimar_theta_eap(respostas_bin, itens)
+        nota_original = self.transformar_escala(theta_original, ano, area)
+        
+        acertos = []
+        erros = []
+        
+        for idx, (resp, item) in enumerate(zip(respostas_bin, itens)):
+            if item.abandonado:
+                continue
+                
+            resposta_dada = respostas_str[idx] if idx < len(respostas_str) else '?'
+            
+            # Simular o cenário oposto
+            respostas_mod = respostas_bin.copy()
+            respostas_mod[idx] = 1 - resp  # Inverter acerto/erro
+            theta_mod = self.estimar_theta_eap(respostas_mod, itens)
+            nota_mod = self.transformar_escala(theta_mod, ano, area)
+            
+            questao = {
+                'posicao': item.posicao,
+                'gabarito': item.gabarito,
+                'resposta_dada': resposta_dada,
+                'param_a': item.param_a,
+                'param_b': item.param_b,
+                'param_c': item.param_c,
+                'co_item': item.co_item,
+            }
+            
+            if resp == 1:  # Acerto
+                questao['perda_se_errasse'] = nota_original - nota_mod
+                acertos.append(questao)
+            else:  # Erro
+                questao['ganho_se_acertasse'] = nota_mod - nota_original
+                erros.append(questao)
+        
+        # Ordenar acertos por perda potencial (mais valiosos primeiro)
+        acertos.sort(key=lambda x: x['perda_se_errasse'], reverse=True)
+        # Ordenar erros por ganho potencial (maior primeiro)
+        erros.sort(key=lambda x: x['ganho_se_acertasse'], reverse=True)
+        
+        return {
+            'nota': nota_original,
+            'theta': theta_original,
+            'total_acertos': len(acertos),
+            'total_erros': len(erros),
+            'total_itens': len(acertos) + len(erros),
+            'acertos': acertos,
+            'erros': erros,
+        }
+        return impactos
