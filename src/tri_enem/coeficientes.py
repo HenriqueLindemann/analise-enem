@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
+# Copyright (c) 2026 Henrique Lindemann
 """
 Coeficientes de Equalização TRI do ENEM
 

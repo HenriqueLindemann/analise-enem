@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
+# Copyright (c) 2026 Henrique Lindemann
 """
 TRI ENEM - Módulo de Cálculo de Notas por Teoria de Resposta ao Item
 

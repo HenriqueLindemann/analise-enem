@@ -233,7 +233,9 @@ Este projeto usa a licença [PolyForm Noncommercial 1.0.0](https://polyformproje
 - ✅ Uso por instituições educacionais e organizações sem fins lucrativos
 - ❌ Uso comercial sem autorização prévia
 
-Para uso comercial, entre em contato com o autor.
+**Para evitar dúvidas:** Considero **uso por qualquer empresa** como uso comercial.
+
+Para licenciamento comercial, entre em contato: [LinkedIn](https://www.linkedin.com/in/henriquelindemann/)
 
 ## Autor
 

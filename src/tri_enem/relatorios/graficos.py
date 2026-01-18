@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
+# Copyright (c) 2026 Henrique Lindemann
 """
 Gráficos para o relatório PDF usando matplotlib.
 
