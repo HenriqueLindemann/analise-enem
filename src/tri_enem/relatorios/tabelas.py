@@ -16,7 +16,7 @@ from .base import QuestaoAnalise
 def tabela_erros_completa(erros: List[QuestaoAnalise], largura_max: float = 450) -> Table:
     """
     Tabela com TODOS os erros ordenados por impacto.
-    Compacta: fonte pequena, padding mínimo.
+    Nomes auto-explicativos e boa legibilidade.
     """
     if not erros:
         return None
@@ -24,21 +24,20 @@ def tabela_erros_completa(erros: List[QuestaoAnalise], largura_max: float = 450)
     # Ordenar por impacto
     erros_ord = sorted(erros, key=lambda q: q.impacto, reverse=True)
     
-    # Cabeçalho
-    dados = [['#', 'Q', 'Você', 'Gab.', 'b', 'Impacto']]
+    # Cabeçalho com nomes claros
+    dados = [['Questão', 'Sua Resp.', 'Gabarito', 'Parâmetro b', 'Ganho Potencial']]
     
-    for i, q in enumerate(erros_ord, 1):
+    for q in erros_ord:
         dados.append([
-            str(i),
             str(q.posicao),
-            q.resposta_dada,
+            q.resposta_dada if q.resposta_dada != '.' else '—',
             q.gabarito,
-            f'{q.param_b:+.1f}',
-            f'+{q.impacto:.1f}'
+            f'{q.param_b:.2f}',
+            f'+{q.impacto:.1f} pts'
         ])
     
-    # Larguras proporcionais
-    col_widths = [0.6*cm, 0.8*cm, 0.9*cm, 0.9*cm, 1.0*cm, 1.2*cm]
+    # Larguras proporcionais - mais espaço para legibilidade
+    col_widths = [1.2*cm, 1.5*cm, 1.3*cm, 1.8*cm, 2.2*cm]
     
     tabela = Table(dados, colWidths=col_widths)
     
@@ -47,23 +46,26 @@ def tabela_erros_completa(erros: List[QuestaoAnalise], largura_max: float = 450)
         ('BACKGROUND', (0, 0), (-1, 0), Cores.ERRO),
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, 0), 6),
+        ('FONTSIZE', (0, 0), (-1, 0), 7),
         ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
         
         # Corpo
-        ('FONTSIZE', (0, 1), (-1, -1), 6),
+        ('FONTSIZE', (0, 1), (-1, -1), 7),
         ('ALIGN', (0, 1), (-1, -1), 'CENTER'),
         
-        # Padding mínimo
-        ('TOPPADDING', (0, 0), (-1, -1), 2),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
-        ('LEFTPADDING', (0, 0), (-1, -1), 2),
-        ('RIGHTPADDING', (0, 0), (-1, -1), 2),
+        # Coluna de ganho potencial alinhada à direita
+        ('ALIGN', (-1, 1), (-1, -1), 'RIGHT'),
+        ('FONTNAME', (-1, 1), (-1, -1), 'Helvetica-Bold'),
+        ('TEXTCOLOR', (-1, 1), (-1, -1), Cores.PRIMARIA),
+        
+        # Padding adequado
+        ('TOPPADDING', (0, 0), (-1, -1), 3),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
+        ('LEFTPADDING', (0, 0), (-1, -1), 4),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 4),
         
         # Bordas
-        ('GRID', (0, 0), (-1, -1), 0.3, Cores.CINZA_CLARO),
-        
-        # Alternância de cores
+        ('GRID', (0, 0), (-1, -1), 0.4, Cores.CINZA_CLARO),
     ]
     
     # Adicionar alternância de fundo

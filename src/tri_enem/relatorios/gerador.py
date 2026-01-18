@@ -21,7 +21,7 @@ except ImportError:
 
 from .base import DadosRelatorio, AreaAnalise
 from .estilos import criar_estilos, Cores
-from .graficos import grafico_barras_notas, grafico_impacto_erros, grade_questoes, legenda_grafico_impacto
+from .graficos import grafico_barras_notas, grafico_impacto_questoes, grade_questoes, legenda_grafico_impacto
 from .tabelas import tabela_erros_completa, tabela_resumo_areas
 from .utils import verificar_precisao_prova
 
@@ -127,15 +127,15 @@ class RelatorioPDF:
         # Separar erros
         erros = [q for q in area.questoes if not q.acertou]
         
+        elementos.append(Spacer(1, 5))
+        
+        # Gráfico de impacto - TODAS as questões
+        elementos.append(Paragraph("Impacto das Questões na Nota:", self.styles['TextoNormal']))
+        grafico = grafico_impacto_questoes(area.questoes, titulo=f"{area.sigla}")
+        elementos.append(grafico)
+        elementos.append(Paragraph(legenda_grafico_impacto(), self.styles['Legenda']))
+        
         if erros:
-            elementos.append(Spacer(1, 5))
-            
-            # Gráfico de impacto
-            elementos.append(Paragraph("Impacto dos Erros na Nota:", self.styles['TextoNormal']))
-            grafico = grafico_impacto_erros(erros)
-            elementos.append(grafico)
-            elementos.append(Paragraph(legenda_grafico_impacto(), self.styles['Legenda']))
-            
             elementos.append(Spacer(1, 3))
             
             # Tabela de erros (todos)

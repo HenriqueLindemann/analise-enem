@@ -11,6 +11,6 @@ pandas>=1.3.0
 # Geração de relatórios PDF
 reportlab>=4.0.0
 
-# Opcional: Visualizações (apenas para archived/)
-# matplotlib>=3.4.0
-# seaborn>=0.11.0
+# Visualizações e gráficos
+matplotlib>=3.4.0
+pillow>=8.0.0

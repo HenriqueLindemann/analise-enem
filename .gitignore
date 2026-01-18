@@ -13,6 +13,9 @@ graficos/
 graficos_tri/
 resultados/
 
+# Relatórios PDF gerados
+relatorios/*.pdf
+
 # Arquivos de dados
 *.csv
 

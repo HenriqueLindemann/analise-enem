@@ -1,219 +1,222 @@
 """
-Gráficos para o relatório PDF.
+Gráficos para o relatório PDF usando matplotlib.
 
-Visualizações: barras de progresso, gráfico de impacto, grade de questões.
+Gera imagens que são inseridas no PDF via reportlab.
 """
 
-from typing import List
-from reportlab.graphics.shapes import Drawing, Rect, String, Line, Circle
-from reportlab.graphics.charts.linecharts import HorizontalLineChart
-from reportlab.lib import colors
+from typing import List, Optional
+from io import BytesIO
+import matplotlib
+matplotlib.use('Agg')  # Backend sem GUI
+import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
+import numpy as np
 
-from .estilos import Cores
+from reportlab.platypus import Image
+from reportlab.lib.units import inch
+
 from .base import AreaAnalise, QuestaoAnalise
 
 
-def grafico_barras_notas(areas: List[AreaAnalise], largura: float = 450, altura: float = 60) -> Drawing:
-    """
-    Cria barras horizontais de progresso para cada área.
-    Compacto: todas as áreas em uma visualização.
-    """
-    d = Drawing(largura, altura)
-    
-    n_areas = len(areas)
-    altura_barra = 10
-    espaco = 5
-    y_inicial = altura - 15
-    
-    for i, area in enumerate(areas):
-        y = y_inicial - i * (altura_barra + espaco)
-        
-        # Label da área
-        label = String(0, y, f"{area.sigla}")
-        label.fontSize = 8
-        label.fontName = 'Helvetica-Bold'
-        d.add(label)
-        
-        # Nota
-        nota = String(22, y, f"{area.nota:.0f}")
-        nota.fontSize = 8
-        nota.fillColor = Cores.PRIMARIA
-        d.add(nota)
-        
-        # Barra de fundo
-        x_barra = 50
-        largura_barra = 280
-        
-        fundo = Rect(x_barra, y - 2, largura_barra, altura_barra)
-        fundo.fillColor = Cores.BARRA_FUNDO
-        fundo.strokeColor = None
-        d.add(fundo)
-        
-        # Barra de progresso
-        progresso = min(1.0, area.nota / 1000) * largura_barra
-        barra = Rect(x_barra, y - 2, progresso, altura_barra)
-        # Gradiente de cor baseado na nota
-        if area.nota >= 700:
-            cor = Cores.ACERTO
-        elif area.nota >= 500:
-            cor = colors.HexColor('#FFC107')  # Amarelo
-        else:
-            cor = Cores.ERRO
-        barra.fillColor = cor
-        barra.strokeColor = None
-        d.add(barra)
-        
-        # Marcadores 500, 700
-        for ref in [500, 700]:
-            x_ref = x_barra + (ref / 1000) * largura_barra
-            linha = Line(x_ref, y - 4, x_ref, y + altura_barra)
-            linha.strokeColor = Cores.LINHA_GRADE
-            linha.strokeWidth = 0.5
-            d.add(linha)
-        
-        # Acertos
-        pct = (area.acertos / area.total_itens * 100) if area.total_itens > 0 else 0
-        info = String(x_barra + largura_barra + 8, y, f"{area.acertos}/{area.total_itens} ({pct:.0f}%)")
-        info.fontSize = 7
-        info.fillColor = Cores.CINZA
-        d.add(info)
-    
-    return d
+# Cores consistentes
+COR_ACERTO = '#4CAF50'
+COR_ACERTO_ESCURO = '#1B5E20'
+COR_ERRO = '#F44336'
+COR_ERRO_ESCURO = '#B71C1C'
+COR_PRIMARIA = '#1565C0'
+COR_CINZA = '#757575'
+COR_FUNDO = '#FAFAFA'
 
 
-def grafico_impacto_erros(erros: List[QuestaoAnalise], largura: float = 450, altura: float = 80) -> Drawing:
+def _fig_para_image(fig, largura: float = 6, dpi: int = 300) -> Image:
+    """Converte figura matplotlib para Image do reportlab."""
+    buf = BytesIO()
+    fig.savefig(buf, format='png', dpi=dpi, bbox_inches='tight', 
+                facecolor='white', edgecolor='none')
+    buf.seek(0)
+    plt.close(fig)
+    
+    # Calcular altura proporcional
+    img = Image(buf)
+    aspect = img.imageHeight / img.imageWidth
+    img.drawWidth = largura * inch
+    img.drawHeight = largura * aspect * inch
+    
+    return img
+
+
+def grafico_barras_notas(areas: List[AreaAnalise], largura: float = 6) -> Image:
     """
-    Gráfico de barras verticais mostrando impacto de cada erro.
-    Eixo X = número da questão, Eixo Y = impacto (decrescente da esquerda pra direita).
+    Barras horizontais mostrando nota de cada área.
+    Inclui marcadores em 500 e 700.
     """
-    if not erros:
-        return Drawing(largura, 20)
+    fig, ax = plt.subplots(figsize=(largura, 1.2))
     
-    d = Drawing(largura, altura)
+    siglas = [a.sigla for a in areas]
+    notas = [a.nota for a in areas]
+    cores = [COR_ACERTO if n >= 700 else ('#FFC107' if n >= 500 else COR_ERRO) for n in notas]
     
-    # Ordenar por impacto (maior primeiro)
-    erros_ord = sorted(erros, key=lambda q: q.impacto, reverse=True)
-    
-    n_erros = len(erros_ord)
-    margem_esq = 25
-    margem_dir = 10
-    margem_baixo = 18
-    margem_cima = 5
-    
-    area_grafico = largura - margem_esq - margem_dir
-    altura_grafico = altura - margem_baixo - margem_cima
-    
-    # Calcular largura das barras
-    largura_barra = min(15, (area_grafico - n_erros) / n_erros)
-    espaco = 2
-    
-    # Encontrar máximo para escala
-    max_impacto = max(q.impacto for q in erros_ord)
-    
-    # Eixo Y (impacto)
-    linha_y = Line(margem_esq, margem_baixo, margem_esq, altura - margem_cima)
-    linha_y.strokeColor = Cores.CINZA
-    linha_y.strokeWidth = 0.5
-    d.add(linha_y)
-    
-    # Eixo X
-    linha_x = Line(margem_esq, margem_baixo, largura - margem_dir, margem_baixo)
-    linha_x.strokeColor = Cores.CINZA
-    linha_x.strokeWidth = 0.5
-    d.add(linha_x)
-    
-    # Label eixo Y
-    label_y = String(2, altura - 10, "Impacto")
-    label_y.fontSize = 6
-    label_y.fillColor = Cores.CINZA
-    d.add(label_y)
+    y_pos = np.arange(len(areas))
     
     # Barras
-    for i, q in enumerate(erros_ord):
-        x = margem_esq + 5 + i * (largura_barra + espaco)
-        
-        # Altura proporcional ao impacto
-        h = (q.impacto / max_impacto) * altura_grafico if max_impacto > 0 else 0
-        
-        # Barra
-        barra = Rect(x, margem_baixo, largura_barra, h)
-        # Cor baseada na dificuldade
-        if q.param_b < 0:
-            barra.fillColor = colors.HexColor('#FF5722')  # Laranja - fácil (prioridade)
-        elif q.param_b < 1:
-            barra.fillColor = Cores.ERRO  # Vermelho - médio
-        else:
-            barra.fillColor = colors.HexColor('#9E9E9E')  # Cinza - difícil
-        barra.strokeColor = None
-        d.add(barra)
-        
-        # Número da questão (abaixo)
-        if n_erros <= 25 or i % 2 == 0:  # Mostrar todos se poucos, senão alternados
-            num = String(x + largura_barra/2, margem_baixo - 10, str(q.posicao))
-            num.fontSize = 5
-            num.textAnchor = 'middle'
-            num.fillColor = Cores.CINZA
-            d.add(num)
-        
-        # Valor do impacto no topo (só para os maiores)
-        if i < 3:
-            val = String(x + largura_barra/2, margem_baixo + h + 2, f"+{q.impacto:.0f}")
-            val.fontSize = 5
-            val.textAnchor = 'middle'
-            val.fillColor = Cores.PRIMARIA
-            d.add(val)
+    bars = ax.barh(y_pos, notas, color=cores, height=0.6, alpha=0.85)
     
-    return d
+    # Linhas de referência
+    ax.axvline(x=500, color=COR_CINZA, linestyle='--', linewidth=0.8, alpha=0.5)
+    ax.axvline(x=700, color=COR_CINZA, linestyle='--', linewidth=0.8, alpha=0.5)
+    
+    # Labels
+    ax.set_yticks(y_pos)
+    ax.set_yticklabels(siglas, fontsize=9, fontweight='bold')
+    ax.set_xlim(0, 1000)
+    ax.set_xticks([0, 250, 500, 700, 1000])
+    ax.tick_params(axis='x', labelsize=7)
+    
+    # Valores nas barras
+    for bar, nota, area in zip(bars, notas, areas):
+        pct = area.acertos / area.total_itens * 100 if area.total_itens > 0 else 0
+        ax.text(nota + 10, bar.get_y() + bar.get_height()/2, 
+                f'{nota:.0f}  ({area.acertos}/{area.total_itens})', 
+                va='center', fontsize=7, color=COR_CINZA)
+    
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['bottom'].set_linewidth(0.5)
+    ax.spines['left'].set_visible(False)
+    
+    plt.tight_layout(pad=0.2)
+    return _fig_para_image(fig, largura)
 
 
-def grade_questoes(questoes: List[QuestaoAnalise], largura: float = 450, colunas: int = 15) -> Drawing:
+def grafico_impacto_questoes(questoes: List[QuestaoAnalise], titulo: str = "", 
+                              largura: float = 7.5) -> Image:
     """
-    Grade visual compacta das 45 questões.
+    Gráfico de barras mostrando impacto de TODAS as questões.
+    
+    - Ordenado por impacto (maior → menor da esquerda pra direita)
+    - Eixo Y: módulo do impacto (sempre positivo)
+    - Eixo X: número da questão visível acima de cada barra
+    - Verde = acerto, Vermelho = erro
+    """
+    if not questoes:
+        fig, ax = plt.subplots(figsize=(largura, 0.5))
+        ax.text(0.5, 0.5, 'Sem dados', ha='center', va='center')
+        ax.axis('off')
+        return _fig_para_image(fig, largura)
+    
+    # Ordenar por impacto DECRESCENTE
+    questoes_ord = sorted(questoes, key=lambda q: q.impacto, reverse=True)
+    
+    n = len(questoes_ord)
+    # Figura mais larga para caber todas as questões
+    fig, ax = plt.subplots(figsize=(largura, 2.2))
+    
+    # Posições no eixo X (0, 1, 2, ...)
+    x_pos = np.arange(n)
+    
+    # Valores = módulo do impacto (sempre positivo)
+    valores = [q.impacto for q in questoes_ord]
+    max_valor = max(valores) if valores else 1
+    
+    # Cores: verde para acerto, vermelho para erro
+    cores = [COR_ACERTO if q.acertou else COR_ERRO for q in questoes_ord]
+    
+    # Barras
+    bar_width = 0.85
+    bars = ax.bar(x_pos, valores, color=cores, width=bar_width, alpha=0.9, edgecolor='none')
+    
+    # Número da questão ACIMA de cada barra (sempre legível)
+    for i, (bar, q) in enumerate(zip(bars, questoes_ord)):
+        y_pos = bar.get_height() + max_valor * 0.02
+        cor_texto = COR_ACERTO_ESCURO if q.acertou else COR_ERRO_ESCURO
+        ax.text(bar.get_x() + bar.get_width()/2, y_pos, str(q.posicao),
+                ha='center', va='bottom', fontsize=5.5, fontweight='bold',
+                color=cor_texto, rotation=90)
+    
+    # Ajustar limite Y para caber os números
+    ax.set_ylim(0, max_valor * 1.25)
+    
+    # Remover ticks do eixo X (números já estão acima das barras)
+    ax.set_xticks([])
+    ax.set_xlabel('Questões ordenadas por impacto (maior → menor)', fontsize=7)
+    ax.set_ylabel('Impacto', fontsize=7)
+    if titulo:
+        ax.set_title(titulo, fontsize=9, fontweight='bold', pad=3)
+    
+    ax.tick_params(axis='y', labelsize=6)
+    
+    # Grid horizontal sutil
+    ax.yaxis.grid(True, linestyle=':', alpha=0.3)
+    ax.set_axisbelow(True)
+    
+    # Estilo
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['bottom'].set_linewidth(0.5)
+    ax.spines['left'].set_linewidth(0.5)
+    
+    # Legenda compacta no canto
+    patches = [
+        mpatches.Patch(color=COR_ACERTO, label='Acertos'),
+        mpatches.Patch(color=COR_ERRO, label='Erros'),
+    ]
+    ax.legend(handles=patches, loc='upper right', fontsize=6, framealpha=0.9,
+              handlelength=1, handleheight=0.7)
+    
+    plt.tight_layout(pad=0.2)
+    return _fig_para_image(fig, largura)
+
+
+def grade_questoes(questoes: List[QuestaoAnalise], largura: float = 6, 
+                   colunas: int = 15) -> Image:
+    """
+    Grade visual compacta das questões.
     Verde = acerto, Vermelho = erro.
+    Mostra número da questão em cada célula.
     """
-    n_questoes = len(questoes)
-    linhas = (n_questoes + colunas - 1) // colunas
+    n = len(questoes)
+    if n == 0:
+        fig, ax = plt.subplots(figsize=(largura, 0.5))
+        ax.text(0.5, 0.5, 'Sem dados', ha='center', va='center')
+        ax.axis('off')
+        return _fig_para_image(fig, largura)
     
-    celula_w = largura / colunas
-    celula_h = 14
-    altura = linhas * celula_h + 5
-    
-    d = Drawing(largura, altura)
-    
-    # Ordenar por posição
+    linhas = (n + colunas - 1) // colunas
     questoes_ord = sorted(questoes, key=lambda q: q.posicao)
+    
+    # Figura proporcional
+    altura = max(0.6, linhas * 0.35)
+    fig, ax = plt.subplots(figsize=(largura, altura))
     
     for i, q in enumerate(questoes_ord):
         col = i % colunas
-        linha = i // colunas
+        linha = linhas - 1 - (i // colunas)  # Inverter para questão 1 ficar em cima
         
-        x = col * celula_w
-        y = altura - 5 - linha * celula_h
+        cor_fundo = COR_ACERTO if q.acertou else COR_ERRO
+        cor_texto = COR_ACERTO_ESCURO if q.acertou else COR_ERRO_ESCURO
         
-        # Retângulo de fundo
-        rect = Rect(x + 1, y - celula_h + 3, celula_w - 2, celula_h - 2)
-        if q.acertou:
-            rect.fillColor = Cores.ACERTO_CLARO
-            rect.strokeColor = Cores.ACERTO
-        else:
-            rect.fillColor = Cores.ERRO_CLARO
-            rect.strokeColor = Cores.ERRO
-        rect.strokeWidth = 0.5
-        d.add(rect)
+        # Retângulo
+        rect = mpatches.FancyBboxPatch(
+            (col + 0.05, linha + 0.1), 0.9, 0.8,
+            boxstyle="round,pad=0.02,rounding_size=0.1",
+            facecolor=cor_fundo, edgecolor='white', linewidth=1, alpha=0.7
+        )
+        ax.add_patch(rect)
         
-        # Número da questão
-        num = String(x + celula_w/2, y - celula_h/2 - 1, str(q.posicao))
-        num.fontSize = 7
-        num.textAnchor = 'middle'
-        if q.acertou:
-            num.fillColor = colors.HexColor('#1B5E20')
-        else:
-            num.fillColor = colors.HexColor('#B71C1C')
-        d.add(num)
+        # Número
+        ax.text(col + 0.5, linha + 0.5, str(q.posicao), 
+                ha='center', va='center', fontsize=8, fontweight='bold',
+                color='white')
     
-    return d
+    ax.set_xlim(-0.1, colunas + 0.1)
+    ax.set_ylim(-0.1, linhas + 0.1)
+    ax.set_aspect('equal')
+    ax.axis('off')
+    
+    plt.tight_layout(pad=0.1)
+    return _fig_para_image(fig, largura)
 
 
 def legenda_grafico_impacto() -> str:
     """Retorna texto da legenda do gráfico de impacto."""
-    return "Barras ordenadas por impacto (maior → menor) | 🟧 Fácil (prioridade) | 🟥 Médio | ⬜ Difícil"
+    return "Ordenado por impacto (maior → menor) | Verde = acertos | Vermelho = erros"
