@@ -6,6 +6,19 @@ Suporta todas as provas de **2009 a 2024** e gera relatórios em PDF.
 
 ---
 
+## 🌐 Versão Web (Streamlit)
+
+**Quer usar pelo navegador?** Execute:
+
+```bash
+pip install streamlit plotly
+streamlit run streamlit_app/app.py
+```
+
+Acesse `http://localhost:8501` e use a interface web interativa!
+
+---
+
 ## Nunca Programou? Sem Problemas!
 
 **Este programa calcula sua nota do ENEM como o INEP calcula.** Você só precisa:

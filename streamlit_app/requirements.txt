@@ -1,0 +1,21 @@
+# TRI ENEM Streamlit App - Dependências para Deploy
+# pip install -r streamlit_app/requirements.txt
+
+# Framework Web
+streamlit>=1.28.0
+
+# Gráficos interativos
+plotly>=5.18.0
+
+# Processamento de dados
+numpy>=1.24.0
+pandas>=2.0.0
+
+# Cálculos científicos
+scipy>=1.10.0
+
+# Configuração
+pyyaml>=6.0
+
+# Otimização de produção
+watchdog>=3.0.0
