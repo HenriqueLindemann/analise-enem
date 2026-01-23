@@ -20,6 +20,7 @@ resultados/
 
 # Relatórios PDF gerados
 relatorios/*.pdf
+!relatorios/EXEMPLO_relatorio.pdf
 
 # Python
 __pycache__/
