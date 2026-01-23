@@ -1,23 +1,12 @@
-# TRI ENEM - Calculador de Notas do ENEM
+# TRI ENEM - Calculador de Notas
 
-Calculador de notas do ENEM usando **Teoria de Resposta ao Item (TRI)** com alta precisão.
+Calcule sua nota do ENEM usando **Teoria de Resposta ao Item (TRI)** com alta precisão.
 
-Este módulo foi desenvolvido através de engenharia reversa dos microdados oficiais do INEP e permite calcular a nota de qualquer prova do ENEM de **2009 a 2024**.
-
-> **Nota:** Este projeto ainda está em desenvolvimento. Nem todas as provas têm erro baixo calibrado. Futuramente será disponibilizada uma lista de códigos de provas validados. Por exemplo, provas do ENEM 2017 têm erro alto e resultado não deve ser considerado.
-
-## Funcionalidades
-
-- **Cálculo de nota TRI** com alta precisão (erro médio < 0.5 pontos para provas calibradas)
-- **Análise de impacto de erros** - descubra quais questões mais afetaram sua nota
-- **Relatórios em PDF** - gere relatórios gráficos detalhados da sua prova
-- **Suporte a todas as áreas**: Matemática, Ciências da Natureza, Ciências Humanas e Linguagens
-- **Suporte a Inglês e Espanhol** para Linguagens e Códigos
-- **Anos suportados**: 2009 a 2024
+Suporta todas as provas de **2009 a 2024** e gera relatórios em PDF.
 
 ## Início Rápido
 
-### Instalação
+### 1. Instalação
 
 ```bash
 git clone https://github.com/HenriqueLindemann/analise-enem.git
@@ -25,221 +14,171 @@ cd analise-enem
 pip install -r requirements.txt
 ```
 
-### Uso Rápido
+### 2. Calcule sua nota
 
-Edite o arquivo `meu_simulado.py` na raiz do projeto com suas respostas e execute:
+Edite o arquivo **`meu_simulado.py`** com suas respostas:
+
+```python
+ANO = 2023
+TIPO_APLICACAO = '1a_aplicacao'  # 1a_aplicacao, digital, reaplicacao
+
+# DIA 1
+COR_LC = 'azul'
+RESPOSTAS_LC = 'ACABC...'  # 45 respostas
+
+COR_CH = 'azul'
+RESPOSTAS_CH = 'BDCEA...'
+
+# DIA 2
+COR_CN = 'azul'
+RESPOSTAS_CN = 'ACDAE...'
+
+COR_MT = 'azul'
+RESPOSTAS_MT = 'CEAEA...'
+```
+
+Execute:
 
 ```bash
 python meu_simulado.py
 ```
 
-### Uso via Código
+Resultado:
 
-```python
-import sys
-sys.path.insert(0, 'src')
+```
+============================================================
+           CALCULADOR DE NOTA TRI - ENEM 2023
+============================================================
 
-from tri_enem import SimuladorNota
+Aplicação: 1a_aplicacao
 
-# Criar simulador
-sim = SimuladorNota()
-
-# Suas 45 respostas (A, B, C, D ou E)
-respostas_mt = "CEAEACCCDABCDAACEDDBAAEBABDDEEBDAECABDBCBCADE"
-
-# Calcular nota de Matemática 2023 (com código da prova)
-# Veja docs/GUIA_PROVAS.md para encontrar seu código
-resultado = sim.calcular('MT', 2023, respostas_mt, co_prova=1211)
-
-print(f"Nota: {resultado.nota:.1f}")
-print(f"Acertos: {resultado.acertos}/{resultado.total_itens}")
-print(f"Theta: {resultado.theta:.4f}")
+------------------------------------------------------------
+RESULTADOS
+------------------------------------------------------------
+Linguagens..........................   654.2 pts (33/45)
+Ciências Humanas....................   712.4 pts (38/45)
+Ciências da Natureza................   695.1 pts (35/45)
+Matemática..........................   782.3 pts (40/45)
+------------------------------------------------------------
+MÉDIA...............................   711.0 pts
 ```
 
-### Códigos de Prova - IMPORTANTE!
+## Funcionalidades
 
-O ENEM aplica várias versões da prova (cores diferentes). Cada versão tem um **código** (CO_PROVA).
+- ✅ **Cálculo TRI preciso** (erro < 1 ponto em provas calibradas)
+- ✅ **Relatórios PDF** com análise de cada questão
+- ✅ **Análise de impacto** - descubra quais erros mais afetaram sua nota
+- ✅ **Todas as áreas**: MT, CN, CH, LC (inglês/espanhol)
+- ✅ **16 anos**: 2009 a 2024
 
-**Por que isso importa?** As mesmas respostas resultam em notas DIFERENTES dependendo da prova, porque cada cor tem as questões em ordem diferente.
+## Uso Avançado
 
-Consulte `docs/GUIA_PROVAS.md` para encontrar o código da sua prova.
-
-**Exemplo códigos 2023 - Matemática (1ª aplicação):**
-| Cor | Código |
-|-----|--------|
-| AZUL | 1211 |
-| AMARELA | 1212 |
-| ROSA | 1213 |
-| CINZA | 1214 |
-
-### Calculando Linguagens (com escolha de idioma)
+### Via código Python
 
 ```python
-# Para LC, especifique a língua estrangeira e o código da prova
-respostas_lc = "ABCDE..." * 9  # 45 respostas
+import sys; sys.path.insert(0, 'src')
+from tri_enem import MapeadorProvas, CalculadorTRI
 
-# Inglês - prova Azul 2023
-resultado_ing = sim.calcular('LC', 2023, respostas_lc, lingua='ingles', co_prova=1201)
-
-# Espanhol - prova Azul 2023
-resultado_esp = sim.calcular('LC', 2023, respostas_lc, lingua='espanhol', co_prova=1201)
-```
-
-### Análise de Impacto dos Erros
-
-Descubra quais erros mais impactaram sua nota:
-
-```python
-from tri_enem import CalculadorTRI
-
+mapeador = MapeadorProvas()
 calc = CalculadorTRI()
 
-# Analisar impacto de cada erro
-impactos = calc.analisar_impacto_erros(2023, 'MT', 1211, respostas_mt)
+# Obter código da prova pela cor
+co_prova = mapeador.obter_codigo(2023, 'MT', '1a_aplicacao', 'azul')
 
-print("Top 5 erros com maior impacto:")
-for i, erro in enumerate(impactos[:5], 1):
-    print(f"  {i}. Questão {erro['posicao']}: +{erro['ganho_potencial']:.1f} pts se acertasse")
-    print(f"     Dificuldade: {erro['param_b']:.2f} | Gabarito: {erro['gabarito']}")
+# Calcular nota
+respostas = 'CEAEACCCDABCDAACEDDBAAEBABDDEEBDAECABDBCBCADE'
+resultado = calc.calcular_nota_tri(2023, 'MT', co_prova, respostas)
+print(f"Nota: {resultado:.1f}")
 ```
 
-### Geração de Relatório PDF
+### Análise de impacto dos erros
 
-Gere um relatório detalhado em PDF com suas notas e análise de cada questão:
+```python
+analise = calc.analisar_todas_questoes(2023, 'MT', co_prova, respostas)
 
-**Forma mais fácil:** Edite `meu_simulado.py` e defina `GERAR_PDF = True`
+print("Erros que mais impactaram sua nota:")
+for erro in analise['erros'][:5]:
+    print(f"  Q{erro['posicao']}: +{erro['ganho_se_acertasse']:.1f} pts | Gabarito: {erro['gabarito']}")
+```
 
-O PDF será salvo em `./relatorios/` e inclui:
-- **Resumo das notas** por área
-- **Erros ordenados por impacto** - quanto ganharia se acertasse cada questão
-- **Acertos ordenados por contribuição** - quanto perderia se errasse
-- **Dificuldade (parâmetro b)** de cada questão
+## Relatório PDF
+
+Defina `GERAR_PDF = True` em `meu_simulado.py` e um relatório será salvo em `relatorios/` com:
+- Notas de cada área
+- Erros ordenados por impacto
+- Parâmetros TRI de cada questão
+- **Avisos de precisão** para provas não calibradas ou com erro alto
+
+## Como Funciona
+
+O cálculo usa o **Modelo Logístico de 3 Parâmetros (ML3P)** com estimação EAP:
+
+- **A (Discriminação)**: Quão bem a questão diferencia alunos
+- **B (Dificuldade)**: Nível de dificuldade
+- **C (Chute)**: Probabilidade de acerto casual
+
+A nota final: `nota = slope × theta + intercept`
+
+Os coeficientes foram descobertos via engenharia reversa dos microdados oficiais do INEP.
+
+## Precisão e Calibração
+
+| Métrica | Valor |
+|---------|-------|
+| Erro Médio | < 1 ponto |
+| Anos | 2009-2024 |
+
+> **⚠️ ATENÇÃO:** Nem todas as provas estão calibradas. Algumas provas (especialmente de reaplicacões e anos mais antigos) podem apresentar erros maiores. Provas da 1ª aplicação de anos recentes (2018+) têm maior precisão.
 
 ## Estrutura do Projeto
 
 ```
 analise-enem/
-├── src/
-│   └── tri_enem/           # Módulo principal
-│       ├── simulador.py    # Interface simplificada (recomendado)
-│       ├── calculador.py   # Motor de cálculo TRI
-│       ├── calibrador.py   # Calibração de coeficientes
-│       ├── coeficientes.py # Carrega coeficientes
-│       ├── tradutor.py     # Tratamento especial para LC
-│       ├── config.py       # Configurações de dificuldade
-│       └── relatorios/     # Gerador de relatórios PDF
-│
-├── examples/               # Exemplos de uso
-├── tests/                  # Testes de validação
-├── tools/                  # Ferramentas de desenvolvimento
-├── docs/                   # Documentação técnica
-├── meu_simulado.py         # EDITE ESTE ARQUIVO com suas respostas
-└── README.md
+├── meu_simulado.py              # 👉 EDITE ESTE com suas respostas
+├── requirements.txt
+├── src/tri_enem/
+│   ├── calculador.py            # Motor de cálculo TRI
+│   ├── simulador.py             # Interface simplificada
+│   ├── calibrador.py            # Calibração de coeficientes
+│   ├── mapeador_provas.py       # API do mapeamento
+│   ├── mapeamento_provas.yaml   # 🗺️ Todas as provas 2009-2024
+│   ├── coeficientes_data.json   # 📊 Coeficientes + status
+│   ├── provas_problematicas.json
+│   ├── tradutor.py              # LC (inglês/espanhol)
+│   └── relatorios/              # Gerador de PDF
+│       ├── gerador.py
+│       ├── graficos.py
+│       ├── tabelas.py
+│       └── utils.py
+├── tools/
+│   ├── calibrar_com_mapeamento.py 
+│   ├── calibrar_todos_anos.py
+│   └── validar_mapeamento_2024.py
+├── examples/
+│   ├── calcular_nota.py
+│   └── analise_completa_2024.py
+├── tests/
+│   ├── test_mapeador_provas.py
+│   └── validar_todos_anos.py
+└── relatorios/                  # PDFs gerados
 ```
-
-## Como Funciona
-
-O cálculo usa o **Modelo Logístico de 3 Parâmetros (ML3)** com estimação **EAP** (Expected a Posteriori):
-
-1. **Parâmetro A (Discriminação)**: Quão bem a questão diferencia alunos
-2. **Parâmetro B (Dificuldade)**: Nível de dificuldade da questão
-3. **Parâmetro C (Chute)**: Probabilidade de acerto casual
-
-A nota final é calculada como:
-```
-nota = slope × theta + intercept
-```
-
-Onde `theta` é a proficiência estimada e os coeficientes (`slope`, `intercept`) foram descobertos via engenharia reversa dos microdados oficiais.
-
-## Precisão
-
-| Métrica | Valor |
-|---------|-------|
-| Erro Médio Absoluto (MAE) | < 0.5 pontos (provas calibradas) |
-| R² | ~0.9999 |
-| Anos disponíveis | 2009-2024 |
-
-**Atenção:** Algumas provas ainda não foram validadas. A precisão pode variar.
 
 ## Para Estudantes
 
-### Nunca usou Python? Sem problemas!
-
-1. **Instale o Python**: Baixe em [python.org](https://www.python.org/downloads/) (versão 3.8 ou superior)
-2. **Baixe este projeto**: Clique em "Code" > "Download ZIP" no GitHub e extraia
-3. **Abra o terminal na pasta do projeto**:
-   - Windows: Clique com botão direito na pasta > "Abrir no Terminal"
-   - Mac/Linux: Abra o Terminal e use `cd caminho/para/pasta`
-4. **Instale as dependências**: Digite `pip install -r requirements.txt` e pressione Enter
-5. **Edite o arquivo `meu_simulado.py`** com suas respostas (pode usar o Bloco de Notas)
-6. **Execute**: Digite `python meu_simulado.py` e pressione Enter
-
-### Como encontrar o código da sua prova
-
-O código da prova é essencial para um cálculo preciso!
-
-1. Abra o arquivo `docs/GUIA_PROVAS.md`
-2. Encontre o ano da sua prova
-3. Veja a tabela de códigos por cor (Azul, Amarela, Rosa, etc.)
-4. Anote os códigos das 4 áreas
-
-**Dica**: Se você não lembra a cor da prova, tente com cada código e veja qual dá mais acertos.
-
-### Como usar para estudar
-
-1. Faça um simulado com uma prova antiga do ENEM
-2. Anote suas 45 respostas de cada área
-3. Descubra o código da sua prova em `docs/GUIA_PROVAS.md`
-4. Edite o arquivo `meu_simulado.py` com suas respostas e códigos
-5. Execute e veja sua nota estimada
-6. Analise seus erros por impacto e dificuldade
-7. Foque nos erros de questões fáceis/médias (maior retorno)
-
-### Entendendo a análise de erros
-
-- **Questões fáceis que você errou**: Prioridade máxima de estudo!
-- **Ganho potencial alto**: Essas questões mais "pesam" na sua nota
-- **Questões difíceis que você errou**: Normal, não se preocupe tanto
-
-## Documentação Adicional
-
-- [Guia de Provas](docs/GUIA_PROVAS.md) - **IMPORTANTE**: Encontre o código da sua prova aqui
-- [Descobertas da Engenharia Reversa](docs/DESCOBERTAS.md) - Detalhes técnicos de como o cálculo foi descoberto
-
-## Observações Importantes
-
-- Os **microdados do INEP** não estão incluídos (são muito grandes)
-- Para calibração ou validação, baixe em: [Portal INEP](https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/microdados/enem)
-- O módulo já vem com **coeficientes pré-calibrados** de 2009-2024
-- Nem todas as provas foram validadas - a precisão pode variar
+1. **Faça um simulado** com uma prova antiga
+2. **Anote suas 45 respostas** de cada área
+3. **Preencha `meu_simulado.py`** com ano, cor e respostas
+4. **Execute e analise** - foque nos erros de questões fáceis!
 
 ## Contribuição
 
-Contribuições são bem-vindas! Especialmente:
-- Validação de novas provas
-- Melhorias na análise de erros
-- Novas visualizações
-- Documentação
-- Testes
+Contribuições são bem-vindas! Veja [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Licença
 
-Este projeto usa a licença [PolyForm Noncommercial 1.0.0](https://polyformproject.org/licenses/noncommercial/1.0.0).
-
-**Resumo:**
-- ✅ Uso pessoal, educacional e de pesquisa
-- ✅ Modificar e distribuir (mantendo a licença)
-- ✅ Uso por instituições educacionais e organizações sem fins lucrativos
-- ❌ Uso comercial sem autorização prévia
-
-**Para evitar dúvidas:** Considero **uso por qualquer empresa** como uso comercial.
-
-Para licenciamento comercial, entre em contato: [LinkedIn](https://www.linkedin.com/in/henriquelindemann/)
+[PolyForm Noncommercial 1.0.0](LICENSE) - Uso pessoal e educacional permitido.
 
 ## Autor
 
-Desenvolvido por **Henrique Lindemann**  
-Estudante de Engenharia de Computação - Universidade Federal do Rio Grande do Sul (UFRGS)
-
-LinkedIn: [linkedin.com/in/henriquelindemann](https://www.linkedin.com/in/henriquelindemann/)
+**Henrique Lindemann** - Eng. Computação UFRGS  
+[LinkedIn](https://www.linkedin.com/in/henriquelindemann/)

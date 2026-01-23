@@ -1,0 +1,1327 @@
+# Mapeamento de Códigos de Prova ENEM
+# =====================================
+# Este arquivo mapeia combinações de (ano, área, tipo, cor) para códigos numéricos de prova.
+# 
+# ESTRUTURA:
+#   ano:
+#     area:
+#       tipo_aplicacao:
+#         cor: codigo
+#
+# TIPOS DE APLICAÇÃO VÁLIDOS:
+#   - 1a_aplicacao: Prova regular/padrão (1ª aplicação)
+#   - digital: ENEM Digital
+#   - reaplicacao: Reaplicação/2ª aplicação
+#   - segunda_oportunidade: Segunda oportunidade/PPL
+#   - especiais: Provas com adaptações (Braille, Ledor, Libras, etc.)
+#
+# ÁREAS VÁLIDAS: MT, CN, CH, LC
+#
+# CORES COMUNS: azul, amarela, rosa, cinza, verde, branca, laranja, roxa
+#
+# DICAS DE EDIÇÃO:
+#   - Use indentação de 2 espaços (não tabs!)
+#   - Mantenha a estrutura hierárquica consistente
+#   - Comentários começam com #
+#   - Para adicionar um novo ano, copie a estrutura de um ano existente
+
+# =============================================================================
+# METADADOS E ALIASES
+# =============================================================================
+_metadata:
+  descricao: "Mapeamento completo de códigos de prova ENEM"
+  versao: "1.0.0"
+  ultima_atualizacao: "2026-01-23"
+  
+  # Aliases permitem que o usuário use variações de nomenclatura
+  # Exemplo: "1ª aplicação", "regular", "primeira aplicacao" → "1a_aplicacao"
+  aliases_tipo_aplicacao:
+    1a_aplicacao:
+      - "1a_aplicacao"
+      - "1a_aplicação"
+      - "1a aplicacao"
+      - "1a aplicação"
+      - "primeira_aplicacao"
+      - "primeira_aplicação"
+      - "primeira aplicacao"
+      - "primeira aplicação"
+      - "regular"
+      - "normal"
+      - "padrao"
+    
+    digital:
+      - "digital"
+      - "enem_digital"
+      - "enem digital"
+    
+    reaplicacao:
+      - "reaplicacao"
+      - "reaplicação"
+      - "2a_aplicacao"
+      - "2a_aplicação"
+      - "2a aplicacao"
+      - "2a aplicação"
+      - "segunda_aplicacao"
+      - "segunda_aplicação"
+      - "segunda aplicacao"
+      - "segunda aplicação"
+    
+    segunda_oportunidade:
+      - "segunda_oportunidade"
+      - "segunda oportunidade"
+      - "2a_oportunidade"
+      - "2a_oportunidade"
+  
+  # Aliases de cores (permite variações de escrita)
+  aliases_cores:
+    azul:
+      - "azul"
+      - "blue"
+    
+    amarela:
+      - "amarela"
+      - "amarelo"
+      - "yellow"
+    
+    rosa:
+      - "rosa"
+      - "pink"
+    
+    cinza:
+      - "cinza"
+      - "gray"
+      - "grey"
+    
+    verde:
+      - "verde"
+      - "green"
+    
+    branca:
+      - "branca"
+      - "branco"
+      - "white"
+    
+    laranja:
+      - "laranja"
+      - "orange"
+    
+    roxa:
+      - "roxa"
+      - "roxo"
+      - "purple"
+
+# =============================================================================
+# MAPEAMENTO DE PROVAS POR ANO
+# =============================================================================
+
+# ANO 2024
+# -----------------------------------------------------------------------------
+2024:
+  MT:
+    1a_aplicacao:
+      azul: 1407
+      amarela: 1408
+      verde: 1409
+      cinza: 1410
+    
+    reaplicacao:
+      azul: 1363
+      amarela: 1364
+      verde: 1365
+      cinza: 1366
+    
+    especiais:
+      verde_ampliada: 1411
+      verde_superampliada: 1412
+      laranja_adaptada_ledor: 1414
+      roxa_videoprova_libras: 1415
+      roxa_videoprova_libras_ampliada: 1416
+      verde_ampliada_reaplicacao: 1367
+      verde_superampliada_reaplicacao: 1368
+      laranja_adaptada_ledor_reaplicacao: 1370
+  
+  CN:
+    1a_aplicacao:
+      azul: 1419
+      amarela: 1420
+      verde: 1421
+      cinza: 1422
+    
+    reaplicacao:
+      azul: 1373
+      amarela: 1374
+      cinza: 1375
+      verde: 1376
+    
+    especiais:
+      verde_ampliada: 1423
+      verde_superampliada: 1424
+      laranja_adaptada_ledor: 1426
+      roxa_videoprova_libras: 1427
+      roxa_videoprova_libras_ampliada: 1428
+      verde_ampliada_reaplicacao: 1377
+      verde_superampliada_reaplicacao: 1378
+      laranja_adaptada_ledor_reaplicacao: 1380
+  
+  CH:
+    1a_aplicacao:
+      azul: 1383
+      amarela: 1384
+      branca: 1385
+      verde: 1386
+    
+    reaplicacao:
+      azul: 1343
+      amarela: 1344
+      branca: 1345
+      verde: 1346
+    
+    especiais:
+      verde_ampliada: 1387
+      verde_superampliada: 1388
+      laranja_adaptada_ledor: 1390
+      roxa_videoprova_libras: 1391
+      roxa_videoprova_libras_ampliada: 1392
+      roxa_videoprova_libras_superampliada: 1393
+      verde_ampliada_reaplicacao: 1347
+      verde_superampliada_reaplicacao: 1348
+      laranja_adaptada_ledor_reaplicacao: 1350
+  
+  LC:
+    1a_aplicacao:
+      azul: 1395
+      amarela: 1396
+      verde: 1397
+      branca: 1398
+    
+    reaplicacao:
+      azul: 1353
+      amarela: 1354
+      verde: 1355
+      branca: 1356
+    
+    especiais:
+      verde_ampliada: 1399
+      verde_superampliada: 1400
+      laranja_adaptada_ledor: 1402
+      roxa_videoprova_libras: 1403
+      roxa_videoprova_libras_ampliada: 1404
+      roxa_videoprova_libras_superampliada: 1405  # Assumindo 1405 (estava como 405 nos microdados)
+      verde_ampliada_reaplicacao: 1357
+      verde_superampliada_reaplicacao: 1358
+      laranja_adaptada_ledor_reaplicacao: 1360
+
+# ANO 2023
+# -----------------------------------------------------------------------------
+2023:
+  MT:
+    1a_aplicacao:
+      azul: 1211
+      amarela: 1212
+      rosa: 1213
+      cinza: 1214
+    especiais:
+      rosa_ampliada: 1215
+      rosa_superampliada: 1216
+      laranja_braille: 1217
+      laranja_adaptada_ledor: 1218
+      verde_videoprova_libras: 1219
+    reaplicacao:
+      azul: 1291
+      amarela: 1292
+      rosa: 1293
+      cinza: 1294
+  
+  CN:
+    1a_aplicacao:
+      azul: 1221
+      amarela: 1222
+      rosa: 1223
+      cinza: 1224
+    especiais:
+      rosa_ampliada: 1225
+      rosa_superampliada: 1226
+      laranja_braille: 1227
+      laranja_adaptada_ledor: 1228
+      verde_videoprova_libras: 1229
+    reaplicacao:
+      azul: 1301
+      amarela: 1302
+      cinza: 1303
+      rosa: 1304
+  
+  CH:
+    1a_aplicacao:
+      azul: 1191
+      amarela: 1192
+      branca: 1193
+      rosa: 1194
+    especiais:
+      rosa_ampliada: 1195
+      rosa_superampliada: 1196
+      laranja_braille: 1197
+      laranja_adaptada_ledor: 1198
+      verde_videoprova_libras: 1199
+    reaplicacao:
+      azul: 1271
+      amarela: 1272
+      branca: 1273
+      rosa: 1274
+  
+  LC:
+    1a_aplicacao:
+      azul: 1201
+      amarela: 1202
+      rosa: 1203
+      branca: 1204
+    especiais:
+      rosa_ampliada: 1205
+      rosa_superampliada: 1206
+      laranja_braille: 1207
+      laranja_adaptada_ledor: 1208
+      verde_videoprova_libras: 1209
+    reaplicacao:
+      azul: 1281
+      amarela: 1282
+      rosa: 1283
+      branca: 1284
+
+# ANO 2022
+# -----------------------------------------------------------------------------
+2022:
+  MT:
+    1a_aplicacao:
+      azul: 1075
+      amarela: 1076
+      rosa: 1077
+      cinza: 1078
+    
+    digital:
+      azul: 1183
+      amarela: 1184
+      rosa: 1185
+      cinza: 1186
+    
+    reaplicacao:
+      azul: 1155
+      amarela: 1156
+      rosa: 1157
+      cinza: 1158
+    
+    especiais:
+      laranja_adaptada_ledor: 1082
+      verde_videoprova_libras: 1083
+  
+  CN:
+    1a_aplicacao:
+      azul: 1085
+      amarela: 1086
+      cinza: 1087
+      rosa: 1088
+    
+    digital:
+      azul: 1187
+      amarela: 1188
+      rosa: 1189
+      cinza: 1190
+    
+    reaplicacao:
+      azul: 1165
+      amarela: 1166
+      cinza: 1167
+      rosa: 1168
+    
+    especiais:
+      laranja_adaptada_ledor: 1092
+      verde_videoprova_libras: 1093
+  
+  CH:
+    1a_aplicacao:
+      azul: 1055
+      amarela: 1056
+      branca: 1057
+      rosa: 1058
+    
+    digital:
+      azul: 1175
+      amarela: 1176
+      branca: 1177
+      rosa: 1178
+    
+    reaplicacao:
+      azul: 1135
+      amarela: 1136
+      branca: 1137
+      rosa: 1138
+    
+    especiais:
+      laranja_adaptada_ledor: 1062
+      verde_videoprova_libras: 1063
+  
+  LC:
+    1a_aplicacao:
+      azul: 1065
+      amarela: 1066
+      rosa: 1067
+      branca: 1068
+    
+    digital:
+      azul: 1179
+      amarela: 1180
+      branca: 1181
+      rosa: 1182
+    
+    reaplicacao:
+      azul: 1145
+      amarela: 1146
+      rosa: 1147
+      branca: 1148
+    
+    especiais:
+      laranja_adaptada_ledor: 1072
+      verde_videoprova_libras: 1073
+
+# ANO 2021
+# -----------------------------------------------------------------------------
+2021:
+  MT:
+    1a_aplicacao:
+      azul: 899
+      amarela: 900
+      rosa: 901
+      cinza: 902
+    
+    digital:
+      azul: 1007
+      amarela: 1008
+      rosa: 1009
+      cinza: 1010
+    
+    reaplicacao:
+      azul: 979
+      amarela: 980
+      rosa: 981
+      cinza: 982
+    
+    segunda_oportunidade:
+      azul: 1035
+      amarela: 1036
+      cinza: 1037
+      rosa: 1038
+    
+    especiais:
+      laranja_braille: 905
+      laranja_adaptada_ledor: 906
+      verde_videoprova_libras: 907
+      laranja_adaptada_ledor_reaplicacao: 986
+      laranja_adaptada_ledor_segunda_oportunidade: 1042
+  
+  CN:
+    1a_aplicacao:
+      azul: 909
+      amarela: 910
+      cinza: 911
+      rosa: 912
+    
+    digital:
+      azul: 1011
+      amarela: 1012
+      rosa: 1013
+      cinza: 1014
+    
+    reaplicacao:
+      azul: 989
+      amarela: 990
+      cinza: 991
+      rosa: 992
+    
+    segunda_oportunidade:
+      azul: 1045
+      amarela: 1046
+      cinza: 1047
+      rosa: 1048
+    
+    especiais:
+      laranja_braille: 915
+      laranja_adaptada_ledor: 916
+      verde_videoprova_libras: 917
+      laranja_adaptada_ledor_reaplicacao: 996
+      laranja_adaptada_ledor_segunda_oportunidade: 1052
+  
+  CH:
+    1a_aplicacao:
+      azul: 879
+      amarela: 880
+      branca: 881
+      rosa: 882
+    
+    digital:
+      azul: 999
+      amarela: 1000
+      branca: 1001
+      rosa: 1002
+    
+    reaplicacao:
+      azul: 959
+      amarela: 960
+      branca: 961
+      rosa: 962
+    
+    segunda_oportunidade:
+      azul: 1015
+      amarela: 1016
+      branca: 1017
+      rosa: 1018
+    
+    especiais:
+      laranja_braille: 885
+      laranja_adaptada_ledor: 886
+      verde_videoprova_libras: 887
+      laranja_adaptada_ledor_reaplicacao: 966
+      laranja_adaptada_ledor_segunda_oportunidade: 1022
+  
+  LC:
+    1a_aplicacao:
+      azul: 889
+      amarela: 890
+      rosa: 891
+      branca: 892
+    
+    digital:
+      azul: 1003
+      amarela: 1004
+      branca: 1005
+      rosa: 1006
+    
+    reaplicacao:
+      azul: 969
+      amarela: 970
+      rosa: 971
+      branca: 972
+    
+    segunda_oportunidade:
+      azul: 1025
+      amarela: 1026
+      rosa: 1027
+      branca: 1028
+    
+    especiais:
+      laranja_braille: 895
+      laranja_adaptada_ledor: 896
+      verde_videoprova_libras: 897
+      laranja_adaptada_ledor_reaplicacao: 976
+      laranja_adaptada_ledor_segunda_oportunidade: 1032
+
+# ANO 2020
+# -----------------------------------------------------------------------------
+2020:
+  MT:
+    1a_aplicacao:
+      azul: 587
+      amarela: 588
+      rosa: 589
+      cinza: 590
+    
+    digital:
+      azul: 695
+      amarela: 696
+      rosa: 697
+      cinza: 698
+    
+    reaplicacao:
+      azul: 667
+      amarela: 668
+      rosa: 669
+      cinza: 670
+    
+    especiais:
+      rosa_ampliada: 591
+      rosa_superampliada: 592
+      laranja_adaptada_ledor: 594
+      verde_videoprova_libras: 595
+      laranja_adaptada_ledor_reaplicacao: 674
+  
+  CN:
+    1a_aplicacao:
+      azul: 597
+      amarela: 598
+      cinza: 599
+      rosa: 600
+    
+    digital:
+      azul: 699
+      amarela: 700
+      rosa: 701
+      cinza: 702
+    
+    reaplicacao:
+      azul: 677
+      amarela: 678
+      cinza: 679
+      rosa: 680
+    
+    especiais:
+      rosa_ampliada: 601
+      rosa_superampliada: 602
+      laranja_adaptada_ledor: 604
+      verde_videoprova_libras: 605
+      laranja_adaptada_ledor_reaplicacao: 684
+  
+  CH:
+    1a_aplicacao:
+      azul: 567
+      amarela: 568
+      branca: 569
+      rosa: 570
+    
+    digital:
+      azul: 687
+      amarela: 688
+      branca: 689
+      rosa: 690
+    
+    reaplicacao:
+      azul: 647
+      amarela: 648
+      branca: 649
+      rosa: 650
+    
+    especiais:
+      rosa_ampliada: 571
+      rosa_superampliada: 572
+      laranja_adaptada_ledor: 574
+      verde_videoprova_libras: 575
+      laranja_adaptada_ledor_reaplicacao: 654
+  
+  LC:
+    1a_aplicacao:
+      azul: 577
+      amarela: 578
+      rosa: 579
+      branca: 580
+    
+    digital:
+      azul: 691
+      amarela: 692
+      branca: 693
+      rosa: 694
+    
+    reaplicacao:
+      azul: 657
+      amarela: 658
+      rosa: 659
+      branca: 660
+    
+    especiais:
+      rosa_ampliada: 581
+      rosa_superampliada: 582
+      laranja_adaptada_ledor: 584
+      verde_videoprova_libras: 585
+      laranja_adaptada_ledor_reaplicacao: 664
+
+# ANO 2019
+# -----------------------------------------------------------------------------
+2019:
+  MT:
+    1a_aplicacao:
+      azul: 515
+      amarela: 516
+      rosa: 517
+      cinza: 518
+    
+    reaplicacao:
+      amarela: 555
+      cinza: 556
+      azul: 557
+      rosa: 558
+    
+    especiais:
+      laranja_adaptada_ledor: 522
+      verde_videoprova_libras: 526
+  
+  CN:
+    1a_aplicacao:
+      azul: 503
+      amarela: 504
+      cinza: 505
+      rosa: 506
+    
+    reaplicacao:
+      amarela: 543
+      cinza: 544
+      azul: 545
+      rosa: 546
+    
+    especiais:
+      laranja_adaptada_ledor: 519
+      verde_videoprova_libras: 523
+  
+  CH:
+    1a_aplicacao:
+      azul: 507
+      amarela: 508
+      branca: 509
+      rosa: 510
+    
+    reaplicacao:
+      azul: 547
+      amarela: 548
+      branca: 549
+      rosa: 550
+    
+    especiais:
+      laranja_adaptada_ledor: 520
+      verde_videoprova_libras: 524
+      laranja_adaptada_ledor_reaplicacao: 564
+  
+  LC:
+    1a_aplicacao:
+      azul: 511
+      amarela: 512
+      rosa: 513
+      branca: 514
+    
+    reaplicacao:
+      azul: 551
+      amarela: 552
+      branca: 553
+      rosa: 554
+    
+    especiais:
+      laranja_adaptada_ledor: 521
+      verde_videoprova_libras: 525
+      laranja_adaptada_ledor_reaplicacao: 565
+
+# ANO 2018
+# -----------------------------------------------------------------------------
+2018:
+  MT:
+    1a_aplicacao:
+      azul: 459
+      amarela: 460
+      rosa: 461
+      cinza: 462
+    
+    reaplicacao:
+      amarela: 499
+      cinza: 500
+      azul: 501
+      rosa: 502
+    
+    especiais:
+      laranja_adaptada_ledor: 466
+      verde_videoprova_libras: 470
+  
+  CN:
+    1a_aplicacao:
+      azul: 447
+      amarela: 448
+      cinza: 449
+      rosa: 450
+    
+    reaplicacao:
+      amarela: 487
+      cinza: 488
+      azul: 489
+      rosa: 490
+    
+    especiais:
+      laranja_adaptada_ledor: 463
+      verde_videoprova_libras: 467
+  
+  CH:
+    1a_aplicacao:
+      azul: 451
+      amarela: 452
+      branca: 453
+      rosa: 454
+    
+    reaplicacao:
+      azul: 491
+      amarela: 492
+      branca: 493
+      rosa: 494
+    
+    especiais:
+      laranja_adaptada_ledor: 464
+      verde_videoprova_libras: 468
+  
+  LC:
+    1a_aplicacao:
+      azul: 455
+      amarela: 456
+      rosa: 457
+      branca: 458
+    
+    reaplicacao:
+      azul: 495
+      amarela: 496
+      branca: 497
+      rosa: 498
+    
+    especiais:
+      laranja_adaptada_ledor: 465
+      verde_videoprova_libras: 469
+
+# ANO 2017
+# -----------------------------------------------------------------------------
+2017:
+  MT:
+    1a_aplicacao:
+      azul: 403
+      amarela: 404
+      rosa: 405
+      cinza: 406
+    
+    reaplicacao:
+      amarela: 443
+      cinza: 444
+      azul: 445
+      rosa: 446
+    
+    especiais:
+      laranja_adaptada_ledor: 410
+      verde_videoprova_libras: 414
+  
+  CN:
+    1a_aplicacao:
+      azul: 391
+      amarela: 392
+      cinza: 393
+      rosa: 394
+    
+    reaplicacao:
+      amarela: 431
+      cinza: 432
+      azul: 433
+      rosa: 434
+    
+    especiais:
+      laranja_adaptada_ledor: 407
+      verde_videoprova_libras: 411
+  
+  CH:
+    1a_aplicacao:
+      azul: 395
+      amarela: 396
+      branca: 397
+      rosa: 398
+    
+    reaplicacao:
+      azul: 435
+      amarela: 436
+      branca: 437
+      rosa: 438
+    
+    especiais:
+      laranja_adaptada_ledor: 408
+      verde_videoprova_libras: 412
+  
+  LC:
+    1a_aplicacao:
+      azul: 399
+      amarela: 400
+      rosa: 401
+      branca: 402
+    
+    reaplicacao:
+      azul: 439
+      amarela: 440
+      branca: 441
+      rosa: 442
+    
+    especiais:
+      laranja_adaptada_ledor: 409
+      verde_videoprova_libras: 413
+
+# ANO 2016
+# -----------------------------------------------------------------------------
+2016:
+  MT:
+    1a_aplicacao:
+      azul: 303
+      amarela: 304
+      rosa: 305
+      cinza: 306
+    
+    reaplicacao:
+      azul: 346
+      amarela: 347
+      rosa: 348
+      cinza: 349
+    
+    reaplicacao_2:
+      azul: 366
+      amarela: 367
+      rosa: 368
+      cinza: 369
+    
+    especiais:
+      cinza_adaptada: 310
+      cinza_adaptada_reaplicacao_2: 370
+  
+  CN:
+    1a_aplicacao:
+      azul: 291
+      amarela: 292
+      branca: 293
+      rosa: 294
+    
+    reaplicacao:
+      azul: 331
+      amarela: 332
+      branca: 333
+      rosa: 334
+    
+    reaplicacao_2:
+      azul: 351
+      amarela: 352
+      branca: 353
+      rosa: 354
+    
+    especiais:
+      branca_adaptada: 307
+      branca_adaptada_reaplicacao_2: 355
+  
+  CH:
+    1a_aplicacao:
+      azul: 295
+      amarela: 296
+      branca: 297
+      rosa: 298
+    
+    reaplicacao:
+      azul: 336
+      amarela: 337
+      branca: 338
+      rosa: 339
+    
+    reaplicacao_2:
+      azul: 356
+      amarela: 357
+      branca: 358
+      rosa: 359
+    
+    especiais:
+      branca_adaptada: 308
+      branca_adaptada_reaplicacao_2: 360
+  
+  LC:
+    1a_aplicacao:
+      azul: 299
+      amarela: 300
+      rosa: 301
+      cinza: 302
+    
+    reaplicacao:
+      azul: 341
+      amarela: 342
+      rosa: 343
+      cinza_adaptada: 344
+    
+    reaplicacao_2:
+      azul: 361
+      amarela: 362
+      rosa: 363
+      cinza: 364
+    
+    especiais:
+      cinza_adaptada: 309
+      cinza_adaptada_reaplicacao_2: 365
+
+# ANO 2015
+# -----------------------------------------------------------------------------
+2015:
+  MT:
+    1a_aplicacao:
+      amarela: 243
+      cinza: 244
+      azul: 245
+      rosa: 246
+    
+    reaplicacao:
+      amarela: 283
+      cinza: 284
+      azul: 285
+      rosa: 286
+    
+    especiais:
+      cinza_adaptada: 254
+  
+  CN:
+    1a_aplicacao:
+      azul: 235
+      amarela: 236
+      branca: 237
+      rosa: 238
+    
+    reaplicacao:
+      azul: 275
+      amarela: 276
+      branca: 277
+      rosa: 278
+    
+    especiais:
+      branca_adaptada: 252
+  
+  CH:
+    1a_aplicacao:
+      azul: 231
+      amarela: 232
+      branca: 233
+      rosa: 234
+    
+    reaplicacao:
+      azul: 271
+      amarela: 272
+      branca: 273
+      rosa: 274
+    
+    especiais:
+      branca_adaptada: 251
+  
+  LC:
+    1a_aplicacao:
+      amarela: 239
+      cinza: 240
+      azul: 241
+      rosa: 242
+    
+    reaplicacao:
+      amarela: 279
+      cinza: 280
+      azul: 281
+      rosa: 282
+    
+    especiais:
+      cinza_adaptada: 253
+
+# ANO 2014
+# -----------------------------------------------------------------------------
+2014:
+  MT:
+    1a_aplicacao:
+      amarela: 207
+      cinza: 208
+      azul: 209
+      rosa: 210
+    
+    reaplicacao:
+      cinza: 214
+    
+    especiais:
+      cinza_adaptada: 218
+  
+  CN:
+    1a_aplicacao:
+      azul: 199
+      amarela: 200
+      branca: 201
+      rosa: 202
+    
+    especiais:
+      branca_adaptada: 216
+  
+  CH:
+    1a_aplicacao:
+      azul: 195
+      amarela: 196
+      branca: 197
+      rosa: 198
+    
+    especiais:
+      branca_adaptada: 215
+  
+  LC:
+    1a_aplicacao:
+      amarela: 203
+      cinza: 204
+      azul: 205
+      rosa: 206
+    
+    reaplicacao:
+      cinza: 213
+    
+    especiais:
+      cinza_adaptada: 217
+
+# ANO 2013
+# -----------------------------------------------------------------------------
+2013:
+  MT:
+    1a_aplicacao:
+      amarela: 179
+      cinza: 180
+      azul: 181
+      rosa: 182
+    
+    especiais:
+      cinza_adaptada_ledor: 190
+  
+  CN:
+    1a_aplicacao:
+      azul: 171
+      amarela: 172
+      branca: 173
+      rosa: 174
+    
+    especiais:
+      branca_adaptada_ledor: 188
+  
+  CH:
+    1a_aplicacao:
+      azul: 167
+      amarela: 168
+      branca: 169
+      rosa: 170
+    
+    especiais:
+      branca_adaptada_ledor: 187
+  
+  LC:
+    1a_aplicacao:
+      amarela: 175
+      cinza: 176
+      azul: 177
+      rosa: 178
+    
+    especiais:
+      cinza_adaptada_ledor: 189
+
+# ANO 2012
+# -----------------------------------------------------------------------------
+2012:
+  MT:
+    1a_aplicacao:
+      amarela: 149
+      cinza: 150
+      azul: 151
+      rosa: 152
+    
+    especiais:
+      cinza_ledor: 156
+  
+  CN:
+    1a_aplicacao:
+      azul: 141
+      amarela: 142
+      branca: 143
+      rosa: 144
+    
+    especiais:
+      branca_ledor: 153
+  
+  CH:
+    1a_aplicacao:
+      azul: 137
+      amarela: 138
+      branca: 139
+      rosa: 140
+    
+    especiais:
+      branca_ledor: 154
+  
+  LC:
+    1a_aplicacao:
+      amarela: 145
+      cinza: 146
+      azul: 147
+      rosa: 148
+    
+    especiais:
+      cinza_ledor: 155
+
+# ANO 2011
+# -----------------------------------------------------------------------------
+2011:
+  MT:
+    1a_aplicacao:
+      amarela: 129
+      cinza: 130
+      azul: 131
+      rosa: 132
+  
+  CN:
+    1a_aplicacao:
+      azul: 121
+      amarela: 122
+      branca: 123
+      rosa: 124
+  
+  CH:
+    1a_aplicacao:
+      azul: 117
+      amarela: 118
+      branca: 119
+      rosa: 120
+  
+  LC:
+    1a_aplicacao:
+      amarela: 125
+      cinza: 126
+      azul: 127
+      rosa: 128
+
+# ANO 2010
+# -----------------------------------------------------------------------------
+2010:
+  MT:
+    1a_aplicacao:
+      amarela: 97
+      cinza: 98
+      azul: 99
+      rosa: 100
+    
+    reaplicacao:
+      amarela: 113
+      cinza: 114
+      azul: 115
+      rosa: 116
+  
+  CN:
+    1a_aplicacao:
+      azul: 89
+      amarela: 90
+      branca: 91
+      rosa: 92
+    
+    reaplicacao:
+      azul: 105
+      amarela: 106
+      branca: 107
+      rosa: 108
+  
+  CH:
+    1a_aplicacao:
+      azul: 85
+      amarela: 86
+      branca: 87
+      rosa: 88
+    
+    reaplicacao:
+      azul: 101
+      amarela: 102
+      branca: 103
+      rosa: 104
+  
+  LC:
+    1a_aplicacao:
+      amarela: 93
+      cinza: 94
+      azul: 95
+      rosa: 96
+    
+    reaplicacao:
+      amarela: 109
+      cinza: 110
+      azul: 111
+      rosa: 112
+
+# ANO 2009
+# -----------------------------------------------------------------------------
+2009:
+  MT:
+    1a_aplicacao:
+      amarela: 61
+      cinza: 62
+      azul: 63
+      rosa: 64
+    
+    reaplicacao:
+      amarela: 77
+      cinza: 78
+      azul: 79
+      rosa: 80
+    
+    especiais:
+      cinza_adaptada_ledor: 84
+  
+  CN:
+    1a_aplicacao:
+      azul: 49
+      amarela: 50
+      branca: 51
+      rosa: 52
+    
+    reaplicacao:
+      azul: 65
+      amarela: 66
+      branca: 67
+      rosa: 68
+    
+    especiais:
+      branca_adaptada_ledor: 81
+  
+  CH:
+    1a_aplicacao:
+      azul: 53
+      amarela: 54
+      branca: 55
+      rosa: 56
+    
+    reaplicacao:
+      azul: 69
+      amarela: 70
+      branca: 71
+      rosa: 72
+    
+    especiais:
+      branca_adaptada_ledor: 82
+  
+  LC:
+    1a_aplicacao:
+      amarela: 57
+      cinza: 58
+      azul: 59
+      rosa: 60
+    
+    reaplicacao:
+      amarela: 73
+      cinza: 74
+      azul: 75
+      rosa: 76
+    
+    especiais:
+      cinza_adaptada_ledor: 83
+
+# =============================================================================
+# TEMPLATE PARA NOVOS ANOS
+# =============================================================================
+# Copie e preencha conforme necessário:
+#
+# XXXX:  # Ano (ex: 2022)
+#   MT:
+#     1a_aplicacao:
+#       azul: CODIGO
+#       amarela: CODIGO
+#       rosa: CODIGO
+#       cinza: CODIGO
+#     
+#     # Adicione outros tipos se existirem:
+#     # digital:
+#     #   azul: CODIGO
+#     # 
+#     # reaplicacao:
+#     #   azul: CODIGO
+#     # 
+#     # segunda_oportunidade:
+#     #   azul: CODIGO
+#     # 
+#     # especiais:
+#     #   verde_ampliada: CODIGO
+#     #   laranja_braille: CODIGO
+#   
+#   CN:
+#     1a_aplicacao:
+#       azul: CODIGO
+#       # ...
+#   
+#   CH:
+#     1a_aplicacao:
+#       azul: CODIGO
+#       # ...
+#   
+#   LC:
+#     1a_aplicacao:
+#       azul: CODIGO
+#       # ...

@@ -11,6 +11,8 @@ DADOS/
 microdados_limpos/**/DADOS_ENEM*.csv
 # Nota: ITENS_PROVA*.csv são incluídos (pequenos, essenciais para cálculo)
 
+docs/
+
 # Outputs de análise
 graficos/
 graficos_tri/

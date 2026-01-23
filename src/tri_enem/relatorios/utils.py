@@ -16,7 +16,7 @@ def verificar_precisao_prova(ano: int, area: str, co_prova: int) -> Dict:
     Verifica a precisão estimada de uma prova.
     
     Retorna:
-        dict com 'mae', 'r_squared', 'confiavel', 'aviso'
+        dict com 'mae', 'r_squared', 'confiavel', 'aviso', 'status'
     """
     # Caminhos dos arquivos
     base_path = Path(__file__).parent.parent
@@ -27,10 +27,13 @@ def verificar_precisao_prova(ano: int, area: str, co_prova: int) -> Dict:
         'mae': None,
         'r_squared': None,
         'confiavel': True,
-        'aviso': None
+        'aviso': None,
+        'status': 'desconhecido'
     }
     
-    # Verificar provas problemáticas primeiro
+    key = f"{ano},{area},{co_prova}"
+    
+    # Verificar provas_problematicas.json primeiro (formato antigo - prioridade para erro alto)
     if problematicas_file.exists():
         try:
             with open(problematicas_file, 'r') as f:
@@ -41,31 +44,49 @@ def verificar_precisao_prova(ano: int, area: str, co_prova: int) -> Dict:
                     resultado['mae'] = p['mae']
                     resultado['r_squared'] = p['r_squared']
                     resultado['confiavel'] = False
-                    resultado['aviso'] = f"⚠️ Prova com erro alto (MAE={p['mae']:.1f} pts)"
+                    resultado['aviso'] = f"⚠️ ATENÇÃO: Erro muito alto (MAE={p['mae']:.1f} pts) - resultado pode não ser confiável"
+                    resultado['status'] = 'erro_alto'
                     return resultado
-        except:
+        except Exception:
             pass
     
-    # Verificar coeficientes normais
+    # Verificar coeficientes_data.json (formato novo com status_provas)
     if data_file.exists():
         try:
             with open(data_file, 'r') as f:
                 data = json.load(f)
             
-            key = f"{ano},{area},{co_prova}"
+            # Verificar status_provas (novo formato)
+            if key in data.get('status_provas', {}):
+                status_info = data['status_provas'][key]
+                resultado['status'] = status_info.get('status', 'desconhecido')
+                resultado['aviso'] = status_info.get('mensagem')
+                
+                if resultado['status'] in ('erro_alto', 'falhou', 'nao_calibrado'):
+                    resultado['confiavel'] = False
+                elif resultado['status'] in ('aviso_leve', 'aviso_forte'):
+                    resultado['confiavel'] = True  # Ainda usável, mas com aviso
+            
+            # Pegar MAE e R² dos coeficientes
             if key in data.get('por_prova', {}):
                 info = data['por_prova'][key]
                 resultado['mae'] = info.get('mae')
                 resultado['r_squared'] = info.get('r_squared')
                 
-                # Considerar não confiável se MAE > 2 pontos
-                if resultado['mae'] and resultado['mae'] > 2:
-                    resultado['confiavel'] = False
-                    resultado['aviso'] = f"⚠️ Precisão reduzida (erro ~{resultado['mae']:.1f} pts)"
-            else:
+                # Fallback: classificar por MAE se não tiver status
+                if resultado['status'] == 'desconhecido':
+                    if resultado['mae'] and resultado['mae'] > 2:
+                        resultado['confiavel'] = False
+                        resultado['aviso'] = f"⚠️ Precisão reduzida (erro ~{resultado['mae']:.1f} pts)"
+                        resultado['status'] = 'aviso_forte'
+                    else:
+                        resultado['status'] = 'ok'
+            elif resultado['status'] == 'desconhecido':
                 resultado['confiavel'] = False
                 resultado['aviso'] = "⚠️ Prova não calibrada - usando coeficientes genéricos"
-        except:
+                resultado['status'] = 'nao_calibrado'
+                
+        except Exception:
             pass
     
     return resultado

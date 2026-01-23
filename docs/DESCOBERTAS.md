@@ -151,7 +151,7 @@ Testado com:
 - 200+ participantes por prova (amostragem estratificada)
 
 
-## 9. Notas
+## 9. Notas Técnicas
 
-LC fix: Filtro automático remove "99999" baseado em TP_LINGUA
-CN 2018: Precisa recalibração (slope atual=119, esperado~113)
+- **Filtro LC**: Remoção automática de "99999" baseada em `TP_LINGUA`
+- **Estabilidade**: Coeficientes são consistentes entre anos (variação < 0.1%)

@@ -5,41 +5,56 @@ MEU SIMULADO ENEM - Calculador de Nota TRI
 
 COMO USAR:
     1. Preencha suas respostas abaixo (45 letras: A, B, C, D, E ou .)
-    2. Defina o ano e codigo da prova
+    2. Defina o ano, cor da prova e tipo de aplicação
     3. Execute: python meu_simulado.py
-    4. Veja sua nota e gere um relatorio PDF!
+    4. Veja sua nota e gere um relatório PDF!
 
-Desenvolvido por Henrique Lindemann - Eng. Computacao UFRGS
+Desenvolvido por Henrique Lindemann - Eng. Computação UFRGS
 """
 
 # ============================================================================
-#                           CONFIGURACOES
+#                           CONFIGURAÇÕES
 # ============================================================================
 
-ANO = 2021
+ANO = 2009
 
-# Codigos de prova (consulte docs/GUIA_PROVAS.md)
-CO_PROVA_MT = 901   # Rosa
-CO_PROVA_CN = 912   # Rosa
-CO_PROVA_CH = 882   # Rosa
-CO_PROVA_LC = 891   # Rosa
+# TIPO DE APLICAÇÃO
+# Opções: '1a_aplicacao', 'digital', 'reaplicacao', 'segunda_oportunidade'
+TIPO_APLICACAO = '1a_aplicacao'
 
+# LÍNGUA ESTRANGEIRA (para Linguagens e Códigos)
 LINGUA = 'ingles'  # ou 'espanhol'
 
-# Suas respostas (45 caracteres cada)
-# Exemplo: Notas reais ENEM 2021 - MT: 916.4, CN: 752.8, CH: 749.9, LC: 677.5
-RESPOSTAS_MT = 'DCCAEBABDDCABEACCBCCEEADDCEACDEAADCABBDBDEDCE'
-RESPOSTAS_CN = 'DABCEDEBEECBEABEBDCBCBECBADCDBABBACCCDBDBEBAB'
-RESPOSTAS_CH = 'EDAAAADBCAABBABEECBBAEEBBBADCBCBBCEDDEBBCAEAB'
+# ============================================================================
+#                     DIA 1: LINGUAGENS E CIÊNCIAS HUMANAS
+# ============================================================================
+
+# COR DA PROVA (azul, amarela, rosa, cinza, branca, verde)
+# Dica: A cor está na capa do caderno de questões
+
+COR_LC = 'rosa'
 RESPOSTAS_LC = 'ACABCDCEACABCACCBEABDCCDBEDDDBBBACCDCDCCEBBCB'
 
-# Opcoes de relatorio
+COR_CH = 'rosa'
+RESPOSTAS_CH = 'EDAAAADBCAABBABEECBBAEEBBBADCBCBBCEDDEBBCAEAB'
+
+# ============================================================================
+#                     DIA 2: CIÊNCIAS DA NATUREZA E MATEMÁTICA
+# ============================================================================
+
+COR_CN = 'rosa'
+RESPOSTAS_CN = 'DABCEDEBEECBEABEBDCBCBECBADCDBABBACCCDBDBEBAB'
+
+COR_MT = 'rosa'
+RESPOSTAS_MT = 'DCCAEBABDDCABEACCBCCEEADDCEACDEAADCABBDBDEDCE'
+
+# OPÇÕES DE RELATÓRIO
 GERAR_PDF = True
-NOME_PDF = None  # None = nome automatico
+NOME_PDF = None  # None = nome automático
 TITULO_RELATORIO = 'Simulador nota ENEM'
 
 # ============================================================================
-#                    NAO MODIFIQUE ABAIXO DESTA LINHA
+#                    NÃO MODIFIQUE ABAIXO DESTA LINHA
 # ============================================================================
 
 import sys
@@ -62,10 +77,16 @@ def validar_respostas(respostas, nome):
     return True
 
 
-def calcular_e_analisar(calc, area, ano, respostas, lingua=None, co_prova=None):
+def calcular_e_analisar(calc, area, ano, respostas, lingua=None, co_prova=None, cor_prova=None, tipo_aplicacao='1a_aplicacao'):
     if respostas == "." * 45:
         return None
     try:
+        # Resolver código se foi fornecida cor
+        if co_prova is None and cor_prova:
+            from tri_enem import MapeadorProvas
+            mapeador = MapeadorProvas()
+            co_prova = mapeador.obter_codigo(ano, area, tipo_aplicacao, cor_prova)
+        
         tp_lingua = 0 if lingua == 'ingles' else 1 if area == 'LC' else None
         analise = calc.analisar_todas_questoes(ano, area, co_prova, respostas, tp_lingua)
         
@@ -145,26 +166,25 @@ def gerar_relatorio_pdf(resultados, ano, titulo, nome_arquivo=None):
         return None
 
 
-CODIGOS = {'MT': CO_PROVA_MT, 'CN': CO_PROVA_CN, 'CH': CO_PROVA_CH, 'LC': CO_PROVA_LC}
-
-
 def main():
     print()
     print("=" * 60)
     print(f"           CALCULADOR DE NOTA TRI - ENEM {ANO}")
     print("=" * 60)
     
-    areas = {
-        'MT': ('Matematica', RESPOSTAS_MT),
-        'CN': ('Ciencias da Natureza', RESPOSTAS_CN),
-        'CH': ('Ciencias Humanas', RESPOSTAS_CH),
-        'LC': ('Linguagens', RESPOSTAS_LC),
-    }
+    # Ordem: Dia 1 (LC, CH) -> Dia 2 (CN, MT)
+    areas = [
+        ('LC', 'Linguagens', RESPOSTAS_LC, COR_LC),
+        ('CH', 'Ciências Humanas', RESPOSTAS_CH, COR_CH),
+        ('CN', 'Ciências da Natureza', RESPOSTAS_CN, COR_CN),
+        ('MT', 'Matemática', RESPOSTAS_MT, COR_MT),
+    ]
     
-    for sigla, (nome, resp) in areas.items():
+    for sigla, nome, resp, cor in areas:
         if resp != "." * 45 and not validar_respostas(resp, nome):
             return
     
+    print(f"\nAplicação: {TIPO_APLICACAO}")
     print("\nCarregando dados...")
     calc = CalculadorTRI()
     
@@ -176,14 +196,15 @@ def main():
     notas = {}
     avisos = []
     
-    for sigla, (nome, resp) in areas.items():
+    for sigla, nome, resp, cor in areas:
         if resp == "." * 45:
-            print(f"{nome:.<35} NAO PREENCHIDO")
+            print(f"{nome:.<35} NÃO PREENCHIDO")
             continue
         
         res = calcular_e_analisar(calc, sigla, ANO, resp,
                                   lingua=LINGUA if sigla == 'LC' else None,
-                                  co_prova=CODIGOS.get(sigla))
+                                  cor_prova=cor,
+                                  tipo_aplicacao=TIPO_APLICACAO)
         if res:
             resultados.append(res)
             notas[sigla] = res['nota']
@@ -193,14 +214,17 @@ def main():
     
     if notas:
         print("-" * 60)
-        print(f"{'MEDIA':.<35} {sum(notas.values())/len(notas):>6.1f} pts")
+        print(f"{'MÉDIA':.<35} {sum(notas.values())/len(notas):>6.1f} pts")
     
     # Mostrar avisos de precisão
     if avisos:
         print("\n" + "-" * 60)
-        print("AVISOS DE PRECISAO:")
+        print("⚠️  AVISOS DE PRECISÃO:")
+        print("-" * 60)
         for aviso in avisos:
             print(aviso)
+        print("\nNota: Provas não calibradas ou com erro alto podem ter\n"
+              "      diferença significativa em relação à nota oficial.")
     
     if GERAR_PDF and resultados:
         print("\n" + "-" * 60)
@@ -210,7 +234,7 @@ def main():
             print(f"Relatorio salvo: {caminho}")
     
     print("\n" + "=" * 60)
-    print("Calculo aproximado - erro tipico < 1 ponto para provas calibradas")
+    print("Cálculo aproximado - erro típico < 1 ponto para provas calibradas")
     print("Contribua: github.com/HenriqueLindemann/analise-enem")
     print("=" * 60 + "\n")
 

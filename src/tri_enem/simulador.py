@@ -85,22 +85,57 @@ class SimuladorNota:
             return provas[area.upper()][0]  # Primeira prova
         raise ValueError(f"Área {area} não encontrada para {ano}")
     
-    def calcular(self, area: str, ano: int, respostas: str,
-                 lingua: str = 'ingles', co_prova: int = None) -> ResultadoNota:
+    def calcular(
+        self, 
+        area: str, 
+        ano: int, 
+        respostas: str,
+        lingua: str = 'ingles', 
+        co_prova: int = None,
+        cor_prova: str = None,
+        tipo_aplicacao: str = '1a_aplicacao'
+    ) -> ResultadoNota:
         """
         Calcula a nota TRI.
+        
+        Modos de especificação da prova (ordem de precedência):
+        1. co_prova: Código numérico direto (retrocompatibilidade)
+        2. cor_prova + tipo_aplicacao: Busca no mapeamento
+        3. Auto-descoberta: Usa primeira prova disponível
         
         Args:
             area: Área da prova (MT, CN, CH, LC)
             ano: Ano do ENEM (2009-2024)
             respostas: String com 45 respostas (A-E ou .)
             lingua: Para LC: 'ingles' ou 'espanhol'
-            co_prova: Código da prova (opcional, usa primeira disponível)
+            co_prova: Código numérico da prova (opcional)
+            cor_prova: Cor da prova (ex: 'azul', 'ROSA') - alternativa ao co_prova
+            tipo_aplicacao: Tipo (ex: '1a_aplicacao', 'digital', 'reaplicacao')
         
         Returns:
             ResultadoNota com nota e detalhes
+            
+        Exemplos:
+            # Modo 1: Código direto (retrocompatibilidade)
+            sim.calcular('CN', 2021, respostas, co_prova=1011)
+            
+            # Modo 2: Por cor (assume 1ª aplicação)
+            sim.calcular('CN', 2021, respostas, cor_prova='azul')
+            
+            # Modo 3: Por cor e tipo
+            sim.calcular('CN', 2021, respostas, cor_prova='azul', tipo_aplicacao='digital')
         """
         area = area.upper()
+        
+        # Resolver código da prova
+        if co_prova is None and cor_prova is not None:
+            # Usar mapeador para descobrir código
+            from .mapeador_provas import MapeadorProvas
+            mapeador = MapeadorProvas()
+            co_prova = mapeador.obter_codigo(ano, area, tipo_aplicacao, cor_prova)
+        elif co_prova is None:
+            # Auto-descoberta
+            co_prova = self._descobrir_prova(ano, area)
         
         # Para LC, auto-filtrar de 50 para 45 se necessário
         if area == 'LC':
@@ -112,10 +147,6 @@ class SimuladorNota:
         # Validar respostas (agora deve ter 45)
         if len(respostas) != 45:
             raise ValueError(f"Respostas deve ter 45 caracteres, tem {len(respostas)}")
-        
-        # Descobrir prova se não fornecida
-        if co_prova is None:
-            co_prova = self._descobrir_prova(ano, area)
         
         # Converter lingua para tp_lingua
         tp_lingua = 0 if lingua.lower() in ['ingles', 'inglês', 'english', '0'] else 1
@@ -157,6 +188,7 @@ class SimuladorNota:
             co_prova=co_prova,
             lingua=lingua if area == 'LC' else None,
         )
+
     
     def _df_para_itens(self, df: pd.DataFrame) -> List[ItemTRI]:
         """Converte DataFrame para lista de ItemTRI."""

@@ -118,6 +118,14 @@ class RelatorioPDF:
         titulo += f" — {area.nota:.1f} pts"
         elementos.append(Paragraph(titulo, self.styles['TituloArea']))
         
+        # Verificar precisão e adicionar aviso se necessário
+        precisao = verificar_precisao_prova(area.ano, area.sigla, area.co_prova)
+        if precisao.get('aviso'):
+            elementos.append(Paragraph(
+                precisao['aviso'],
+                self.styles['AvisoPrecisao']
+            ))
+        
         # Grade das 45 questões
         grade = grade_questoes(area.questoes)
         elementos.append(grade)

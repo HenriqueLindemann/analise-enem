@@ -2427,6 +2427,201 @@
       "slope_medio": 108.09340964420143,
       "intercept_medio": 499.99070073605765,
       "n_anos": 14
+    },
+    "ultima_calibracao": "2026-01-23T16:20:40.153584"
+  },
+  "status_provas": {
+    "2024,LC,1395": {
+      "status": "ok",
+      "mensagem": null,
+      "tipo_aplicacao": "1a_aplicacao",
+      "cor": "azul"
+    },
+    "2024,LC,1396": {
+      "status": "ok",
+      "mensagem": null,
+      "tipo_aplicacao": "1a_aplicacao",
+      "cor": "amarela"
+    },
+    "2024,LC,1397": {
+      "status": "ok",
+      "mensagem": null,
+      "tipo_aplicacao": "1a_aplicacao",
+      "cor": "verde"
+    },
+    "2024,LC,1398": {
+      "status": "ok",
+      "mensagem": null,
+      "tipo_aplicacao": "1a_aplicacao",
+      "cor": "branca"
+    },
+    "2024,LC,1353": {
+      "status": "falhou",
+      "mensagem": "Falha: Poucos participantes: 0",
+      "tipo_aplicacao": "reaplicacao",
+      "cor": "azul"
+    },
+    "2024,LC,1354": {
+      "status": "falhou",
+      "mensagem": "Falha: Poucos participantes: 0",
+      "tipo_aplicacao": "reaplicacao",
+      "cor": "amarela"
+    },
+    "2024,LC,1355": {
+      "status": "falhou",
+      "mensagem": "Falha: Poucos participantes: 0",
+      "tipo_aplicacao": "reaplicacao",
+      "cor": "verde"
+    },
+    "2024,LC,1356": {
+      "status": "falhou",
+      "mensagem": "Falha: Poucos participantes: 0",
+      "tipo_aplicacao": "reaplicacao",
+      "cor": "branca"
+    },
+    "2024,CH,1383": {
+      "status": "ok",
+      "mensagem": null,
+      "tipo_aplicacao": "1a_aplicacao",
+      "cor": "azul"
+    },
+    "2024,CH,1384": {
+      "status": "ok",
+      "mensagem": null,
+      "tipo_aplicacao": "1a_aplicacao",
+      "cor": "amarela"
+    },
+    "2024,CH,1385": {
+      "status": "ok",
+      "mensagem": null,
+      "tipo_aplicacao": "1a_aplicacao",
+      "cor": "branca"
+    },
+    "2024,CH,1386": {
+      "status": "ok",
+      "mensagem": null,
+      "tipo_aplicacao": "1a_aplicacao",
+      "cor": "verde"
+    },
+    "2024,CH,1343": {
+      "status": "falhou",
+      "mensagem": "Falha: Poucos participantes: 0",
+      "tipo_aplicacao": "reaplicacao",
+      "cor": "azul"
+    },
+    "2024,CH,1344": {
+      "status": "falhou",
+      "mensagem": "Falha: Poucos participantes: 0",
+      "tipo_aplicacao": "reaplicacao",
+      "cor": "amarela"
+    },
+    "2024,CH,1345": {
+      "status": "falhou",
+      "mensagem": "Falha: Poucos participantes: 0",
+      "tipo_aplicacao": "reaplicacao",
+      "cor": "branca"
+    },
+    "2024,CH,1346": {
+      "status": "falhou",
+      "mensagem": "Falha: Poucos participantes: 0",
+      "tipo_aplicacao": "reaplicacao",
+      "cor": "verde"
+    },
+    "2024,CN,1419": {
+      "status": "ok",
+      "mensagem": null,
+      "tipo_aplicacao": "1a_aplicacao",
+      "cor": "azul"
+    },
+    "2024,CN,1420": {
+      "status": "ok",
+      "mensagem": null,
+      "tipo_aplicacao": "1a_aplicacao",
+      "cor": "amarela"
+    },
+    "2024,CN,1421": {
+      "status": "ok",
+      "mensagem": null,
+      "tipo_aplicacao": "1a_aplicacao",
+      "cor": "verde"
+    },
+    "2024,CN,1422": {
+      "status": "ok",
+      "mensagem": null,
+      "tipo_aplicacao": "1a_aplicacao",
+      "cor": "cinza"
+    },
+    "2024,CN,1373": {
+      "status": "falhou",
+      "mensagem": "Falha: Poucos participantes: 1",
+      "tipo_aplicacao": "reaplicacao",
+      "cor": "azul"
+    },
+    "2024,CN,1374": {
+      "status": "falhou",
+      "mensagem": "Falha: Poucos participantes: 0",
+      "tipo_aplicacao": "reaplicacao",
+      "cor": "amarela"
+    },
+    "2024,CN,1375": {
+      "status": "falhou",
+      "mensagem": "Falha: Poucos participantes: 0",
+      "tipo_aplicacao": "reaplicacao",
+      "cor": "cinza"
+    },
+    "2024,CN,1376": {
+      "status": "falhou",
+      "mensagem": "Falha: Poucos participantes: 0",
+      "tipo_aplicacao": "reaplicacao",
+      "cor": "verde"
+    },
+    "2024,MT,1407": {
+      "status": "ok",
+      "mensagem": null,
+      "tipo_aplicacao": "1a_aplicacao",
+      "cor": "azul"
+    },
+    "2024,MT,1408": {
+      "status": "ok",
+      "mensagem": null,
+      "tipo_aplicacao": "1a_aplicacao",
+      "cor": "amarela"
+    },
+    "2024,MT,1409": {
+      "status": "ok",
+      "mensagem": null,
+      "tipo_aplicacao": "1a_aplicacao",
+      "cor": "verde"
+    },
+    "2024,MT,1410": {
+      "status": "ok",
+      "mensagem": null,
+      "tipo_aplicacao": "1a_aplicacao",
+      "cor": "cinza"
+    },
+    "2024,MT,1363": {
+      "status": "falhou",
+      "mensagem": "Falha: Poucos participantes: 1",
+      "tipo_aplicacao": "reaplicacao",
+      "cor": "azul"
+    },
+    "2024,MT,1364": {
+      "status": "falhou",
+      "mensagem": "Falha: Poucos participantes: 0",
+      "tipo_aplicacao": "reaplicacao",
+      "cor": "amarela"
+    },
+    "2024,MT,1365": {
+      "status": "falhou",
+      "mensagem": "Falha: Poucos participantes: 0",
+      "tipo_aplicacao": "reaplicacao",
+      "cor": "verde"
+    },
+    "2024,MT,1366": {
+      "status": "falhou",
+      "mensagem": "Falha: Poucos participantes: 0",
+      "tipo_aplicacao": "reaplicacao",
+      "cor": "cinza"
     }
   }
 }

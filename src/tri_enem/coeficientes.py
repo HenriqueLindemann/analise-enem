@@ -31,10 +31,11 @@ if _data_file.exists():
         ano, area = key_str.split(',')
         COEF_POR_AREA[(int(ano), area)] = (value['slope'], value['intercept'])
     
-    # Padrões por área
+    # Padrões por área (filtrar apenas entradas com slope_medio)
     COEF_PADRAO = {}
     for area, meta in _data.get('metadata', {}).items():
-        COEF_PADRAO[area] = (meta['slope_medio'], meta['intercept_medio'])
+        if isinstance(meta, dict) and 'slope_medio' in meta:
+            COEF_PADRAO[area] = (meta['slope_medio'], meta['intercept_medio'])
 else:
     # Fallback caso o arquivo não exista (usar calibração de 2023)
     print("⚠️ Arquivo coeficientes_data.json não encontrado. Usando coeficientes padrão.")

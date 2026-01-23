@@ -123,4 +123,20 @@ def criar_estilos():
         alignment=TA_CENTER
     ))
     
+    # Aviso de precisão (para provas não calibradas ou com erro alto)
+    styles.add(ParagraphStyle(
+        name='AvisoPrecisao',
+        parent=styles['Normal'],
+        fontSize=7,
+        textColor=colors.HexColor('#D84315'),  # Laranja escuro
+        backColor=colors.HexColor('#FFF3E0'),  # Fundo laranja claro
+        borderColor=colors.HexColor('#FF9800'),
+        borderWidth=1,
+        borderPadding=4,
+        spaceBefore=2,
+        spaceAfter=4,
+        leftIndent=5,
+        rightIndent=5
+    ))
+    
     return styles
