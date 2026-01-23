@@ -116,8 +116,11 @@ class CalculadorEnem:
                 precisao = verificar_precisao_prova(ano, area, co_prova)
                 if precisao.get('aviso'):
                     aviso = precisao['aviso']
-            except:
-                pass
+            except Exception as e:
+                # Log do erro mas continua sem aviso
+                import traceback
+                traceback.print_exc()
+                aviso = None
             
             return {
                 'sigla': area.upper(),

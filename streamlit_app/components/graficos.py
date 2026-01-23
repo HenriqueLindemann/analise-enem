@@ -161,7 +161,7 @@ def grafico_impacto(questoes: List[Dict], titulo: str = "") -> go.Figure:
             gridwidth=0.5,
         ),
         height=280,
-        margin=dict(l=50, r=20, t=40, b=50),
+        margin=dict(l=50, r=20, t=50, b=50),
         paper_bgcolor='white',
         plot_bgcolor='white',
         showlegend=False,
