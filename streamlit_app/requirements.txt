@@ -17,5 +17,8 @@ scipy>=1.10.0
 # Configuração
 pyyaml>=6.0
 
+# Geração de PDFs (necessário para módulo de relatórios)
+reportlab>=4.0.0
+
 # Otimização de produção
 watchdog>=3.0.0
