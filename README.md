@@ -12,10 +12,11 @@ Suporta todas as provas de **2009 a 2024** e gera relatórios em PDF.
 
 1. **Baixar este projeto** (botão verde "Code" → Download ZIP)
 2. **Instalar Python**: https://www.python.org/downloads/
-3. **Abrir o arquivo `meu_simulado.py`** com Bloco de Notas
-4. **Trocar as alternativas** pelas suas respostas da prova
-5. **Trocar a prova** para a que você quer corrigir
-6. **Clicar duas vezes** no arquivo para rodar
+3. **Instalar as bibliotecas necessárias**: abra o terminal/prompt na pasta do projeto e digite `pip install -r requirements.txt`
+4. **Abrir o arquivo `meu_simulado.py`** com Bloco de Notas
+5. **Trocar as alternativas** pelas suas respostas da prova
+6. **Trocar a prova** para a que você quer corrigir
+7. **Clicar duas vezes** no arquivo para rodar
 
 **Pronto!** Sua nota aparece na tela e um PDF é criado na pasta `relatorios/`.
 
