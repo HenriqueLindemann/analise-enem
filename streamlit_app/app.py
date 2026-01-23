@@ -95,51 +95,6 @@ st.markdown("""
     /* Esconder elementos Streamlit */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
-    
-    /* Responsividade Mobile */
-    @media (max-width: 768px) {
-        [data-testid="stMetricValue"] {
-            font-size: 1.5rem;
-        }
-        
-        .stTextInput input {
-            font-size: 12px;
-            letter-spacing: 1px;
-        }
-        
-        h1 {
-            font-size: 1.5rem !important;
-        }
-        
-        h2 {
-            font-size: 1.2rem !important;
-        }
-        
-        h3 {
-            font-size: 1rem !important;
-        }
-        
-        .stButton > button {
-            font-size: 1rem;
-            padding: 0.5rem;
-        }
-        
-        .footer {
-            font-size: 0.75rem;
-            padding: 1rem 0;
-        }
-    }
-    
-    /* Touch targets para mobile */
-    @media (pointer: coarse) {
-        .stSelectbox > div {
-            min-height: 44px;
-        }
-        
-        .stButton > button {
-            min-height: 48px;
-        }
-    }
 </style>
 """, unsafe_allow_html=True)
 

@@ -2,7 +2,15 @@
 
 Interface web para cálculo de nota TRI do ENEM.
 
-## 🚀 Início Rápido
+## 🌐 Acesse Online
+
+**👉 [https://calculadoratri.streamlit.app/](https://calculadoratri.streamlit.app/)**
+
+Calcule sua nota do ENEM direto no navegador, sem instalar nada!
+
+---
+
+## 🚀 Rodando Localmente
 
 ### 1. Instale as dependências
 
@@ -51,68 +59,8 @@ streamlit_app/
 - ✅ Gráfico de impacto das questões
 - ✅ Análise detalhada por área
 - ✅ Tabela de erros e acertos
-- ✅ Design responsivo (mobile-friendly)
 - ✅ Cache para performance
 - ✅ Progress bar durante cálculo
-
-## 🌐 Deploy no Streamlit Cloud (Gratuito)
-
-### Passo a passo
-
-1. Acesse [share.streamlit.io](https://share.streamlit.io)
-2. Faça login com GitHub
-3. Clique em **"New app"**
-4. Configure:
-   - **Repository:** `HenriqueLindemann/analise-enem`
-   - **Branch:** `master`
-   - **Main file path:** `streamlit_app/app.py`
-   - **Python version:** 3.10 ou superior
-5. Clique em **Deploy!**
-
-### Configurações avançadas (opcional)
-
-Se precisar de variáveis de ambiente ou configurações:
-
-```toml
-# .streamlit/secrets.toml (não commitar!)
-[general]
-DEBUG = false
-```
-
-## 🔧 Configuração de Produção
-
-O arquivo `.streamlit/config.toml` já está configurado para:
-
-- ✅ Modo headless (sem browser local)
-- ✅ XSRF protection ativada
-- ✅ Tema personalizado
-- ✅ Toolbar minimalista
-- ✅ Erros de usuário ocultos
-
-## 📱 Responsividade
-
-O app é otimizado para:
-- Desktop (layout wide)
-- Tablet (layout adaptativo)
-- Mobile (sidebar colapsável, fontes menores)
-
-## 📝 Personalização
-
-### Adicionar logo
-
-Coloque um arquivo `logo.png` na pasta `streamlit_app/` e atualize o código no `app.py`.
-
-### Cores e estilos
-
-Edite as constantes no arquivo `components/graficos.py`.
-
-## 🤝 Contribuindo
-
-1. Fork o projeto
-2. Crie sua branch (`git checkout -b feature/nova-funcionalidade`)
-3. Commit suas mudanças (`git commit -m 'Adiciona nova funcionalidade'`)
-4. Push para a branch (`git push origin feature/nova-funcionalidade`)
-5. Abra um Pull Request
 
 ## 📄 Licença
 

@@ -2,44 +2,48 @@
 
 Calcule sua nota do ENEM usando **Teoria de Resposta ao Item (TRI)** com alta precisão.
 
-Suporta todas as provas de **2009 a 2024** e gera relatórios em PDF.
+Suporta todas as provas de **2009 a 2024** com análise detalhada e relatórios completos.
 
 ---
 
-## 🌐 Versão Web (Streamlit)
+## 🌐 Interface Web - Sem Instalação
 
-**Quer usar pelo navegador?** Execute:
+**👉 Acesse direto no navegador:** [https://calculadoratri.streamlit.app/](https://calculadoratri.streamlit.app/)
 
-```bash
-pip install streamlit plotly
-streamlit run streamlit_app/app.py
-```
-
-Acesse `http://localhost:8501` e use a interface web interativa!
+✅ Não precisa instalar Python  
+✅ Não precisa baixar código  
+✅ Visualize análises e gráficos interativos  
+✅ Funciona em qualquer navegador desktop
 
 ---
 
-## Nunca Programou? Sem Problemas!
+## 💻 Versão Local - Relatórios em PDF
+
+Se você precisa de relatórios em PDF ou quer rodar localmente, siga os passos abaixo.
+
+---
+
+## 📥 Instalação (apenas versão local)
+
+### Para quem nunca programou
 
 **Este programa calcula sua nota do ENEM como o INEP calcula.** Você só precisa:
 
 1. **Baixar este projeto** (botão verde "Code" → Download ZIP)
 2. **Instalar Python**: https://www.python.org/downloads/
-3. **Instalar as bibliotecas necessárias**: abra o terminal/prompt na pasta do projeto e digite `pip install -r requirements.txt`
+3. **Instalar as bibliotecas necessárias**: abra o terminal/prompt na pasta do projeto e digite:
+   ```bash
+   pip install -r requirements.txt
+   ```
 4. **Abrir o arquivo `meu_simulado.py`** com Bloco de Notas
 5. **Trocar as alternativas** pelas suas respostas da prova
-6. **Trocar a prova** para a que você quer corrigir
-7. **Clicar duas vezes** no arquivo para rodar
+6. **Clicar duas vezes** no arquivo para rodar
 
 **Pronto!** Sua nota aparece na tela e um PDF é criado na pasta `relatorios/`.
 
 **Precisa de ajuda?** Pergunte para sua IA favorita como instalar e rodar um programa Python no seu sistema operacional.
 
----
-
-## Início Rápido
-
-### 1. Instalação
+### Para desenvolvedores
 
 ```bash
 git clone https://github.com/HenriqueLindemann/analise-enem.git
@@ -47,7 +51,9 @@ cd analise-enem
 pip install -r requirements.txt
 ```
 
-### 2. Calcule sua nota
+---
+
+## 🚀 Uso Rápido
 
 Edite o arquivo **`meu_simulado.py`** com suas respostas:
 
@@ -169,6 +175,16 @@ Os coeficientes foram descobertos via engenharia reversa dos microdados oficiais
 analise-enem/
 ├── meu_simulado.py              # 👉 EDITE ESTE com suas respostas
 ├── requirements.txt
+├── streamlit_app/               # 🌐 Interface Web
+│   ├── app.py                   # Aplicação principal
+│   ├── calculador.py            # Wrapper TRI com cache
+│   ├── requirements.txt
+│   ├── .streamlit/
+│   │   └── config.toml          # Configurações de deploy
+│   └── components/
+│       ├── inputs.py            # Formulários de entrada
+│       ├── resultados.py        # Exibição de resultados
+│       └── graficos.py          # Visualizações Plotly
 ├── src/tri_enem/
 │   ├── calculador.py            # Motor de cálculo TRI
 │   ├── simulador.py             # Interface simplificada
