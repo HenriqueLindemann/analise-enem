@@ -140,6 +140,8 @@ def render_sidebar():
         Desenvolvido por [Henrique Lindemann](https://www.linkedin.com/in/henriquelindemann/)
         
         [GitHub](https://github.com/HenriqueLindemann/analise-enem)
+        
+        v2026.01.23
         """)
         
         return ano, tipo_aplicacao, lingua, cores
