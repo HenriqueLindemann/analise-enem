@@ -116,9 +116,13 @@ class CalculadorEnem:
                 precisao = verificar_precisao_prova(ano, area, co_prova)
                 if precisao.get('aviso'):
                     aviso = precisao['aviso']
+                # DEBUG: forçar log
+                if precisao.get('mae') and precisao.get('mae') > 10:
+                    print(f"[DEBUG] Precisão detectada - MAE={precisao.get('mae')}, aviso={aviso}")
             except Exception as e:
                 # Log do erro mas continua sem aviso
                 import traceback
+                print(f"[ERRO] Falha ao verificar precisão: {e}")
                 traceback.print_exc()
                 aviso = None
             
