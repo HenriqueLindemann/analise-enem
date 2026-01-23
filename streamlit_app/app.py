@@ -137,7 +137,7 @@ def render_sidebar():
         st.markdown("---")
         
         st.caption("""
-        Desenvolvido por [Henrique Lindemann](https://www.linkedin.com/in/henriquelindemann/")
+        Desenvolvido por [Henrique Lindemann](https://www.linkedin.com/in/henriquelindemann/)
         
         [GitHub](https://github.com/HenriqueLindemann/analise-enem)
         """)
