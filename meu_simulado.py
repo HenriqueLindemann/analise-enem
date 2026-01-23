@@ -16,7 +16,7 @@ Desenvolvido por Henrique Lindemann - Eng. Computação UFRGS
 #                           CONFIGURAÇÕES
 # ============================================================================
 
-ANO = 2009
+ANO = 2021
 
 # TIPO DE APLICAÇÃO
 # Opções: '1a_aplicacao', 'digital', 'reaplicacao', 'segunda_oportunidade'

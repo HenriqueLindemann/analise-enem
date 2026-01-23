@@ -143,7 +143,6 @@ class RelatorioPDF:
         elementos.append(Paragraph("Impacto das Questões na Nota:", self.styles['TextoNormal']))
         grafico = grafico_impacto_questoes(area.questoes, titulo=f"{area.sigla}")
         elementos.append(grafico)
-        elementos.append(Paragraph(legenda_grafico_impacto(), self.styles['Legenda']))
         
         if erros:
             elementos.append(Spacer(1, 3))
