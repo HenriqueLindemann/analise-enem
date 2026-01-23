@@ -20,13 +20,14 @@ from reportlab.lib.units import inch
 from .base import AreaAnalise, QuestaoAnalise
 
 
-# Cores consistentes
-COR_ACERTO = '#4CAF50'
-COR_ACERTO_ESCURO = '#1B5E20'
-COR_ERRO = '#F44336'
-COR_ERRO_ESCURO = '#B71C1C'
-COR_PRIMARIA = '#1565C0'
-COR_CINZA = '#757575'
+# Cores consistentes - Paleta minimalista
+COR_ACERTO = '#27AE60'        # Verde esmeralda
+COR_ACERTO_ESCURO = '#1E8449'
+COR_ERRO = '#E74C3C'          # Vermelho coral
+COR_ERRO_ESCURO = '#C0392B'
+COR_PRIMARIA = '#3498DB'      # Azul suave
+COR_CINZA = '#7F8C8D'
+COR_CINZA_CLARO = '#BDC3C7'
 COR_FUNDO = '#FAFAFA'
 
 
@@ -49,60 +50,67 @@ def _fig_para_image(fig, largura: float = 6, dpi: int = 300) -> Image:
 
 def grafico_barras_notas(areas: List[AreaAnalise], largura: float = 6) -> Image:
     """
-    Barras horizontais mostrando nota de cada área.
-    Inclui marcadores em 500 e 700.
+    Barras horizontais minimalistas mostrando nota de cada área.
+    Design limpo com cores suaves.
     """
-    fig, ax = plt.subplots(figsize=(largura, 1.2))
+    fig, ax = plt.subplots(figsize=(largura, 1.4))
     
     siglas = [a.sigla for a in areas]
     notas = [a.nota for a in areas]
-    cores = [COR_ACERTO if n >= 700 else ('#FFC107' if n >= 500 else COR_ERRO) for n in notas]
+    
+    # Cores baseadas na nota - gradiente suave
+    cores = []
+    for n in notas:
+        if n >= 700:
+            cores.append(COR_ACERTO)
+        elif n >= 500:
+            cores.append(COR_PRIMARIA)
+        else:
+            cores.append(COR_ERRO)
     
     y_pos = np.arange(len(areas))
     
-    # Barras
-    bars = ax.barh(y_pos, notas, color=cores, height=0.6, alpha=0.85)
+    # Barras com bordas arredondadas via alpha
+    bars = ax.barh(y_pos, notas, color=cores, height=0.55, alpha=0.85, 
+                   edgecolor='white', linewidth=0.5)
     
-    # Linhas de referência
-    ax.axvline(x=500, color=COR_CINZA, linestyle='--', linewidth=0.8, alpha=0.5)
-    ax.axvline(x=700, color=COR_CINZA, linestyle='--', linewidth=0.8, alpha=0.5)
+    # Linhas de referência sutis
+    ax.axvline(x=500, color=COR_CINZA_CLARO, linestyle='-', linewidth=0.5, alpha=0.5)
+    ax.axvline(x=700, color=COR_CINZA_CLARO, linestyle='-', linewidth=0.5, alpha=0.5)
     
-    # Labels
+    # Labels - fonte limpa
     ax.set_yticks(y_pos)
-    ax.set_yticklabels(siglas, fontsize=9, fontweight='bold')
+    ax.set_yticklabels(siglas, fontsize=9, fontweight='medium', color='#2C3E50')
     ax.set_xlim(0, 1000)
-    ax.set_xticks([0, 250, 500, 700, 1000])
-    ax.tick_params(axis='x', labelsize=7)
+    ax.set_xticks([0, 500, 700, 1000])
+    ax.tick_params(axis='x', labelsize=7, colors=COR_CINZA)
     
-    # Valores nas barras
+    # Valores nas barras - discretos
     for bar, nota, area in zip(bars, notas, areas):
-        pct = area.acertos / area.total_itens * 100 if area.total_itens > 0 else 0
-        ax.text(nota + 10, bar.get_y() + bar.get_height()/2, 
-                f'{nota:.0f}  ({area.acertos}/{area.total_itens})', 
-                va='center', fontsize=7, color=COR_CINZA)
+        ax.text(nota + 12, bar.get_y() + bar.get_height()/2, 
+                f'{nota:.0f}', 
+                va='center', fontsize=8, fontweight='medium', color='#2C3E50')
     
+    # Remover bordas - minimalista
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
-    ax.spines['bottom'].set_linewidth(0.5)
+    ax.spines['bottom'].set_visible(False)
     ax.spines['left'].set_visible(False)
+    ax.tick_params(left=False, bottom=False)
     
-    plt.tight_layout(pad=0.2)
+    plt.tight_layout(pad=0.3)
     return _fig_para_image(fig, largura)
 
 
 def grafico_impacto_questoes(questoes: List[QuestaoAnalise], titulo: str = "", 
                               largura: float = 7.5) -> Image:
     """
-    Gráfico de barras mostrando impacto de TODAS as questões.
-    
-    - Ordenado por impacto (maior → menor da esquerda pra direita)
-    - Eixo Y: módulo do impacto (sempre positivo)
-    - Eixo X: número da questão visível acima de cada barra
-    - Verde = acerto, Vermelho = erro
+    Gráfico de impacto minimalista.
+    Design limpo com números sutis.
     """
     if not questoes:
         fig, ax = plt.subplots(figsize=(largura, 0.5))
-        ax.text(0.5, 0.5, 'Sem dados', ha='center', va='center')
+        ax.text(0.5, 0.5, 'Sem dados', ha='center', va='center', color=COR_CINZA)
         ax.axis('off')
         return _fig_para_image(fig, largura)
     
@@ -110,60 +118,55 @@ def grafico_impacto_questoes(questoes: List[QuestaoAnalise], titulo: str = "",
     questoes_ord = sorted(questoes, key=lambda q: q.impacto, reverse=True)
     
     n = len(questoes_ord)
-    # Figura mais larga para caber todas as questões
-    fig, ax = plt.subplots(figsize=(largura, 2.2))
+    fig, ax = plt.subplots(figsize=(largura, 2.0))
     
-    # Posições no eixo X (0, 1, 2, ...)
     x_pos = np.arange(n)
-    
-    # Valores = módulo do impacto (sempre positivo)
     valores = [q.impacto for q in questoes_ord]
     max_valor = max(valores) if valores else 1
     
-    # Cores: verde para acerto, vermelho para erro
+    # Cores suaves
     cores = [COR_ACERTO if q.acertou else COR_ERRO for q in questoes_ord]
     
-    # Barras
-    bar_width = 0.85
-    bars = ax.bar(x_pos, valores, color=cores, width=bar_width, alpha=0.9, edgecolor='none')
+    # Barras com transparência
+    bar_width = 0.80
+    bars = ax.bar(x_pos, valores, color=cores, width=bar_width, alpha=0.8, 
+                  edgecolor='white', linewidth=0.3)
     
-    # Número da questão ACIMA de cada barra (sempre legível)
+    # Números das questões - mais discretos
     for i, (bar, q) in enumerate(zip(bars, questoes_ord)):
         y_pos = bar.get_height() + max_valor * 0.02
         cor_texto = COR_ACERTO_ESCURO if q.acertou else COR_ERRO_ESCURO
         ax.text(bar.get_x() + bar.get_width()/2, y_pos, str(q.posicao),
-                ha='center', va='bottom', fontsize=5.5, fontweight='bold',
+                ha='center', va='bottom', fontsize=5, fontweight='medium',
                 color=cor_texto, rotation=90)
     
-    # Ajustar limite Y para caber os números
-    ax.set_ylim(0, max_valor * 1.25)
-    
-    # Remover ticks do eixo X (números já estão acima das barras)
+    ax.set_ylim(0, max_valor * 1.22)
     ax.set_xticks([])
-    ax.set_xlabel('Questões ordenadas por impacto (maior → menor)', fontsize=7)
-    ax.set_ylabel('Impacto', fontsize=7)
-    if titulo:
-        ax.set_title(titulo, fontsize=9, fontweight='bold', pad=3)
+    ax.set_xlabel('← maior impacto                                                menor impacto →', 
+                  fontsize=6, color=COR_CINZA, style='italic')
+    ax.set_ylabel('')
     
-    ax.tick_params(axis='y', labelsize=6)
+    ax.tick_params(axis='y', labelsize=6, colors=COR_CINZA)
     
-    # Grid horizontal sutil
-    ax.yaxis.grid(True, linestyle=':', alpha=0.3)
+    # Grid muito sutil
+    ax.yaxis.grid(True, linestyle='-', alpha=0.15, color=COR_CINZA_CLARO)
     ax.set_axisbelow(True)
     
-    # Estilo
+    # Estilo minimalista
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
-    ax.spines['bottom'].set_linewidth(0.5)
-    ax.spines['left'].set_linewidth(0.5)
+    ax.spines['bottom'].set_visible(False)
+    ax.spines['left'].set_linewidth(0.3)
+    ax.spines['left'].set_color(COR_CINZA_CLARO)
     
-    # Legenda compacta no canto
+    # Legenda compacta e discreta
     patches = [
-        mpatches.Patch(color=COR_ACERTO, label='Acertos'),
-        mpatches.Patch(color=COR_ERRO, label='Erros'),
+        mpatches.Patch(color=COR_ACERTO, label='Acerto', alpha=0.8),
+        mpatches.Patch(color=COR_ERRO, label='Erro', alpha=0.8),
     ]
-    ax.legend(handles=patches, loc='upper right', fontsize=6, framealpha=0.9,
-              handlelength=1, handleheight=0.7)
+    ax.legend(handles=patches, loc='upper right', fontsize=6, framealpha=0.95,
+              handlelength=0.8, handleheight=0.6, edgecolor='none', 
+              facecolor='white')
     
     plt.tight_layout(pad=0.2)
     return _fig_para_image(fig, largura)
@@ -172,53 +175,51 @@ def grafico_impacto_questoes(questoes: List[QuestaoAnalise], titulo: str = "",
 def grade_questoes(questoes: List[QuestaoAnalise], largura: float = 6, 
                    colunas: int = 15) -> Image:
     """
-    Grade visual compacta das questões.
-    Verde = acerto, Vermelho = erro.
-    Mostra número da questão em cada célula.
+    Grade visual minimalista das questões.
+    Design limpo com bordas arredondadas.
     """
     n = len(questoes)
     if n == 0:
         fig, ax = plt.subplots(figsize=(largura, 0.5))
-        ax.text(0.5, 0.5, 'Sem dados', ha='center', va='center')
+        ax.text(0.5, 0.5, 'Sem dados', ha='center', va='center', color=COR_CINZA)
         ax.axis('off')
         return _fig_para_image(fig, largura)
     
     linhas = (n + colunas - 1) // colunas
     questoes_ord = sorted(questoes, key=lambda q: q.posicao)
     
-    # Figura proporcional
-    altura = max(0.6, linhas * 0.35)
+    # Figura proporcional - mais compacta
+    altura = max(0.5, linhas * 0.32)
     fig, ax = plt.subplots(figsize=(largura, altura))
     
     for i, q in enumerate(questoes_ord):
         col = i % colunas
-        linha = linhas - 1 - (i // colunas)  # Inverter para questão 1 ficar em cima
+        linha = linhas - 1 - (i // colunas)
         
         cor_fundo = COR_ACERTO if q.acertou else COR_ERRO
-        cor_texto = COR_ACERTO_ESCURO if q.acertou else COR_ERRO_ESCURO
         
-        # Retângulo
+        # Retângulo com bordas mais arredondadas
         rect = mpatches.FancyBboxPatch(
-            (col + 0.05, linha + 0.1), 0.9, 0.8,
-            boxstyle="round,pad=0.02,rounding_size=0.1",
-            facecolor=cor_fundo, edgecolor='white', linewidth=1, alpha=0.7
+            (col + 0.08, linha + 0.12), 0.84, 0.76,
+            boxstyle="round,pad=0.02,rounding_size=0.15",
+            facecolor=cor_fundo, edgecolor='white', linewidth=0.8, alpha=0.75
         )
         ax.add_patch(rect)
         
-        # Número
+        # Número - fonte mais leve
         ax.text(col + 0.5, linha + 0.5, str(q.posicao), 
-                ha='center', va='center', fontsize=8, fontweight='bold',
+                ha='center', va='center', fontsize=7, fontweight='medium',
                 color='white')
     
-    ax.set_xlim(-0.1, colunas + 0.1)
-    ax.set_ylim(-0.1, linhas + 0.1)
+    ax.set_xlim(-0.05, colunas + 0.05)
+    ax.set_ylim(-0.05, linhas + 0.05)
     ax.set_aspect('equal')
     ax.axis('off')
     
-    plt.tight_layout(pad=0.1)
+    plt.tight_layout(pad=0.05)
     return _fig_para_image(fig, largura)
 
 
 def legenda_grafico_impacto() -> str:
     """Retorna texto da legenda do gráfico de impacto."""
-    return "Ordenado por impacto (maior → menor) | Verde = acertos | Vermelho = erros"
+    return "Verde = acerto · Vermelho = erro"

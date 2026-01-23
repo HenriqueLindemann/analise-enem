@@ -17,6 +17,7 @@ try:
         SimpleDocTemplate, Paragraph, Spacer, PageBreak, KeepTogether
     )
     from reportlab.graphics.shapes import Drawing, Line
+    from reportlab.lib.colors import Color
     REPORTLAB_DISPONIVEL = True
 except ImportError:
     REPORTLAB_DISPONIVEL = False
@@ -53,6 +54,9 @@ class RelatorioPDF:
         caminho = Path(caminho_saida)
         caminho.parent.mkdir(parents=True, exist_ok=True)
         
+        # Salvar dados para uso no rodapé de página
+        self._dados = dados
+        
         # Documento com margens reduzidas
         doc = SimpleDocTemplate(
             str(caminho),
@@ -60,7 +64,7 @@ class RelatorioPDF:
             leftMargin=1.2*cm,
             rightMargin=1.2*cm,
             topMargin=1*cm,
-            bottomMargin=1*cm
+            bottomMargin=1.5*cm
         )
         
         elementos = []
@@ -78,113 +82,153 @@ class RelatorioPDF:
         # Rodapé com disclaimer
         elementos.extend(self._rodape(dados))
         
-        doc.build(elementos)
+        # Build com função de página para números
+        doc.build(elementos, onFirstPage=self._rodape_pagina, onLaterPages=self._rodape_pagina)
         return str(caminho.absolute())
     
-    def _cabecalho(self, dados: DadosRelatorio) -> List:
-        """Cabeçalho compacto."""
-        return [
-            Paragraph(dados.titulo, self.styles['TituloPrincipal']),
-            Paragraph(f"ENEM {dados.ano_prova}", self.styles['Subtitulo']),
-        ]
+    def _rodape_pagina(self, canvas, doc):
+        """Adiciona número de página no rodapé de cada página."""
+        canvas.saveState()
+        pagina = f"Página {doc.page}"
+        canvas.setFont('Helvetica', 7)
+        canvas.setFillColor(Cores.CINZA)
+        canvas.drawRightString(doc.pagesize[0] - 1.2*cm, 0.8*cm, pagina)
+        canvas.restoreState()
     
-    def _resumo_visual(self, dados: DadosRelatorio) -> List:
-        """Resumo com barras de progresso."""
+    def _cabecalho(self, dados: DadosRelatorio) -> List:
+        """Cabeçalho elegante e minimalista."""
         elementos = []
         
-        # Gráfico de barras
-        grafico = grafico_barras_notas(dados.areas)
+        # Título principal
+        elementos.append(Paragraph(dados.titulo, self.styles['TituloPrincipal']))
+        
+        # Subtítulo com tipo de aplicação e cor
+        subtitulo_partes = [f"ENEM {dados.ano_prova}"]
+        if dados.tipo_aplicacao:
+            subtitulo_partes.append(dados.tipo_aplicacao)
+        if dados.cor_prova:
+            subtitulo_partes.append(dados.cor_prova.capitalize())
+        
+        elementos.append(Paragraph(" · ".join(subtitulo_partes), self.styles['Subtitulo']))
+        
+        # Linha decorativa sutil
+        d = Drawing(450, 2)
+        linha = Line(100, 1, 350, 1)
+        linha.strokeColor = Cores.CINZA_CLARO
+        linha.strokeWidth = 0.5
+        d.add(linha)
+        elementos.append(d)
+        
+        elementos.append(Spacer(1, 8))
+        return elementos
+    
+    def _resumo_visual(self, dados: DadosRelatorio) -> List:
+        """Resumo visual limpo com média em destaque."""
+        elementos = []
+        
+        # Gráfico de barras primeiro - ordenar LC, CH, CN, MT
+        ordem = ['LC', 'CH', 'CN', 'MT']
+        areas_ordenadas = sorted(dados.areas, key=lambda a: ordem.index(a.sigla) if a.sigla in ordem else 99)
+        grafico = grafico_barras_notas(areas_ordenadas)
         elementos.append(grafico)
         
-        # Média em destaque
+        elementos.append(Spacer(1, 10))
+        
+        # Média grande e impactante depois do gráfico
         if dados.areas:
             media = sum(a.nota for a in dados.areas) / len(dados.areas)
-            elementos.append(Paragraph(
-                f"Média: {media:.1f}",
-                self.styles['NotaDestaque']
-            ))
+            elementos.append(Paragraph("MÉDIA GERAL", self.styles['NotaLabel']))
+            elementos.append(Paragraph(f"{media:.0f}", self.styles['NotaDestaque']))
         
-        elementos.append(Spacer(1, 5))
+        elementos.append(Spacer(1, 18))
         return elementos
     
     def _secao_area(self, area: AreaAnalise) -> List:
-        """Seção de uma área com grade, gráfico e tabela de erros."""
+        """Seção de uma área - design limpo e organizado."""
         elementos = []
         
-        # Título
-        titulo = f"{area.sigla} - {area.nome}"
+        # Título da área com nota
+        titulo = f"{area.sigla} — {area.nome}"
         if area.lingua:
             titulo += f" ({area.lingua})"
-        titulo += f" — {area.nota:.1f} pts"
         elementos.append(Paragraph(titulo, self.styles['TituloArea']))
+        
+        # Código da prova, cor e nota
+        info_prova = f"Prova {area.co_prova}"
+        if area.cor_prova:
+            info_prova += f" ({area.cor_prova.capitalize()})"
+        info_prova += f"  ·  <b>{area.nota:.0f}</b> pontos  ·  {area.acertos}/{area.total_itens} acertos"
+        elementos.append(Paragraph(info_prova, self.styles['TextoNormal']))
         
         # Verificar precisão e adicionar aviso se necessário
         precisao = verificar_precisao_prova(area.ano, area.sigla, area.co_prova)
         if precisao.get('aviso'):
             elementos.append(Paragraph(
-                precisao['aviso'],
+                f"⚠ {precisao['aviso']}",
                 self.styles['AvisoPrecisao']
             ))
+        
+        elementos.append(Spacer(1, 4))
         
         # Grade das 45 questões
         grade = grade_questoes(area.questoes)
         elementos.append(grade)
-        elementos.append(Paragraph(
-            f"✓ {area.acertos} acertos | ✗ {area.total_itens - area.acertos} erros",
-            self.styles['Legenda']
-        ))
         
         # Separar erros
         erros = [q for q in area.questoes if not q.acertou]
         
-        elementos.append(Spacer(1, 5))
+        elementos.append(Spacer(1, 6))
         
-        # Gráfico de impacto - TODAS as questões
-        elementos.append(Paragraph("Impacto das Questões na Nota:", self.styles['TextoNormal']))
-        grafico = grafico_impacto_questoes(area.questoes, titulo=f"{area.sigla}")
+        # Gráfico de impacto - subtítulo de seção
+        elementos.append(Paragraph("Impacto por Questão", self.styles['SubtituloSecao']))
+        grafico = grafico_impacto_questoes(area.questoes, titulo="")
         elementos.append(grafico)
         
         if erros:
-            elementos.append(Spacer(1, 3))
+            elementos.append(Spacer(1, 6))
             
-            # Tabela de erros (todos)
-            elementos.append(Paragraph("Detalhes dos Erros:", self.styles['TextoNormal']))
+            # Tabela de erros
+            elementos.append(Paragraph("Análise dos Erros", self.styles['SubtituloSecao']))
             tabela = tabela_erros_completa(erros)
             if tabela:
                 elementos.append(tabela)
         
-        elementos.append(Spacer(1, 8))
+        elementos.append(Spacer(1, 12))
         return elementos
     
     def _rodape(self, dados: DadosRelatorio) -> List:
-        """Rodapé com disclaimer e assinatura."""
+        """Rodapé minimalista com disclaimer e licença."""
         elementos = []
         
-        # Linha separadora
+        elementos.append(Spacer(1, 5))
+        
+        # Linha separadora fina
         d = Drawing(450, 1)
         linha = Line(0, 0, 450, 0)
         linha.strokeColor = Cores.CINZA_CLARO
+        linha.strokeWidth = 0.3
         d.add(linha)
         elementos.append(d)
         
+        elementos.append(Spacer(1, 8))
+        
         # Disclaimer
         elementos.append(Paragraph(
-            "<b>AVISO:</b> Cálculo aproximado por engenharia reversa dos microdados INEP. "
-            "Precisão varia por prova. Use como referência, não como valor oficial.",
+            "Cálculo aproximado por engenharia reversa dos microdados INEP. "
+            "Precisão varia por prova. Use como referência.",
             self.styles['Disclaimer']
         ))
         
+        # Licença
         elementos.append(Paragraph(
-            "<b>Licença:</b> PolyForm Noncommercial 1.0.0 — Uso comercial proibido sem autorização.",
+            "<b>Licença:</b> PolyForm Noncommercial 1.0.0 — Uso comercial não permitido sem autorização.",
             self.styles['Disclaimer']
         ))
-        
-        elementos.append(Spacer(1, 3))
         
         # Assinatura
         elementos.append(Paragraph(
-            f"Gerado em {dados.data_geracao.strftime('%d/%m/%Y %H:%M')} | "
-            f"© Henrique Lindemann | "
+            f"Gerado em {dados.data_geracao.strftime('%d/%m/%Y %H:%M')}  ·  "
+            f"© Henrique Lindemann  ·  "
             f"github.com/HenriqueLindemann/analise-enem",
             self.styles['Disclaimer']
         ))

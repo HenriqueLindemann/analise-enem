@@ -38,6 +38,7 @@ class AreaAnalise:
     total_itens: int
     questoes: List[QuestaoAnalise] = field(default_factory=list)
     lingua: Optional[str] = None  # Para LC
+    cor_prova: Optional[str] = None  # Ex: "Rosa", "Azul"
     
     @property
     def erros(self) -> int:
@@ -65,6 +66,8 @@ class DadosRelatorio:
     ano_prova: int = 2024
     areas: List[AreaAnalise] = field(default_factory=list)
     observacoes: str = ""
+    tipo_aplicacao: str = ""  # Ex: "1ª Aplicação", "Reaplicação", etc.
+    cor_prova: str = ""  # Ex: "Rosa", "Azul", etc.
     
     @property
     def media_notas(self) -> float:

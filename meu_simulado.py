@@ -112,6 +112,7 @@ def calcular_e_analisar(calc, area, ano, respostas, lingua=None, co_prova=None, 
             'questoes_acertadas': analise['acertos'],
             'questoes_erradas': analise['erros'],
             'lingua': lingua if area == 'LC' else None,
+            'cor_prova': cor_prova,
             'aviso_precisao': aviso,
         }
     except Exception as e:
@@ -119,7 +120,7 @@ def calcular_e_analisar(calc, area, ano, respostas, lingua=None, co_prova=None, 
         return None
 
 
-def gerar_relatorio_pdf(resultados, ano, titulo, nome_arquivo=None):
+def gerar_relatorio_pdf(resultados, ano, titulo, nome_arquivo=None, tipo_aplicacao='', cor_prova=''):
     try:
         from tri_enem.relatorios import RelatorioPDF, DadosRelatorio
         from tri_enem.relatorios.base import AreaAnalise, QuestaoAnalise
@@ -127,7 +128,21 @@ def gerar_relatorio_pdf(resultados, ano, titulo, nome_arquivo=None):
         print("Instale reportlab: pip install reportlab")
         return None
     
-    dados = DadosRelatorio(titulo=titulo, ano_prova=ano)
+    # Formatar tipo de aplicação para exibição
+    tipos_extenso = {
+        '1a_aplicacao': '1ª Aplicação',
+        'digital': 'Digital',
+        'reaplicacao': 'Reaplicação',
+        'segunda_oportunidade': 'Segunda Oportunidade',
+    }
+    tipo_extenso = tipos_extenso.get(tipo_aplicacao, tipo_aplicacao)
+    
+    dados = DadosRelatorio(
+        titulo=titulo, 
+        ano_prova=ano,
+        tipo_aplicacao=tipo_extenso,
+        cor_prova=cor_prova.capitalize() if cor_prova else ''
+    )
     
     for r in resultados:
         questoes = []
@@ -150,6 +165,7 @@ def gerar_relatorio_pdf(resultados, ano, titulo, nome_arquivo=None):
             sigla=r['sigla'], nome=r['nome'], ano=r['ano'], co_prova=r['co_prova'],
             nota=r['nota'], theta=r['theta'], acertos=r['acertos'],
             total_itens=r['total_itens'], questoes=questoes, lingua=r.get('lingua'),
+            cor_prova=r.get('cor_prova'),
         )
         dados.areas.append(area)
     
@@ -229,7 +245,13 @@ def main():
     if GERAR_PDF and resultados:
         print("\n" + "-" * 60)
         print("Gerando relatorio PDF...")
-        caminho = gerar_relatorio_pdf(resultados, ANO, TITULO_RELATORIO, NOME_PDF)
+        # Usar a primeira cor encontrada (normalmente todas são iguais)
+        cor_predominante = COR_LC or COR_CH or COR_CN or COR_MT
+        caminho = gerar_relatorio_pdf(
+            resultados, ANO, TITULO_RELATORIO, NOME_PDF,
+            tipo_aplicacao=TIPO_APLICACAO,
+            cor_prova=cor_predominante
+        )
         if caminho:
             print(f"Relatorio salvo: {caminho}")
     
