@@ -154,11 +154,22 @@ def main():
     
     # Título
     st.markdown("""
-    # TRI ENEM - Calculador de Nota
+    # 📊 TRI ENEM - Calculador de Nota
     
-    Digite suas respostas e calcule sua nota usando o método oficial do INEP. Atualmente somente testado para navegadores desktop.
+    **Calcule sua nota do ENEM com alta precisão usando o método oficial do INEP!**
     
-    **Primeiro passo:** Na barra lateral ⬅️, selecione o ano, tipo de prova e as cores de cada caderno.
+    ✅ **Cálculo TRI com erro < 1 ponto** em provas calibradas  
+    ✅ **Análise completa** de todas as 4 áreas de conhecimento  
+    ✅ **Gráficos interativos** para visualizar seu desempenho  
+    ✅ **Descubra o impacto** de cada questão na sua nota final
+    
+    ---
+    
+    ### 👉 Complete as informações na barra lateral
+    
+    **Passo 1:** Selecione o **ano**, **tipo de aplicação** e **cores** dos cadernos  
+    **Passo 2:** Digite suas **respostas** nas caixas abaixo  
+    **Passo 3:** Clique em **CALCULAR NOTA** e veja seus resultados!
     """)
     
     # Renderizar sidebar e obter configurações
