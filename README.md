@@ -6,19 +6,20 @@ Suporta todas as provas de **2009 a 2024** e gera relatórios em PDF.
 
 ---
 
-## 🎓 Nunca Programou? Sem Problema!
+## Nunca Programou? Sem Problemas!
 
-**Este programa calcula sua nota do ENEM igual ao INEP calcula.** Você só precisa:
+**Este programa calcula sua nota do ENEM como o INEP calcula.** Você só precisa:
 
 1. **Baixar este projeto** (botão verde "Code" → Download ZIP)
-2. **Instalar Python** (é grátis): https://www.python.org/downloads/
+2. **Instalar Python**: https://www.python.org/downloads/
 3. **Abrir o arquivo `meu_simulado.py`** com Bloco de Notas
-4. **Trocar as letras** pelas suas respostas da prova
-5. **Clicar duas vezes** no arquivo para rodar
+4. **Trocar as alternativas** pelas suas respostas da prova
+5. **Trocar a prova** para a que você quer corrigir
+6. **Clicar duas vezes** no arquivo para rodar
 
 **Pronto!** Sua nota aparece na tela e um PDF é criado na pasta `relatorios/`.
 
-**Precisa de ajuda?** Veja tutoriais no YouTube procurando por "como instalar Python Windows".
+**Precisa de ajuda?** Pergunte para sua IA favorita como instalar e rodar um programa Python no seu sistema operacional.
 
 ---
 
