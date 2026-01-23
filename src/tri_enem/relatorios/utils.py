@@ -23,11 +23,6 @@ def verificar_precisao_prova(ano: int, area: str, co_prova: int) -> Dict:
     data_file = base_path / 'coeficientes_data.json'
     problematicas_file = base_path / 'provas_problematicas.json'
     
-    # DEBUG
-    print(f"[DEBUG verificar_precisao] Verificando {ano} {area} {co_prova}")
-    print(f"[DEBUG verificar_precisao] Base path: {base_path}")
-    print(f"[DEBUG verificar_precisao] Arquivo problematicas existe: {problematicas_file.exists()}")
-    
     resultado = {
         'mae': None,
         'r_squared': None,
@@ -44,19 +39,15 @@ def verificar_precisao_prova(ano: int, area: str, co_prova: int) -> Dict:
             with open(problematicas_file, 'r') as f:
                 problematicas = json.load(f)
             
-            print(f"[DEBUG verificar_precisao] Total provas problematicas: {len(problematicas)}")
-            
             for p in problematicas:
                 if p['ano'] == ano and p['area'] == area and p['prova'] == co_prova:
-                    print(f"[DEBUG verificar_precisao] ENCONTRADA! MAE={p['mae']}")
                     resultado['mae'] = p['mae']
                     resultado['r_squared'] = p['r_squared']
                     resultado['confiavel'] = False
                     resultado['aviso'] = f"⚠️ ATENÇÃO: Erro muito alto (MAE={p['mae']:.1f} pts) - resultado pode não ser confiável"
                     resultado['status'] = 'erro_alto'
                     return resultado
-        except Exception as e:
-            print(f"[DEBUG verificar_precisao] Erro ao ler problematicas: {e}")
+        except Exception:
             pass
     
     # Verificar coeficientes_data.json (formato novo com status_provas)

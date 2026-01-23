@@ -116,11 +116,8 @@ def exibir_resultado_area(resultado: Dict):
             'param_b': q.get('param_b', 0),
         })
     
-    # Aviso de precisão se houver (fix v2026.01.23)
+    # Aviso de precisão se houver
     aviso = resultado.get('aviso_precisao')
-    # DEBUG: Sempre mostrar se há aviso no resultado
-    if 'aviso_precisao' in resultado:
-        st.write(f"[DEBUG] Campo aviso_precisao presente: {repr(aviso)}")
     if aviso:
         st.error(aviso)
     
