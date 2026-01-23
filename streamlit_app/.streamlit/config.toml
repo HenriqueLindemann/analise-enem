@@ -2,7 +2,6 @@
 
 [global]
 developmentMode = false
-disableWatchdogWarning = true
 
 [server]
 headless = true

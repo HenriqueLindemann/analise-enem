@@ -117,9 +117,9 @@ def exibir_resultado_area(resultado: Dict):
         })
     
     # Aviso de precisão se houver
-    if resultado.get('aviso_precisao'):
-        st.error("**Atenção:** Esta prova apresenta erro alto em sua calibração. "
-                 "Os resultados podem não ser confiáveis.")
+    aviso = resultado.get('aviso_precisao')
+    if aviso:
+        st.error(aviso)
     
     # Seção 1: Grade de questões + Pizza
     st.markdown("##### Grade de Questões")
