@@ -4,6 +4,24 @@ Calcule sua nota do ENEM usando **Teoria de Resposta ao Item (TRI)** com alta pr
 
 Suporta todas as provas de **2009 a 2024** e gera relatórios em PDF.
 
+---
+
+## 🎓 Nunca Programou? Sem Problema!
+
+**Este programa calcula sua nota do ENEM igual ao INEP calcula.** Você só precisa:
+
+1. **Baixar este projeto** (botão verde "Code" → Download ZIP)
+2. **Instalar Python** (é grátis): https://www.python.org/downloads/
+3. **Abrir o arquivo `meu_simulado.py`** com Bloco de Notas
+4. **Trocar as letras** pelas suas respostas da prova
+5. **Clicar duas vezes** no arquivo para rodar
+
+**Pronto!** Sua nota aparece na tela e um PDF é criado na pasta `relatorios/`.
+
+**Precisa de ajuda?** Veja tutoriais no YouTube procurando por "como instalar Python Windows".
+
+---
+
 ## Início Rápido
 
 ### 1. Instalação
