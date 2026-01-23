@@ -158,10 +158,10 @@ def main():
     
     **Calcule sua nota do ENEM com alta precisão usando o método oficial do INEP!**
     
-    ✅ **Cálculo TRI com erro < 1 ponto** em provas calibradas  
-    ✅ **Análise completa** de todas as 4 áreas de conhecimento  
-    ✅ **Gráficos interativos** para visualizar seu desempenho  
-    ✅ **Descubra o impacto** de cada questão na sua nota final
+    **Cálculo TRI com erro < 1 ponto** em provas calibradas  
+    **Análise completa** de todas as 4 áreas de conhecimento  
+    **Gráficos interativos** para visualizar seu desempenho  
+    **Descubra o impacto** de cada questão na sua nota final
     
     ---
     
