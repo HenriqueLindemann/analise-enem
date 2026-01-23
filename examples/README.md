@@ -8,7 +8,6 @@ Exemplos práticos de como usar o módulo TRI ENEM.
 |---------|-----------|
 | `calcular_nota.py` | Cálculo básico de nota + análise de erros |
 | `analise_completa_2024.py` | Análise completa com geração de PDF |
-| `calibrar_ano.py` | Como calibrar coeficientes para um novo ano |
 
 ## Uso
 
@@ -30,17 +29,18 @@ python meu_simulado.py
 import sys
 sys.path.insert(0, 'src')
 
-from tri_enem import SimuladorNota
+from tri_enem import MapeadorProvas, CalculadorTRI
 
-sim = SimuladorNota()
+# Inicializar
+mapeador = MapeadorProvas()
+calc = CalculadorTRI()
 
-# Matemática 2023 - Prova Azul (código 1211)
-resultado = sim.calcular('MT', 2023, 'CEAEACCCDABCDAACEDDBAAEBABDDEEBDAECABDBCBCADE', co_prova=1211)
+# Obter código da prova pela cor
+co_prova = mapeador.obter_codigo(2023, 'MT', '1a_aplicacao', 'azul')
 
-print(f"Nota: {resultado.nota:.1f}")
-print(f"Acertos: {resultado.acertos}/{resultado.total_itens}")
+# Calcular nota
+respostas = 'CEAEACCCDABCDAACEDDBAAEBABDDEEBDAECABDBCBCADE'
+resultado = calc.calcular_nota_tri(2023, 'MT', co_prova, respostas)
+
+print(f"Nota: {resultado:.1f}")
 ```
-
-## Códigos de Prova
-
-**IMPORTANTE**: Consulte `docs/GUIA_PROVAS.md` para encontrar o código correto da sua prova!

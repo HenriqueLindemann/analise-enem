@@ -1,12 +1,13 @@
 # Ferramentas de Desenvolvimento
 
-Scripts para manutencao e calibracao do modulo.
+Scripts para manutenção e calibração do módulo.
 
 ## Arquivos
 
 | Arquivo | Descrição |
 |---------|-----------|
 | `limpar_microdados.py` | Reduz CSVs do INEP para apenas colunas essenciais |
+| `calibrar_com_mapeamento.py` | Calibra coeficientes usando mapeamento YAML |
 | `calibrar_todos_anos.py` | Recalibra coeficientes para todos os anos |
 
 ## Uso
@@ -17,7 +18,10 @@ Estes scripts requerem os microdados do INEP. Execute da raiz do projeto:
 # Limpar microdados (reduz de ~1.5GB para ~100MB)
 python tools/limpar_microdados.py
 
-# Recalibrar coeficientes
+# Calibrar um ano específico usando mapeamento
+python tools/calibrar_com_mapeamento.py
+
+# Recalibrar todos os anos
 python tools/calibrar_todos_anos.py
 ```
 
@@ -33,3 +37,11 @@ microdados/
 │   └── ITENS_PROVA_2023.csv
 └── ...
 ```
+
+## Calibração
+
+O processo de calibração:
+1. Carrega microdados limpos
+2. Para cada prova, calcula θ (habilidade) usando ML3P
+3. Ajusta regressão linear: `nota = slope × θ + intercept`
+4. Salva coeficientes e métricas de qualidade em `coeficientes_data.json`

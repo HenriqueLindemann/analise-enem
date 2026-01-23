@@ -1,27 +1,32 @@
-# Testes de Validacao
+# Testes de Validação
 
-Scripts para testar a precisao do calculo TRI contra os microdados reais.
+Scripts para testar a precisão do cálculo TRI contra os microdados reais.
 
 ## Arquivos
 
 | Arquivo | Descrição |
 |---------|-----------|
+| `test_mapeador_provas.py` | Testes unitários do mapeamento YAML |
 | `validar_todos_anos.py` | Validação completa 2009-2024 |
 | `validar_completo.py` | Validação por área/ano |
-| `test_module.py` | Teste rápido do módulo |
-| `test_lc_50char.py` | Teste específico para LC (50 chars) |
-| `teste_final.py` | Teste de notas altas (850+) |
 
 ## Uso
 
-Execute da raiz do projeto (requer microdados_limpos/):
+Execute da raiz do projeto:
 
 ```bash
-python tests/test_module.py
+# Testes unitários
+pytest tests/test_mapeador_provas.py
+
+# Validação completa (requer microdados_limpos/)
+python tests/validar_todos_anos.py
 python tests/validar_completo.py
 ```
 
 ## Resultados Esperados
 
-- MAE (Erro Médio Absoluto): < 0.5 pontos
-- R²: > 0.999
+Para provas calibradas:
+- **MAE** (Erro Médio Absoluto): < 1 ponto
+- **R²**: > 0.999
+
+Provas da 1ª aplicação de anos recentes (2018+) têm maior precisão.
