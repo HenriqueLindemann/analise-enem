@@ -116,7 +116,7 @@ def exibir_resultado_area(resultado: Dict):
             'param_b': q.get('param_b', 0),
         })
     
-    # Aviso de precisão se houver
+    # Aviso de precisão se houver (fix v2026.01.23)
     aviso = resultado.get('aviso_precisao')
     if aviso:
         st.error(aviso)
