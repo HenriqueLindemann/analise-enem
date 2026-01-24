@@ -1,0 +1,182 @@
+/* ============================================================================
+   TRI ENEM - Estilos do Streamlit App
+   ============================================================================ */
+
+/* ----------------------------------------------------------------------------
+   LAYOUT GERAL
+   ---------------------------------------------------------------------------- */
+
+.main {
+    padding-top: 1rem;
+}
+
+/* ----------------------------------------------------------------------------
+   MÉTRICAS
+   ---------------------------------------------------------------------------- */
+
+[data-testid="stMetricValue"] {
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+/* ----------------------------------------------------------------------------
+   INPUTS
+   ---------------------------------------------------------------------------- */
+
+.stTextInput input {
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    letter-spacing: 2px;
+}
+
+/* ----------------------------------------------------------------------------
+   BOTÕES
+   ---------------------------------------------------------------------------- */
+
+.stButton > button[kind="primary"] {
+    width: 100%;
+    font-size: 1.1rem;
+    padding: 0.75rem;
+}
+
+/* ----------------------------------------------------------------------------
+   TABS
+   ---------------------------------------------------------------------------- */
+
+.stTabs [data-baseweb="tab-list"] {
+    gap: 8px;
+}
+
+/* ----------------------------------------------------------------------------
+   FOOTER
+   ---------------------------------------------------------------------------- */
+
+.footer {
+    text-align: center;
+    padding: 2rem 0;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+/* ----------------------------------------------------------------------------
+   ELEMENTOS STREAMLIT ESCONDIDOS
+   ---------------------------------------------------------------------------- */
+
+#MainMenu {
+    visibility: hidden;
+}
+
+footer {
+    visibility: hidden;
+}
+
+/* ----------------------------------------------------------------------------
+   RODAPÉ DE IMPRESSÃO (só aparece ao imprimir)
+   ---------------------------------------------------------------------------- */
+
+.print-footer {
+    display: none;
+}
+
+/* ============================================================================
+   ESTILOS PARA IMPRESSÃO 
+   ============================================================================ */
+
+@media print {
+    /* Esconder sidebar e elementos de navegação */
+    [data-testid="stSidebar"],
+    header,
+    .stDeployButton,
+    .stDecoration,
+    [data-testid="stToolbar"] {
+        display: none !important;
+    }
+    
+    /* Esconder botões na impressão */
+    .stButton,
+    .no-print {
+        display: none !important;
+    }
+    
+    /* Expandir todos os expanders */
+    details {
+        display: block !important;
+        border: none !important;
+    }
+    
+    details > summary {
+        display: none !important;
+    }
+    
+    details[open] > *:not(summary) {
+        display: block !important;
+    }
+    
+    /* Ajustar largura para impressão */
+    .main {
+        max-width: 100% !important;
+        padding: 0 !important;
+    }
+    
+    .block-container {
+        max-width: 100% !important;
+        padding: 0 1rem !important;
+    }
+    
+    /* Mostrar rodapé de impressão */
+    .print-footer {
+        display: block !important;
+        text-align: center;
+        margin-top: 2rem;
+        padding-top: 1rem;
+        border-top: 2px solid #3498DB;
+        font-size: 0.9rem;
+        color: #666 !important;
+        page-break-inside: avoid;
+    }
+    
+    .print-footer p {
+        color: #333 !important;
+    }
+    
+    /* Evitar quebra de página em seções importantes */
+    [data-testid="stMetric"],
+    .js-plotly-plot {
+        page-break-inside: avoid;
+    }
+    
+    /* IMPORTANTE: Preservar gráficos Plotly */
+    .js-plotly-plot,
+    .plotly,
+    .plot-container,
+    [data-testid="stPlotlyChart"] {
+        display: block !important;
+        visibility: visible !important;
+        width: 100% !important;
+        page-break-inside: avoid;
+    }
+    
+    /* Preservar cores dos gráficos */
+    .js-plotly-plot .plot,
+    .js-plotly-plot .plotly,
+    .js-plotly-plot svg {
+        background: white !important;
+    }
+    
+    /* NÃO aplicar preto/branco forçado (preserva cores dos gráficos) */
+    /* Apenas ajustar texto principal */
+    body,
+    .main,
+    p,
+    span,
+    h1, h2, h3, h4, h5, h6 {
+        color: #000 !important;
+    }
+    
+    /* Fundo branco para impressão */
+    body,
+    .main,
+    .stApp {
+        background: #fff !important;
+    }
+}

@@ -233,4 +233,16 @@ class RelatorioPDF:
             self.styles['Disclaimer']
         ))
         
+        elementos.append(Spacer(1, 10))
+        
+        # Promoção do site
+        elementos.append(Paragraph(
+            "<b>https://calculadoratri.streamlit.app</b>",
+            self.styles['Disclaimer']
+        ))
+        elementos.append(Paragraph(
+            "Acesse e gere seu relatório gratuitamente também!",
+            self.styles['Disclaimer']
+        ))
+        
         return elementos

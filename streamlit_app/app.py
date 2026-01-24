@@ -24,6 +24,7 @@ sys.path.insert(0, str(_app_dir))
 from calculador import get_calculador
 from components.inputs import input_configuracoes, input_respostas, validar_todas_respostas
 from components.resultados import exibir_resumo_geral, exibir_resultado_area
+from components.impressao import exibir_download_pdf
 
 # ============================================================================
 #                         CONFIGURAÇÃO DA PÁGINA
@@ -51,115 +52,17 @@ st.set_page_config(
     }
 )
 
-# CSS customizado
-st.markdown("""
-<style>
-    /* Estilo geral */
-    .main {
-        padding-top: 1rem;
-    }
-    
-    /* Métricas */
-    [data-testid="stMetricValue"] {
-        font-size: 2rem;
-        font-weight: 700;
-    }
-    
-    /* Inputs de texto */
-    .stTextInput input {
-        font-family: 'Courier New', monospace;
-        font-size: 14px;
-        letter-spacing: 2px;
-    }
-    
-    /* Botão principal */
-    .stButton > button[kind="primary"] {
-        width: 100%;
-        font-size: 1.1rem;
-        padding: 0.75rem;
-    }
-    
-    /* Tabs */
-    .stTabs [data-baseweb="tab-list"] {
-        gap: 8px;
-    }
-    
-    /* Footer */
-    .footer {
-        text-align: center;
-        padding: 2rem 0;
-        color: #666;
-        font-size: 0.9rem;
-    }
-    
-    /* Esconder elementos Streamlit */
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    
-    /* Rodapé de impressão - só aparece ao imprimir */
-    .print-footer {
-        display: none;
-    }
-    
-    /* Estilos para impressão */
-    @media print {
-        /* Esconder sidebar e elementos de navegação */
-        [data-testid="stSidebar"] {
-            display: none !important;
-        }
-        
-        header, .stDeployButton, .stDecoration {
-            display: none !important;
-        }
-        
-        /* Expandir todos os expanders */
-        details {
-            display: block !important;
-        }
-        
-        details > summary {
-            display: none !important;
-        }
-        
-        details[open] > *:not(summary) {
-            display: block !important;
-        }
-        
-        /* Ajustar largura para impressão */
-        .main {
-            max-width: 100% !important;
-            padding: 0 !important;
-        }
-        
-        /* Mostrar rodapé de impressão */
-        .print-footer {
-            display: block !important;
-            text-align: center;
-            margin-top: 2rem;
-            padding-top: 1rem;
-            border-top: 2px solid #3498DB;
-            font-size: 0.9rem;
-            color: #666;
-            page-break-inside: avoid;
-        }
-        
-        /* Evitar quebra de página em seções importantes */
-        [data-testid="stMetric"] {
-            page-break-inside: avoid;
-        }
-        
-        /* Melhorar contraste para impressão */
-        * {
-            color: #000 !important;
-            background: #fff !important;
-        }
-        
-        .stButton {
-            display: none !important;
-        }
-    }
-</style>
-""", unsafe_allow_html=True)
+
+def carregar_css():
+    """Carrega o CSS externo do arquivo styles.css."""
+    css_file = Path(__file__).parent / 'styles.css'
+    if css_file.exists():
+        with open(css_file, 'r', encoding='utf-8') as f:
+            st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+
+
+# Carregar estilos
+carregar_css()
 
 
 # ============================================================================
@@ -204,7 +107,7 @@ def render_sidebar():
         
         [GitHub](https://github.com/HenriqueLindemann/analise-enem)
         
-        v2026.01.23
+        v24.01.2026
         """)
         
         return ano, tipo_aplicacao, lingua, cores
@@ -299,34 +202,6 @@ def main():
         if resultados:
             st.markdown("---")
             
-            # Botão de exportar/imprimir
-            col1, col2, col3 = st.columns([1, 2, 1])
-            with col2:
-                if st.button("🖨️ Imprimir / Exportar PDF", type="secondary", use_container_width=True):
-                    # JavaScript para abrir diálogo de impressão
-                    st.components.v1.html(
-                        """
-                        <script>
-                        // Expandir todos os expanders antes de imprimir
-                        const expandAllDetails = () => {
-                            const details = document.querySelectorAll('details');
-                            details.forEach(detail => detail.setAttribute('open', ''));
-                        };
-                        
-                        // Aguardar um pouco para garantir que a página está renderizada
-                        setTimeout(() => {
-                            expandAllDetails();
-                            setTimeout(() => {
-                                window.print();
-                            }, 500);
-                        }, 100);
-                        </script>
-                        """,
-                        height=0
-                    )
-            
-            st.markdown("---")
-            
             # Resumo geral
             exibir_resumo_geral(resultados)
             
@@ -356,24 +231,10 @@ def main():
             st.session_state['ano'] = ano
             st.session_state['tipo_aplicacao'] = tipo_aplicacao
             
-            # Rodapé especial para impressão
-            st.markdown("""
-            <div class="print-footer">
-                <p style="margin: 0.5rem 0; font-size: 1rem;">
-                    <strong>📊 Relatório gerado gratuitamente em:</strong>
-                </p>
-                <p style="margin: 0.5rem 0; font-size: 1.2rem; color: #3498DB;">
-                    <strong>https://tri-enem.streamlit.app</strong>
-                </p>
-                <p style="margin: 0.5rem 0; font-size: 0.95rem;">
-                    Acesse e gere seu relatório também!
-                </p>
-                <p style="margin-top: 1rem; font-size: 0.85rem; color: #888;">
-                    Desenvolvido por Henrique Lindemann | 
-                    Cálculo TRI oficial do INEP | Erro típico &lt; 1 ponto
-                </p>
-            </div>
-            """, unsafe_allow_html=True)
+            # Download do relatório PDF
+            st.markdown("---")
+            exibir_download_pdf(resultados, ano, tipo_aplicacao)
+            
         else:
             st.error("Não foi possível calcular nenhuma nota. Verifique as configurações e respostas.")
     
