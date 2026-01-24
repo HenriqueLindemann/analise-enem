@@ -57,14 +57,18 @@ class RelatorioPDF:
         # Salvar dados para uso no rodapé de página
         self._dados = dados
         
-        # Documento com margens reduzidas
+        # Documento com margens reduzidas e metadados
         doc = SimpleDocTemplate(
             str(caminho),
             pagesize=A4,
             leftMargin=1.2*cm,
             rightMargin=1.2*cm,
             topMargin=1*cm,
-            bottomMargin=1.5*cm
+            bottomMargin=1.5*cm,
+            title=f"Resultado ENEM {dados.ano_prova}",
+            author="Henrique Lindemann - TRI ENEM",
+            subject=f"Relatório de Simulado ENEM {dados.ano_prova}",
+            creator="TRI ENEM - https://calculadoratri.streamlit.app"
         )
         
         elementos = []
