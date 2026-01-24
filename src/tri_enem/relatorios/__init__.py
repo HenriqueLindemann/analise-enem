@@ -25,7 +25,8 @@ Uso básico:
 
 from .gerador import RelatorioPDF
 from .base import RelatorioBase, DadosRelatorio, AreaAnalise, QuestaoAnalise
-from .utils import verificar_precisao_prova
+# Re-exportar do pacote principal para compatibilidade
+from ..precisao import verificar_precisao_prova
 
 __all__ = [
     'RelatorioPDF',

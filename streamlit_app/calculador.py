@@ -112,7 +112,7 @@ class CalculadorEnem:
             # Verificar precisão
             aviso = None
             try:
-                from tri_enem.relatorios import verificar_precisao_prova
+                from tri_enem import verificar_precisao_prova
                 precisao = verificar_precisao_prova(ano, area, co_prova)
                 if precisao.get('aviso'):
                     aviso = precisao['aviso']

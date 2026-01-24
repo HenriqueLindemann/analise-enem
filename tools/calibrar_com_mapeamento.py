@@ -75,7 +75,7 @@ class StatusCalibracao:
             self.mensagem_aviso = f'⚠️ Precisão reduzida (erro ~{self.mae:.1f} pts)'
         else:
             self.status = 'erro_alto'
-            self.mensagem_aviso = f'⚠️ ATENÇÃO: Erro muito alto (MAE={self.mae:.1f} pts) - resultado pode não ser confiável'
+            self.mensagem_aviso = f'⚠️ ATENÇÃO: Erro muito alto (MAE={self.mae:.1f} pts) - simulação de resultado pode não ser confiável'
 
 
 def carregar_dados_existentes(caminho: Path) -> Dict:

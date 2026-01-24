@@ -28,6 +28,7 @@ from .calibrador import Calibrador
 from .coeficientes import obter_coeficiente, COEF_POR_PROVA, COEF_POR_AREA, COEF_PADRAO
 from .tradutor import obter_config_lc, filtrar_itens_lc, ConfiguracaoLC
 from .mapeador_provas import MapeadorProvas, InfoProva
+from .precisao import verificar_precisao_prova
 
 __all__ = [
     # Interface simplificada (recomendada)
@@ -49,6 +50,8 @@ __all__ = [
     # Mapeador de códigos
     'MapeadorProvas',
     'InfoProva',
+    # Verificação de precisão
+    'verificar_precisao_prova',
 ]
 __version__ = '3.0.0'
 
