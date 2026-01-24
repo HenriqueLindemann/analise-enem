@@ -2,9 +2,6 @@
 # Copyright (c) 2026 Henrique Lindemann
 """
 Componente de geração de relatório PDF para o Streamlit.
-
-Usa link HTML com data URI para abrir PDF em nova aba,
-evitando rerun do Streamlit que perde o contexto.
 """
 
 import streamlit as st
@@ -12,7 +9,6 @@ from typing import List, Dict, Optional
 from pathlib import Path
 from datetime import datetime
 import tempfile
-import base64
 import os
 import sys
 
@@ -22,20 +18,8 @@ if str(_src_path) not in sys.path:
     sys.path.insert(0, str(_src_path))
 
 
-@st.cache_data(show_spinner="Gerando PDF...")
-def _gerar_pdf_cached(resultados_json: str, ano: int, tipo_aplicacao: str, cor_prova: str) -> Optional[bytes]:
-    """
-    Gera PDF com cache para evitar regeneração.
-    
-    Recebe JSON string para ser hashável pelo cache.
-    """
-    import json
-    resultados = json.loads(resultados_json)
-    return _gerar_pdf_interno(resultados, ano, tipo_aplicacao, cor_prova)
-
-
-def _gerar_pdf_interno(resultados: List[Dict], ano: int, tipo_aplicacao: str, cor_prova: str) -> Optional[bytes]:
-    """Lógica interna de geração do PDF."""
+def _gerar_pdf(resultados: List[Dict], ano: int, tipo_aplicacao: str, cor_prova: str) -> Optional[bytes]:
+    """Gera o PDF e retorna bytes."""
     try:
         from tri_enem.relatorios import RelatorioPDF, DadosRelatorio
         from tri_enem.relatorios.base import AreaAnalise, QuestaoAnalise
@@ -124,9 +108,9 @@ def _gerar_pdf_interno(resultados: List[Dict], ano: int, tipo_aplicacao: str, co
 
 def exibir_download_pdf(resultados: List[Dict], ano: int, tipo_aplicacao: str = ""):
     """
-    Exibe link para abrir/baixar o relatório PDF em nova aba.
+    Exibe botão de download do relatório PDF.
     
-    Usa link HTML com data URI - não causa rerun do Streamlit.
+    Usa session_state para manter o PDF gerado entre reruns.
     """
     # Verificar dependências
     try:
@@ -146,36 +130,25 @@ def exibir_download_pdf(resultados: List[Dict], ano: int, tipo_aplicacao: str = 
             cor_prova = r['cor_prova']
             break
     
-    # Converter para JSON para cache
-    import json
-    resultados_json = json.dumps(resultados, ensure_ascii=False)
+    # Gerar PDF apenas uma vez e salvar na session
+    if 'pdf_bytes' not in st.session_state or st.session_state.get('pdf_ano') != ano:
+        with st.spinner("Gerando PDF..."):
+            pdf_bytes = _gerar_pdf(resultados, ano, tipo_aplicacao, cor_prova)
+            if pdf_bytes:
+                st.session_state['pdf_bytes'] = pdf_bytes
+                st.session_state['pdf_ano'] = ano
     
-    # Gerar PDF (com cache - só gera uma vez)
-    pdf_bytes = _gerar_pdf_cached(resultados_json, ano, tipo_aplicacao, cor_prova)
+    pdf_bytes = st.session_state.get('pdf_bytes')
     
     if pdf_bytes:
-        # Converter para base64
-        b64 = base64.b64encode(pdf_bytes).decode()
+        nome_arquivo = f"resultado_enem_{ano}.pdf"
         
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        nome_arquivo = f"resultado_enem_{ano}_{timestamp}.pdf"
-        
-        # Link HTML que abre em nova aba - NÃO causa rerun
-        href = f'data:application/pdf;base64,{b64}'
-        st.markdown(
-            f'''
-            <a href="{href}" download="{nome_arquivo}" target="_blank" 
-               style="display: inline-block; padding: 0.5rem 1rem; 
-                      background-color: #3498DB; color: white; 
-                      text-decoration: none; border-radius: 0.5rem;
-                      font-weight: 600; font-size: 1rem;">
-                📥 Baixar Relatório PDF
-            </a>
-            <p style="margin-top: 0.5rem; font-size: 0.85rem; color: #888;">
-                Clique para baixar ou abrir em nova aba
-            </p>
-            ''',
-            unsafe_allow_html=True
+        st.download_button(
+            label="📥 Baixar Relatório PDF",
+            data=pdf_bytes,
+            file_name=nome_arquivo,
+            mime="application/pdf",
+            type="secondary",
         )
     else:
-        st.error("Não foi possível gerar o PDF. Verifique se reportlab e matplotlib estão instalados.")
+        st.error("Não foi possível gerar o PDF.")

@@ -161,7 +161,7 @@ def main():
             "CALCULAR NOTA",
             type="primary",
             disabled=not tem_respostas,
-            width='stretch'
+            use_container_width=True
         )
     
     # Mostrar erros de validação
@@ -169,10 +169,8 @@ def main():
         for erro in erros_validacao:
             st.error(f"❌ {erro}")
     
-    # Calcular e exibir resultados
+    # Calcular notas quando botão for clicado
     if calcular and tem_respostas and todas_validas:
-        # Container para feedback de loading
-        status_container = st.empty()
         progress_bar = st.progress(0, text="Iniciando cálculo...")
         
         try:
@@ -190,6 +188,16 @@ def main():
             
             progress_bar.progress(100, text="Concluído!")
             progress_bar.empty()
+            
+            # Salvar resultados na sessão
+            if resultados:
+                st.session_state['resultados'] = resultados
+                st.session_state['resultado_ano'] = ano
+                st.session_state['resultado_tipo'] = tipo_aplicacao
+                # Limpar PDF antigo para gerar novo
+                if 'pdf_bytes' in st.session_state:
+                    del st.session_state['pdf_bytes']
+            
         except Exception as e:
             progress_bar.empty()
             st.error(f"Erro ao calcular: {e}")
@@ -199,47 +207,47 @@ def main():
         for erro in erros_calculo:
             st.warning(erro)
         
-        if resultados:
-            st.markdown("---")
-            
-            # Resumo geral
-            exibir_resumo_geral(resultados)
-            
-            st.markdown("---")
-            st.markdown("## Análise Detalhada por Área")
-            st.caption("Clique em uma área para ver a análise completa")
-            
-            # Detalhes por área em expanders
-            for resultado in resultados:
-                sigla = resultado['sigla']
-                nome = {
-                    'LC': 'Linguagens e Códigos',
-                    'CH': 'Ciências Humanas',
-                    'CN': 'Ciências da Natureza',
-                    'MT': 'Matemática'
-                }.get(sigla, sigla)
-                
-                nota = resultado['nota']
-                acertos = resultado['acertos']
-                total = resultado['total_itens']
-                
-                with st.expander(f"**{nome}** — {nota:.0f} pts ({acertos}/{total} acertos)", expanded=False):
-                    exibir_resultado_area(resultado)
-            
-            # Salvar resultados na sessão para possível download
-            st.session_state['resultados'] = resultados
-            st.session_state['ano'] = ano
-            st.session_state['tipo_aplicacao'] = tipo_aplicacao
-            
-            # Download do relatório PDF
-            st.markdown("---")
-            exibir_download_pdf(resultados, ano, tipo_aplicacao)
-            
-        else:
+        if not resultados:
             st.error("Não foi possível calcular nenhuma nota. Verifique as configurações e respostas.")
     
     elif calcular and not tem_respostas:
         st.warning("Preencha pelo menos uma área para calcular.")
+    
+    # Exibir resultados salvos (após calcular ou após rerun do download)
+    if 'resultados' in st.session_state and st.session_state['resultados']:
+        resultados = st.session_state['resultados']
+        ano_resultado = st.session_state.get('resultado_ano', ano)
+        tipo_resultado = st.session_state.get('resultado_tipo', tipo_aplicacao)
+        
+        st.markdown("---")
+        
+        # Resumo geral
+        exibir_resumo_geral(resultados)
+        
+        st.markdown("---")
+        st.markdown("## Análise Detalhada por Área")
+        st.caption("Clique em uma área para ver a análise completa")
+        
+        # Detalhes por área
+        for resultado in resultados:
+            sigla = resultado['sigla']
+            nome = {
+                'LC': 'Linguagens e Códigos',
+                'CH': 'Ciências Humanas',
+                'CN': 'Ciências da Natureza',
+                'MT': 'Matemática'
+            }.get(sigla, sigla)
+            
+            nota = resultado['nota']
+            acertos = resultado['acertos']
+            total = resultado['total_itens']
+            
+            with st.expander(f"**{nome}** — {nota:.0f} pts ({acertos}/{total} acertos)", expanded=False):
+                exibir_resultado_area(resultado)
+        
+        # Download do relatório PDF
+        st.markdown("---")
+        exibir_download_pdf(resultados, ano_resultado, tipo_resultado)
     
     # Footer
     st.markdown("---")
