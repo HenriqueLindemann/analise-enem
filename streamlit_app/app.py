@@ -95,6 +95,69 @@ st.markdown("""
     /* Esconder elementos Streamlit */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
+    
+    /* Rodapé de impressão - só aparece ao imprimir */
+    .print-footer {
+        display: none;
+    }
+    
+    /* Estilos para impressão */
+    @media print {
+        /* Esconder sidebar e elementos de navegação */
+        [data-testid="stSidebar"] {
+            display: none !important;
+        }
+        
+        header, .stDeployButton, .stDecoration {
+            display: none !important;
+        }
+        
+        /* Expandir todos os expanders */
+        details {
+            display: block !important;
+        }
+        
+        details > summary {
+            display: none !important;
+        }
+        
+        details[open] > *:not(summary) {
+            display: block !important;
+        }
+        
+        /* Ajustar largura para impressão */
+        .main {
+            max-width: 100% !important;
+            padding: 0 !important;
+        }
+        
+        /* Mostrar rodapé de impressão */
+        .print-footer {
+            display: block !important;
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 2px solid #3498DB;
+            font-size: 0.9rem;
+            color: #666;
+            page-break-inside: avoid;
+        }
+        
+        /* Evitar quebra de página em seções importantes */
+        [data-testid="stMetric"] {
+            page-break-inside: avoid;
+        }
+        
+        /* Melhorar contraste para impressão */
+        * {
+            color: #000 !important;
+            background: #fff !important;
+        }
+        
+        .stButton {
+            display: none !important;
+        }
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -236,6 +299,34 @@ def main():
         if resultados:
             st.markdown("---")
             
+            # Botão de exportar/imprimir
+            col1, col2, col3 = st.columns([1, 2, 1])
+            with col2:
+                if st.button("🖨️ Imprimir / Exportar PDF", type="secondary", use_container_width=True):
+                    # JavaScript para abrir diálogo de impressão
+                    st.components.v1.html(
+                        """
+                        <script>
+                        // Expandir todos os expanders antes de imprimir
+                        const expandAllDetails = () => {
+                            const details = document.querySelectorAll('details');
+                            details.forEach(detail => detail.setAttribute('open', ''));
+                        };
+                        
+                        // Aguardar um pouco para garantir que a página está renderizada
+                        setTimeout(() => {
+                            expandAllDetails();
+                            setTimeout(() => {
+                                window.print();
+                            }, 500);
+                        }, 100);
+                        </script>
+                        """,
+                        height=0
+                    )
+            
+            st.markdown("---")
+            
             # Resumo geral
             exibir_resumo_geral(resultados)
             
@@ -264,6 +355,25 @@ def main():
             st.session_state['resultados'] = resultados
             st.session_state['ano'] = ano
             st.session_state['tipo_aplicacao'] = tipo_aplicacao
+            
+            # Rodapé especial para impressão
+            st.markdown("""
+            <div class="print-footer">
+                <p style="margin: 0.5rem 0; font-size: 1rem;">
+                    <strong>📊 Relatório gerado gratuitamente em:</strong>
+                </p>
+                <p style="margin: 0.5rem 0; font-size: 1.2rem; color: #3498DB;">
+                    <strong>https://tri-enem.streamlit.app</strong>
+                </p>
+                <p style="margin: 0.5rem 0; font-size: 0.95rem;">
+                    Acesse e gere seu relatório também!
+                </p>
+                <p style="margin-top: 1rem; font-size: 0.85rem; color: #888;">
+                    Desenvolvido por Henrique Lindemann | 
+                    Cálculo TRI oficial do INEP | Erro típico &lt; 1 ponto
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
         else:
             st.error("Não foi possível calcular nenhuma nota. Verifique as configurações e respostas.")
     
