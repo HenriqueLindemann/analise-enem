@@ -57,18 +57,14 @@ class RelatorioPDF:
         # Salvar dados para uso no rodapé de página
         self._dados = dados
         
-        # Documento com margens reduzidas e metadados
+        # Documento com margens reduzidas
         doc = SimpleDocTemplate(
             str(caminho),
             pagesize=A4,
             leftMargin=1.2*cm,
             rightMargin=1.2*cm,
             topMargin=1*cm,
-            bottomMargin=1.5*cm,
-            title=f"Resultado ENEM {dados.ano_prova}",
-            author="Henrique Lindemann - TRI ENEM",
-            subject=f"Relatório de Simulado ENEM {dados.ano_prova}",
-            creator="TRI ENEM - https://calculadoratri.streamlit.app"
+            bottomMargin=1.5*cm
         )
         
         elementos = []
@@ -86,9 +82,20 @@ class RelatorioPDF:
         # Rodapé com disclaimer
         elementos.extend(self._rodape(dados))
         
-        # Build com função de página para números
-        doc.build(elementos, onFirstPage=self._rodape_pagina, onLaterPages=self._rodape_pagina)
+        # Build com função de página para números e metadados
+        doc.build(elementos, onFirstPage=self._primeira_pagina, onLaterPages=self._rodape_pagina)
         return str(caminho.absolute())
+    
+    def _primeira_pagina(self, canvas, doc):
+        """Configura metadados e rodapé da primeira página."""
+        # Definir metadados do PDF
+        canvas.setTitle(f"Resultado ENEM {self._dados.ano_prova}")
+        canvas.setAuthor("Henrique Lindemann - TRI ENEM")
+        canvas.setSubject(f"Relatório de Simulado ENEM {self._dados.ano_prova}")
+        canvas.setCreator("TRI ENEM - https://calculadoratri.streamlit.app")
+        
+        # Adicionar número de página
+        self._rodape_pagina(canvas, doc)
     
     def _rodape_pagina(self, canvas, doc):
         """Adiciona número de página no rodapé de cada página."""
@@ -98,6 +105,7 @@ class RelatorioPDF:
         canvas.setFillColor(Cores.CINZA)
         canvas.drawRightString(doc.pagesize[0] - 1.2*cm, 0.8*cm, pagina)
         canvas.restoreState()
+
     
     def _cabecalho(self, dados: DadosRelatorio) -> List:
         """Cabeçalho elegante e minimalista."""
