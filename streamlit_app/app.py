@@ -41,7 +41,7 @@ st.set_page_config(
         'About': """
         # Calculadora TRI ENEM - Nota do ENEM Online
         
-        Calcule sua nota do ENEM usando **Teoria de Resposta ao Item (TRI)** - 
+        Calcule sua nota real do ENEM usando **Teoria de Resposta ao Item (TRI)** - 
         o mesmo método oficial usado pelo INEP/MEC.
         
         Ferramenta gratuita para estudantes, professores e pesquisadores.
@@ -56,7 +56,7 @@ st.set_page_config(
 
 # Meta tags para SEO - palavras-chave e descrição
 st.markdown("""
-<meta name="description" content="Calculadora TRI ENEM - Calcule sua nota do ENEM online grátis usando a Teoria de Resposta ao Item (TRI). Simulador oficial com gabaritos de 2009 a 2024. Ferramenta gratuita para estudantes.">
+<meta name="description" content="Calculadora TRI ENEM - Calcule sua nota real do ENEM online grátis usando a Teoria de Resposta ao Item (TRI). Simulador oficial com gabaritos de 2009 a 2024. Ferramenta gratuita para estudantes.">
 <meta name="keywords" content="ENEM, TRI, calculadora ENEM, nota ENEM, simulador ENEM, Teoria de Resposta ao Item, calcular nota ENEM, gabarito ENEM, prova ENEM, INEP, vestibular, nota TRI, simulado ENEM online, ENEM 2024, ENEM 2023, correção ENEM">
 <meta name="author" content="Henrique Lindemann">
 <meta name="robots" content="index, follow">
@@ -141,13 +141,13 @@ def main():
     st.title("📊 Calculadora Nota TRI ENEM")
     
     # Descrição otimizada para SEO (search engines favorecem st.header e st.text)
-    st.header("Calcule e analise sua nota do ENEM online e grátis usando a Teoria de Resposta ao Item (TRI) — o mesmo método oficial usado pelo INEP. Gabaritos oficiais de 2009 a 2024 disponíveis.")
+    st.header("Calcule sua nota REAL do ENEM online e grátis. Método TRI oficial do INEP com dados reais de calibração. Gabaritos de 2009 a 2024.")
     
     st.markdown("""
-    **Cálculo TRI com erro < 1 ponto** em provas calibradas  
-    **Análise completa** de todas as 4 áreas de conhecimento  
-    **Gráficos interativos** para visualizar seu desempenho  
-    **Descubra o impacto** de cada questão na sua nota final
+    **Nota REAL, não estimativa** — Usamos os parâmetros oficiais de calibração do INEP  
+    **Impacto de cada questão** — Veja quanto cada acerto ou erro afetou sua nota final  
+    **Matemática, não chutes** — Cálculo TRI com precisão < 1 ponto de erro  
+    **Análise completa** — Gráficos e relatório PDF das 4 áreas de conhecimento
     
     ---
     
