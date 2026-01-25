@@ -277,7 +277,7 @@ def main():
             <a href="https://github.com/HenriqueLindemann/analise-enem" target="_blank">GitHub</a>
         </p>
         <p style="font-size: 0.85rem; color: #666; margin-top: 0.5rem;">
-            📚 Este projeto é <strong>gratuito</strong> e de <strong>uso livre</strong> para estudantes, professores e pesquisadores.
+            📚 Este projeto é <strong>gratuito</strong> e de <strong>uso livre</strong> para estudantes, professores e pesquisadores. Uso comercial requer autorização.
         </p>
         <p style="font-size: 0.8rem; color: #888;">
             Cálculo aproximado usando Teoria de Resposta ao Item (TRI) - erro típico &lt; 1 ponto para provas calibradas
