@@ -31,7 +31,7 @@ from components.impressao import exibir_download_pdf
 # ============================================================================
 
 st.set_page_config(
-    page_title="TRI ENEM - Calculador de Nota | Calcule sua nota com precisão",
+    page_title="Calculadora TRI ENEM - Calcule sua Nota do ENEM Online Grátis",
     page_icon="📊",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -39,18 +39,35 @@ st.set_page_config(
         'Get Help': 'https://github.com/HenriqueLindemann/analise-enem',
         'Report a bug': 'https://github.com/HenriqueLindemann/analise-enem/issues',
         'About': """
-        # TRI ENEM - Calculador de Nota
+        # Calculadora TRI ENEM - Nota do ENEM Online
         
         Calcule sua nota do ENEM usando **Teoria de Resposta ao Item (TRI)** - 
-        o mesmo método usado pelo INEP.
+        o mesmo método oficial usado pelo INEP/MEC.
         
-        Desenvolvido por Henrique Lindemann.
+        Ferramenta gratuita para estudantes, professores e pesquisadores.
+        
+        Desenvolvido por Henrique Lindemann - Engenharia de Computação UFRGS.
         
         [GitHub](https://github.com/HenriqueLindemann/analise-enem) | 
         [LinkedIn](https://www.linkedin.com/in/henriquelindemann/)
         """
     }
 )
+
+# Meta tags para SEO - palavras-chave e descrição
+st.markdown("""
+<meta name="description" content="Calculadora TRI ENEM - Calcule sua nota do ENEM online grátis usando a Teoria de Resposta ao Item (TRI). Simulador oficial com gabaritos de 2009 a 2024. Ferramenta gratuita para estudantes.">
+<meta name="keywords" content="ENEM, TRI, calculadora ENEM, nota ENEM, simulador ENEM, Teoria de Resposta ao Item, calcular nota ENEM, gabarito ENEM, prova ENEM, INEP, vestibular, nota TRI, simulado ENEM online, ENEM 2024, ENEM 2023, correção ENEM">
+<meta name="author" content="Henrique Lindemann">
+<meta name="robots" content="index, follow">
+<meta property="og:title" content="Calculadora TRI ENEM - Calcule sua Nota Online Grátis">
+<meta property="og:description" content="Simule sua nota do ENEM com precisão usando TRI. Gabaritos oficiais de 2009 a 2024. Gratuito para estudantes e pesquisadores.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://calculadoratri.streamlit.app">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Calculadora TRI ENEM - Nota Online Grátis">
+<meta name="twitter:description" content="Calcule sua nota do ENEM usando TRI. Ferramenta gratuita com gabaritos de 2009 a 2024.">
+""", unsafe_allow_html=True)
 
 
 def carregar_css():
@@ -121,11 +138,12 @@ def main():
     """Função principal do app."""
     
     # Título
+    st.title("📊 Calculadora Nota TRI ENEM")
+    
+    # Descrição otimizada para SEO (search engines favorecem st.header e st.text)
+    st.header("Calcule e analise sua nota do ENEM online e grátis usando a Teoria de Resposta ao Item (TRI) — o mesmo método oficial usado pelo INEP. Gabaritos oficiais de 2009 a 2024 disponíveis.")
+    
     st.markdown("""
-    # 📊 TRI ENEM - Calculador de Nota
-    
-    **Calcule sua nota do ENEM com alta precisão usando o método oficial do INEP!**
-    
     **Cálculo TRI com erro < 1 ponto** em provas calibradas  
     **Análise completa** de todas as 4 áreas de conhecimento  
     **Gráficos interativos** para visualizar seu desempenho  
@@ -254,12 +272,15 @@ def main():
     st.markdown("""
     <div class="footer">
         <p>
-            <strong>TRI ENEM</strong> - Calculador de Nota | 
+            <strong>Calculadora TRI ENEM</strong> | 
             Desenvolvido por <a href="https://www.linkedin.com/in/henriquelindemann/" target="_blank">Henrique Lindemann</a> |
             <a href="https://github.com/HenriqueLindemann/analise-enem" target="_blank">GitHub</a>
         </p>
+        <p style="font-size: 0.85rem; color: #666; margin-top: 0.5rem;">
+            📚 Este projeto é <strong>gratuito</strong> e de <strong>uso livre</strong> para estudantes, professores e pesquisadores.
+        </p>
         <p style="font-size: 0.8rem; color: #888;">
-            Cálculo aproximado - erro típico &lt; 1 ponto para provas calibradas
+            Cálculo aproximado usando Teoria de Resposta ao Item (TRI) - erro típico &lt; 1 ponto para provas calibradas
         </p>
     </div>
     """, unsafe_allow_html=True)
