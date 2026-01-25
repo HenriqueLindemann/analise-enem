@@ -141,7 +141,7 @@ def main():
     st.title("📊 Calculadora Nota TRI ENEM")
     
     # Descrição otimizada para SEO (search engines favorecem st.header e st.text)
-    st.header("Calcule sua nota REAL do ENEM online e grátis. Método TRI oficial do INEP com dados reais de calibração. Gabaritos de 2009 a 2024.")
+    st.header("Calcule sua nota REAL do ENEM online e grátis. Método TRI oficial do INEP com dados reais de calibração.")
     
     st.markdown("""
     **Nota REAL, não estimativa** — Usamos os parâmetros oficiais de calibração do INEP  
