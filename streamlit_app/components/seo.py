@@ -53,6 +53,7 @@ def gerar_meta_tags(
     
     tags = f'''
 <!-- SEO Meta Tags -->
+<meta name="google-site-verification" content="Rp7Rf0XvmzPBy1A7XAbeYTEJdMVeX789OMw3D2HBgOs" />
 <meta name="description" content="{description}">
 <meta name="keywords" content="{keywords}">
 <meta name="author" content="{author}">
