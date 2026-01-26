@@ -1,0 +1,17 @@
+# Sitemap para Calculadora TRI ENEM
+# URL: https://calculadoratri.streamlit.app
+# 
+# Nota: Streamlit Cloud não serve arquivos estáticos diretamente.
+# Este sitemap deve ser submetido manualmente ao Google Search Console.
+# 
+# Alternativa: Use um serviço externo para hospedar o sitemap.xml
+# ou configure um redirect no DNS para um arquivo hospedado no GitHub Pages.
+
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://calculadoratri.streamlit.app/sitemap.xml
+
+# Crawl-delay (opcional - respeita taxa de crawling)
+Crawl-delay: 1

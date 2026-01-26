@@ -17,17 +17,11 @@ Suporta todas as provas de **2009 a 2024** com análise detalhada e relatórios 
 
 ---
 
-## 💻 Versão Local - Relatórios em PDF
-
-Se você precisa de relatórios em PDF ou quer rodar localmente, siga os passos abaixo.
-
----
-
 ## 📥 Instalação (apenas versão local)
 
 ### Para quem nunca programou
 
-**Este programa calcula sua nota do ENEM como o INEP calcula.** Você só precisa:
+**Este programa calcula sua nota do ENEM como o INEP calcula.** Você precisa:
 
 1. **Baixar este projeto** (botão verde "Code" → Download ZIP)
 2. **Instalar Python**: https://www.python.org/downloads/
@@ -53,7 +47,7 @@ pip install -r requirements.txt
 
 ---
 
-## 🚀 Uso Rápido
+## Uso Rápido
 
 Edite o arquivo **`meu_simulado.py`** com suas respostas:
 
