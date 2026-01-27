@@ -257,4 +257,18 @@ class RelatorioPDF:
             self.styles['Disclaimer']
         ))
         
+        elementos.append(Spacer(1, 15))
+        
+        # Citação Carl Sagan
+        elementos.append(Paragraph(
+            "<i>\"Nós organizamos uma sociedade baseada em ciência e tecnologia, na qual ninguém entende nada de ciência e tecnologia. "
+            "E essa mistura inflamável de ignorância e poder, mais cedo ou mais tarde, vai explodir na nossa cara. "
+            "Quem está no comando da ciência e tecnologia em uma democracia se as pessoas não sabem nada sobre isso?\"</i>",
+            self.styles['Disclaimer']
+        ))
+        elementos.append(Paragraph(
+            "— <b>Carl Sagan</b>",
+            self.styles['Disclaimer']
+        ))
+        
         return elementos

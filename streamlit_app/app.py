@@ -284,6 +284,21 @@ def main():
         </p>
     </div>
     """, unsafe_allow_html=True)
+    
+    # Citação Carl Sagan
+    st.markdown("---")
+    st.markdown("""
+    <div style="text-align: center; font-style: italic; color: #666; padding: 1rem; max-width: 800px; margin: 0 auto;">
+        <p style="font-size: 0.9rem; line-height: 1.6;">
+            "Nós organizamos uma sociedade baseada em ciência e tecnologia, na qual ninguém entende nada de ciência e tecnologia. 
+            E essa mistura inflamável de ignorância e poder, mais cedo ou mais tarde, vai explodir na nossa cara. 
+            Quem está no comando da ciência e tecnologia em uma democracia se as pessoas não sabem nada sobre isso?"
+        </p>
+        <p style="font-size: 0.85rem; margin-top: 0.5rem;">
+            — <strong>Carl Sagan</strong>
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
 
 
 if __name__ == "__main__":
