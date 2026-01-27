@@ -17,17 +17,11 @@ Suporta todas as provas de **2009 a 2024** com análise detalhada e relatórios 
 
 ---
 
-## 💻 Versão Local - Relatórios em PDF
-
-Se você precisa de relatórios em PDF ou quer rodar localmente, siga os passos abaixo.
-
----
-
 ## 📥 Instalação (apenas versão local)
 
 ### Para quem nunca programou
 
-**Este programa calcula sua nota do ENEM como o INEP calcula.** Você só precisa:
+**Este programa calcula sua nota do ENEM como o INEP calcula.** Você precisa:
 
 1. **Baixar este projeto** (botão verde "Code" → Download ZIP)
 2. **Instalar Python**: https://www.python.org/downloads/
@@ -53,7 +47,7 @@ pip install -r requirements.txt
 
 ---
 
-## 🚀 Uso Rápido
+## Uso Rápido
 
 Edite o arquivo **`meu_simulado.py`** com suas respostas:
 
@@ -158,7 +152,7 @@ O cálculo usa o **Modelo Logístico de 3 Parâmetros (ML3P)** com estimação E
 
 A nota final: `nota = slope × theta + intercept`
 
-Os coeficientes foram descobertos via engenharia reversa dos microdados oficiais do INEP.
+> Os parâmetros são disponíveis publicamente pelo INEP. Para resultados corretos, foi necessário descobrir os valores corretos de transformação (slope e intercept) para cada prova via engenharia reversa.
 
 ## Precisão e Calibração
 
@@ -173,32 +167,19 @@ Os coeficientes foram descobertos via engenharia reversa dos microdados oficiais
 
 ```
 analise-enem/
-├── meu_simulado.py              # 👉 EDITE ESTE com suas respostas
+├── meu_simulado.py               # 👉 EDITE com suas respostas
 ├── requirements.txt
-├── streamlit_app/               # 🌐 Interface Web
-│   ├── app.py                   # Aplicação principal
-│   ├── calculador.py            # Wrapper TRI com cache
-│   ├── requirements.txt
-│   ├── .streamlit/
-│   │   └── config.toml          # Configurações de deploy
-│   └── components/
-│       ├── inputs.py            # Formulários de entrada
-│       ├── resultados.py        # Exibição de resultados
-│       └── graficos.py          # Visualizações Plotly
+├── streamlit_app/                # 🌐 Interface Web
 ├── src/tri_enem/
-│   ├── calculador.py            # Motor de cálculo TRI
-│   ├── simulador.py             # Interface simplificada
-│   ├── calibrador.py            # Calibração de coeficientes
-│   ├── mapeador_provas.py       # API do mapeamento
-│   ├── mapeamento_provas.yaml   # 🗺️ Todas as provas 2009-2024
-│   ├── coeficientes_data.json   # 📊 Coeficientes + status
+│   ├── calculador.py             # Motor de cálculo TRI
+│   ├── simulador.py              # Interface simplificada
+│   ├── calibrador.py             # Calibração de coeficientes
+│   ├── mapeador_provas.py        # API do mapeamento
+│   ├── mapeamento_provas.yaml    # 🗺️ Todas as provas 2009-2024
+│   ├── coeficientes_data.json    # 📊 Coeficientes + status
 │   ├── provas_problematicas.json
-│   ├── tradutor.py              # LC (inglês/espanhol)
-│   └── relatorios/              # Gerador de PDF
-│       ├── gerador.py
-│       ├── graficos.py
-│       ├── tabelas.py
-│       └── utils.py
+│   ├── tradutor.py               # LC (inglês/espanhol)
+│   └── relatorios/               # Gerador de PDF
 ├── tools/
 │   ├── calibrar_com_mapeamento.py 
 │   ├── calibrar_todos_anos.py

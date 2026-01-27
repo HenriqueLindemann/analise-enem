@@ -9,217 +9,182 @@ Interface web para cálculo de nota TRI do ENEM.
 Desenvolvido por Henrique Lindemann - Eng. Computação UFRGS
 
 Execute com: streamlit run streamlit_app/app.py
+
+Estrutura modular:
+- config.py: Configurações centralizadas (SEO, textos, constantes)
+- components/layout.py: Estrutura e configuração da página
+- components/seo.py: Meta tags e Schema.org JSON-LD
+- components/inputs.py: Entradas de dados
+- components/resultados.py: Exibição de resultados
+- components/graficos.py: Visualizações Plotly
+- components/impressao.py: Geração de PDF
 """
 
 import streamlit as st
 import sys
 from pathlib import Path
 
-# Configurar paths
+# ============================================================================
+#                         CONFIGURAR PATHS
+# ============================================================================
+
 _app_dir = Path(__file__).parent
 _root_dir = _app_dir.parent
 sys.path.insert(0, str(_root_dir / 'src'))
 sys.path.insert(0, str(_app_dir))
 
+# ============================================================================
+#                         IMPORTS LOCAIS
+# ============================================================================
+
+from config import (
+    SEO,
+    AREAS_ENEM,
+    APP_VERSION,
+)
 from calculador import get_calculador
-from components.inputs import input_configuracoes, input_respostas, validar_todas_respostas
+from components.inputs import input_respostas, validar_todas_respostas
 from components.resultados import exibir_resumo_geral, exibir_resultado_area
 from components.impressao import exibir_download_pdf
-
-# ============================================================================
-#                         CONFIGURAÇÃO DA PÁGINA
-# ============================================================================
-
-st.set_page_config(
-    page_title="Calculadora TRI ENEM - Calcule sua Nota do ENEM Online Grátis",
-    page_icon="📊",
-    layout="wide",
-    initial_sidebar_state="expanded",
-    menu_items={
-        'Get Help': 'https://github.com/HenriqueLindemann/analise-enem',
-        'Report a bug': 'https://github.com/HenriqueLindemann/analise-enem/issues',
-        'About': """
-        # Calculadora TRI ENEM - Nota do ENEM Online
-        
-        Calcule sua nota real do ENEM usando **Teoria de Resposta ao Item (TRI)** - 
-        o mesmo método oficial usado pelo INEP/MEC.
-        
-        Ferramenta gratuita para estudantes, professores e pesquisadores.
-        
-        Desenvolvido por Henrique Lindemann - Engenharia de Computação UFRGS.
-        
-        [GitHub](https://github.com/HenriqueLindemann/analise-enem) | 
-        [LinkedIn](https://www.linkedin.com/in/henriquelindemann/)
-        """
-    }
+from components.layout import (
+    configurar_pagina,
+    carregar_css,
+    render_header,
+    render_instrucoes,
+    render_sidebar_config,
+    render_botao_calcular,
+    render_footer,
 )
+from components.seo import gerar_meta_tags, gerar_schema_json_ld, gerar_noscript_seo
 
-# Meta tags para SEO - palavras-chave e descrição
-st.markdown("""
-<meta name="description" content="Calculadora TRI ENEM - Calcule sua nota real do ENEM online grátis usando a Teoria de Resposta ao Item (TRI). Simulador oficial com gabaritos de 2009 a 2024. Ferramenta gratuita para estudantes.">
-<meta name="keywords" content="ENEM, TRI, calculadora ENEM, nota ENEM, simulador ENEM, Teoria de Resposta ao Item, calcular nota ENEM, gabarito ENEM, prova ENEM, INEP, vestibular, nota TRI, simulado ENEM online, ENEM 2024, ENEM 2023, correção ENEM">
-<meta name="author" content="Henrique Lindemann">
-<meta name="robots" content="index, follow">
-<meta property="og:title" content="Calculadora TRI ENEM - Calcule sua Nota Online Grátis">
-<meta property="og:description" content="Simule sua nota do ENEM com precisão usando TRI. Gabaritos oficiais de 2009 a 2024. Gratuito para estudantes e pesquisadores.">
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://calculadoratri.streamlit.app">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Calculadora TRI ENEM - Nota Online Grátis">
-<meta name="twitter:description" content="Calcule sua nota do ENEM usando TRI. Ferramenta gratuita com gabaritos de 2009 a 2024.">
-""", unsafe_allow_html=True)
+# ============================================================================
+#                         CONFIGURAÇÃO INICIAL
+# ============================================================================
 
+# IMPORTANTE: set_page_config deve ser a primeira chamada Streamlit
+configurar_pagina()
 
-def carregar_css():
-    """Carrega o CSS externo do arquivo styles.css."""
-    css_file = Path(__file__).parent / 'styles.css'
-    if css_file.exists():
-        with open(css_file, 'r', encoding='utf-8') as f:
-            st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
-
-
-# Carregar estilos
+# Carregar estilos CSS
 carregar_css()
 
-
 # ============================================================================
-#                              SIDEBAR
+#                         SEO - META TAGS E SCHEMA.ORG
 # ============================================================================
 
-def render_sidebar():
-    """Renderiza a sidebar com configurações e informações."""
+def injetar_seo():
+    """Injeta meta tags, Schema.org JSON-LD e noscript para SEO."""
+    from config import APP_AUTHOR, APP_AUTHOR_URL, APP_GITHUB_URL, APP_CANONICAL_URL
     
-    with st.sidebar:
-        st.markdown("## ⚙️ Configurações")
-        
-        # Obter calculador
-        calc = get_calculador()
-        mapeador = calc.mapeador
-        
-        # Inputs de configuração
-        ano, tipo_aplicacao, lingua, cores = input_configuracoes(mapeador)
-        
-        st.markdown("---")
-        
-        # Informações
-        with st.expander("Sobre o cálculo", expanded=False):
-            st.markdown("""
-            O cálculo usa **Teoria de Resposta ao Item (TRI)**, 
-            o mesmo método usado pelo INEP.
-            
-            **Características:**
-            - Modelo Logístico de 3 Parâmetros (ML3)
-            - Estimação EAP (Expected a Posteriori)
-            - Coeficientes de equalização calibrados
-            
-            **Precisão:**
-            - Erro típico < 1 ponto para provas calibradas
-            - Pode haver diferenças em provas não calibradas
-            """)
-        
-        st.markdown("---")
-        
-        st.caption("""
-        Desenvolvido por [Henrique Lindemann](https://www.linkedin.com/in/henriquelindemann/)
-        
-        [GitHub](https://github.com/HenriqueLindemann/analise-enem)
-        
-        v24.01.2026
-        """)
-        
-        return ano, tipo_aplicacao, lingua, cores
+    # Meta tags HTML
+    meta_html = gerar_meta_tags(
+        title=SEO.page_title,
+        description=SEO.meta_description,
+        keywords=SEO.meta_keywords,
+        canonical_url=APP_CANONICAL_URL,
+        author=APP_AUTHOR,
+        og_title=SEO.og_title,
+        og_description=SEO.og_description,
+        og_type=SEO.og_type,
+        og_image=SEO.og_image,
+        twitter_card=SEO.twitter_card,
+        twitter_title=SEO.twitter_title,
+        twitter_description=SEO.twitter_description,
+    )
+    
+    # Schema.org JSON-LD para rich snippets no Google
+    schema_html = gerar_schema_json_ld(
+        name="Calculadora TRI ENEM",
+        description=SEO.meta_description,
+        url=APP_CANONICAL_URL,
+        author_name=APP_AUTHOR,
+        author_url=APP_AUTHOR_URL,
+        github_url=APP_GITHUB_URL,
+    )
+    
+    # Conteúdo noscript para crawlers básicos
+    noscript_html = gerar_noscript_seo()
+    
+    # Injetar tudo
+    st.markdown(meta_html + schema_html + noscript_html, unsafe_allow_html=True)
 
+
+# Injetar SEO
+injetar_seo()
 
 # ============================================================================
 #                            PÁGINA PRINCIPAL
 # ============================================================================
 
 def main():
-    """Função principal do app."""
+    """Função principal do app - orquestra os componentes."""
     
-    # Título
-    st.title("📊 Calculadora Nota TRI ENEM")
+    # Header com título e descrição (SEO-friendly)
+    render_header()
     
-    # Descrição otimizada para SEO (search engines favorecem st.header e st.text)
-    st.header("Calcule sua nota REAL do ENEM online e grátis. Método TRI oficial do INEP com dados reais de calibração.")
+    # Instruções de uso
+    render_instrucoes()
     
-    st.markdown("""
-    **Nota REAL, não estimativa** — Usamos os parâmetros oficiais de calibração do INEP  
-    **Impacto de cada questão** — Veja quanto cada acerto ou erro afetou sua nota final  
-    **Matemática, não chutes** — Cálculo TRI com precisão < 1 ponto de erro  
-    **Análise completa** — Gráficos e relatório PDF das 4 áreas de conhecimento
+    # Sidebar: configurações (ano, tipo, língua, cores)
+    calc = get_calculador()
+    ano, tipo_aplicacao, lingua, cores = render_sidebar_config(calc.mapeador)
     
-    ---
-    
-    ### 👉 Complete as informações na barra lateral
-    
-    **Passo 1:** Selecione o **ano**, **tipo de aplicação** e **cores** dos cadernos  
-    **Passo 2:** Digite suas **respostas** nas caixas abaixo  
-    **Passo 3:** Clique em **CALCULAR NOTA** e veja seus resultados!
-    """)
-    
-    # Renderizar sidebar e obter configurações
-    ano, tipo_aplicacao, lingua, cores = render_sidebar()
-    
-    # Inputs de respostas
+    # Área principal: inputs de respostas
     respostas = input_respostas()
     
-    # Validação
+    # Validação das respostas
     todas_validas, erros_validacao = validar_todas_respostas(respostas)
     
     # Verificar se há alguma resposta preenchida
     tem_respostas = any(r and r != "." * 45 for r in respostas.values())
     
     # Botão de calcular
-    st.markdown("---")
-    
-    col_btn1, col_btn2, col_btn3 = st.columns([1, 2, 1])
-    with col_btn2:
-        calcular = st.button(
-            "CALCULAR NOTA",
-            type="primary",
-            disabled=not tem_respostas,
-            use_container_width=True
-        )
+    calcular = render_botao_calcular(tem_respostas)
     
     # Mostrar erros de validação
     if erros_validacao and tem_respostas:
         for erro in erros_validacao:
             st.error(f"❌ {erro}")
     
-    # Calcular notas quando botão for clicado
+    # Processar cálculo
     if calcular and tem_respostas and todas_validas:
-        progress_bar = st.progress(0, text="Iniciando cálculo...")
+        _processar_calculo(calc, ano, tipo_aplicacao, lingua, cores, respostas)
+    elif calcular and not tem_respostas:
+        st.warning("Preencha pelo menos uma área para calcular.")
+    
+    # Exibir resultados salvos (persiste após reruns)
+    _exibir_resultados_salvos(ano, tipo_aplicacao)
+    
+    # Footer
+    render_footer()
+
+
+def _processar_calculo(calc, ano, tipo_aplicacao, lingua, cores, respostas):
+    """Processa o cálculo das notas com progress bar."""
+    progress_bar = st.progress(0, text="Iniciando cálculo...")
+    
+    try:
+        progress_bar.progress(20, text="Carregando parâmetros TRI...")
         
-        try:
-            progress_bar.progress(20, text="Carregando parâmetros TRI...")
-            calc = get_calculador()
-            
-            progress_bar.progress(50, text="Calculando notas...")
-            resultados, erros_calculo = calc.calcular_todas_areas(
-                ano=ano,
-                respostas=respostas,
-                cores=cores,
-                tipo_aplicacao=tipo_aplicacao,
-                lingua=lingua
-            )
-            
-            progress_bar.progress(100, text="Concluído!")
-            progress_bar.empty()
-            
-            # Salvar resultados na sessão
-            if resultados:
-                st.session_state['resultados'] = resultados
-                st.session_state['resultado_ano'] = ano
-                st.session_state['resultado_tipo'] = tipo_aplicacao
-                # Limpar PDF antigo para gerar novo
-                if 'pdf_bytes' in st.session_state:
-                    del st.session_state['pdf_bytes']
-            
-        except Exception as e:
-            progress_bar.empty()
-            st.error(f"Erro ao calcular: {e}")
-            resultados, erros_calculo = [], []
+        progress_bar.progress(50, text="Calculando notas...")
+        resultados, erros_calculo = calc.calcular_todas_areas(
+            ano=ano,
+            respostas=respostas,
+            cores=cores,
+            tipo_aplicacao=tipo_aplicacao,
+            lingua=lingua
+        )
+        
+        progress_bar.progress(100, text="Concluído!")
+        progress_bar.empty()
+        
+        # Salvar resultados na sessão
+        if resultados:
+            st.session_state['resultados'] = resultados
+            st.session_state['resultado_ano'] = ano
+            st.session_state['resultado_tipo'] = tipo_aplicacao
+            # Limpar PDF antigo para gerar novo
+            if 'pdf_bytes' in st.session_state:
+                del st.session_state['pdf_bytes']
         
         # Mostrar erros de cálculo
         for erro in erros_calculo:
@@ -227,79 +192,51 @@ def main():
         
         if not resultados:
             st.error("Não foi possível calcular nenhuma nota. Verifique as configurações e respostas.")
-    
-    elif calcular and not tem_respostas:
-        st.warning("Preencha pelo menos uma área para calcular.")
-    
-    # Exibir resultados salvos (após calcular ou após rerun do download)
-    if 'resultados' in st.session_state and st.session_state['resultados']:
-        resultados = st.session_state['resultados']
-        ano_resultado = st.session_state.get('resultado_ano', ano)
-        tipo_resultado = st.session_state.get('resultado_tipo', tipo_aplicacao)
-        
-        st.markdown("---")
-        
-        # Resumo geral
-        exibir_resumo_geral(resultados)
-        
-        st.markdown("---")
-        st.markdown("## Análise Detalhada por Área")
-        st.caption("Clique em uma área para ver a análise completa")
-        
-        # Detalhes por área
-        for resultado in resultados:
-            sigla = resultado['sigla']
-            nome = {
-                'LC': 'Linguagens e Códigos',
-                'CH': 'Ciências Humanas',
-                'CN': 'Ciências da Natureza',
-                'MT': 'Matemática'
-            }.get(sigla, sigla)
             
-            nota = resultado['nota']
-            acertos = resultado['acertos']
-            total = resultado['total_itens']
-            
-            with st.expander(f"**{nome}** — {nota:.0f} pts ({acertos}/{total} acertos)", expanded=False):
-                exibir_resultado_area(resultado)
-        
-        # Download do relatório PDF
-        st.markdown("---")
-        exibir_download_pdf(resultados, ano_resultado, tipo_resultado)
-    
-    # Footer
-    st.markdown("---")
-    st.markdown("""
-    <div class="footer">
-        <p>
-            <strong>Calculadora TRI ENEM</strong> | 
-            Desenvolvido por <a href="https://www.linkedin.com/in/henriquelindemann/" target="_blank">Henrique Lindemann</a> |
-            <a href="https://github.com/HenriqueLindemann/analise-enem" target="_blank">GitHub</a>
-        </p>
-        <p style="font-size: 0.85rem; color: #666; margin-top: 0.5rem;">
-            📚 Este projeto é <strong>gratuito</strong> e de <strong>uso livre</strong> para estudantes, professores e pesquisadores. Uso comercial requer autorização.
-        </p>
-        <p style="font-size: 0.8rem; color: #888;">
-            Cálculo aproximado usando Teoria de Resposta ao Item (TRI) - erro típico &lt; 1 ponto para provas calibradas
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    # Citação Carl Sagan
-    st.markdown("---")
-    st.markdown("""
-    <div style="text-align: center; font-style: italic; color: #666; padding: 1rem; max-width: 800px; margin: 0 auto;">
-        <p style="font-size: 0.9rem; line-height: 1.6;">
-            "Nós organizamos uma sociedade baseada em ciência e tecnologia, na qual ninguém entende nada de ciência e tecnologia. 
-            E essa mistura inflamável de ignorância e poder, mais cedo ou mais tarde, vai explodir na nossa cara. 
-            Quem está no comando da ciência e tecnologia em uma democracia se as pessoas não sabem nada sobre isso?"
-        </p>
-        <p style="font-size: 0.85rem; margin-top: 0.5rem;">
-            — <strong>Carl Sagan</strong>
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
+    except Exception as e:
+        progress_bar.empty()
+        st.error(f"Erro ao calcular: {e}")
 
+
+def _exibir_resultados_salvos(ano_atual, tipo_atual):
+    """Exibe resultados salvos na sessão."""
+    if 'resultados' not in st.session_state or not st.session_state['resultados']:
+        return
+    
+    resultados = st.session_state['resultados']
+    ano_resultado = st.session_state.get('resultado_ano', ano_atual)
+    tipo_resultado = st.session_state.get('resultado_tipo', tipo_atual)
+    
+    st.markdown("---")
+    
+    # Resumo geral com métricas
+    exibir_resumo_geral(resultados)
+    
+    st.markdown("---")
+    
+    # Seção de análise detalhada (H2 para SEO)
+    st.markdown("## 📊 Análise Detalhada por Área")
+    st.caption("Clique em uma área para ver a análise completa")
+    
+    # Detalhes por área em expanders
+    for resultado in resultados:
+        sigla = resultado['sigla']
+        nome = AREAS_ENEM.get(sigla, sigla)
+        nota = resultado['nota']
+        acertos = resultado['acertos']
+        total = resultado['total_itens']
+        
+        with st.expander(f"**{nome}** — {nota:.0f} pts ({acertos}/{total} acertos)", expanded=False):
+            exibir_resultado_area(resultado)
+    
+    # Download do relatório PDF
+    st.markdown("---")
+    exibir_download_pdf(resultados, ano_resultado, tipo_resultado)
+
+
+# ============================================================================
+#                         EXECUÇÃO
+# ============================================================================
 
 if __name__ == "__main__":
     main()
