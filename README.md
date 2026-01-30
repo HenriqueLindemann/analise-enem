@@ -11,9 +11,7 @@ Suporta todas as provas de **2009 a 2024** com análise detalhada e relatórios 
 **👉 Acesse direto no navegador:** [https://calculadoratri.streamlit.app/](https://calculadoratri.streamlit.app/)
 
 ✅ Não precisa instalar Python  
-✅ Não precisa baixar código  
-✅ Visualize análises e gráficos interativos  
-✅ Funciona em qualquer navegador desktop
+✅ Visualize análises e gráficos interativos em seu navegador
 
 ---
 

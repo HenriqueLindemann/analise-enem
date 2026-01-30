@@ -10,11 +10,11 @@ Verifica:
 Execute a partir da raiz do projeto:
     python tests/validar_todos_anos.py
 """
-import sys
 from pathlib import Path
 
-# Adicionar src ao path
-sys.path.insert(0, str(Path(__file__).parent.parent / 'src'))
+import _utils
+
+_utils.add_src_to_path()
 
 import pandas as pd
 import numpy as np
@@ -48,6 +48,7 @@ def validar_ano_area_completo(sim, ano, area, n_amostras=100):
     
     df = df[(df[pres_col] == 1) & (df[nota_col] > 0)]
     df = df.dropna(subset=[nota_col, resp_col, prova_col])
+    print(f"  Dados filtrados: {len(df)} registros", flush=True)
     
     if len(df) < 10:
         return {'erro': 'Poucos dados'}
@@ -68,6 +69,7 @@ def validar_ano_area_completo(sim, ano, area, n_amostras=100):
         df_faixa = df[df['faixa'] == faixa]
         n_sample = min(len(df_faixa), max(10, n_amostras // 6))
         df_sample = df_faixa.sample(n=n_sample, random_state=42)
+        print(f"  Faixa {faixa}: amostrando {n_sample}/{len(df_faixa)}", flush=True)
         
         erros = []
         notas_reais = []

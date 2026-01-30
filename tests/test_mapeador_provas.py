@@ -4,11 +4,9 @@ Testes para o módulo MapeadorProvas
 Execute com: python -m pytest tests/test_mapeador_provas.py -v
 """
 
-import sys
-from pathlib import Path
+import _utils
 
-# Adicionar src ao path
-sys.path.insert(0, str(Path(__file__).parent.parent / 'src'))
+_utils.add_src_to_path()
 
 import pytest
 from tri_enem.mapeador_provas import MapeadorProvas, InfoProva
