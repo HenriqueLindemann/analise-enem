@@ -62,7 +62,11 @@ class MapeadorProvas:
         >>> print(cores)  # ['azul', 'amarela', 'rosa', 'cinza']
     """
     
-    def __init__(self, arquivo_mapeamento: Optional[Path] = None):
+    def __init__(
+        self,
+        arquivo_mapeamento: Optional[Path] = None,
+        arquivo_ordem_provas: Optional[Path] = None
+    ):
         """
         Inicializa o mapeador.
         
@@ -79,6 +83,11 @@ class MapeadorProvas:
         self.metadata = self.dados.get('_metadata', {})
         self.aliases_tipo = self.metadata.get('aliases_tipo_aplicacao', {})
         self.aliases_cor = self.metadata.get('aliases_cores', {})
+
+        if arquivo_ordem_provas is None:
+            arquivo_ordem_provas = Path(__file__).parent / 'ordem_provas.yaml'
+
+        self.ordem_provas = self._carregar_ordem_provas(arquivo_ordem_provas)
     
     def normalizar_tipo_aplicacao(self, tipo: str) -> str:
         """
@@ -170,6 +179,57 @@ class MapeadorProvas:
         }
         
         return mapa_nomes.get(area_upper, area_upper)
+
+    def _carregar_ordem_provas(self, arquivo_ordem_provas: Path) -> Dict:
+        """Carrega o arquivo de ordem das provas (se existir)."""
+        if not arquivo_ordem_provas.exists():
+            return {}
+
+        try:
+            with open(arquivo_ordem_provas, 'r', encoding='utf-8') as f:
+                return yaml.safe_load(f) or {}
+        except Exception:
+            return {}
+
+    def listar_ordem_provas(self, ano: int) -> List[str]:
+        """
+        Retorna a ordem das provas para um ano.
+
+        A ordem e definida em ordem_provas.yaml e pode usar intervalos de anos.
+        """
+        dados = self.ordem_provas or {}
+        metadata = dados.get('_metadata', {})
+        fallback = metadata.get('default', ['LC', 'CH', 'CN', 'MT'])
+
+        for regra in dados.get('ordens', []):
+            anos = regra.get('anos', {})
+            ano_inicio = anos.get('de')
+            ano_fim = anos.get('ate')
+            if ano_inicio is None or ano_fim is None:
+                continue
+
+            if ano_inicio <= ano <= ano_fim:
+                return self._normalizar_ordem_provas(regra.get('ordem'), fallback)
+
+        return self._normalizar_ordem_provas(fallback, ['LC', 'CH', 'CN', 'MT'])
+
+    def _normalizar_ordem_provas(self, ordem, fallback) -> List[str]:
+        """Normaliza a ordem para siglas validas e sem repeticao."""
+        if not ordem or not isinstance(ordem, list):
+            ordem = fallback
+
+        resultado = []
+        vistos = set()
+        for item in ordem:
+            sigla = self.normalizar_area(str(item))
+            if sigla in ['LC', 'CH', 'CN', 'MT'] and sigla not in vistos:
+                resultado.append(sigla)
+                vistos.add(sigla)
+
+        if len(resultado) != 4:
+            return list(fallback) if isinstance(fallback, list) else ['LC', 'CH', 'CN', 'MT']
+
+        return resultado
     
     def obter_codigo(
         self,

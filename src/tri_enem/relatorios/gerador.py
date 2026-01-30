@@ -27,6 +27,7 @@ from .estilos import criar_estilos, Cores
 from .graficos import grafico_barras_notas, grafico_impacto_questoes, grade_questoes, legenda_grafico_impacto
 from .tabelas import tabela_erros_completa, tabela_resumo_areas
 from .utils import verificar_precisao_prova
+from ..mapeador_provas import MapeadorProvas
 
 
 class RelatorioPDF:
@@ -72,11 +73,13 @@ class RelatorioPDF:
         # Cabeçalho
         elementos.extend(self._cabecalho(dados))
         
+        areas_ordenadas = self._ordenar_areas_por_prova(dados.areas, dados.ano_prova)
+
         # Resumo visual (barras)
-        elementos.extend(self._resumo_visual(dados))
+        elementos.extend(self._resumo_visual(dados, areas_ordenadas))
         
         # Seções por área
-        for area in dados.areas:
+        for area in areas_ordenadas:
             elementos.extend(self._secao_area(area))
         
         # Rodapé com disclaimer
@@ -134,13 +137,11 @@ class RelatorioPDF:
         elementos.append(Spacer(1, 8))
         return elementos
     
-    def _resumo_visual(self, dados: DadosRelatorio) -> List:
+    def _resumo_visual(self, dados: DadosRelatorio, areas_ordenadas: List[AreaAnalise]) -> List:
         """Resumo visual limpo com média em destaque."""
         elementos = []
         
-        # Gráfico de barras primeiro - ordenar LC, CH, CN, MT
-        ordem = ['LC', 'CH', 'CN', 'MT']
-        areas_ordenadas = sorted(dados.areas, key=lambda a: ordem.index(a.sigla) if a.sigla in ordem else 99)
+        # Gráfico de barras primeiro - ordenar por prova (ano)
         grafico = grafico_barras_notas(areas_ordenadas)
         elementos.append(grafico)
         
@@ -154,6 +155,16 @@ class RelatorioPDF:
         
         elementos.append(Spacer(1, 18))
         return elementos
+
+    def _ordenar_areas_por_prova(self, areas: List[AreaAnalise], ano: int) -> List[AreaAnalise]:
+        """Ordena áreas conforme a ordem das provas do ano."""
+        try:
+            ordem = MapeadorProvas().listar_ordem_provas(ano)
+        except Exception:
+            ordem = ['LC', 'CH', 'CN', 'MT']
+
+        index_map = {sigla: idx for idx, sigla in enumerate(ordem)}
+        return sorted(areas, key=lambda a: index_map.get(a.sigla, 99))
     
     def _secao_area(self, area: AreaAnalise) -> List:
         """Seção de uma área - design limpo e organizado."""

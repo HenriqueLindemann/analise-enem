@@ -29,6 +29,56 @@
     letter-spacing: 2px;
 }
 
+.resp-visual {
+    margin-top: 0.35rem;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    background: #fafafa;
+    overflow-x: auto;
+}
+
+.resp-visual--empty {
+    opacity: 0.65;
+}
+
+.resp-visual__label {
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin-bottom: 0.25rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.resp-visual__ruler,
+.resp-visual__blocks {
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    line-height: 1.4;
+    white-space: pre;
+}
+
+.resp-visual__ruler {
+    color: #6b7280;
+}
+
+.resp-visual__blocks {
+    color: #111827;
+}
+
+.resp-char--empty {
+    color: #cbd5e1;
+}
+
+.resp-char--dot {
+    color: #94a3b8;
+}
+
+.resp-char--invalid {
+    color: #b91c1c;
+    font-weight: 700;
+}
+
 /* ----------------------------------------------------------------------------
    BOTÕES
    ---------------------------------------------------------------------------- */

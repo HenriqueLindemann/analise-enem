@@ -1,0 +1,13 @@
+_metadata:
+  descricao: "Ordem das provas por ano (intervalos inclusivos)"
+  default: ["LC", "CH", "CN", "MT"]
+
+ordens:
+  - anos:
+      de: 2017
+      ate: 2025
+    ordem: ["LC", "CH", "CN", "MT"]
+  - anos:
+      de: 2009
+      ate: 2016
+    ordem: ["CH", "CN", "LC", "MT"]

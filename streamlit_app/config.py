@@ -14,7 +14,7 @@ from typing import Dict, List
 #                         INFORMAÇÕES DO PROJETO
 # ============================================================================
 
-APP_VERSION = "24.01.2026"
+APP_VERSION = "30.01.2026"
 APP_AUTHOR = "Henrique Lindemann"
 APP_AUTHOR_URL = "https://www.linkedin.com/in/henriquelindemann/"
 APP_GITHUB_URL = "https://github.com/HenriqueLindemann/analise-enem"

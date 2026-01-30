@@ -129,7 +129,7 @@ def main():
     ano, tipo_aplicacao, lingua, cores = render_sidebar_config(calc.mapeador)
     
     # Área principal: inputs de respostas
-    respostas = input_respostas()
+    respostas = input_respostas(ano, calc.mapeador)
     
     # Validação das respostas
     todas_validas, erros_validacao = validar_todas_respostas(respostas)
@@ -179,7 +179,9 @@ def _processar_calculo(calc, ano, tipo_aplicacao, lingua, cores, respostas):
         
         # Salvar resultados na sessão
         if resultados:
-            st.session_state['resultados'] = resultados
+            ordem_provas = _obter_ordem_provas(calc, ano)
+            resultados_ordenados = _ordenar_resultados_por_prova(resultados, ordem_provas)
+            st.session_state['resultados'] = resultados_ordenados
             st.session_state['resultado_ano'] = ano
             st.session_state['resultado_tipo'] = tipo_aplicacao
             # Limpar PDF antigo para gerar novo
@@ -232,6 +234,23 @@ def _exibir_resultados_salvos(ano_atual, tipo_atual):
     # Download do relatório PDF
     st.markdown("---")
     exibir_download_pdf(resultados, ano_resultado, tipo_resultado)
+
+
+def _obter_ordem_provas(calc, ano):
+    """Obtém a ordem das provas via mapeador (com fallback)."""
+    try:
+        return calc.mapeador.listar_ordem_provas(ano)
+    except Exception:
+        return ['LC', 'CH', 'CN', 'MT']
+
+
+def _ordenar_resultados_por_prova(resultados, ordem_provas):
+    """Ordena resultados conforme a ordem das provas."""
+    index_map = {sigla: idx for idx, sigla in enumerate(ordem_provas)}
+    return sorted(
+        resultados,
+        key=lambda r: index_map.get(r.get('sigla'), 99)
+    )
 
 
 # ============================================================================
