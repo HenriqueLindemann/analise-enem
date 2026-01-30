@@ -99,7 +99,12 @@ def _carregar_codigos_presentes(microdados_limpos_dir: Path) -> Set[str]:
                 for area in ["CN", "CH", "LC", "MT"]:
                     co_prova = row[idx[f"CO_PROVA_{area}"]].strip()
                     if _is_valid(co_prova):
-                        codigos.add(co_prova)
+                        # Normalizar para int (alguns vêm como '1003.0')
+                        try:
+                            co_prova_norm = str(int(float(co_prova)))
+                            codigos.add(co_prova_norm)
+                        except ValueError:
+                            pass
 
                 if linhas % progress_interval == 0:
                     print(f"  {ano_dir.name}: {linhas} linhas lidas", flush=True)
@@ -107,7 +112,9 @@ def _carregar_codigos_presentes(microdados_limpos_dir: Path) -> Set[str]:
         print(f"  {ano_dir.name}: codigos acumulados={len(codigos)}", flush=True)
 
     _utils.CACHE_CODIGOS_PATH.parent.mkdir(parents=True, exist_ok=True)
-    payload = {"agrupar_por": "codigo", "codigos": sorted(codigos, key=lambda x: int(x))}
+    # Converter para int (alguns vêm como '1003.0')
+    codigos_int = sorted(int(float(x)) for x in codigos)
+    payload = {"agrupar_por": "codigo", "codigos": codigos_int}
     _utils.CACHE_CODIGOS_PATH.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"Cache salvo em {_utils.CACHE_CODIGOS_PATH} ({len(codigos)} codigos)", flush=True)
     return codigos
