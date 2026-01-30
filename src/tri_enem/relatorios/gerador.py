@@ -49,6 +49,7 @@ class RelatorioPDF:
             )
         
         self.styles = criar_estilos()
+        self._mapeador = None  # Lazy loading
     
     def gerar(self, dados: DadosRelatorio, caminho_saida: str) -> str:
         """Gera o relatório PDF."""
@@ -159,7 +160,9 @@ class RelatorioPDF:
     def _ordenar_areas_por_prova(self, areas: List[AreaAnalise], ano: int) -> List[AreaAnalise]:
         """Ordena áreas conforme a ordem das provas do ano."""
         try:
-            ordem = MapeadorProvas().listar_ordem_provas(ano)
+            if self._mapeador is None:
+                self._mapeador = MapeadorProvas()
+            ordem = self._mapeador.listar_ordem_provas(ano)
         except Exception:
             ordem = ['LC', 'CH', 'CN', 'MT']
 

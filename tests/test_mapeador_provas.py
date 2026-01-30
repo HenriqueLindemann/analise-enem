@@ -134,6 +134,57 @@ class TestMapeadorProvas:
         # O importante é que não falhe
         assert isinstance(avisos, list)
 
+    # ========================================================================
+    # Testes para listar_ordem_provas (nova funcionalidade)
+    # ========================================================================
+
+    def test_ordem_provas_range_2017_2025(self, mapeador):
+        """Teste da ordem das provas para anos 2017-2025."""
+        for ano in [2017, 2020, 2021, 2024, 2025]:
+            ordem = mapeador.listar_ordem_provas(ano)
+            assert ordem == ['LC', 'CH', 'CN', 'MT'], f"Ano {ano} deveria ter ordem LC, CH, CN, MT"
+
+    def test_ordem_provas_range_2009_2016(self, mapeador):
+        """Teste da ordem das provas para anos 2009-2016."""
+        for ano in [2009, 2012, 2015, 2016]:
+            ordem = mapeador.listar_ordem_provas(ano)
+            assert ordem == ['CH', 'CN', 'LC', 'MT'], f"Ano {ano} deveria ter ordem CH, CN, LC, MT"
+
+    def test_ordem_provas_fora_do_range(self, mapeador):
+        """Teste de fallback para anos fora dos ranges definidos."""
+        # Anos anteriores a 2009 e posteriores a 2025 devem usar fallback
+        for ano in [2000, 2008, 2030, 2050]:
+            ordem = mapeador.listar_ordem_provas(ano)
+            assert ordem == ['LC', 'CH', 'CN', 'MT'], f"Ano {ano} fora do range deveria usar fallback"
+
+    def test_normalizar_ordem_provas_none(self, mapeador):
+        """Teste de normalização com entrada None."""
+        resultado = mapeador._normalizar_ordem_provas(None, ['LC', 'CH', 'CN', 'MT'])
+        assert resultado == ['LC', 'CH', 'CN', 'MT']
+
+    def test_normalizar_ordem_provas_incompleta(self, mapeador):
+        """Teste de normalização com lista incompleta."""
+        resultado = mapeador._normalizar_ordem_provas(['LC', 'CH'], ['LC', 'CH', 'CN', 'MT'])
+        assert resultado == ['LC', 'CH', 'CN', 'MT']
+
+    def test_normalizar_ordem_provas_duplicatas(self, mapeador):
+        """Teste de normalização com duplicatas."""
+        resultado = mapeador._normalizar_ordem_provas(['LC', 'LC', 'CH', 'CN'], ['LC', 'CH', 'CN', 'MT'])
+        assert resultado == ['LC', 'CH', 'CN', 'MT']
+
+    def test_normalizar_ordem_provas_sigla_invalida(self, mapeador):
+        """Teste de normalização com sigla inválida."""
+        resultado = mapeador._normalizar_ordem_provas(['LC', 'XX', 'CH', 'CN'], ['LC', 'CH', 'CN', 'MT'])
+        assert resultado == ['LC', 'CH', 'CN', 'MT']
+
+    def test_ordem_provas_retorna_lista(self, mapeador):
+        """Teste que listar_ordem_provas sempre retorna lista de 4 elementos."""
+        for ano in [2009, 2015, 2021, 2030]:
+            ordem = mapeador.listar_ordem_provas(ano)
+            assert isinstance(ordem, list)
+            assert len(ordem) == 4
+            assert all(sigla in ['LC', 'CH', 'CN', 'MT'] for sigla in ordem)
+
 
 if __name__ == '__main__':
     # Permitir executar diretamente

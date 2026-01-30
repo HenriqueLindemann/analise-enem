@@ -222,7 +222,6 @@ def _render_input_prova(respostas: Dict[str, str], area: str, ordem_idx: int) ->
 
     respostas[area] = st.text_input(
         label,
-        value="",
         max_chars=TOTAL_RESPOSTAS,
         key=key,
         label_visibility="collapsed",
