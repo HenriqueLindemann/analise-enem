@@ -1,6 +1,6 @@
 # Provas problematicas
 
-Gerado em: 2026-01-30 18:03:44
+Gerado em: 2026-01-30 18:38:41
 Exemplos: D:/program/analise-enem/tests/fixtures/exemplos_microdados.json
 Microdados limpos: microdados_limpos
 Mapeamento: src/tri_enem/mapeamento_provas.yaml
@@ -8,7 +8,7 @@ Mapeamento: src/tri_enem/mapeamento_provas.yaml
 Resumo
 - total_exemplos: 580
 - avaliados: 577
-- dif_maior_limite: 75
+- dif_maior_limite: 58
 - nao_encontradas: 3
 - mapeamento_inconsistente: 0
 - codigos_duplicados_no_mapeamento: 0
@@ -74,23 +74,6 @@ Resumo
 | 2019 | LC | 512 | 1a_aplicacao | amarela | nao | 564.2 | 561.9 | -2.3 |
 | 2016 | CN | 351 | reaplicacao_2 | azul | nao | 632.7 | 635.0 | 2.3 |
 | 2016 | CN | 333 | reaplicacao | branca | nao | 506.5 | 508.7 | 2.2 |
-| 2018 | CH | 454 | 1a_aplicacao | rosa | nao | 611.4 | 609.5 | -1.9 |
-| 2017 | MT | 410 | especiais | laranja_adaptada_ledor | sim | 487.1 | 485.3 | -1.8 |
-| 2018 | CH | 464 | especiais | laranja_adaptada_ledor | sim | 620.5 | 622.3 | 1.8 |
-| 2024 | LC | 1396 | 1a_aplicacao | amarela | nao | 605.5 | 603.8 | -1.7 |
-| 2015 | CH | 232 | 1a_aplicacao | amarela | nao | 624.5 | 626.1 | 1.6 |
-| 2024 | LC | 1399 | especiais | verde_ampliada | sim | 504.6 | 506.2 | 1.6 |
-| 2024 | LC | 1400 | especiais | verde_superampliada | sim | 545.3 | 546.8 | 1.5 |
-| 2020 | MT | 698 | digital | cinza | nao | 711.3 | 709.8 | -1.5 |
-| 2017 | LC | 440 | reaplicacao | amarela | nao | 586.3 | 587.8 | 1.5 |
-| 2015 | LC | 282 | reaplicacao | rosa | nao | 543.1 | 544.5 | 1.4 |
-| 2016 | CN | 352 | reaplicacao_2 | amarela | nao | 627.8 | 629.2 | 1.4 |
-| 2017 | LC | 439 | reaplicacao | azul | nao | 521.3 | 520.0 | -1.3 |
-| 2019 | LC | 513 | 1a_aplicacao | rosa | nao | 537.3 | 538.5 | 1.2 |
-| 2017 | MT | 414 | especiais | verde_videoprova_libras | sim | 498.4 | 499.6 | 1.2 |
-| 2024 | LC | 1397 | 1a_aplicacao | verde | nao | 605.9 | 604.8 | -1.1 |
-| 2017 | LC | 399 | 1a_aplicacao | azul | nao | 563.9 | 562.8 | -1.1 |
-| 2010 | CN | 106 | reaplicacao | amarela | nao | 601.2 | 600.2 | -1.0 |
 
 ## Provas nao encontradas no microdados_limpos
 | ano | area | co_prova | tipo | cor | especial | erro |
