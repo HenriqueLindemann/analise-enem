@@ -5,6 +5,7 @@ Componentes de entrada de dados para o Streamlit.
 """
 
 import streamlit as st
+from st_keyup import st_keyup
 from typing import Dict, List, Tuple, Optional
 import html
 from config import AREAS_ENEM, ORDEM_AREAS
@@ -217,16 +218,17 @@ def _render_input_prova(respostas: Dict[str, str], area: str, ordem_idx: int) ->
     st.caption(f"Prova {ordem_idx} (Questoes {inicio}-{fim}) · {area}")
 
     label = f"Respostas {area}"
-    placeholder = PLACEHOLDERS.get(area, "Ex: ABCDEABCDEABCDEABCDE...")
     key = f"resp_{area.lower()}"
-
-    respostas[area] = st.text_input(
+    valor_atual = st.session_state.get(key, '')
+    
+    valor_digitado = st_keyup(
         label,
+        value=valor_atual,
         max_chars=TOTAL_RESPOSTAS,
         key=key,
-        label_visibility="collapsed",
-        placeholder=placeholder
-    ).upper()
+        debounce=100
+    )
+    respostas[area] = (valor_digitado or '').upper()
 
     _render_visualizacao_respostas(respostas.get(area, ''), area.lower(), offset_start=inicio)
     _mostrar_contador(respostas.get(area, ''), area.lower())
