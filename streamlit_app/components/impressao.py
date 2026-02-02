@@ -37,7 +37,7 @@ def _gerar_pdf(resultados: List[Dict], ano: int, tipo_aplicacao: str, cor_prova:
     
     # Criar dados do relatório
     dados = DadosRelatorio(
-        titulo="Resultado do Simulado - Calculadora Nota TRI ENEM", 
+        titulo="Simulado - Calculadora Nota TRI ENEM", 
         ano_prova=ano,
         tipo_aplicacao=tipo_extenso,
         cor_prova=cor_prova.capitalize() if cor_prova else ''

@@ -127,6 +127,13 @@ class RelatorioPDF:
         
         elementos.append(Paragraph(" · ".join(subtitulo_partes), self.styles['Subtitulo']))
         
+        # Texto de geração com branding
+        data_geracao = dados.data_geracao.strftime('%d/%m/%Y às %H:%M')
+        elementos.append(Paragraph(
+            f"Gerado em <b>notatri.com</b> em {data_geracao}",
+            self.styles['Disclaimer']
+        ))
+        
         # Linha decorativa sutil
         d = Drawing(450, 2)
         linha = Line(100, 1, 350, 1)
