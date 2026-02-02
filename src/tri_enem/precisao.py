@@ -71,7 +71,17 @@ def verificar_precisao_prova(ano: int, area: str, co_prova: int) -> Dict:
             if key in data.get('status_provas', {}):
                 status_info = data['status_provas'][key]
                 resultado['status'] = status_info.get('status', 'desconhecido')
-                resultado['aviso'] = status_info.get('mensagem')
+                mensagem_raw = status_info.get('mensagem')
+                
+                # Transformar mensagens técnicas em mensagens amigáveis
+                if mensagem_raw and 'Poucos participantes' in mensagem_raw:
+                    resultado['aviso'] = (
+                        "⚠️ Esta prova não possui participantes nos microdados públicos do INEP. "
+                        "Estamos usando calibração genérica da área, o que pode resultar em uma "
+                        "nota menos precisa. Use como estimativa."
+                    )
+                else:
+                    resultado['aviso'] = mensagem_raw
                 
                 if resultado['status'] in ('erro_alto', 'falhou', 'nao_calibrado'):
                     resultado['confiavel'] = False
