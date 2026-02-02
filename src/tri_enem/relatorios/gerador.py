@@ -127,22 +127,17 @@ class RelatorioPDF:
         
         elementos.append(Paragraph(" · ".join(subtitulo_partes), self.styles['Subtitulo']))
         
-        # Texto de geração com branding
-        data_geracao = dados.data_geracao.strftime('%d/%m/%Y às %H:%M')
+        # Texto de geração com branding (horário de Brasília UTC-3)
+        from datetime import timezone, timedelta
+        tz_brasilia = timezone(timedelta(hours=-3))
+        data_brasilia = dados.data_geracao.astimezone(tz_brasilia)
+        data_geracao = data_brasilia.strftime('%d/%m/%Y às %H:%M')
         elementos.append(Paragraph(
-            f"Gerado em <b>notatri.com</b> em {data_geracao}",
+            f"<i>Gerado em <b>notatri.com</b> em {data_geracao}</i>",
             self.styles['Disclaimer']
         ))
         
-        # Linha decorativa sutil
-        d = Drawing(450, 2)
-        linha = Line(100, 1, 350, 1)
-        linha.strokeColor = Cores.CINZA_CLARO
-        linha.strokeWidth = 0.5
-        d.add(linha)
-        elementos.append(d)
-        
-        elementos.append(Spacer(1, 8))
+        elementos.append(Spacer(1, 12))
         return elementos
     
     def _resumo_visual(self, dados: DadosRelatorio, areas_ordenadas: List[AreaAnalise]) -> List:
@@ -233,17 +228,7 @@ class RelatorioPDF:
         """Rodapé minimalista com disclaimer e licença."""
         elementos = []
         
-        elementos.append(Spacer(1, 5))
-        
-        # Linha separadora fina
-        d = Drawing(450, 1)
-        linha = Line(0, 0, 450, 0)
-        linha.strokeColor = Cores.CINZA_CLARO
-        linha.strokeWidth = 0.3
-        d.add(linha)
-        elementos.append(d)
-        
-        elementos.append(Spacer(1, 8))
+        elementos.append(Spacer(1, 10))
         
         # Disclaimer
         elementos.append(Paragraph(

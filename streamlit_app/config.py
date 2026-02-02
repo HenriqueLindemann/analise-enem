@@ -30,7 +30,7 @@ class SEOConfig:
     """Configuração de SEO para meta tags e Schema.org."""
     
     # Título da página (máx 60 caracteres para Google)
-    page_title: str = "Calculadora Nota TRI ENEM - Calcule sua Nota Online Grátis"
+    page_title: str = "Calculadora Nota TRI ENEM"
     
     # Descrição (máx 160 caracteres para Google)
     meta_description: str = (
