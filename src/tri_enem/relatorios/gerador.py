@@ -96,7 +96,7 @@ class RelatorioPDF:
         canvas.setTitle(f"Resultado ENEM {self._dados.ano_prova}")
         canvas.setAuthor("Henrique Lindemann - TRI ENEM")
         canvas.setSubject(f"Relatório de Simulado ENEM {self._dados.ano_prova}")
-        canvas.setCreator("TRI ENEM - https://calculadoratri.streamlit.app")
+        canvas.setCreator("TRI ENEM - https://notatri.com")
         
         # Adicionar número de página
         self._rodape_pagina(canvas, doc)
@@ -263,7 +263,7 @@ class RelatorioPDF:
         
         # Promoção do site
         elementos.append(Paragraph(
-            "<b>https://calculadoratri.streamlit.app</b>",
+            "<b>https://notatri.com</b>",
             self.styles['Disclaimer']
         ))
         elementos.append(Paragraph(

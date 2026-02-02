@@ -4,7 +4,7 @@ Interface web para cálculo de nota TRI do ENEM.
 
 ## 🌐 Acesse Online
 
-**👉 [https://calculadoratri.streamlit.app/](https://calculadoratri.streamlit.app/)**
+**👉 [https://notatri.com/](https://notatri.com/)**
 
 Calcule sua nota do ENEM direto no navegador, sem instalar nada!
 

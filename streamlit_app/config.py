@@ -19,7 +19,7 @@ APP_AUTHOR = "Henrique Lindemann"
 APP_AUTHOR_URL = "https://www.linkedin.com/in/henriquelindemann/"
 APP_GITHUB_URL = "https://github.com/HenriqueLindemann/analise-enem"
 APP_ISSUES_URL = f"{APP_GITHUB_URL}/issues"
-APP_CANONICAL_URL = "https://calculadoratri.streamlit.app"
+APP_CANONICAL_URL = "https://notatri.com"
 
 # ============================================================================
 #                         SEO - META TAGS
@@ -128,7 +128,7 @@ o mesmo método usado pelo INEP.
 TEXTO_FOOTER = f"""
 <div class="footer">
     <p>
-        <strong>Calculadora TRI ENEM</strong> | 
+        <strong>Calculadora Nota TRI ENEM</strong> | 
         Desenvolvido por <a href="{APP_AUTHOR_URL}" target="_blank">{APP_AUTHOR}</a> |
         <a href="{APP_GITHUB_URL}" target="_blank">GitHub</a>
     </p>
