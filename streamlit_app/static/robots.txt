@@ -1,4 +1,4 @@
-# Sitemap para Calculadora TRI ENEM
+# Sitemap para Calculadora NotaTRI ENEM
 # URL: https://notatri.com
 # 
 # Nota: Streamlit Cloud não serve arquivos estáticos diretamente.
