@@ -94,9 +94,9 @@ class RelatorioPDF:
         """Configura metadados e rodapé da primeira página."""
         # Definir metadados do PDF
         canvas.setTitle(f"Resultado ENEM {self._dados.ano_prova}")
-        canvas.setAuthor("Henrique Lindemann - TRI ENEM")
+        canvas.setAuthor("Henrique Lindemann - Calculadora Nota TRI ENEM")
         canvas.setSubject(f"Relatório de Simulado ENEM {self._dados.ano_prova}")
-        canvas.setCreator("TRI ENEM - https://notatri.com")
+        canvas.setCreator("Calculadora Nota TRI ENEM - https://notatri.com")
         
         # Adicionar número de página
         self._rodape_pagina(canvas, doc)

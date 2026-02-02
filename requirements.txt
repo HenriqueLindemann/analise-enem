@@ -1,4 +1,5 @@
-# TRI ENEM - Dependências
+# Calculadora Nota TRI ENEM - Dependências
+# https://notatri.com
 # pip install -r requirements.txt
 
 # Cálculo numérico

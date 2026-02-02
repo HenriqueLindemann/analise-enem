@@ -1,4 +1,4 @@
-# TRI ENEM - Calculador de Nota (Streamlit)
+# Calculadora Nota TRI ENEM - Interface Web
 
 Interface web para cálculo de nota TRI do ENEM.
 

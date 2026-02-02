@@ -55,7 +55,7 @@ def verificar_precisao_prova(ano: int, area: str, co_prova: int) -> Dict:
                     resultado['mae'] = p['mae']
                     resultado['r_squared'] = p['r_squared']
                     resultado['confiavel'] = False
-                    resultado['aviso'] = f"⚠️ ATENÇÃO: Erro muito alto (MAE={p['mae']:.1f} pts) - resultado da simulação pode não ser confiável"
+                    resultado['aviso'] = f"⚠️ ATENÇÃO: Esta prova teve erros em sua calibração. O erro médio é de {p['mae']:.1f} pontos, o que significa que sua nota calculada pode variar bastante da nota oficial. Use apenas como estimativa aproximada."
                     resultado['status'] = 'erro_alto'
                     return resultado
         except Exception:
@@ -88,13 +88,13 @@ def verificar_precisao_prova(ano: int, area: str, co_prova: int) -> Dict:
                 if resultado['status'] == 'desconhecido':
                     if resultado['mae'] and resultado['mae'] > 2:
                         resultado['confiavel'] = False
-                        resultado['aviso'] = f"⚠️ Precisão reduzida (erro ~{resultado['mae']:.1f} pts)"
+                        resultado['aviso'] = f"⚠️ Atenção: Esta prova tem calibração parcial. O erro médio é de aproximadamente {resultado['mae']:.1f} pontos. Sua nota calculada é uma estimativa e pode diferir da nota oficial."
                         resultado['status'] = 'aviso_forte'
                     else:
                         resultado['status'] = 'ok'
             elif resultado['status'] == 'desconhecido':
                 resultado['confiavel'] = False
-                resultado['aviso'] = "⚠️ Prova não calibrada - usando coeficientes genéricos"
+                resultado['aviso'] = "⚠️ Esta prova não possui calibração específica. Estamos usando parâmetros genéricos da área, o que pode resultar em uma nota menos precisa. Use o resultado como estimativa."
                 resultado['status'] = 'nao_calibrado'
                 
         except Exception:

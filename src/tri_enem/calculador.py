@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 # Copyright (c) 2026 Henrique Lindemann
 """
-Calculador de Nota TRI do ENEM
+Calculadora Nota TRI ENEM - Módulo Principal de Cálculo
 
 Implementa o modelo logístico de 3 parâmetros (ML3) com estimação
 bayesiana Expected a Posteriori (EAP) usando quadratura gaussiana.

@@ -30,11 +30,11 @@ class SEOConfig:
     """Configuração de SEO para meta tags e Schema.org."""
     
     # Título da página (máx 60 caracteres para Google)
-    page_title: str = "Calculadora TRI ENEM - Calcule Nota ENEM Online Grátis"
+    page_title: str = "Calculadora Nota TRI ENEM - Calcule sua Nota Online Grátis"
     
     # Descrição (máx 160 caracteres para Google)
     meta_description: str = (
-        "Calculadora TRI ENEM - Calcule sua nota do ENEM online e grátis. "
+        "Calculadora Nota TRI ENEM - Calcule sua nota do ENEM online e grátis. "
         "Método TRI oficial usado pelo INEP. Gabaritos de 2009 a 2024. "
         "Análise detalhada por área."
     )
@@ -48,7 +48,7 @@ class SEOConfig:
     )
     
     # Open Graph (Facebook, LinkedIn, WhatsApp)
-    og_title: str = "Calculadora TRI ENEM - Calcule sua Nota Online Grátis"
+    og_title: str = "Calculadora Nota TRI ENEM - Calcule sua Nota Online Grátis"
     og_description: str = (
         "Simule sua nota do ENEM com precisão usando TRI. "
         "Gabaritos oficiais de 2009 a 2024. Gratuito."
@@ -58,7 +58,7 @@ class SEOConfig:
     
     # Twitter Card
     twitter_card: str = "summary_large_image"
-    twitter_title: str = "Calculadora TRI ENEM - Nota Online Grátis"
+    twitter_title: str = "Calculadora Nota TRI ENEM - Nota Online Grátis"
     twitter_description: str = (
         "Calcule sua nota do ENEM usando TRI. "
         "Ferramenta gratuita com gabaritos de 2009 a 2024."
@@ -155,12 +155,14 @@ TEXTO_FOOTER = f"""
 """
 
 TEXTO_ABOUT_MENU = f"""
-# Calculadora TRI ENEM - Nota do ENEM Online
+# Calculadora Nota TRI ENEM
 
 Calcule sua nota real do ENEM usando **Teoria de Resposta ao Item (TRI)** - 
 o mesmo método oficial usado pelo INEP/MEC.
 
 Ferramenta gratuita para estudantes, professores e pesquisadores.
+
+Acesse: https://notatri.com
 
 Desenvolvido por {APP_AUTHOR} - Engenharia de Computação UFRGS.
 

@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 # Copyright (c) 2026 Henrique Lindemann
 """
-TRI ENEM - Módulo de Cálculo de Notas por Teoria de Resposta ao Item
+Calculadora Nota TRI ENEM - Módulo de Cálculo por Teoria de Resposta ao Item
 
 Interface simplificada (recomendada):
     from tri_enem import SimuladorNota

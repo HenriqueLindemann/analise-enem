@@ -1,7 +1,7 @@
 ﻿#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-MEU SIMULADO ENEM - Calculador de Nota TRI
+Calculadora Nota TRI ENEM - Script de Simulação Local
 
 COMO USAR:
     1. Preencha suas respostas abaixo (45 letras: A, B, C, D, E ou .)
@@ -9,6 +9,7 @@ COMO USAR:
     3. Execute: python meu_simulado.py
     4. Veja sua nota e gere um relatório PDF!
 
+Site: https://notatri.com
 Desenvolvido por Henrique Lindemann - Eng. Computação UFRGS
 """
 
@@ -185,7 +186,7 @@ def gerar_relatorio_pdf(resultados, ano, titulo, nome_arquivo=None, tipo_aplicac
 def main():
     print()
     print("=" * 60)
-    print(f"           CALCULADOR DE NOTA TRI - ENEM {ANO}")
+    print(f"       CALCULADORA NOTA TRI ENEM - PROVA {ANO}")
     print("=" * 60)
     
     # Ordem: Dia 1 (LC, CH) -> Dia 2 (CN, MT)

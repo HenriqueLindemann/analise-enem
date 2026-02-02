@@ -1,4 +1,4 @@
-# TRI ENEM - Calculador de Notas
+# Calculadora Nota TRI ENEM
 
 Calcule sua nota do ENEM usando **Teoria de Resposta ao Item (TRI)** com alta precisão.
 
@@ -78,7 +78,7 @@ Resultado:
 
 ```
 ============================================================
-           CALCULADOR DE NOTA TRI - ENEM 2023
+       CALCULADORA NOTA TRI ENEM - PROVA 2023
 ============================================================
 
 Aplicação: 1a_aplicacao

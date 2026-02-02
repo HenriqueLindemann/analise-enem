@@ -59,7 +59,7 @@ class StatusCalibracao:
         """Classifica a qualidade da calibração baseado em MAE e R²."""
         if not self.calibrado or self.mae is None:
             self.status = 'nao_calibrado'
-            self.mensagem_aviso = 'Prova não calibrada - usando coeficientes genéricos'
+            self.mensagem_aviso = '⚠️ Esta prova não possui calibração específica. Estamos usando parâmetros genéricos da área, o que pode resultar em uma nota menos precisa. Use o resultado como estimativa.'
             return
         
         r2 = self.r_squared or 0
@@ -69,13 +69,13 @@ class StatusCalibracao:
             self.mensagem_aviso = None
         elif self.mae <= LIMIAR_MAE_ACEITAVEL and r2 >= 0.95:
             self.status = 'aviso_leve'
-            self.mensagem_aviso = f'Precisão ligeiramente reduzida (erro ~{self.mae:.1f} pts)'
+            self.mensagem_aviso = f'ℹ️ Esta prova tem boa calibração, mas pode haver uma pequena diferença de até {self.mae:.1f} pontos em relação à nota oficial.'
         elif self.mae <= LIMIAR_MAE_RUIM and r2 >= LIMIAR_R2_MINIMO:
             self.status = 'aviso_forte'
-            self.mensagem_aviso = f'⚠️ Precisão reduzida (erro ~{self.mae:.1f} pts)'
+            self.mensagem_aviso = f'⚠️ Atenção: Esta prova tem calibração parcial. O erro médio é de aproximadamente {self.mae:.1f} pontos. Sua nota calculada é uma estimativa e pode diferir da nota oficial.'
         else:
             self.status = 'erro_alto'
-            self.mensagem_aviso = f'⚠️ ATENÇÃO: Erro muito alto (MAE={self.mae:.1f} pts) - simulação de resultado pode não ser confiável'
+            self.mensagem_aviso = f'⚠️ ATENÇÃO: Esta prova não está calibrada corretamente. O erro médio é de {self.mae:.1f} pontos, o que significa que a nota calculada pode variar bastante da nota oficial. Use apenas como estimativa aproximada.'
 
 
 def carregar_dados_existentes(caminho: Path) -> Dict:

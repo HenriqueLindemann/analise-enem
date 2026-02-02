@@ -66,7 +66,7 @@ def gerar_meta_tags(
 <meta property="og:type" content="{og_type}">
 <meta property="og:url" content="{canonical_url}">
 <meta property="og:locale" content="pt_BR">
-<meta property="og:site_name" content="Calculadora TRI ENEM">
+<meta property="og:site_name" content="Calculadora Nota TRI ENEM">
 '''
     
     if og_image:
@@ -231,7 +231,7 @@ def gerar_noscript_seo() -> str:
     return '''
 <noscript>
     <div style="padding: 20px; font-family: Arial, sans-serif;">
-        <h1>Calculadora TRI ENEM - Calcule sua Nota Online Grátis</h1>
+        <h1>Calculadora Nota TRI ENEM - Calcule sua Nota Online Grátis</h1>
         <p>
             Esta é uma calculadora gratuita para calcular sua nota do ENEM 
             usando Teoria de Resposta ao Item (TRI), o mesmo método oficial 

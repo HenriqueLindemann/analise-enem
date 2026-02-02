@@ -3,10 +3,11 @@
 # SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 # Copyright (c) 2026 Henrique Lindemann
 """
-TRI ENEM - Calculador de Nota Streamlit
+Calculadora Nota TRI ENEM - Interface Web
 
 Interface web para cálculo de nota TRI do ENEM.
 Desenvolvido por Henrique Lindemann - Eng. Computação UFRGS
+Site: https://notatri.com
 
 Execute com: streamlit run streamlit_app/app.py
 
@@ -93,7 +94,7 @@ def injetar_seo():
     
     # Schema.org JSON-LD para rich snippets no Google
     schema_html = gerar_schema_json_ld(
-        name="Calculadora TRI ENEM",
+        name="Calculadora Nota TRI ENEM",
         description=SEO.meta_description,
         url=APP_CANONICAL_URL,
         author_name=APP_AUTHOR,
