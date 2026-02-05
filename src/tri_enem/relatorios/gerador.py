@@ -7,7 +7,7 @@ Combina estilos, gráficos e tabelas para gerar o relatório completo.
 """
 
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from typing import List
 
 try:
@@ -28,6 +28,8 @@ from .graficos import grafico_barras_notas, grafico_impacto_questoes, grade_ques
 from .tabelas import tabela_erros_completa, tabela_resumo_areas
 from .utils import verificar_precisao_prova
 from ..mapeador_provas import MapeadorProvas
+
+TZ_BRASILIA = timezone(timedelta(hours=-3))
 
 
 class RelatorioPDF:
@@ -110,6 +112,12 @@ class RelatorioPDF:
         canvas.drawRightString(doc.pagesize[0] - 1.2*cm, 0.8*cm, pagina)
         canvas.restoreState()
 
+    def _formatar_data_brasilia(self, data: datetime, com_as: bool = False) -> str:
+        """Converte para horário de Brasília (UTC-3) e formata para exibição."""
+        data_brasilia = data.astimezone(TZ_BRASILIA)
+        formato = '%d/%m/%Y às %H:%M' if com_as else '%d/%m/%Y %H:%M'
+        return data_brasilia.strftime(formato)
+
     
     def _cabecalho(self, dados: DadosRelatorio) -> List:
         """Cabeçalho elegante e minimalista."""
@@ -128,10 +136,7 @@ class RelatorioPDF:
         elementos.append(Paragraph(" · ".join(subtitulo_partes), self.styles['Subtitulo']))
         
         # Texto de geração com branding (horário de Brasília UTC-3)
-        from datetime import timezone, timedelta
-        tz_brasilia = timezone(timedelta(hours=-3))
-        data_brasilia = dados.data_geracao.astimezone(tz_brasilia)
-        data_geracao = data_brasilia.strftime('%d/%m/%Y às %H:%M')
+        data_geracao = self._formatar_data_brasilia(dados.data_geracao, com_as=True)
         elementos.append(Paragraph(
             f"<i>Gerado em <b>notatri.com</b> em {data_geracao}</i>",
             self.styles['Disclaimer']
@@ -245,7 +250,7 @@ class RelatorioPDF:
         
         # Assinatura
         elementos.append(Paragraph(
-            f"Gerado em {dados.data_geracao.strftime('%d/%m/%Y %H:%M')}  ·  "
+            f"Gerado em {self._formatar_data_brasilia(dados.data_geracao)}  ·  "
             f"© Henrique Lindemann  ·  "
             f"github.com/HenriqueLindemann/analise-enem",
             self.styles['Disclaimer']
