@@ -142,7 +142,8 @@ def gerar_relatorio_pdf(resultados, ano, titulo, nome_arquivo=None, tipo_aplicac
         titulo=titulo, 
         ano_prova=ano,
         tipo_aplicacao=tipo_extenso,
-        cor_prova=cor_prova.capitalize() if cor_prova else ''
+        cor_prova=cor_prova.capitalize() if cor_prova else '',
+        origem_geracao="github.com/HenriqueLindemann/analise-enem"
     )
     
     for r in resultados:

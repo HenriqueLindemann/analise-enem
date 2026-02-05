@@ -135,10 +135,10 @@ class RelatorioPDF:
         
         elementos.append(Paragraph(" · ".join(subtitulo_partes), self.styles['Subtitulo']))
         
-        # Texto de geração com branding (horário de Brasília UTC-3)
+        # Texto de geração com origem configurável (horário de Brasília UTC-3)
         data_geracao = self._formatar_data_brasilia(dados.data_geracao, com_as=True)
         elementos.append(Paragraph(
-            f"<i>Gerado em <b>notatri.com</b> em {data_geracao}</i>",
+            f"<i>Gerado em <b>{dados.origem_geracao}</b> em {data_geracao}</i>",
             self.styles['Disclaimer']
         ))
         
@@ -258,7 +258,7 @@ class RelatorioPDF:
         
         elementos.append(Spacer(1, 10))
         
-        # Promoção do site
+        # Promoção do site (sempre notatri.com)
         elementos.append(Paragraph(
             "<b>https://notatri.com</b>",
             self.styles['Disclaimer']

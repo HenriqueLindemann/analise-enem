@@ -68,6 +68,7 @@ class DadosRelatorio:
     observacoes: str = ""
     tipo_aplicacao: str = ""  # Ex: "1ª Aplicação", "Reaplicação", etc.
     cor_prova: str = ""  # Ex: "Rosa", "Azul", etc.
+    origem_geracao: str = "notatri.com"
     
     @property
     def media_notas(self) -> float:
