@@ -194,6 +194,26 @@ class CalculadorEnem:
                 else:
                     resultados.append(resultado)
         
+        # Ordenar os resultados usando a ordem nativa do mapeador (que reflete a prova)
+        try:
+            ordem = self._mapeador.listar_ordem_provas(ano)
+        except Exception:
+            ordem = ['LC', 'CH', 'CN', 'MT']
+            
+        index_map = {sigla: idx for idx, sigla in enumerate(ordem)}
+        resultados.sort(key=lambda r: index_map.get(r['sigla'], 99))
+        
+        # Renumerar a propriedade 'posicao' para alinhar a interface visual rigosamente 
+        # com o caderno oficial de prova contornando anomalias no INEP (como em 2016, 2017+)
+        for res in resultados:
+            area_idx_real = index_map.get(res['sigla'], 0)
+            offset = area_idx_real * 45
+            questoes_todas = res.get('questoes_acertadas', []) + res.get('questoes_erradas', [])
+            for q in questoes_todas:
+                # O backend agora entrega 'idx_area' (0 a 44) referente à ordem correta das respostas originais
+                if 'idx_area' in q:
+                    q['posicao'] = offset + q['idx_area'] + 1
+        
         return resultados, erros
 
 
