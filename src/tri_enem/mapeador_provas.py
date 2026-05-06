@@ -197,6 +197,12 @@ class MapeadorProvas:
 
         A ordem e definida em ordem_provas.yaml e pode usar intervalos de anos.
         """
+        # Garantir que ano seja int para comparação
+        try:
+            ano = int(ano)
+        except (ValueError, TypeError):
+            pass
+
         dados = self.ordem_provas or {}
         metadata = dados.get('_metadata', {})
         fallback = metadata.get('default', ['LC', 'CH', 'CN', 'MT'])
@@ -208,7 +214,7 @@ class MapeadorProvas:
             if ano_inicio is None or ano_fim is None:
                 continue
 
-            if ano_inicio <= ano <= ano_fim:
+            if ano_inicio <= int(ano) <= ano_fim:
                 return self._normalizar_ordem_provas(regra.get('ordem'), fallback)
 
         return self._normalizar_ordem_provas(fallback, ['LC', 'CH', 'CN', 'MT'])
@@ -332,8 +338,9 @@ class MapeadorProvas:
             >>> mapeador.listar_tipos_disponiveis(2021, "CN")
             ['1a_aplicacao', 'digital']
         """
+        ano_int = int(ano)
         area_norm = self.normalizar_area(area)
-        ano_key = ano if ano in self.dados else str(ano)
+        ano_key = ano_int if ano_int in self.dados else str(ano_int)
         
         if ano_key not in self.dados or area_norm not in self.dados[ano_key]:
             return []
@@ -361,9 +368,10 @@ class MapeadorProvas:
             >>> mapeador.listar_cores_disponiveis(2021, "CN", "digital")
             ['azul', 'amarela', 'rosa', 'cinza']
         """
+        ano_int = int(ano)
         area_norm = self.normalizar_area(area)
         tipo_norm = self.normalizar_tipo_aplicacao(tipo_aplicacao)
-        ano_key = ano if ano in self.dados else str(ano)
+        ano_key = ano_int if ano_int in self.dados else str(ano_int)
         
         try:
             return list(self.dados[ano_key][area_norm][tipo_norm].keys())

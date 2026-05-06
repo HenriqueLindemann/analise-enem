@@ -414,4 +414,3 @@ class CalculadorTRI:
             'acertos': acertos,
             'erros': erros,
         }
-        return impactos
