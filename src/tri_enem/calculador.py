@@ -383,7 +383,8 @@ class CalculadorTRI:
             nota_mod = self.transformar_escala(theta_mod, ano, area)
             
             questao = {
-                'posicao': item.posicao,
+                'posicao': item.posicao,  # Posição original no microdado
+                'idx_area': idx,          # Posição relativa na área (0 a 44)
                 'gabarito': item.gabarito,
                 'resposta_dada': resposta_dada,
                 'param_a': item.param_a,
