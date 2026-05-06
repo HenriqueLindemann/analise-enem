@@ -203,7 +203,7 @@ def gerar_exemplos(
                     if not _is_valid(co_prova) or co_prova not in alvos:
                         continue
 
-                    if contagens.get(co_prova, 0) >= 1:
+                    if contagens.get(co_prova, 0) >= 10:
                         continue
 
                     if f"TP_PRESENCA_{area}" in idx:
