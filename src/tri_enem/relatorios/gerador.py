@@ -7,7 +7,7 @@ Combina estilos, gráficos e tabelas para gerar o relatório completo.
 """
 
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from typing import List
 
 try:
@@ -27,6 +27,9 @@ from .estilos import criar_estilos, Cores
 from .graficos import grafico_barras_notas, grafico_impacto_questoes, grade_questoes, legenda_grafico_impacto
 from .tabelas import tabela_erros_completa, tabela_resumo_areas
 from .utils import verificar_precisao_prova
+from ..mapeador_provas import MapeadorProvas
+
+TZ_BRASILIA = timezone(timedelta(hours=-3))
 
 
 class RelatorioPDF:
@@ -48,6 +51,7 @@ class RelatorioPDF:
             )
         
         self.styles = criar_estilos()
+        self._mapeador = None  # Lazy loading
     
     def gerar(self, dados: DadosRelatorio, caminho_saida: str) -> str:
         """Gera o relatório PDF."""
@@ -72,11 +76,13 @@ class RelatorioPDF:
         # Cabeçalho
         elementos.extend(self._cabecalho(dados))
         
+        areas_ordenadas = self._ordenar_areas_por_prova(dados.areas, dados.ano_prova)
+
         # Resumo visual (barras)
-        elementos.extend(self._resumo_visual(dados))
+        elementos.extend(self._resumo_visual(dados, areas_ordenadas))
         
         # Seções por área
-        for area in dados.areas:
+        for area in areas_ordenadas:
             elementos.extend(self._secao_area(area))
         
         # Rodapé com disclaimer
@@ -90,9 +96,9 @@ class RelatorioPDF:
         """Configura metadados e rodapé da primeira página."""
         # Definir metadados do PDF
         canvas.setTitle(f"Resultado ENEM {self._dados.ano_prova}")
-        canvas.setAuthor("Henrique Lindemann - TRI ENEM")
+        canvas.setAuthor("Henrique Lindemann - Calculadora Nota TRI ENEM")
         canvas.setSubject(f"Relatório de Simulado ENEM {self._dados.ano_prova}")
-        canvas.setCreator("TRI ENEM - https://calculadoratri.streamlit.app")
+        canvas.setCreator("Calculadora Nota TRI ENEM - https://notatri.com")
         
         # Adicionar número de página
         self._rodape_pagina(canvas, doc)
@@ -105,6 +111,12 @@ class RelatorioPDF:
         canvas.setFillColor(Cores.CINZA)
         canvas.drawRightString(doc.pagesize[0] - 1.2*cm, 0.8*cm, pagina)
         canvas.restoreState()
+
+    def _formatar_data_brasilia(self, data: datetime, com_as: bool = False) -> str:
+        """Converte para horário de Brasília (UTC-3) e formata para exibição."""
+        data_brasilia = data.astimezone(TZ_BRASILIA)
+        formato = '%d/%m/%Y às %H:%M' if com_as else '%d/%m/%Y %H:%M'
+        return data_brasilia.strftime(formato)
 
     
     def _cabecalho(self, dados: DadosRelatorio) -> List:
@@ -123,27 +135,21 @@ class RelatorioPDF:
         
         elementos.append(Paragraph(" · ".join(subtitulo_partes), self.styles['Subtitulo']))
         
-        # Linha decorativa sutil
-        d = Drawing(450, 2)
-        linha = Line(100, 1, 350, 1)
-        linha.strokeColor = Cores.CINZA_CLARO
-        linha.strokeWidth = 0.5
-        d.add(linha)
-        elementos.append(d)
+        # Texto de geração com origem configurável (horário de Brasília UTC-3)
+        data_geracao = self._formatar_data_brasilia(dados.data_geracao, com_as=True)
+        elementos.append(Paragraph(
+            f"<i>Gerado em <b>{dados.origem_geracao}</b> em {data_geracao}</i>",
+            self.styles['Disclaimer']
+        ))
         
-        elementos.append(Spacer(1, 8))
+        elementos.append(Spacer(1, 12))
         return elementos
     
-    def _resumo_visual(self, dados: DadosRelatorio) -> List:
+    def _resumo_visual(self, dados: DadosRelatorio, areas_ordenadas: List[AreaAnalise]) -> List:
         """Resumo visual limpo com média em destaque."""
         elementos = []
         
-        # Gráfico de barras primeiro - ordenado pela real posição da prova (primeira questão)
-        def get_min_posicao(area):
-            posicoes = [q.posicao for q in area.questoes]
-            return min(posicoes) if posicoes else 999
-            
-        areas_ordenadas = sorted(dados.areas, key=get_min_posicao)
+        # Gráfico de barras primeiro - ordenar por prova (ano)
         grafico = grafico_barras_notas(areas_ordenadas)
         elementos.append(grafico)
         
@@ -157,6 +163,14 @@ class RelatorioPDF:
         
         elementos.append(Spacer(1, 18))
         return elementos
+
+    def _ordenar_areas_por_prova(self, areas: List[AreaAnalise], ano: int) -> List[AreaAnalise]:
+        """Ordena áreas conforme a numeração real das questões para corresponder à ordem da prova."""
+        def get_min_posicao(area):
+            posicoes = [q.posicao for q in area.questoes]
+            return min(posicoes) if posicoes else 999
+            
+        return sorted(areas, key=get_min_posicao)
     
     def _secao_area(self, area: AreaAnalise) -> List:
         """Seção de uma área - design limpo e organizado."""
@@ -215,17 +229,7 @@ class RelatorioPDF:
         """Rodapé minimalista com disclaimer e licença."""
         elementos = []
         
-        elementos.append(Spacer(1, 5))
-        
-        # Linha separadora fina
-        d = Drawing(450, 1)
-        linha = Line(0, 0, 450, 0)
-        linha.strokeColor = Cores.CINZA_CLARO
-        linha.strokeWidth = 0.3
-        d.add(linha)
-        elementos.append(d)
-        
-        elementos.append(Spacer(1, 8))
+        elementos.append(Spacer(1, 10))
         
         # Disclaimer
         elementos.append(Paragraph(
@@ -242,7 +246,7 @@ class RelatorioPDF:
         
         # Assinatura
         elementos.append(Paragraph(
-            f"Gerado em {dados.data_geracao.strftime('%d/%m/%Y %H:%M')}  ·  "
+            f"Gerado em {self._formatar_data_brasilia(dados.data_geracao)}  ·  "
             f"© Henrique Lindemann  ·  "
             f"github.com/HenriqueLindemann/analise-enem",
             self.styles['Disclaimer']
@@ -250,13 +254,27 @@ class RelatorioPDF:
         
         elementos.append(Spacer(1, 10))
         
-        # Promoção do site
+        # Promoção do site (sempre notatri.com)
         elementos.append(Paragraph(
-            "<b>https://calculadoratri.streamlit.app</b>",
+            "<b>https://notatri.com</b>",
             self.styles['Disclaimer']
         ))
         elementos.append(Paragraph(
             "Acesse e gere seu relatório gratuitamente também!",
+            self.styles['Disclaimer']
+        ))
+        
+        elementos.append(Spacer(1, 15))
+        
+        # Citação Carl Sagan
+        elementos.append(Paragraph(
+            "<i>\"Nós organizamos uma sociedade baseada em ciência e tecnologia, na qual ninguém entende nada de ciência e tecnologia. "
+            "E essa mistura inflamável de ignorância e poder, mais cedo ou mais tarde, vai explodir na nossa cara. "
+            "Quem está no comando da ciência e tecnologia em uma democracia se as pessoas não sabem nada sobre isso?\"</i>",
+            self.styles['Disclaimer']
+        ))
+        elementos.append(Paragraph(
+            "— <b>Carl Sagan</b>",
             self.styles['Disclaimer']
         ))
         
