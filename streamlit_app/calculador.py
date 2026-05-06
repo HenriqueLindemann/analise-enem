@@ -196,7 +196,7 @@ class CalculadorEnem:
         
         # Ordenar os resultados usando a ordem nativa do mapeador (que reflete a prova)
         try:
-            ordem = self._mapeador.listar_ordem_provas(ano)
+            ordem = self._mapeador.listar_ordem_provas(int(ano))
         except Exception:
             ordem = ['LC', 'CH', 'CN', 'MT']
             

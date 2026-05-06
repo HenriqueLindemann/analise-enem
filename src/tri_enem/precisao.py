@@ -29,6 +29,13 @@ def verificar_precisao_prova(ano: int, area: str, co_prova: int) -> Dict:
             - 'aviso': Mensagem de aviso (ou None)
             - 'status': 'ok', 'aviso_leve', 'aviso_forte', 'erro_alto', 'nao_calibrado'
     """
+    # Garantir tipos corretos para comparação
+    try:
+        ano = int(ano)
+        co_prova = int(co_prova)
+    except (ValueError, TypeError):
+        pass
+
     # Caminhos dos arquivos
     base_path = Path(__file__).parent
     data_file = base_path / 'coeficientes_data.json'
