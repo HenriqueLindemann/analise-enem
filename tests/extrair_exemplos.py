@@ -31,12 +31,12 @@ def extrair_exemplos():
             elif tp_lingua in (1, '1'):
                 lingua_str = "espanhol"
         
-        key = (ano, area, lingua_str)
+        key = (ano, area, lingua_str, item.get('co_prova'))
         if key not in exemplos_unicos:
             exemplos_unicos[key] = item
 
-    # Ordenar por ano e area
-    sorted_keys = sorted(exemplos_unicos.keys())
+    # Ordenar
+    sorted_keys = sorted(exemplos_unicos.keys(), key=lambda k: (k[0], k[1], k[2], str(k[3])))
     
     with open(output_path, 'w', encoding='utf-8') as f:
         # Cabeçalho
