@@ -161,6 +161,21 @@ A nota final: `nota = slope × theta + intercept`
 
 > **⚠️ ATENÇÃO:** Nem todas as provas estão calibradas. Algumas provas (especialmente de reaplicacões e anos mais antigos) podem apresentar erros maiores. Provas da 1ª aplicação de anos recentes (2018+) têm maior precisão.
 
+## 🧪 Desenvolvimento e Testes
+
+O projeto possui uma suite de testes abrangente para garantir a precisão dos cálculos e a integridade do mapeamento de questões ao longo dos anos.
+
+### Suite de Testes TRI
+Para validar os cálculos contra dados oficiais do INEP e garantir que não existam regressões na ordem das questões:
+
+1. **Extrair Casos**: `python3 tests/extrair_exemplos_completos.py`
+   - Gera a base `tests/suite_testes_completos.txt` com centenas de estudantes reais extraídos dos microdados.
+2. **Executar Testes**: `python3 tests/executar_testes_completos.py`
+   - Simula o comportamento do App Streamlit.
+   - Compara a nota calculada com a nota oficial (precisão).
+   - Valida se a **ordem das questões** está correta (ex: 2016 CH iniciando na 1, 2017+ CH na 46).
+   - Lida corretamente com questões anuladas.
+
 ## Estrutura do Projeto
 
 ```
@@ -175,19 +190,16 @@ analise-enem/
 │   ├── mapeador_provas.py        # API do mapeamento
 │   ├── mapeamento_provas.yaml    # 🗺️ Todas as provas 2009-2024
 │   ├── coeficientes_data.json    # 📊 Coeficientes + status
-│   ├── provas_problematicas.json
+│   ├── precisao.py               # Verificação de erros intrínsecos
 │   ├── tradutor.py               # LC (inglês/espanhol)
 │   └── relatorios/               # Gerador de PDF
-├── tools/
-│   ├── calibrar_com_mapeamento.py 
-│   ├── calibrar_todos_anos.py
-│   └── validar_mapeamento_2024.py
-├── examples/
-│   ├── calcular_nota.py
-│   └── analise_completa_2024.py
+├── tools/                        # Ferramentas de calibração
+├── examples/                     # Exemplos de uso via código
 ├── tests/
-│   ├── test_mapeador_provas.py
-│   └── validar_todos_anos.py
+│   ├── extrair_exemplos_completos.py # Gerador de suite de testes
+│   ├── executar_testes_completos.py  # Validador TRI + Ordem (Streamlit)
+│   ├── executar_testes_tri.py        # Validador TRI simplificado
+│   └── test_mapeador_provas.py
 └── relatorios/                  # PDFs gerados
 ```
 
