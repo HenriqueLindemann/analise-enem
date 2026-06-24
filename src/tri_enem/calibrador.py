@@ -80,7 +80,12 @@ class Calibrador:
         df_prova = df[df[prova_col] == co_prova].copy()  # Explicit copy to avoid warning
         
         if len(df_prova) < 10:
-            return {'erro': f'Poucos participantes: {len(df_prova)}'}
+            # Tentar carregar todos os dados se for uma prova rara (ex: reaplicação)
+            df = self._carregar_dados(ano, area, None)
+            df_prova = df[df[prova_col] == co_prova].copy()
+            
+            if len(df_prova) < 10:
+                return {'erro': f'Poucos participantes: {len(df_prova)}'}
         
         # Amostragem estratificada por faixa de nota
         if estratificado and len(df_prova) >= n_amostras:

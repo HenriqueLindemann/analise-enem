@@ -2,7 +2,7 @@
 
 Calcule sua nota do ENEM usando **Teoria de Resposta ao Item (TRI)** com alta precisão.
 
-Suporta todas as provas de **2009 a 2024** com análise detalhada e relatórios completos.
+Suporta todas as provas de **2009 a 2025** com análise detalhada e relatórios completos.
 
 ---
 
@@ -97,7 +97,7 @@ MÉDIA...............................   711.0 pts
 - ✅ **Relatórios PDF** com análise de cada questão
 - ✅ **Análise de impacto** - descubra quais erros mais afetaram sua nota
 - ✅ **Todas as áreas**: MT, CN, CH, LC (inglês/espanhol)
-- ✅ **16 anos**: 2009 a 2024
+- ✅ **17 anos**: 2009 a 2025
 
 ## Uso Avançado
 
@@ -154,7 +154,7 @@ A nota final: `nota = slope × theta + intercept`
 | Métrica | Valor |
 |---------|-------|
 | Erro Médio | < 1 ponto |
-| Anos | 2009-2024 |
+| Anos | 2009-2025 |
 
 > **⚠️ ATENÇÃO:** Nem todas as provas estão calibradas. Algumas provas (especialmente de reaplicacões e anos mais antigos) podem apresentar erros maiores. Provas da 1ª aplicação de anos recentes (2018+) têm maior precisão.
 
@@ -185,7 +185,7 @@ analise-enem/
 │   ├── simulador.py              # Interface simplificada
 │   ├── calibrador.py             # Calibração de coeficientes
 │   ├── mapeador_provas.py        # API do mapeamento
-│   ├── mapeamento_provas.yaml    # 🗺️ Todas as provas 2009-2024
+│   ├── mapeamento_provas.yaml    # 🗺️ Todas as provas 2009-2025
 │   ├── coeficientes_data.json    # 📊 Coeficientes + status
 │   ├── precisao.py               # Verificação de erros intrínsecos
 │   ├── tradutor.py               # LC (inglês/espanhol)

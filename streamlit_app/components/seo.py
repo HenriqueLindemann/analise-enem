@@ -177,7 +177,7 @@ def gerar_schema_json_ld(
                 "name": "Quais anos do ENEM estão disponíveis?",
                 "acceptedAnswer": {
                     "@type": "Answer",
-                    "text": "A calculadora suporta provas do ENEM de 2009 até 2024, incluindo 1ª aplicação, prova digital e reaplicações."
+                    "text": "A calculadora suporta provas do ENEM de 2009 até 2025, incluindo 1ª aplicação, prova digital e reaplicações."
                 }
             },
         ]
@@ -239,7 +239,7 @@ def gerar_noscript_seo() -> str:
         </p>
         <h2>Funcionalidades:</h2>
         <ul>
-            <li>Suporte a provas de 2009 a 2024</li>
+            <li>Suporte a provas de 2009 a 2025</li>
             <li>Cálculo TRI preciso com erro típico menor que 1 ponto</li>
             <li>Análise detalhada de cada questão</li>
             <li>Gráficos de impacto por questão</li>

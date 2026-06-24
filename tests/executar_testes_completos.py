@@ -47,14 +47,16 @@ def executar_testes_completos():
             if not line.startswith('#') and line.strip():
                 todas_linhas.append(line.strip())
 
-    # Amostrar 15 de antes de 2017 e 15 de 2017 em diante
+    # Amostrar 20 de antes de 2017 e 20 de 2017 em diante, e sempre incluir 2025
     linhas_pre = [l for l in todas_linhas if int(l.split('|')[0]) < 2017]
-    linhas_pos = [l for l in todas_linhas if int(l.split('|')[0]) >= 2017]
+    linhas_pos = [l for l in todas_linhas if 2017 <= int(l.split('|')[0]) < 2025]
+    linhas_2025 = [l for l in todas_linhas if int(l.split('|')[0]) == 2025]
     
     import random
     random.seed(42)
     amostra = random.sample(linhas_pre, min(len(linhas_pre), 20)) + \
-              random.sample(linhas_pos, min(len(linhas_pos), 20))
+              random.sample(linhas_pos, min(len(linhas_pos), 20)) + \
+              linhas_2025
     
     # Ordenar por ano para o relatório ficar bonito
     amostra.sort(key=lambda l: int(l.split('|')[0]))

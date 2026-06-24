@@ -2113,6 +2113,216 @@
       "r_squared": 0.9999967621269774,
       "mae": 0.08851678122970819,
       "n_amostras": 58
+    },
+    "2025,LC,1459": {
+      "slope": 108.11156871953823,
+      "intercept": 500.0418888316782,
+      "r_squared": 0.9999338823950678,
+      "mae": 0.44677329478022487,
+      "n_amostras": 124
+    },
+    "2025,LC,1460": {
+      "slope": 108.01628398986904,
+      "intercept": 499.9750455886854,
+      "r_squared": 0.9998724566714144,
+      "mae": 0.6508372851840107,
+      "n_amostras": 128
+    },
+    "2025,LC,1461": {
+      "slope": 108.07311354760714,
+      "intercept": 500.02473576661737,
+      "r_squared": 0.9999261384199853,
+      "mae": 0.5097039044899488,
+      "n_amostras": 125
+    },
+    "2025,LC,1462": {
+      "slope": 108.14232931797179,
+      "intercept": 500.0099176209665,
+      "r_squared": 0.9998739016929488,
+      "mae": 0.6270936091700665,
+      "n_amostras": 123
+    },
+    "2025,CH,1447": {
+      "slope": 112.30525911667164,
+      "intercept": 501.50948868118905,
+      "r_squared": 0.999993288092888,
+      "mae": 0.17733334819912142,
+      "n_amostras": 136
+    },
+    "2025,CH,1448": {
+      "slope": 112.28886379430725,
+      "intercept": 501.47848568873104,
+      "r_squared": 0.9999921127817731,
+      "mae": 0.1971919417507224,
+      "n_amostras": 128
+    },
+    "2025,CH,1449": {
+      "slope": 112.33280723695732,
+      "intercept": 501.515681493379,
+      "r_squared": 0.9999949355010999,
+      "mae": 0.16114552192301498,
+      "n_amostras": 132
+    },
+    "2025,CH,1450": {
+      "slope": 112.30541666437244,
+      "intercept": 501.5089964443901,
+      "r_squared": 0.9999939114086734,
+      "mae": 0.18407155291217678,
+      "n_amostras": 135
+    },
+    "2025,CN,1483": {
+      "slope": 113.08467672361677,
+      "intercept": 501.1490946144707,
+      "r_squared": 0.9999945688408917,
+      "mae": 0.14024543155201566,
+      "n_amostras": 130
+    },
+    "2025,CN,1484": {
+      "slope": 113.07754065022739,
+      "intercept": 501.1622953840566,
+      "r_squared": 0.9999950383657908,
+      "mae": 0.14592869227959593,
+      "n_amostras": 129
+    },
+    "2025,CN,1485": {
+      "slope": 113.06972945165596,
+      "intercept": 501.1527224128619,
+      "r_squared": 0.9999940588830114,
+      "mae": 0.16710281672404623,
+      "n_amostras": 135
+    },
+    "2025,CN,1486": {
+      "slope": 113.07580357023232,
+      "intercept": 501.1592787269144,
+      "r_squared": 0.9999935603117465,
+      "mae": 0.15840276888515764,
+      "n_amostras": 133
+    },
+    "2025,MT,1471": {
+      "slope": 129.60261691043647,
+      "intercept": 500.044103855996,
+      "r_squared": 0.9999982289705257,
+      "mae": 0.07958152414426059,
+      "n_amostras": 185
+    },
+    "2025,MT,1472": {
+      "slope": 129.62138209727678,
+      "intercept": 500.0390807642517,
+      "r_squared": 0.9999992840333254,
+      "mae": 0.07148760814682042,
+      "n_amostras": 184
+    },
+    "2025,MT,1473": {
+      "slope": 129.64533169060655,
+      "intercept": 500.03749959017057,
+      "r_squared": 0.9999996267945737,
+      "mae": 0.05895896460294677,
+      "n_amostras": 192
+    },
+    "2025,MT,1474": {
+      "slope": 129.58161542027054,
+      "intercept": 500.0500585401329,
+      "r_squared": 0.9999979307801047,
+      "mae": 0.09866013034277149,
+      "n_amostras": 182
+    },
+    "2025,LC,1549": {
+      "slope": 108.12963685769208,
+      "intercept": 512.572205752167,
+      "r_squared": 0.9873454776560052,
+      "mae": 4.536507336693021,
+      "n_amostras": 110
+    },
+    "2025,LC,1551": {
+      "slope": 105.76773545476026,
+      "intercept": 514.5405246898254,
+      "r_squared": 0.9867509611820025,
+      "mae": 5.713159915761404,
+      "n_amostras": 100
+    },
+    "2025,LC,1552": {
+      "slope": 103.51638125502963,
+      "intercept": 514.8420210519128,
+      "r_squared": 0.9881861606700553,
+      "mae": 5.103504224293513,
+      "n_amostras": 101
+    },
+    "2025,CH,1539": {
+      "slope": 112.30115695014426,
+      "intercept": 501.50960263735794,
+      "r_squared": 0.9999993274451434,
+      "mae": 0.06157482388379507,
+      "n_amostras": 110
+    },
+    "2025,CH,1541": {
+      "slope": 112.3036880629639,
+      "intercept": 501.48805118653877,
+      "r_squared": 0.9999992528163363,
+      "mae": 0.06481674620815255,
+      "n_amostras": 101
+    },
+    "2025,CH,1542": {
+      "slope": 112.29430270644833,
+      "intercept": 501.4958497098236,
+      "r_squared": 0.9999995537840991,
+      "mae": 0.054238589482747554,
+      "n_amostras": 100
+    },
+    "2025,CN,1569": {
+      "slope": 113.0506581279835,
+      "intercept": 501.1390714764224,
+      "r_squared": 0.9999753019204485,
+      "mae": 0.2053625331381109,
+      "n_amostras": 166
+    },
+    "2025,CN,1570": {
+      "slope": 113.04799710533585,
+      "intercept": 501.1446780238282,
+      "r_squared": 0.9999585829643229,
+      "mae": 0.2377189560066049,
+      "n_amostras": 168
+    },
+    "2025,CN,1571": {
+      "slope": 113.12370223456962,
+      "intercept": 501.1507271332549,
+      "r_squared": 0.9999821860940035,
+      "mae": 0.1714933085445985,
+      "n_amostras": 158
+    },
+    "2025,CN,1572": {
+      "slope": 113.14204726514315,
+      "intercept": 501.18093978453834,
+      "r_squared": 0.9999677905045031,
+      "mae": 0.2379038549270486,
+      "n_amostras": 173
+    },
+    "2025,MT,1559": {
+      "slope": 129.62588337265274,
+      "intercept": 500.0304072815344,
+      "r_squared": 0.9999968176660229,
+      "mae": 0.11658952670129237,
+      "n_amostras": 166
+    },
+    "2025,MT,1560": {
+      "slope": 129.64811868539886,
+      "intercept": 500.03223702015,
+      "r_squared": 0.9999964219239538,
+      "mae": 0.1316476208677647,
+      "n_amostras": 168
+    },
+    "2025,MT,1561": {
+      "slope": 129.59302432260847,
+      "intercept": 500.01260662957475,
+      "r_squared": 0.9999961455183656,
+      "mae": 0.13808819771932576,
+      "n_amostras": 173
+    },
+    "2025,MT,1562": {
+      "slope": 129.53468836477612,
+      "intercept": 500.0196966543964,
+      "r_squared": 0.9999936990639345,
+      "mae": 0.13444401060712283,
+      "n_amostras": 158
     }
   },
   "por_area": {
@@ -2405,6 +2615,26 @@
       "slope": 108.08041740269205,
       "intercept": 499.9841263362062,
       "n_provas": 8
+    },
+    "2025,LC": {
+      "slope": 107.10814987749544,
+      "intercept": 506.0009056145504,
+      "n_provas": 7
+    },
+    "2025,CH": {
+      "slope": 112.30449921883789,
+      "intercept": 501.50087940591567,
+      "n_provas": 7
+    },
+    "2025,CN": {
+      "slope": 113.08401939109557,
+      "intercept": 501.15485094454345,
+      "n_provas": 8
+    },
+    "2025,MT": {
+      "slope": 129.6065826080033,
+      "intercept": 500.03321129202584,
+      "n_provas": 8
     }
   },
   "metadata": {
@@ -2428,7 +2658,7 @@
       "intercept_medio": 499.99070073605765,
       "n_anos": 14
     },
-    "ultima_calibracao": "2026-01-23T16:20:40.153584"
+    "ultima_calibracao": "2026-06-24T16:22:26.305654"
   },
   "status_provas": {
     "2024,LC,1395": {
@@ -2622,6 +2852,342 @@
       "mensagem": "Falha: Poucos participantes: 0",
       "tipo_aplicacao": "reaplicacao",
       "cor": "cinza"
+    },
+    "2025,LC,1459": {
+      "status": "ok",
+      "mensagem": null,
+      "tipo_aplicacao": "1a_aplicacao",
+      "cor": "azul"
+    },
+    "2025,LC,1460": {
+      "status": "ok",
+      "mensagem": null,
+      "tipo_aplicacao": "1a_aplicacao",
+      "cor": "amarela"
+    },
+    "2025,LC,1461": {
+      "status": "ok",
+      "mensagem": null,
+      "tipo_aplicacao": "1a_aplicacao",
+      "cor": "verde"
+    },
+    "2025,LC,1462": {
+      "status": "ok",
+      "mensagem": null,
+      "tipo_aplicacao": "1a_aplicacao",
+      "cor": "branca"
+    },
+    "2025,LC,1549": {
+      "status": "aviso_leve",
+      "mensagem": "ℹ️ Esta prova tem boa calibração, mas pode haver uma pequena diferença de até 4.5 pontos em relação à nota oficial.",
+      "tipo_aplicacao": "reaplicacao",
+      "cor": "azul"
+    },
+    "2025,LC,1550": {
+      "status": "falhou",
+      "mensagem": "Falha: Poucos participantes: 0",
+      "tipo_aplicacao": "reaplicacao",
+      "cor": "amarela"
+    },
+    "2025,LC,1551": {
+      "status": "aviso_forte",
+      "mensagem": "⚠️ Atenção: Esta prova tem calibração parcial. O erro médio é de aproximadamente 5.7 pontos. Sua nota calculada é uma estimativa e pode diferir da nota oficial.",
+      "tipo_aplicacao": "reaplicacao",
+      "cor": "verde"
+    },
+    "2025,LC,1552": {
+      "status": "aviso_forte",
+      "mensagem": "⚠️ Atenção: Esta prova tem calibração parcial. O erro médio é de aproximadamente 5.1 pontos. Sua nota calculada é uma estimativa e pode diferir da nota oficial.",
+      "tipo_aplicacao": "reaplicacao",
+      "cor": "branca"
+    },
+    "2025,LC,1595": {
+      "status": "falhou",
+      "mensagem": "Falha: Poucos cálculos válidos",
+      "tipo_aplicacao": "segunda_oportunidade",
+      "cor": "azul"
+    },
+    "2025,LC,1596": {
+      "status": "falhou",
+      "mensagem": "Falha: Poucos cálculos válidos",
+      "tipo_aplicacao": "segunda_oportunidade",
+      "cor": "amarela"
+    },
+    "2025,LC,1597": {
+      "status": "falhou",
+      "mensagem": "Falha: Poucos cálculos válidos",
+      "tipo_aplicacao": "segunda_oportunidade",
+      "cor": "verde"
+    },
+    "2025,LC,1598": {
+      "status": "falhou",
+      "mensagem": "Falha: Poucos cálculos válidos",
+      "tipo_aplicacao": "segunda_oportunidade",
+      "cor": "branca"
+    },
+    "2025,LC,1599": {
+      "status": "falhou",
+      "mensagem": "Falha: Poucos cálculos válidos",
+      "tipo_aplicacao": "segunda_oportunidade",
+      "cor": "laranja_ampliada"
+    },
+    "2025,LC,1632": {
+      "status": "falhou",
+      "mensagem": "Falha: Poucos cálculos válidos",
+      "tipo_aplicacao": "segunda_oportunidade",
+      "cor": "laranja_atendimento_especializado"
+    },
+    "2025,CH,1447": {
+      "status": "ok",
+      "mensagem": null,
+      "tipo_aplicacao": "1a_aplicacao",
+      "cor": "azul"
+    },
+    "2025,CH,1448": {
+      "status": "ok",
+      "mensagem": null,
+      "tipo_aplicacao": "1a_aplicacao",
+      "cor": "amarela"
+    },
+    "2025,CH,1449": {
+      "status": "ok",
+      "mensagem": null,
+      "tipo_aplicacao": "1a_aplicacao",
+      "cor": "branca"
+    },
+    "2025,CH,1450": {
+      "status": "ok",
+      "mensagem": null,
+      "tipo_aplicacao": "1a_aplicacao",
+      "cor": "verde"
+    },
+    "2025,CH,1539": {
+      "status": "ok",
+      "mensagem": null,
+      "tipo_aplicacao": "reaplicacao",
+      "cor": "azul"
+    },
+    "2025,CH,1540": {
+      "status": "falhou",
+      "mensagem": "Falha: Poucos participantes: 0",
+      "tipo_aplicacao": "reaplicacao",
+      "cor": "amarela"
+    },
+    "2025,CH,1541": {
+      "status": "ok",
+      "mensagem": null,
+      "tipo_aplicacao": "reaplicacao",
+      "cor": "branca"
+    },
+    "2025,CH,1542": {
+      "status": "ok",
+      "mensagem": null,
+      "tipo_aplicacao": "reaplicacao",
+      "cor": "verde"
+    },
+    "2025,CH,1583": {
+      "status": "falhou",
+      "mensagem": "Falha: Poucos cálculos válidos",
+      "tipo_aplicacao": "segunda_oportunidade",
+      "cor": "azul"
+    },
+    "2025,CH,1584": {
+      "status": "falhou",
+      "mensagem": "Falha: Poucos cálculos válidos",
+      "tipo_aplicacao": "segunda_oportunidade",
+      "cor": "amarela"
+    },
+    "2025,CH,1585": {
+      "status": "falhou",
+      "mensagem": "Falha: Poucos cálculos válidos",
+      "tipo_aplicacao": "segunda_oportunidade",
+      "cor": "branca"
+    },
+    "2025,CH,1586": {
+      "status": "falhou",
+      "mensagem": "Falha: Poucos cálculos válidos",
+      "tipo_aplicacao": "segunda_oportunidade",
+      "cor": "verde"
+    },
+    "2025,CH,1587": {
+      "status": "falhou",
+      "mensagem": "Falha: Poucos cálculos válidos",
+      "tipo_aplicacao": "segunda_oportunidade",
+      "cor": "laranja_ampliada"
+    },
+    "2025,CH,1631": {
+      "status": "falhou",
+      "mensagem": "Falha: Poucos cálculos válidos",
+      "tipo_aplicacao": "segunda_oportunidade",
+      "cor": "laranja_atendimento_especializado"
+    },
+    "2025,CN,1483": {
+      "status": "ok",
+      "mensagem": null,
+      "tipo_aplicacao": "1a_aplicacao",
+      "cor": "azul"
+    },
+    "2025,CN,1484": {
+      "status": "ok",
+      "mensagem": null,
+      "tipo_aplicacao": "1a_aplicacao",
+      "cor": "amarela"
+    },
+    "2025,CN,1485": {
+      "status": "ok",
+      "mensagem": null,
+      "tipo_aplicacao": "1a_aplicacao",
+      "cor": "verde"
+    },
+    "2025,CN,1486": {
+      "status": "ok",
+      "mensagem": null,
+      "tipo_aplicacao": "1a_aplicacao",
+      "cor": "cinza"
+    },
+    "2025,CN,1569": {
+      "status": "ok",
+      "mensagem": null,
+      "tipo_aplicacao": "reaplicacao",
+      "cor": "azul"
+    },
+    "2025,CN,1570": {
+      "status": "ok",
+      "mensagem": null,
+      "tipo_aplicacao": "reaplicacao",
+      "cor": "amarela"
+    },
+    "2025,CN,1571": {
+      "status": "ok",
+      "mensagem": null,
+      "tipo_aplicacao": "reaplicacao",
+      "cor": "cinza"
+    },
+    "2025,CN,1572": {
+      "status": "ok",
+      "mensagem": null,
+      "tipo_aplicacao": "reaplicacao",
+      "cor": "verde"
+    },
+    "2025,CN,1619": {
+      "status": "falhou",
+      "mensagem": "Falha: Poucos cálculos válidos",
+      "tipo_aplicacao": "segunda_oportunidade",
+      "cor": "azul"
+    },
+    "2025,CN,1620": {
+      "status": "falhou",
+      "mensagem": "Falha: Poucos cálculos válidos",
+      "tipo_aplicacao": "segunda_oportunidade",
+      "cor": "amarela"
+    },
+    "2025,CN,1621": {
+      "status": "falhou",
+      "mensagem": "Falha: Poucos cálculos válidos",
+      "tipo_aplicacao": "segunda_oportunidade",
+      "cor": "verde"
+    },
+    "2025,CN,1622": {
+      "status": "falhou",
+      "mensagem": "Falha: Poucos cálculos válidos",
+      "tipo_aplicacao": "segunda_oportunidade",
+      "cor": "cinza"
+    },
+    "2025,CN,1623": {
+      "status": "falhou",
+      "mensagem": "Falha: Poucos cálculos válidos",
+      "tipo_aplicacao": "segunda_oportunidade",
+      "cor": "laranja_ampliada"
+    },
+    "2025,CN,1634": {
+      "status": "falhou",
+      "mensagem": "Falha: Poucos cálculos válidos",
+      "tipo_aplicacao": "segunda_oportunidade",
+      "cor": "laranja_atendimento_especializado"
+    },
+    "2025,MT,1471": {
+      "status": "ok",
+      "mensagem": null,
+      "tipo_aplicacao": "1a_aplicacao",
+      "cor": "azul"
+    },
+    "2025,MT,1472": {
+      "status": "ok",
+      "mensagem": null,
+      "tipo_aplicacao": "1a_aplicacao",
+      "cor": "amarela"
+    },
+    "2025,MT,1473": {
+      "status": "ok",
+      "mensagem": null,
+      "tipo_aplicacao": "1a_aplicacao",
+      "cor": "verde"
+    },
+    "2025,MT,1474": {
+      "status": "ok",
+      "mensagem": null,
+      "tipo_aplicacao": "1a_aplicacao",
+      "cor": "cinza"
+    },
+    "2025,MT,1559": {
+      "status": "ok",
+      "mensagem": null,
+      "tipo_aplicacao": "reaplicacao",
+      "cor": "azul"
+    },
+    "2025,MT,1560": {
+      "status": "ok",
+      "mensagem": null,
+      "tipo_aplicacao": "reaplicacao",
+      "cor": "amarela"
+    },
+    "2025,MT,1561": {
+      "status": "ok",
+      "mensagem": null,
+      "tipo_aplicacao": "reaplicacao",
+      "cor": "verde"
+    },
+    "2025,MT,1562": {
+      "status": "ok",
+      "mensagem": null,
+      "tipo_aplicacao": "reaplicacao",
+      "cor": "cinza"
+    },
+    "2025,MT,1607": {
+      "status": "falhou",
+      "mensagem": "Falha: Poucos cálculos válidos",
+      "tipo_aplicacao": "segunda_oportunidade",
+      "cor": "azul"
+    },
+    "2025,MT,1608": {
+      "status": "falhou",
+      "mensagem": "Falha: Poucos cálculos válidos",
+      "tipo_aplicacao": "segunda_oportunidade",
+      "cor": "amarela"
+    },
+    "2025,MT,1609": {
+      "status": "falhou",
+      "mensagem": "Falha: Poucos cálculos válidos",
+      "tipo_aplicacao": "segunda_oportunidade",
+      "cor": "verde"
+    },
+    "2025,MT,1610": {
+      "status": "falhou",
+      "mensagem": "Falha: Poucos cálculos válidos",
+      "tipo_aplicacao": "segunda_oportunidade",
+      "cor": "cinza"
+    },
+    "2025,MT,1611": {
+      "status": "falhou",
+      "mensagem": "Falha: Poucos cálculos válidos",
+      "tipo_aplicacao": "segunda_oportunidade",
+      "cor": "laranja_ampliada"
+    },
+    "2025,MT,1633": {
+      "status": "falhou",
+      "mensagem": "Falha: Poucos cálculos válidos",
+      "tipo_aplicacao": "segunda_oportunidade",
+      "cor": "laranja_atendimento_especializado"
     }
   }
 }

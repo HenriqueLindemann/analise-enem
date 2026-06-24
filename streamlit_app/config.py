@@ -14,7 +14,7 @@ from typing import Dict, List
 #                         INFORMAÇÕES DO PROJETO
 # ============================================================================
 
-APP_VERSION = "21.05.2026"
+APP_VERSION = "24.06.2026"
 APP_AUTHOR = "Henrique Lindemann"
 APP_AUTHOR_URL = "https://www.linkedin.com/in/henriquelindemann/"
 APP_GITHUB_URL = "https://github.com/HenriqueLindemann/analise-enem"
@@ -35,7 +35,7 @@ class SEOConfig:
     # Descrição (máx 160 caracteres para Google)
     meta_description: str = (
         "Calculadora Nota TRI ENEM - Calcule sua nota do ENEM online e grátis. "
-        "Método TRI oficial usado pelo INEP. Gabaritos de 2009 a 2024. "
+        "Método TRI oficial usado pelo INEP. Gabaritos de 2009 a 2025. "
         "Análise detalhada por área."
     )
     
@@ -43,7 +43,7 @@ class SEOConfig:
     meta_keywords: str = (
         "calculadora ENEM, nota ENEM, TRI ENEM, calcular nota ENEM, "
         "simulador ENEM, Teoria de Resposta ao Item, gabarito ENEM, "
-        "ENEM 2024, ENEM 2023, nota TRI, correção ENEM online, "
+        "ENEM 2025, ENEM 2024, nota TRI, correção ENEM online, "
         "resultado ENEM, prova ENEM, vestibular, INEP"
     )
     
@@ -51,7 +51,7 @@ class SEOConfig:
     og_title: str = "Calculadora Nota TRI ENEM - Calcule sua Nota Online Grátis"
     og_description: str = (
         "Simule sua nota do ENEM com precisão usando TRI. "
-        "Gabaritos oficiais de 2009 a 2024. Gratuito."
+        "Gabaritos oficiais de 2009 a 2025. Gratuito."
     )
     og_type: str = "website"
     og_image: str = ""  # URL da imagem de preview (opcional)
@@ -61,7 +61,7 @@ class SEOConfig:
     twitter_title: str = "Calculadora Nota TRI ENEM - Nota Online Grátis"
     twitter_description: str = (
         "Calcule sua nota do ENEM usando TRI. "
-        "Ferramenta gratuita com gabaritos de 2009 a 2024."
+        "Ferramenta gratuita com gabaritos de 2009 a 2025."
     )
 
 
