@@ -76,7 +76,7 @@ def limpar_arquivo_chunked(ano, colunas_lista=None):
     if colunas_lista is None:
         colunas_lista = COLUNAS_ESSENCIAIS
     
-    if ano == 2024:
+    if ano in (2024, 2025):
         arquivo_origem = f'microdados/{ano}/RESULTADOS_{ano}.csv'
         arquivo_destino = f'microdados_limpos/{ano}/DADOS_ENEM_{ano}.csv'
     else:
@@ -135,7 +135,7 @@ def copiar_itens_prova():
     """Copia os arquivos ITENS_PROVA (já são pequenos)"""
     print("📋 Copiando arquivos ITENS_PROVA...")
     total = 0
-    for ano in range(2009, 2025):
+    for ano in range(2009, 2026):
         arquivo_origem = f'microdados/{ano}/ITENS_PROVA_{ano}.csv'
         arquivo_destino = f'microdados_limpos/{ano}/ITENS_PROVA_{ano}.csv'
         
@@ -165,6 +165,11 @@ def main():
     
     # Processar 2024 (arquitetura diferente)
     orig, limpo = limpar_arquivo_chunked(2024, COLUNAS_RESULTADOS_2024)
+    total_original += orig
+    total_limpo += limpo
+    
+    # Processar 2025 (mesma arquitetura de 2024)
+    orig, limpo = limpar_arquivo_chunked(2025, COLUNAS_RESULTADOS_2024)
     total_original += orig
     total_limpo += limpo
     

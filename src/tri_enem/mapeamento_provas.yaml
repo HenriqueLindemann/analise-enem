@@ -114,6 +114,121 @@ _metadata:
 # MAPEAMENTO DE PROVAS POR ANO
 # =============================================================================
 
+# ANO 2025
+# -----------------------------------------------------------------------------
+2025:
+  MT:
+    1a_aplicacao:
+      azul: 1471
+      amarela: 1472
+      verde: 1473
+      cinza: 1474
+    
+    reaplicacao:
+      azul: 1559
+      amarela: 1560
+      verde: 1561
+      cinza: 1562
+    
+    segunda_oportunidade:
+      azul: 1607
+      amarela: 1608
+      verde: 1609
+      cinza: 1610
+      laranja_ampliada: 1611
+      laranja_atendimento_especializado: 1633
+    
+    especiais:
+      laranja_ampliada: 1475
+      laranja_superampliada: 1476
+      laranja_adaptada_ledor: 1478
+      roxa_videoprova_libras: 1479
+      laranja_atendimento_especializado: 1497
+  
+  CN:
+    1a_aplicacao:
+      azul: 1483
+      amarela: 1484
+      verde: 1485
+      cinza: 1486
+    
+    reaplicacao:
+      azul: 1569
+      amarela: 1570
+      cinza: 1571
+      verde: 1572
+    
+    segunda_oportunidade:
+      azul: 1619
+      amarela: 1620
+      verde: 1621
+      cinza: 1622
+      laranja_ampliada: 1623
+      laranja_atendimento_especializado: 1634
+    
+    especiais:
+      laranja_ampliada: 1487
+      laranja_superampliada: 1488
+      laranja_adaptada_ledor: 1490
+      roxa_videoprova_libras: 1491
+      laranja_atendimento_especializado: 1498
+  
+  CH:
+    1a_aplicacao:
+      azul: 1447
+      amarela: 1448
+      branca: 1449
+      verde: 1450
+    
+    reaplicacao:
+      azul: 1539
+      amarela: 1540
+      branca: 1541
+      verde: 1542
+    
+    segunda_oportunidade:
+      azul: 1583
+      amarela: 1584
+      branca: 1585
+      verde: 1586
+      laranja_ampliada: 1587
+      laranja_atendimento_especializado: 1631
+    
+    especiais:
+      laranja_ampliada: 1451
+      laranja_superampliada: 1452
+      laranja_adaptada_ledor: 1454
+      roxa_videoprova_libras: 1455
+      laranja_atendimento_especializado: 1495
+  
+  LC:
+    1a_aplicacao:
+      azul: 1459
+      amarela: 1460
+      verde: 1461
+      branca: 1462
+    
+    reaplicacao:
+      azul: 1549
+      amarela: 1550
+      verde: 1551
+      branca: 1552
+    
+    segunda_oportunidade:
+      azul: 1595
+      amarela: 1596
+      verde: 1597
+      branca: 1598
+      laranja_ampliada: 1599
+      laranja_atendimento_especializado: 1632
+    
+    especiais:
+      laranja_ampliada: 1463
+      laranja_superampliada: 1464
+      laranja_adaptada_ledor: 1466
+      roxa_videoprova_libras: 1467
+      laranja_atendimento_especializado: 1496
+
 # ANO 2024
 # -----------------------------------------------------------------------------
 2024:
