@@ -129,6 +129,10 @@ def main():
     calc = get_calculador()
     ano, tipo_aplicacao, lingua, cores = render_sidebar_config(calc.mapeador)
     
+    # Mensagem de beta para o ENEM 2025
+    if ano == 2025:
+        st.warning("⚠️ **ENEM 2025 (Beta)**: O cálculo para o ano de 2025 está em fase beta.")
+    
     # Área principal: inputs de respostas
     respostas = input_respostas(ano, calc.mapeador)
     
@@ -211,6 +215,9 @@ def _exibir_resultados_salvos(ano_atual, tipo_atual):
     tipo_resultado = st.session_state.get('resultado_tipo', tipo_atual)
     
     st.markdown("---")
+    
+    if ano_resultado == 2025:
+        st.warning("⚠️ **Atenção**: As notas calculadas para o ENEM 2025 utilizam calibrações preliminares em fase beta e ainda não foram confirmadas oficialmente.")
     
     # Resumo geral com métricas
     exibir_resumo_geral(resultados)
