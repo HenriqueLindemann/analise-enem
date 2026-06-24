@@ -123,8 +123,25 @@ class CalculadorTRI:
         if cache_key in self._cache_itens:
             return self._cache_itens[cache_key]
         
+        # Traduzir códigos BAM2 (Segunda Oportunidade) de 2025 para códigos PPL equivalentes
+        # que possuem itens definidos no ITENS_PROVA_2025.csv
+        co_prova_busca = co_prova
+        if ano == 2025:
+            TRADUCAO_BAM2 = {
+                # Matemática
+                1607: 1502, 1608: 1503, 1609: 1504, 1610: 1505, 1611: 1506, 1633: 1537,
+                # Ciências da Natureza
+                1619: 1511, 1620: 1512, 1621: 1514, 1622: 1513, 1623: 1515, 1634: 1538,
+                # Ciências Humanas
+                1583: 1520, 1584: 1521, 1585: 1522, 1586: 1523, 1587: 1524, 1631: 1535,
+                # Linguagens e Códigos
+                1595: 1529, 1596: 1530, 1597: 1531, 1598: 1532, 1599: 1533, 1632: 1499,
+            }
+            if co_prova in TRADUCAO_BAM2:
+                co_prova_busca = TRADUCAO_BAM2[co_prova]
+
         df = self._carregar_df_itens(ano)
-        df_prova = df[(df['SG_AREA'] == area.upper()) & (df['CO_PROVA'] == co_prova)].copy()
+        df_prova = df[(df['SG_AREA'] == area.upper()) & (df['CO_PROVA'] == co_prova_busca)].copy()
         
         if df_prova.empty:
             raise ValueError(f"Prova não encontrada: {ano}/{area}/{co_prova}")
