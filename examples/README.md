@@ -40,7 +40,7 @@ co_prova = mapeador.obter_codigo(2023, 'MT', '1a_aplicacao', 'azul')
 
 # Calcular nota
 respostas = 'CEAEACCCDABCDAACEDDBAAEBABDDEEBDAECABDBCBCADE'
-resultado = calc.calcular_nota_tri(2023, 'MT', co_prova, respostas)
+resultado = calc.calcular_nota(2023, 'MT', co_prova, respostas)
 
-print(f"Nota: {resultado:.1f}")
+print(f"Nota: {resultado['nota']:.1f}")
 ```

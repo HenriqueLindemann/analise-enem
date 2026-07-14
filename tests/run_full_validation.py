@@ -109,6 +109,17 @@ def main():
         default=_utils.LIMITE_DIF_PADRAO,
         help=f"Limite de diferença para marcar como problemático (default: {_utils.LIMITE_DIF_PADRAO})"
     )
+    parser.add_argument(
+        "--n-max",
+        type=int,
+        default=10,
+        help="Máximo de exemplos por CO_PROVA para gerar_exemplos_microdados.py (default: 10)"
+    )
+    parser.add_argument(
+        "--atualizar-status",
+        action="store_true",
+        help="Atualiza coeficientes_data.json quando a validação diverge da calibração"
+    )
     args = parser.parse_args()
     
     print("="*70)
@@ -140,6 +151,7 @@ def main():
                 "--microdados-dir", args.microdados_dir,
                 "--microdados-limpos", args.microdados_limpos,
                 "--saida", str(exemplos_path),
+                "--n-max", str(args.n_max),
             ]
         )
         if not ok:
@@ -151,13 +163,16 @@ def main():
         return 1
     
     # Passo 2: Validar exemplos
+    validar_args = [
+        "--exemplos", str(exemplos_path),
+        "--microdados-limpos", args.microdados_limpos,
+    ]
+    if args.atualizar_status:
+        validar_args.append("--atualizar-status")
     ok = run_step(
         "Validar Exemplos contra Microdados",
         "validar_exemplos_microdados.py",
-        [
-            "--exemplos", str(exemplos_path),
-            "--microdados-limpos", args.microdados_limpos,
-        ]
+        validar_args,
     )
     if not ok:
         print("⚠️  Validação teve problemas, mas continuando...")

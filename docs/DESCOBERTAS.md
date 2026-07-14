@@ -135,13 +135,7 @@ e pode conter imprecisoes. Pontos de atencao para debug futuro:
 
 Arquivos relevantes:
 - `src/tri_enem/provas_por_aplicacao.json` - Mapeamento completo em JSON
-- `docs/GUIA_PROVAS.md` - Guia para identificar codigo da prova
-- `tools/gerar_mapeamento_aplicacoes.py` - Script para regenerar mapeamento
-
-Para regenerar o mapeamento:
-```bash
-python tools/gerar_mapeamento_aplicacoes.py
-```
+- `src/tri_enem/mapeamento_provas.yaml` - Mapeamento YAML usado pela calibração
 
 ## 8. Validação
 

@@ -2491,6 +2491,90 @@
       "r_squared": 0.9999984725769901,
       "mae": 0.06495776826569681,
       "n_amostras": 110
+    },
+    "2009,LC,57": {
+      "slope": 208.24135941455944,
+      "intercept": 790.621192875872,
+      "r_squared": 0.47522437008695595,
+      "mae": 70.7253351287943,
+      "n_amostras": null
+    },
+    "2009,LC,58": {
+      "slope": 180.4743569221312,
+      "intercept": 724.3227703279688,
+      "r_squared": 0.5361043923270842,
+      "mae": 66.9894557597379,
+      "n_amostras": null
+    },
+    "2009,LC,59": {
+      "slope": 170.11343130940529,
+      "intercept": 689.8015427758081,
+      "r_squared": 0.7598512524805016,
+      "mae": 45.9157558867206,
+      "n_amostras": null
+    },
+    "2009,LC,60": {
+      "slope": 193.86069560719167,
+      "intercept": 740.8012518904259,
+      "r_squared": 0.5808782374088018,
+      "mae": 57.82683352639039,
+      "n_amostras": null
+    },
+    "2019,MT,515": {
+      "slope": 142.76527849529666,
+      "intercept": 521.9221027305516,
+      "r_squared": 0.9403678289418677,
+      "mae": 25.896328525854432,
+      "n_amostras": null
+    },
+    "2019,MT,516": {
+      "slope": 143.95302519225936,
+      "intercept": 518.3956615448261,
+      "r_squared": 0.9385723732574884,
+      "mae": 24.26906744617343,
+      "n_amostras": null
+    },
+    "2019,MT,517": {
+      "slope": 145.61574263598854,
+      "intercept": 517.3157302423666,
+      "r_squared": 0.9341445935303421,
+      "mae": 23.43821641713033,
+      "n_amostras": null
+    },
+    "2019,MT,518": {
+      "slope": 142.92012768940256,
+      "intercept": 521.1567459261945,
+      "r_squared": 0.9315519640583155,
+      "mae": 26.092875457591127,
+      "n_amostras": null
+    },
+    "2020,LC,691": {
+      "slope": 40.615080754918125,
+      "intercept": 549.3310062586395,
+      "r_squared": 0.30826216238746273,
+      "mae": 39.60459198808408,
+      "n_amostras": null
+    },
+    "2020,LC,692": {
+      "slope": 49.20262754928479,
+      "intercept": 544.9178236481728,
+      "r_squared": 0.4562328891085754,
+      "mae": 36.15215190437163,
+      "n_amostras": null
+    },
+    "2020,LC,693": {
+      "slope": 40.79651389541003,
+      "intercept": 548.4489071611255,
+      "r_squared": 0.3764011421503548,
+      "mae": 36.72304185278387,
+      "n_amostras": null
+    },
+    "2020,LC,694": {
+      "slope": 44.90584704950905,
+      "intercept": 542.5169825594406,
+      "r_squared": 0.4148394553790158,
+      "mae": 34.6440438998755,
+      "n_amostras": null
     }
   },
   "por_area": {
@@ -3356,6 +3440,2254 @@
       "mensagem": null,
       "tipo_aplicacao": "segunda_oportunidade",
       "cor": "laranja_atendimento_especializado"
+    },
+    "2009,LC,57": {
+      "status": "erro_alto",
+      "mensagem": null,
+      "tipo_aplicacao": null,
+      "cor": null
+    },
+    "2009,LC,58": {
+      "status": "erro_alto",
+      "mensagem": null,
+      "tipo_aplicacao": null,
+      "cor": null
+    },
+    "2009,LC,59": {
+      "status": "erro_alto",
+      "mensagem": null,
+      "tipo_aplicacao": null,
+      "cor": null
+    },
+    "2009,LC,60": {
+      "status": "erro_alto",
+      "mensagem": null,
+      "tipo_aplicacao": null,
+      "cor": null
+    },
+    "2011,CN,121": {
+      "status": "aviso_forte",
+      "mensagem": "⚠️ Atenção: calibração parcial. Erro médio de 12.7 pontos. Use como estimativa.",
+      "tipo_aplicacao": null,
+      "cor": null
+    },
+    "2013,MT,179": {
+      "status": "erro_alto",
+      "mensagem": null,
+      "tipo_aplicacao": null,
+      "cor": null
+    },
+    "2013,MT,180": {
+      "status": "erro_alto",
+      "mensagem": null,
+      "tipo_aplicacao": null,
+      "cor": null
+    },
+    "2013,MT,181": {
+      "status": "erro_alto",
+      "mensagem": null,
+      "tipo_aplicacao": null,
+      "cor": null
+    },
+    "2013,MT,182": {
+      "status": "erro_alto",
+      "mensagem": null,
+      "tipo_aplicacao": null,
+      "cor": null
+    },
+    "2018,CN,450": {
+      "status": "aviso_forte",
+      "mensagem": "⚠️ Atenção: calibração parcial. Erro médio de 8.5 pontos. Use como estimativa.",
+      "tipo_aplicacao": null,
+      "cor": null
+    },
+    "2019,MT,515": {
+      "status": "erro_alto",
+      "mensagem": null,
+      "tipo_aplicacao": null,
+      "cor": null
+    },
+    "2019,MT,516": {
+      "status": "erro_alto",
+      "mensagem": null,
+      "tipo_aplicacao": null,
+      "cor": null
+    },
+    "2019,MT,517": {
+      "status": "erro_alto",
+      "mensagem": null,
+      "tipo_aplicacao": null,
+      "cor": null
+    },
+    "2019,MT,518": {
+      "status": "erro_alto",
+      "mensagem": null,
+      "tipo_aplicacao": null,
+      "cor": null
+    },
+    "2020,LC,691": {
+      "status": "erro_alto",
+      "mensagem": null,
+      "tipo_aplicacao": null,
+      "cor": null
+    },
+    "2020,LC,692": {
+      "status": "erro_alto",
+      "mensagem": null,
+      "tipo_aplicacao": null,
+      "cor": null
+    },
+    "2020,LC,693": {
+      "status": "erro_alto",
+      "mensagem": null,
+      "tipo_aplicacao": null,
+      "cor": null
+    },
+    "2020,LC,694": {
+      "status": "erro_alto",
+      "mensagem": null,
+      "tipo_aplicacao": null,
+      "cor": null
+    },
+    "2009,CN,51": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2009,CH,55": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2009,MT,62": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2009,CN,50": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2009,CH,54": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2009,CN,49": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2009,CH,53": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2009,MT,63": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2009,CN,52": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2009,CH,56": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2009,MT,64": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2009,MT,61": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2009,CN,66": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2009,CH,70": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2009,LC,73": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2009,MT,77": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2009,CN,68": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2009,CH,72": {
+      "status": "aviso_leve",
+      "mensagem": "ℹ️ Esta prova tem boa calibração, mas pode haver diferença de até 2.0 pontos em relação à nota oficial."
+    },
+    "2009,LC,74": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2009,MT,78": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2009,LC,83": {
+      "status": "erro_alto",
+      "mensagem": "⚠️ ATENÇÃO: Esta prova não está calibrada corretamente. Erro médio de 67.5 pontos — a nota pode variar bastante da oficial."
+    },
+    "2009,CN,65": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2009,CH,69": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2009,CN,67": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2009,CH,71": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2009,LC,76": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2009,MT,80": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2009,LC,75": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2009,MT,79": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2010,CN,91": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2010,CH,87": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2010,LC,94": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2010,MT,98": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2010,CN,90": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2010,CH,86": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2010,LC,96": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2010,MT,100": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2010,CN,92": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2010,CH,88": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2010,LC,93": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2010,MT,97": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2010,LC,95": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2010,MT,99": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2010,CN,89": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2010,CH,85": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2010,CN,106": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2010,CH,102": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2010,CN,107": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2010,CH,103": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2010,CN,108": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2010,CH,104": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2010,CN,105": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2010,CH,101": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2011,CH,117": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2011,LC,127": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2011,MT,131": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2011,LC,128": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2011,MT,132": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2011,LC,125": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2011,MT,129": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2011,LC,126": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2011,MT,130": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2011,CN,122": {
+      "status": "erro_alto",
+      "mensagem": "⚠️ ATENÇÃO: Esta prova não está calibrada corretamente. Erro médio de 21.7 pontos — a nota pode variar bastante da oficial."
+    },
+    "2011,CH,118": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2011,CN,123": {
+      "status": "erro_alto",
+      "mensagem": "⚠️ ATENÇÃO: Esta prova não está calibrada corretamente. Erro médio de 22.2 pontos — a nota pode variar bastante da oficial."
+    },
+    "2011,CH,119": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2011,CN,124": {
+      "status": "erro_alto",
+      "mensagem": "⚠️ ATENÇÃO: Esta prova não está calibrada corretamente. Erro médio de 27.5 pontos — a nota pode variar bastante da oficial."
+    },
+    "2011,CH,120": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2012,CN,141": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2012,CH,137": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2012,LC,146": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2012,MT,150": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2012,CN,143": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2012,CH,139": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2012,LC,147": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2012,MT,151": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2012,CN,144": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2012,CH,140": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2012,LC,148": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2012,MT,152": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2012,CN,142": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2012,CH,138": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2012,LC,145": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2012,MT,149": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2012,CN,153": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2012,CH,154": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2012,LC,155": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2012,MT,156": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2013,CN,174": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2013,CH,170": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2013,LC,177": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2013,CN,173": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2013,CH,169": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2013,CN,171": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2013,CH,167": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2013,LC,178": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2013,LC,176": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2013,CN,172": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2013,CH,168": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2013,LC,175": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2013,CN,188": {
+      "status": "erro_alto",
+      "mensagem": "⚠️ ATENÇÃO: Esta prova não está calibrada corretamente. Erro médio de 75.2 pontos — a nota pode variar bastante da oficial."
+    },
+    "2013,CH,187": {
+      "status": "erro_alto",
+      "mensagem": "⚠️ ATENÇÃO: Esta prova não está calibrada corretamente. Erro médio de 109.2 pontos — a nota pode variar bastante da oficial."
+    },
+    "2013,LC,189": {
+      "status": "erro_alto",
+      "mensagem": "⚠️ ATENÇÃO: Esta prova não está calibrada corretamente. Erro médio de 231.6 pontos — a nota pode variar bastante da oficial."
+    },
+    "2013,MT,190": {
+      "status": "erro_alto",
+      "mensagem": "⚠️ ATENÇÃO: Esta prova não está calibrada corretamente. Erro médio de 49.9 pontos — a nota pode variar bastante da oficial."
+    },
+    "2014,CN,199": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2014,CH,195": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2014,LC,203": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2014,MT,207": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2014,CN,202": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2014,CH,198": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2014,CN,200": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2014,CH,196": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2014,LC,206": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2014,MT,210": {
+      "status": "erro_alto",
+      "mensagem": "⚠️ ATENÇÃO: Esta prova não está calibrada corretamente. Erro médio de 32.3 pontos — a nota pode variar bastante da oficial."
+    },
+    "2014,LC,204": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2014,MT,208": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2014,CN,201": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2014,CH,197": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2014,LC,205": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2014,MT,209": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2014,LC,213": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2014,MT,214": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2014,CN,216": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2014,CH,215": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2014,LC,217": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2014,MT,218": {
+      "status": "erro_alto",
+      "mensagem": "⚠️ ATENÇÃO: Esta prova não está calibrada corretamente. Erro médio de 32.0 pontos — a nota pode variar bastante da oficial."
+    },
+    "2015,CN,235": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2015,CH,231": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2015,LC,242": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2015,MT,246": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2015,CN,238": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2015,CH,234": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2015,LC,241": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2015,MT,245": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2015,LC,240": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2015,MT,244": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2015,LC,239": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2015,MT,243": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2015,CN,237": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2015,CH,233": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2015,CN,236": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2015,CH,232": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2015,CN,278": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2015,CH,274": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2015,LC,279": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2015,MT,283": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2015,CN,252": {
+      "status": "aviso_forte",
+      "mensagem": "⚠️ Atenção: calibração parcial. Erro médio de 11.0 pontos. Use como estimativa."
+    },
+    "2015,CH,251": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2015,LC,253": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2015,MT,254": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2015,CN,275": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2015,CH,271": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2015,LC,280": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2015,MT,284": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2015,LC,282": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2015,MT,286": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2015,CN,277": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2015,CH,273": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2015,CN,276": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2015,CH,272": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2015,LC,281": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2015,MT,285": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2016,CN,292": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2016,CH,296": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2016,LC,300": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2016,MT,304": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2016,CN,294": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2016,CH,298": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2016,LC,301": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2016,MT,305": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2016,LC,299": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2016,MT,303": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2016,LC,302": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2016,MT,306": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2016,CN,291": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2016,CH,295": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2016,CN,351": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2016,CH,356": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2016,LC,364": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2016,MT,369": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2016,CN,293": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2016,CH,297": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2016,LC,362": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2016,MT,367": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2016,CN,352": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2016,CH,357": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2016,CN,353": {
+      "status": "aviso_leve",
+      "mensagem": "ℹ️ Esta prova tem boa calibração, mas pode haver diferença de até 3.3 pontos em relação à nota oficial."
+    },
+    "2016,CH,358": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2016,LC,363": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2016,MT,368": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2016,LC,361": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2016,MT,366": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2016,CN,354": {
+      "status": "aviso_leve",
+      "mensagem": "ℹ️ Esta prova tem boa calibração, mas pode haver diferença de até 3.1 pontos em relação à nota oficial."
+    },
+    "2016,CH,359": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2016,CN,331": {
+      "status": "aviso_leve",
+      "mensagem": "ℹ️ Esta prova tem boa calibração, mas pode haver diferença de até 2.1 pontos em relação à nota oficial."
+    },
+    "2016,CH,336": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2016,CN,307": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2016,CH,308": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2016,CN,332": {
+      "status": "aviso_leve",
+      "mensagem": "ℹ️ Esta prova tem boa calibração, mas pode haver diferença de até 2.3 pontos em relação à nota oficial."
+    },
+    "2016,CH,337": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2016,CN,333": {
+      "status": "aviso_leve",
+      "mensagem": "ℹ️ Esta prova tem boa calibração, mas pode haver diferença de até 2.5 pontos em relação à nota oficial."
+    },
+    "2016,CH,338": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2016,LC,309": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2016,MT,310": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2017,CN,393": {
+      "status": "erro_alto",
+      "mensagem": "⚠️ ATENÇÃO: Esta prova não está calibrada corretamente. Erro médio de 15.8 pontos — a nota pode variar bastante da oficial."
+    },
+    "2017,CH,398": {
+      "status": "erro_alto",
+      "mensagem": "⚠️ ATENÇÃO: Esta prova não está calibrada corretamente. Erro médio de 22.1 pontos — a nota pode variar bastante da oficial."
+    },
+    "2017,LC,401": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2017,MT,406": {
+      "status": "erro_alto",
+      "mensagem": "⚠️ ATENÇÃO: Esta prova não está calibrada corretamente. Erro médio de 57.4 pontos — a nota pode variar bastante da oficial."
+    },
+    "2017,CH,395": {
+      "status": "erro_alto",
+      "mensagem": "⚠️ ATENÇÃO: Esta prova não está calibrada corretamente. Erro médio de 30.9 pontos — a nota pode variar bastante da oficial."
+    },
+    "2017,LC,399": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2017,CN,392": {
+      "status": "erro_alto",
+      "mensagem": "⚠️ ATENÇÃO: Esta prova não está calibrada corretamente. Erro médio de 32.1 pontos — a nota pode variar bastante da oficial."
+    },
+    "2017,MT,404": {
+      "status": "erro_alto",
+      "mensagem": "⚠️ ATENÇÃO: Esta prova não está calibrada corretamente. Erro médio de 84.2 pontos — a nota pode variar bastante da oficial."
+    },
+    "2017,CH,396": {
+      "status": "erro_alto",
+      "mensagem": "⚠️ ATENÇÃO: Esta prova não está calibrada corretamente. Erro médio de 21.4 pontos — a nota pode variar bastante da oficial."
+    },
+    "2017,LC,400": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2017,CN,394": {
+      "status": "erro_alto",
+      "mensagem": "⚠️ ATENÇÃO: Esta prova não está calibrada corretamente. Erro médio de 23.2 pontos — a nota pode variar bastante da oficial."
+    },
+    "2017,CH,397": {
+      "status": "erro_alto",
+      "mensagem": "⚠️ ATENÇÃO: Esta prova não está calibrada corretamente. Erro médio de 15.7 pontos — a nota pode variar bastante da oficial."
+    },
+    "2017,LC,402": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2017,MT,405": {
+      "status": "erro_alto",
+      "mensagem": "⚠️ ATENÇÃO: Esta prova não está calibrada corretamente. Erro médio de 64.3 pontos — a nota pode variar bastante da oficial."
+    },
+    "2017,CN,391": {
+      "status": "erro_alto",
+      "mensagem": "⚠️ ATENÇÃO: Esta prova não está calibrada corretamente. Erro médio de 15.9 pontos — a nota pode variar bastante da oficial."
+    },
+    "2017,MT,403": {
+      "status": "erro_alto",
+      "mensagem": "⚠️ ATENÇÃO: Esta prova não está calibrada corretamente. Erro médio de 48.6 pontos — a nota pode variar bastante da oficial."
+    },
+    "2017,CH,437": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2017,LC,441": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2017,CH,435": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2017,LC,439": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2017,CN,411": {
+      "status": "aviso_leve",
+      "mensagem": "ℹ️ Esta prova tem boa calibração, mas pode haver diferença de até 2.6 pontos em relação à nota oficial."
+    },
+    "2017,CH,412": {
+      "status": "aviso_leve",
+      "mensagem": "ℹ️ Esta prova tem boa calibração, mas pode haver diferença de até 3.1 pontos em relação à nota oficial."
+    },
+    "2017,LC,413": {
+      "status": "aviso_leve",
+      "mensagem": "ℹ️ Esta prova tem boa calibração, mas pode haver diferença de até 3.0 pontos em relação à nota oficial."
+    },
+    "2017,MT,414": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2017,CH,438": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2017,LC,442": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2017,CN,407": {
+      "status": "erro_alto",
+      "mensagem": "⚠️ ATENÇÃO: Esta prova não está calibrada corretamente. Erro médio de 21.3 pontos — a nota pode variar bastante da oficial."
+    },
+    "2017,CH,408": {
+      "status": "erro_alto",
+      "mensagem": "⚠️ ATENÇÃO: Esta prova não está calibrada corretamente. Erro médio de 31.4 pontos — a nota pode variar bastante da oficial."
+    },
+    "2017,LC,409": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2017,MT,410": {
+      "status": "erro_alto",
+      "mensagem": "⚠️ ATENÇÃO: Esta prova não está calibrada corretamente. Erro médio de 66.7 pontos — a nota pode variar bastante da oficial."
+    },
+    "2017,CH,436": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2017,LC,440": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2018,CN,449": {
+      "status": "aviso_forte",
+      "mensagem": "⚠️ Atenção: calibração parcial. Erro médio de 9.9 pontos. Use como estimativa."
+    },
+    "2018,CH,454": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2018,LC,457": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2018,MT,462": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2018,CN,447": {
+      "status": "aviso_forte",
+      "mensagem": "⚠️ Atenção: calibração parcial. Erro médio de 10.1 pontos. Use como estimativa."
+    },
+    "2018,MT,459": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2018,CH,453": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2018,LC,458": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2018,CH,452": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2018,LC,456": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2018,MT,461": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2018,CN,448": {
+      "status": "aviso_forte",
+      "mensagem": "⚠️ Atenção: calibração parcial. Erro médio de 14.5 pontos. Use como estimativa."
+    },
+    "2018,MT,460": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2018,CH,451": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2018,LC,455": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2018,CN,467": {
+      "status": "aviso_forte",
+      "mensagem": "⚠️ Atenção: calibração parcial. Erro médio de 5.4 pontos. Use como estimativa."
+    },
+    "2018,CH,468": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2018,LC,469": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2018,MT,470": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2018,CH,491": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2018,LC,495": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2018,CH,492": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2018,LC,496": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2018,CH,494": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2018,LC,498": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2018,CN,463": {
+      "status": "aviso_forte",
+      "mensagem": "⚠️ Atenção: calibração parcial. Erro médio de 7.7 pontos. Use como estimativa."
+    },
+    "2018,CH,464": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2018,LC,465": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2018,MT,466": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2018,CH,493": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2018,LC,497": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2019,CN,504": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2019,CH,510": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2019,LC,513": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2019,CN,505": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2019,CH,508": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2019,LC,512": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2019,CH,509": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2019,LC,514": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2019,CH,507": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2019,LC,511": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2019,CN,506": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2019,CN,503": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2019,CN,523": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2019,CH,524": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2019,LC,525": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2019,MT,526": {
+      "status": "erro_alto",
+      "mensagem": "⚠️ ATENÇÃO: Esta prova não está calibrada corretamente. Erro médio de 24.6 pontos — a nota pode variar bastante da oficial."
+    },
+    "2019,CN,519": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2019,CH,520": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2019,LC,521": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2019,MT,522": {
+      "status": "erro_alto",
+      "mensagem": "⚠️ ATENÇÃO: Esta prova não está calibrada corretamente. Erro médio de 33.9 pontos — a nota pode variar bastante da oficial."
+    },
+    "2020,CN,702": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2020,CH,689": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2020,MT,698": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2020,CN,700": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2020,CH,688": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2020,MT,696": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2020,CN,598": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2020,CH,567": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2020,LC,577": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2020,MT,588": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2020,CN,699": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2020,CH,687": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2020,MT,695": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2020,CN,597": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2020,CH,569": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2020,LC,580": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2020,MT,587": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2020,CN,600": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2020,CH,570": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2020,LC,579": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2020,MT,589": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2020,CN,599": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2020,CH,568": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2020,LC,578": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2020,MT,590": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2020,CN,677": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2020,CH,649": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2020,LC,660": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2020,MT,667": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2020,CN,701": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2020,CH,690": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2020,MT,697": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2020,CN,679": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2020,CH,648": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2020,LC,658": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2020,MT,670": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2020,CN,678": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2020,CH,647": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2020,LC,657": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2020,MT,668": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2020,CN,680": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2020,CH,650": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2020,LC,659": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2020,MT,669": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2020,CN,604": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2020,CH,574": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2020,LC,584": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2020,MT,594": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2020,CN,605": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2020,CH,575": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2020,LC,585": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2020,MT,595": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,CH,881": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,LC,892": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,CN,912": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,CH,882": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,LC,891": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,MT,901": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,CN,911": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,CH,880": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,LC,890": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,MT,902": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,CN,910": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,CH,879": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,LC,889": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,MT,900": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,CN,909": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,MT,899": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,CN,1011": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,CH,1001": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,LC,1005": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,MT,1007": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,CN,1012": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,CH,999": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,LC,1003": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,MT,1008": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,CN,1014": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,CH,1000": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,LC,1004": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,MT,1010": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,CN,1013": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,CH,1002": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,LC,1006": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,MT,1009": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,CH,959": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,LC,969": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,CN,991": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,MT,982": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,CN,992": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,MT,981": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,CN,990": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,CH,962": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,LC,971": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,MT,980": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,CH,960": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,LC,970": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,CH,961": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,LC,972": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,CN,989": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,MT,979": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,CN,917": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,CH,887": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,LC,897": {
+      "status": "aviso_forte",
+      "mensagem": "⚠️ Atenção: calibração parcial. Erro médio de 10.1 pontos. Use como estimativa."
+    },
+    "2021,MT,907": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,CN,916": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,CH,886": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,LC,896": {
+      "status": "aviso_forte",
+      "mensagem": "⚠️ Atenção: calibração parcial. Erro médio de 12.8 pontos. Use como estimativa."
+    },
+    "2021,MT,906": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,CN,1048": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,CH,1018": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,LC,1027": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,MT,1037": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,CN,1047": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,CH,1016": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,LC,1026": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,MT,1038": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,CN,1046": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,CH,1015": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,LC,1025": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,MT,1036": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,CN,1045": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,CH,1017": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,LC,1028": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2021,MT,1035": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2022,CN,1087": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2022,CH,1056": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2022,LC,1066": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2022,MT,1078": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2022,CN,1088": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2022,CH,1058": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2022,LC,1067": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2022,MT,1077": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2022,CN,1086": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2022,CH,1055": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2022,LC,1065": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2022,MT,1076": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2022,CN,1085": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2022,CH,1057": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2022,LC,1068": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2022,MT,1075": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2022,CN,1187": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2022,CH,1177": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2022,LC,1181": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2022,MT,1183": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2022,CH,1178": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2022,LC,1182": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2022,CN,1190": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2022,CH,1176": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2022,LC,1180": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2022,MT,1186": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2022,CN,1188": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2022,CH,1175": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2022,LC,1179": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2022,MT,1184": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2022,CN,1189": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2022,MT,1185": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2022,CN,1166": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2022,CH,1135": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2022,LC,1145": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2022,MT,1156": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2022,CH,1063": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2022,LC,1073": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2022,CN,1168": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2022,MT,1157": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2022,CN,1167": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2022,CH,1137": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2022,LC,1148": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2022,MT,1158": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2022,CH,1136": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2022,LC,1146": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2022,CN,1165": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2022,MT,1155": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2022,CN,1093": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2022,MT,1083": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2022,CH,1138": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2022,LC,1147": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2022,CN,1092": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2022,CH,1062": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2022,LC,1072": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2022,MT,1082": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2023,CN,1221": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2023,CH,1193": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2023,LC,1204": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2023,MT,1211": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2023,CN,1224": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2023,CH,1192": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2023,LC,1202": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2023,MT,1214": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2023,CN,1222": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2023,CH,1191": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2023,LC,1201": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2023,MT,1212": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2023,CN,1223": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2023,CH,1194": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2023,LC,1203": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2023,MT,1213": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2023,CH,1198": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2023,LC,1208": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2023,CN,1302": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2023,CH,1271": {
+      "status": "erro_alto",
+      "mensagem": "⚠️ ATENÇÃO: Esta prova não está calibrada corretamente. Erro médio de 29.1 pontos — a nota pode variar bastante da oficial."
+    },
+    "2023,LC,1281": {
+      "status": "erro_alto",
+      "mensagem": "⚠️ ATENÇÃO: Esta prova não está calibrada corretamente. Erro médio de 29.3 pontos — a nota pode variar bastante da oficial."
+    },
+    "2023,MT,1292": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2023,CN,1301": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2023,CH,1273": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2023,LC,1284": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2023,MT,1291": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2023,CN,1303": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2023,MT,1294": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2023,CH,1274": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2023,LC,1283": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2023,CN,1304": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2023,MT,1293": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2023,CH,1272": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2023,LC,1282": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2023,CN,1225": {
+      "status": "erro_alto",
+      "mensagem": "⚠️ ATENÇÃO: Esta prova não está calibrada corretamente. Erro médio de 32.4 pontos — a nota pode variar bastante da oficial."
+    },
+    "2023,CH,1195": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2023,LC,1205": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2023,MT,1215": {
+      "status": "erro_alto",
+      "mensagem": "⚠️ ATENÇÃO: Esta prova não está calibrada corretamente. Erro médio de 32.9 pontos — a nota pode variar bastante da oficial."
+    },
+    "2023,CN,1228": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2023,MT,1218": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2023,CN,1229": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2023,CH,1199": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2023,LC,1209": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2023,MT,1219": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2023,CN,1226": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2023,CH,1196": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2023,LC,1206": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2023,MT,1216": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2023,CN,1227": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2023,CH,1197": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2023,LC,1207": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2023,MT,1217": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2024,CN,1424": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2024,CH,1388": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2024,LC,1400": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2024,MT,1412": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2024,CN,1427": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2024,CH,1391": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2024,LC,1403": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2024,MT,1415": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2024,CN,1423": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2024,CH,1387": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2024,LC,1399": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2024,MT,1411": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2024,CN,1426": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2024,CH,1390": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2024,LC,1402": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2024,MT,1414": {
+      "status": "ok",
+      "mensagem": null
     }
   }
 }
