@@ -142,7 +142,7 @@ def main():
     
     sim = SimuladorNota("microdados_limpos")
     
-    anos = list(range(2009, 2025))  # Todos os anos
+    anos = list(range(2009, 2026))  # Todos os anos (2009-2025)
     areas = ['MT', 'CN', 'CH', 'LC']
     
     todos_problemas = []
