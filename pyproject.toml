@@ -1,0 +1,73 @@
+# =============================================================================
+# Calculadora Nota TRI ENEM
+# https://notatri.com
+#
+# Este arquivo e ADITIVO: centraliza o empacotamento (src-layout), as
+# dependencias e a configuracao do pytest para o fluxo de desenvolvimento.
+#
+# O deploy web (Streamlit Community Cloud) NAO usa este arquivo: ele instala
+# via `streamlit_app/requirements.txt` e roda o app pelo sys.path. Os arquivos
+# `requirements.txt` (raiz e streamlit_app) seguem sendo a fonte de verdade
+# para instalacao sem empacotamento.
+# =============================================================================
+
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tri-enem"
+version = "3.0.0"  # espelha src/tri_enem/__init__.py:__version__
+description = "Calculadora de nota TRI do ENEM (2009-2025) por Teoria de Resposta ao Item"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "PolyForm-Noncommercial-1.0.0" }
+authors = [{ name = "Henrique Lindemann" }]
+
+# Dependencias do nucleo (espelham requirements.txt da raiz - uso via CLI)
+dependencies = [
+    "numpy>=1.20.0",
+    "scipy>=1.7.0",
+    "pandas>=1.3.0",
+    "pyyaml>=6.0.0",
+    "reportlab>=4.0.0",
+    "matplotlib>=3.4.0",
+    "pillow>=8.0.0",
+]
+
+[project.optional-dependencies]
+# Interface web (espelham streamlit_app/requirements.txt)
+web = [
+    "streamlit>=1.28.0",
+    "streamlit-keyup>=0.2.0",
+    "plotly>=5.18.0",
+    "watchdog>=3.0.0",
+]
+# Ferramentas de desenvolvimento e teste
+dev = [
+    "pytest>=7.0.0",
+]
+
+[project.urls]
+Homepage = "https://notatri.com/"
+Repository = "https://github.com/HenriqueLindemann/analise-enem"
+
+# --- Empacotamento (src-layout) --------------------------------------------
+# Permite `pip install -e .` para desenvolvedores, sem afetar o fluxo
+# sem-instalacao usado pelos entry points (que mantem o sys.path shim).
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+# Dados essenciais empacotados junto com o modulo
+tri_enem = ["*.yaml", "*.json"]
+
+# --- Configuracao do pytest -------------------------------------------------
+# Coleta apenas os testes reais (test_*.py); os scripts de validacao em
+# tests/ (gerar_*, validar_*, extrair_*, executar_*, run_full_validation)
+# nao sao coletados como testes.
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
