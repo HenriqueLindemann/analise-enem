@@ -6,13 +6,13 @@ Suporta todas as provas de **2009 a 2025** com análise detalhada e relatórios 
 
 ---
 
-## 🌐 Interface Web - Sem Instalação
+## Interface Web - Sem Instalação
 
-**👉 Acesse direto no navegador:** [https://notatri.com/](https://notatri.com/)
+**→ Acesse direto no navegador:** [https://notatri.com/](https://notatri.com/)
 
 ---
 
-## 📥 Instalação (apenas versão local)
+## Instalação (apenas versão local)
 
 ### Para quem nunca programou
 
@@ -38,6 +38,12 @@ Suporta todas as provas de **2009 a 2025** com análise detalhada e relatórios 
 git clone https://github.com/HenriqueLindemann/analise-enem.git
 cd analise-enem
 pip install -r requirements.txt
+```
+
+Opcionalmente, instale o pacote em modo editável (inclui extras web e de teste):
+
+```bash
+pip install -e ".[web,dev]"
 ```
 
 ---
@@ -93,11 +99,11 @@ MÉDIA...............................   711.0 pts
 
 ## Funcionalidades
 
-- ✅ **Cálculo TRI preciso** (erro < 1 ponto em provas calibradas)
-- ✅ **Relatórios PDF** com análise de cada questão
-- ✅ **Análise de impacto** - descubra quais erros mais afetaram sua nota
-- ✅ **Todas as áreas**: MT, CN, CH, LC (inglês/espanhol)
-- ✅ **17 anos**: 2009 a 2025
+- ✓ **Cálculo TRI preciso** (erro < 1 ponto em provas calibradas)
+- ✓ **Relatórios PDF** com análise de cada questão
+- ✓ **Análise de impacto** - descubra quais erros mais afetaram sua nota
+- ✓ **Todas as áreas**: MT, CN, CH, LC (inglês/espanhol)
+- ✓ **17 anos**: 2009 a 2025
 
 ## Uso Avançado
 
@@ -156,9 +162,9 @@ A nota final: `nota = slope × theta + intercept`
 | Erro Médio | < 1 ponto |
 | Anos | 2009-2025 |
 
-> **⚠️ ATENÇÃO:** Nem todas as provas estão calibradas. Algumas provas (especialmente de reaplicacões e anos mais antigos) podem apresentar erros maiores. Provas da 1ª aplicação de anos recentes (2018+) têm maior precisão.
+> **Atenção:** Nem todas as provas estão calibradas. Algumas provas (especialmente de reaplicacões e anos mais antigos) podem apresentar erros maiores. Provas da 1ª aplicação de anos recentes (2018+) têm maior precisão.
 
-## 🧪 Desenvolvimento e Testes
+## Desenvolvimento e Testes
 
 O projeto possui uma suite de testes abrangente para garantir a precisão dos cálculos e a integridade do mapeamento de questões ao longo dos anos.
 
@@ -177,27 +183,32 @@ Para validar os cálculos contra dados oficiais do INEP e garantir que não exis
 
 ```
 analise-enem/
-├── meu_simulado.py               # 👉 EDITE com suas respostas
+├── meu_simulado.py               # EDITE com suas respostas
+├── pyproject.toml                # Empacotamento + config de testes (dev)
 ├── requirements.txt
-├── streamlit_app/                # 🌐 Interface Web
+├── streamlit_app/                # Interface Web
 ├── src/tri_enem/
 │   ├── calculador.py             # Motor de cálculo TRI
 │   ├── simulador.py              # Interface simplificada
 │   ├── calibrador.py             # Calibração de coeficientes
 │   ├── mapeador_provas.py        # API do mapeamento
-│   ├── mapeamento_provas.yaml    # 🗺️ Todas as provas 2009-2025
-│   ├── coeficientes_data.json    # 📊 Coeficientes + status
+│   ├── mapeamento_provas.yaml    # Todas as provas 2009-2025
+│   ├── coeficientes_data.json    # Coeficientes + status
 │   ├── precisao.py               # Verificação de erros intrínsecos
 │   ├── tradutor.py               # LC (inglês/espanhol)
 │   └── relatorios/               # Gerador de PDF
+├── docs/                         # Documentação (ver docs/README.md)
 ├── tools/                        # Ferramentas de calibração
 ├── examples/                     # Exemplos de uso via código
 ├── tests/
-│   ├── extrair_exemplos_completos.py # Gerador de suite de testes
-│   ├── executar_testes_completos.py  # Validador TRI + Ordem (Streamlit)
-│   └── test_mapeador_provas.py
-└── relatorios/                  # PDFs gerados
+│   ├── test_mapeador_provas.py   # Testes unitários (pytest)
+│   ├── test_utils.py             # Testes unitários (pytest)
+│   └── ...                       # Scripts de validação (ver tests/README.md)
+└── relatorios/                   # PDFs gerados
 ```
+
+Documentação técnica em [docs/](docs/README.md) (descobertas da engenharia
+reversa, recálculo de notas).
 
 ## Para Estudantes
 

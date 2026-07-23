@@ -10,7 +10,7 @@ Este e o modulo principal para calculo de notas do ENEM usando TRI.
 | `calculador.py` | **CalculadorTRI** - Motor de cálculo com ML3 + EAP |
 | `calibrador.py` | **Calibrador** - Descoberta de coeficientes via regressão |
 | `coeficientes.py` | Carrega coeficientes de `coeficientes_data.json` |
-| `coeficientes_data.json` | Coeficientes pré-calibrados (2009-2024) |
+| `coeficientes_data.json` | Coeficientes pré-calibrados (2009-2025) |
 | `tradutor.py` | Tratamento especial para LC (múltiplas línguas) |
 | `config.py` | Configurações de dificuldade e relatório |
 | `relatorios/` | Gerador de relatórios PDF |

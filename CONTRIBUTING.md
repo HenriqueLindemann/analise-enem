@@ -1,6 +1,6 @@
 # Contribuindo para TRI ENEM
 
-Obrigado pelo interesse em contribuir! 🎉
+Obrigado pelo interesse em contribuir!
 
 ## Acordo de Licença para Contribuidores (CLA)
 
