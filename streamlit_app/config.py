@@ -14,7 +14,7 @@ from typing import Dict, List
 #                         INFORMAÇÕES DO PROJETO
 # ============================================================================
 
-APP_VERSION = "24.06.2026"
+APP_VERSION = "23/07/2026"
 APP_AUTHOR = "Henrique Lindemann"
 APP_AUTHOR_URL = "https://www.linkedin.com/in/henriquelindemann/"
 APP_GITHUB_URL = "https://github.com/HenriqueLindemann/analise-enem"
@@ -77,13 +77,6 @@ AREAS_ENEM: Dict[str, str] = {
     'CH': 'Ciências Humanas',
     'CN': 'Ciências da Natureza',
     'MT': 'Matemática',
-}
-
-EMOJIS_AREAS: Dict[str, str] = {
-    'LC': '📚',
-    'CH': '🌍',
-    'CN': '🔬',
-    'MT': '📐',
 }
 
 ORDEM_AREAS: List[str] = ['LC', 'CH', 'CN', 'MT']
