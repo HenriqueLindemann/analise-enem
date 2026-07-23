@@ -24,14 +24,6 @@ NOMES_AREAS = {
     'MT': 'Matemática',
 }
 
-# Emojis das áreas
-EMOJIS_AREAS = {
-    'LC': '📚',
-    'CH': '🌍',
-    'CN': '🔬',
-    'MT': '📐',
-}
-
 
 def exibir_resumo_geral(resultados: List[Dict]):
     """
@@ -89,8 +81,7 @@ def exibir_resultado_area(resultado: Dict):
     """
     sigla = resultado['sigla']
     nome = NOMES_AREAS.get(sigla, sigla)
-    emoji = EMOJIS_AREAS.get(sigla, '📝')
-    
+
     # Preparar dados das questões
     questoes_acertadas = resultado.get('questoes_acertadas', [])
     questoes_erradas = resultado.get('questoes_erradas', [])

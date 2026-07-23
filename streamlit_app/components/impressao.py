@@ -117,10 +117,10 @@ def exibir_download_pdf(resultados: List[Dict], ano: int, tipo_aplicacao: str = 
         import reportlab
         import matplotlib
     except ImportError:
-        st.info("📄 Relatório PDF não disponível. Instale: `pip install reportlab matplotlib`")
+        st.info("Relatório PDF não disponível. Instale: `pip install reportlab matplotlib`")
         return
     
-    st.markdown("### 📄 Relatório PDF")
+    st.markdown("### Relatório PDF")
     st.caption("Relatório completo com gráficos, tabelas e análise de cada questão")
     
     # Obter cor predominante
@@ -144,7 +144,7 @@ def exibir_download_pdf(resultados: List[Dict], ano: int, tipo_aplicacao: str = 
         nome_arquivo = f"resultado_enem_{ano}.pdf"
         
         st.download_button(
-            label="📥 Baixar Relatório PDF",
+            label="Baixar Relatório PDF",
             data=pdf_bytes,
             file_name=nome_arquivo,
             mime="application/pdf",

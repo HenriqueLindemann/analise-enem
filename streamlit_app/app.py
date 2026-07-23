@@ -144,7 +144,7 @@ def main():
     # Mostrar erros de validação
     if erros_validacao and tem_respostas:
         for erro in erros_validacao:
-            st.error(f"❌ {erro}")
+            st.error(f"{erro}")
     
     # Processar cálculo
     if calcular and tem_respostas and todas_validas:
@@ -218,7 +218,7 @@ def _exibir_resultados_salvos(ano_atual, tipo_atual):
     st.markdown("---")
     
     # Seção de análise detalhada (H2 para SEO)
-    st.markdown("## 📊 Análise Detalhada por Área")
+    st.markdown("## Análise Detalhada por Área")
     st.caption("Clique em uma área para ver a análise completa")
     
     # Detalhes por área em expanders

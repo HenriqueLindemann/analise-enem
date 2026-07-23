@@ -66,7 +66,7 @@ def render_header() -> None:
     """
     # H1 - Título principal (único por página)
     st.markdown(
-        '<h1 style="margin-bottom: 0.5rem;">📊 Calculadora Nota TRI ENEM</h1>',
+        '<h1 style="margin-bottom: 0.5rem;">Calculadora Nota TRI ENEM</h1>',
         unsafe_allow_html=True
     )
     
@@ -90,7 +90,7 @@ def render_instrucoes() -> None:
     st.markdown("""
 ---
 
-### 👈 Complete as informações na barra lateral
+### ← Complete as informações na barra lateral
 
 **Passo 1:** Selecione o **ano**, **tipo de aplicação** e **cores** dos cadernos  
 **Passo 2:** Digite suas **respostas** nas caixas abaixo  
@@ -109,7 +109,7 @@ def render_sidebar_config(mapeador) -> Tuple[int, str, str, Dict[str, str]]:
         Tupla (ano, tipo_aplicacao, lingua, cores_por_area)
     """
     with st.sidebar:
-        st.markdown("## ⚙️ Configurações")
+        st.markdown("## Configurações")
         
         # Anos disponíveis
         anos = mapeador.listar_anos_disponiveis()
