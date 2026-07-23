@@ -2,7 +2,7 @@
 
 ## 1. Resumo Executivo
 
-Módulo completo para cálculo de notas TRI do ENEM, validado para **2009-2024**.
+Módulo completo para cálculo de notas TRI do ENEM, validado para **2009-2025**.
 
 - **Erro Médio (MAE)**: < 0.35 pontos (escala 0-1000)
 - **R² ≈ 1.0000** para todas as áreas calibradas
@@ -16,7 +16,7 @@ from tri_enem import SimuladorNota
 sim = SimuladorNota("microdados_limpos")
 
 # Calcular nota COM codigo de prova (recomendado para precisao)
-# Consulte docs/GUIA_PROVAS.md para codigos
+# Use MapeadorProvas.obter_codigo(ano, area, aplicacao, cor) para obter o co_prova
 resultado = sim.calcular('MT', 2023, respostas, co_prova=1211)  # Azul
 print(f"Nota: {resultado.nota:.1f}")
 
@@ -107,11 +107,11 @@ Os coeficientes são salvos em `coeficientes_data.json` e carregados automaticam
 
 | Ano  | MT Slope | CN Slope | CH Slope | LC Slope | Status |
 |------|----------|----------|----------|----------|--------|
-| 2009 | 129.66   | 113.08   | 112.30   | 107.87   | ✅     |
-| 2010 | 129.64   | 113.12   | 112.28   | 108.04   | ✅     |
-| ...  | ~129.6   | ~113.1   | ~112.3   | ~108.0   | ✅     |
-| 2023 | 129.62   | 113.08   | 112.29   | 108.08   | ✅     |
-| 2024 | 129.65   | 113.10   | 112.32   | 108.05   | ✅     |
+| 2009 | 129.66   | 113.08   | 112.30   | 107.87   | ✓      |
+| 2010 | 129.64   | 113.12   | 112.28   | 108.04   | ✓      |
+| ...  | ~129.6   | ~113.1   | ~112.3   | ~108.0   | ✓      |
+| 2023 | 129.62   | 113.08   | 112.29   | 108.08   | ✓      |
+| 2024 | 129.65   | 113.10   | 112.32   | 108.05   | ✓      |
 
 > [!NOTE]
 > Coeficientes são notavelmente estáveis ao longo dos anos (σ < 0.1%)
@@ -134,19 +134,14 @@ e pode conter imprecisoes. Pontos de atencao para debug futuro:
 5. **Multiplas aplicacoes**: 1a aplicacao, 2a aplicacao, PPL tem codigos diferentes
 
 Arquivos relevantes:
+- `src/tri_enem/mapeamento_provas.yaml` - Mapeamento CO_PROVA -> ano/area/tipo/cor
 - `src/tri_enem/provas_por_aplicacao.json` - Mapeamento completo em JSON
-- `docs/GUIA_PROVAS.md` - Guia para identificar codigo da prova
-- `tools/gerar_mapeamento_aplicacoes.py` - Script para regenerar mapeamento
-
-Para regenerar o mapeamento:
-```bash
-python tools/gerar_mapeamento_aplicacoes.py
-```
+- `src/tri_enem/mapeador_provas.py` - API `MapeadorProvas` para consultar codigos
 
 ## 8. Validação
 
 Testado com:
-- 16 anos (2009-2024)
+- 17 anos (2009-2025)
 - ~1800 provas calibradas
 - 200+ participantes por prova (amostragem estratificada)
 

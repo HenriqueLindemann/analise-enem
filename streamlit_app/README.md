@@ -2,9 +2,9 @@
 
 Interface web para cálculo de nota TRI do ENEM.
 
-## 🌐 Acesse Online
+## Acesse Online
 
-**👉 [https://notatri.com/](https://notatri.com/)**
+**→ [https://notatri.com/](https://notatri.com/)**
 
 Calcule sua nota do ENEM direto no navegador, sem instalar nada!
 
@@ -83,18 +83,18 @@ O app inclui otimizações para ranqueamento no Google:
 
 ## Funcionalidades
 
-- ✅ Seleção de ano (2009-2024)
-- ✅ Seleção de tipo de aplicação (1ª, Digital, Reaplicação)
-- ✅ Seleção de cor por área
-- ✅ Input de 45 respostas por área
-- ✅ Cálculo TRI preciso
-- ✅ Visualização de notas por área
-- ✅ Grade visual de acertos/erros
-- ✅ Gráfico de impacto das questões
-- ✅ Análise detalhada por área
-- ✅ Download de relatório PDF
-- ✅ Cache para performance
-- ✅ Progress bar durante cálculo
+- ✓ Seleção de ano (2009-2025)
+- ✓ Seleção de tipo de aplicação (1ª, Digital, Reaplicação)
+- ✓ Seleção de cor por área
+- ✓ Input de 45 respostas por área
+- ✓ Cálculo TRI preciso
+- ✓ Visualização de notas por área
+- ✓ Grade visual de acertos/erros
+- ✓ Gráfico de impacto das questões
+- ✓ Análise detalhada por área
+- ✓ Download de relatório PDF
+- ✓ Cache para performance
+- ✓ Progress bar durante cálculo
 
 ## Licença
 
