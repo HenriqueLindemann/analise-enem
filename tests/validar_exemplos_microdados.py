@@ -41,22 +41,17 @@ def _classificar_mae(mae: float) -> str:
 
 
 def _mensagem_para_status(status: str, mae: float) -> str | None:
+    """
+    Anotação técnica gravada em coeficientes_data.json.
+
+    Não é texto de interface: a mensagem exibida ao usuário é derivada do MAE
+    em tri_enem.precisao, que é a única fonte de redação voltada ao usuário
+    final. Manter texto de interface aqui foi o que produziu, no passado,
+    redações divergentes entre versões do calibrador.
+    """
     if status == "ok":
         return None
-    if status == "aviso_leve":
-        return (
-            f"ℹ️ Esta prova tem boa calibração, mas pode haver diferença de até "
-            f"{mae:.1f} pontos em relação à nota oficial."
-        )
-    if status == "aviso_forte":
-        return (
-            f"⚠️ Atenção: calibração parcial. Erro médio de {mae:.1f} pontos. "
-            "Use como estimativa."
-        )
-    return (
-        f"⚠️ ATENÇÃO: Esta prova não está calibrada corretamente. "
-        f"Erro médio de {mae:.1f} pontos — a nota pode variar bastante da oficial."
-    )
+    return f"Status {status} definido por MAE de {mae:.1f} pontos."
 
 
 def validar(

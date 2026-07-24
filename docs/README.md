@@ -6,8 +6,15 @@ Documentação técnica da Calculadora Nota TRI ENEM.
 
 | Documento | Descrição |
 |-----------|-----------|
-| [DESCOBERTAS.md](DESCOBERTAS.md) | Descobertas da engenharia reversa do cálculo TRI do INEP: fórmula de transformação, estrutura da prova LC ao longo dos anos, metodologia (ML3 + EAP) e calibração |
 | [SCORE_RECALCULATION.md](SCORE_RECALCULATION.md) | (EN) Como e por que as notas do ENEM podem ser reproduzidas a partir dos microdados públicos |
+
+As descobertas da engenharia reversa (fórmula de transformação, indexação das
+respostas, estrutura de LC por ano, metodologia ML3 + EAP) ficam junto do código
+que as implementa, para não divergirem dele:
+
+- [`../src/tri_enem/calculador.py`](../src/tri_enem/calculador.py) — método, transformação de escala, indexação das respostas e estrutura de LC por ano
+- [`../src/tri_enem/precisao.py`](../src/tri_enem/precisao.py) — causas de imprecisão por prova e limiares de erro
+- [`../src/tri_enem/tradutor.py`](../src/tri_enem/tradutor.py) — filtragem de itens de língua estrangeira
 
 ## Documentação por componente
 

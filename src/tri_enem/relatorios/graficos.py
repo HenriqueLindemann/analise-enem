@@ -88,7 +88,7 @@ def grafico_barras_notas(areas: List[AreaAnalise], largura: float = 6) -> Image:
     # Valores nas barras - discretos
     for bar, nota, area in zip(bars, notas, areas):
         ax.text(nota + 12, bar.get_y() + bar.get_height()/2, 
-                f'{nota:.0f}', 
+                f'{nota:.1f}', 
                 va='center', fontsize=8, fontweight='medium', color='#2C3E50')
     
     # Remover bordas - minimalista

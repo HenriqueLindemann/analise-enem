@@ -3130,8 +3130,8 @@
       "cor": "branca"
     },
     "2025,LC,1549": {
-      "status": "aviso_leve",
-      "mensagem": "ℹ️ Esta prova tem boa calibração, mas pode haver uma pequena diferença de até 4.5 pontos em relação à nota oficial.",
+      "status": "aviso_forte",
+      "mensagem": "Status aviso_forte definido por MAE de 5.5 pontos.",
       "tipo_aplicacao": "reaplicacao",
       "cor": "azul"
     },
@@ -3142,14 +3142,14 @@
       "cor": "amarela"
     },
     "2025,LC,1551": {
-      "status": "aviso_forte",
-      "mensagem": "⚠️ Atenção: Esta prova tem calibração parcial. O erro médio é de aproximadamente 5.7 pontos. Sua nota calculada é uma estimativa e pode diferir da nota oficial.",
+      "status": "aviso_leve",
+      "mensagem": "Status aviso_leve definido por MAE de 3.8 pontos.",
       "tipo_aplicacao": "reaplicacao",
       "cor": "verde"
     },
     "2025,LC,1552": {
-      "status": "aviso_forte",
-      "mensagem": "⚠️ Atenção: Esta prova tem calibração parcial. O erro médio é de aproximadamente 5.1 pontos. Sua nota calculada é uma estimativa e pode diferir da nota oficial.",
+      "status": "aviso_leve",
+      "mensagem": "Status aviso_leve definido por MAE de 4.4 pontos.",
       "tipo_aplicacao": "reaplicacao",
       "cor": "branca"
     },
@@ -5686,6 +5686,86 @@
       "mensagem": null
     },
     "2024,MT,1414": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2025,CN,1498": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2025,CH,1495": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2025,LC,1496": {
+      "status": "aviso_leve",
+      "mensagem": "Status aviso_leve definido por MAE de 3.5 pontos."
+    },
+    "2025,MT,1497": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2025,CN,1487": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2025,CH,1451": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2025,LC,1463": {
+      "status": "aviso_leve",
+      "mensagem": "Status aviso_leve definido por MAE de 2.9 pontos."
+    },
+    "2025,MT,1475": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2025,CN,1488": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2025,MT,1476": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2025,CN,1491": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2025,CH,1455": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2025,LC,1467": {
+      "status": "aviso_leve",
+      "mensagem": "Status aviso_leve definido por MAE de 3.7 pontos."
+    },
+    "2025,MT,1479": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2025,CH,1452": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2025,LC,1464": {
+      "status": "aviso_leve",
+      "mensagem": "Status aviso_leve definido por MAE de 3.4 pontos."
+    },
+    "2025,CN,1490": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2025,CH,1454": {
+      "status": "ok",
+      "mensagem": null
+    },
+    "2025,LC,1466": {
+      "status": "aviso_leve",
+      "mensagem": "Status aviso_leve definido por MAE de 3.2 pontos."
+    },
+    "2025,MT,1478": {
       "status": "ok",
       "mensagem": null
     }

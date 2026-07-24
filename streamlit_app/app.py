@@ -229,7 +229,7 @@ def _exibir_resultados_salvos(ano_atual, tipo_atual):
         acertos = resultado['acertos']
         total = resultado['total_itens']
         
-        with st.expander(f"**{nome}** — {nota:.0f} pts ({acertos}/{total} acertos)", expanded=False):
+        with st.expander(f"**{nome}** — {nota:.1f} pts ({acertos}/{total} acertos)", expanded=False):
             exibir_resultado_area(resultado)
     
     # Download do relatório PDF

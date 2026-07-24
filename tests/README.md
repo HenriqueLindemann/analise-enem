@@ -34,6 +34,8 @@ quanto a estrutura de download do INEP (`microdados_enem_YYYY/DADOS/RESULTADOS_Y
 | `validar_todos_anos.py` | Validação por amostragem estratificada (2009-2025, por faixa de nota) |
 | `extrair_exemplos_completos.py` | Converte fixtures para formato de estudante completo (Streamlit) |
 | `executar_testes_completos.py` | Testa o CalculadorEnem do app Streamlit com dados reais |
+| `test_calculador.py` | Motor TRI: regressão (golden), coerência CLI × web e propriedades do modelo |
+| `test_precisao.py` | Classificação de confiabilidade e invariantes dos avisos |
 | `test_mapeador_provas.py` | Testes unitários do mapeamento de códigos de prova |
 | `test_utils.py` | Testes unitários de `_utils.py` |
 | `_utils.py` | Funções compartilhadas entre os scripts |
@@ -53,7 +55,8 @@ Os microdados brutos do INEP estão disponíveis em
 | Arquivo | Commitado | Descrição |
 |---------|-----------|-----------|
 | `fixtures/exemplos_microdados.json` | Sim | Exemplos extraídos dos microdados (10 por CO_PROVA) |
-| `fixtures/codigos_presentes.json` | Sim | Cache de CO_PROVAs encontrados nos microdados_limpos |
+| `fixtures/golden_notas.json` | Sim | Valores de referência de nota e theta usados na regressão |
+| `fixtures/codigos_presentes.json` | Sim | Cache de CO_PROVAs presentes nos arquivos `ITENS_PROVA_*` |
 | `fixtures/provas_validacao.md` | Sim | Índice legível de todas as provas (nome + status + MAE) |
 | `fixtures/gerar_provas_validacao.py` | Sim | Script que regera `provas_validacao.md` |
 | `provas_problematicas.md` | Não | Relatório transitório de provas com erro alto |

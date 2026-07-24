@@ -200,7 +200,7 @@ class Calibrador:
                 itens_check = self.calc.carregar_itens(ano, area, co_prova, None)
                 if len(itens_check) > 55 and area != 'LC': 
                     if verbose:
-                        print(f"  ⚠️ Prova {co_prova} pula: {len(itens_check)} itens")
+                        print(f"  Prova {co_prova} pulada: {len(itens_check)} itens")
                     continue
             except Exception:
                 pass

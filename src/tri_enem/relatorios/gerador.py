@@ -159,7 +159,7 @@ class RelatorioPDF:
         if dados.areas:
             media = sum(a.nota for a in dados.areas) / len(dados.areas)
             elementos.append(Paragraph("MÉDIA GERAL", self.styles['NotaLabel']))
-            elementos.append(Paragraph(f"{media:.0f}", self.styles['NotaDestaque']))
+            elementos.append(Paragraph(f"{media:.1f}", self.styles['NotaDestaque']))
         
         elementos.append(Spacer(1, 18))
         return elementos
@@ -186,14 +186,14 @@ class RelatorioPDF:
         info_prova = f"Prova {area.co_prova}"
         if area.cor_prova:
             info_prova += f" ({area.cor_prova.capitalize()})"
-        info_prova += f"  ·  <b>{area.nota:.0f}</b> pontos  ·  {area.acertos}/{area.total_itens} acertos"
+        info_prova += f"  ·  <b>{area.nota:.1f}</b> pontos  ·  {area.acertos}/{area.total_itens} acertos"
         elementos.append(Paragraph(info_prova, self.styles['TextoNormal']))
         
         # Verificar precisão e adicionar aviso se necessário
         precisao = verificar_precisao_prova(area.ano, area.sigla, area.co_prova)
         if precisao.get('aviso'):
             elementos.append(Paragraph(
-                f"⚠ {precisao['aviso']}",
+                precisao['aviso'],
                 self.styles['AvisoPrecisao']
             ))
         

@@ -157,16 +157,49 @@ A nota final: `nota = slope × theta + intercept`
 
 ## Precisão e Calibração
 
-| Métrica | Valor |
-|---------|-------|
-| Erro Médio | < 1 ponto |
-| Anos | 2009-2025 |
+A precisão varia conforme a prova. O programa sinaliza na interface e no
+relatório em PDF sempre que a prova selecionada não é confiável.
 
-> **Atenção:** Nem todas as provas estão calibradas. Algumas provas (especialmente de reaplicacões e anos mais antigos) podem apresentar erros maiores. Provas da 1ª aplicação de anos recentes (2018+) têm maior precisão.
+| Situação | Provas | Erro médio |
+|----------|-------:|-----------|
+| Calibradas (maioria das 1ªs aplicações) | 554 | < 2 pontos |
+| Calibração fraca | 22 | 2 a 15 pontos |
+| Não reproduzem a nota oficial | 47 | > 15 pontos |
+| Sem participantes nos microdados públicos | 18 | não estimável |
+
+Casos conhecidos não recuperáveis a partir dos dados públicos:
+
+- **LC 2009** — o arquivo do ano não permite reconstituir a correspondência
+  entre item e resposta, resultando em erro de 45 a 70 pontos. A contagem de
+  acertos e a análise por questão permanecem válidas; a nota, não.
+- **Provas sem participantes** (PPL e reaplicações recém-divulgadas) — a
+  ausência de participantes impede estimar os coeficientes específicos da
+  prova, sendo aplicada a média da área.
+
+Os critérios e as causas estão documentados em
+[`src/tri_enem/precisao.py`](src/tri_enem/precisao.py).
 
 ## Desenvolvimento e Testes
 
 O projeto possui uma suite de testes abrangente para garantir a precisão dos cálculos e a integridade do mapeamento de questões ao longo dos anos.
+
+### Testes automatizados (offline)
+
+```bash
+pytest            # 353 testes, ~100s, sem precisar dos microdados do INEP
+```
+
+Utilizam os dados versionados no repositório e cobrem:
+
+- **Regressão (golden)** — fixa nota e theta de 136 casos reais abrangendo
+  todo ano × área. Qualquer alteração no motor que modifique um resultado é
+  detectada.
+- **Coerência CLI × web** — as notas produzidas por `calcular_nota` e por
+  `analisar_todas_questoes` devem ser idênticas.
+- **Propriedades do modelo** — monotonicidade da curva ML3, limites do EAP e
+  ausência de efeito de itens anulados sobre a nota.
+- **Avisos de precisão** — verifica o invariante de que prova não confiável
+  nunca é apresentada sem aviso.
 
 ### Suite de Testes TRI
 Para validar os cálculos contra dados oficiais do INEP e garantir que não existam regressões na ordem das questões:
@@ -201,14 +234,17 @@ analise-enem/
 ├── tools/                        # Ferramentas de calibração
 ├── examples/                     # Exemplos de uso via código
 ├── tests/
+│   ├── test_calculador.py        # Motor TRI: regressão, coerência, modelo
+│   ├── test_precisao.py          # Avisos de confiabilidade por prova
 │   ├── test_mapeador_provas.py   # Testes unitários (pytest)
 │   ├── test_utils.py             # Testes unitários (pytest)
 │   └── ...                       # Scripts de validação (ver tests/README.md)
 └── relatorios/                   # PDFs gerados
 ```
 
-Documentação técnica em [docs/](docs/README.md) (descobertas da engenharia
-reversa, recálculo de notas).
+As descobertas da engenharia reversa ficam nos docstrings dos módulos que as
+implementam (`calculador.py`, `precisao.py`, `tradutor.py`). Documentação
+adicional em [docs/](docs/README.md).
 
 ## Para Estudantes
 

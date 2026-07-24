@@ -38,7 +38,7 @@ if _data_file.exists():
             COEF_PADRAO[area] = (meta['slope_medio'], meta['intercept_medio'])
 else:
     # Fallback caso o arquivo não exista (usar calibração de 2023)
-    print("⚠️ Arquivo coeficientes_data.json não encontrado. Usando coeficientes padrão.")
+    print("Aviso: arquivo coeficientes_data.json não encontrado. Usando coeficientes padrão.")
     
     COEF_POR_PROVA = {
         (2023, 'MT', 1211): (129.6216, 500.03),

@@ -60,17 +60,17 @@ medido sobre os 10 exemplos reais de cada prova.
 
 | Métrica | Valor |
 |---------|-------|
-| Anos cobertos | 2009 – 2024 |
-| Provas únicas | 580 |
-| Exemplos totais | 5800 (10 por prova) |
+| Anos cobertos | 2009 – 2025 |
+| Provas únicas | 630 |
+| Exemplos totais | 6300 (10 por prova) |
 
 ### Status de Calibração
 
 | Status | Provas |
 |--------|--------|
-| ok | 503 |
-| aviso_leve | 9 |
-| aviso_forte | 10 |
+| ok | 545 |
+| aviso_leve | 16 |
+| aviso_forte | 11 |
 | erro_alto | 47 |
 | falhou | 8 |
 | desconhecido | 3 |
@@ -740,3 +740,58 @@ Colunas: **CO_PROVA** · **Área** · **Tipo de Aplicação** · **Cor** · **N 
 | 1424 | CN | Especial | verde_superampliada | 10 | ✅ ok | - |
 | 1426 | CN | Especial | laranja_adaptada_ledor | 10 | ✅ ok | - |
 | 1427 | CN | Especial | roxa_videoprova_libras | 10 | ✅ ok | - |
+
+### 2025
+
+| CO_PROVA | Área | Aplicação | Cor | N | Status | MAE |
+|----------|------|-----------|-----|---|--------|-----|
+| 1447 | CH | 1ª Aplicação | azul | 10 | ✅ ok | 0.18 |
+| 1448 | CH | 1ª Aplicação | amarela | 10 | ✅ ok | 0.20 |
+| 1449 | CH | 1ª Aplicação | branca | 10 | ✅ ok | 0.16 |
+| 1450 | CH | 1ª Aplicação | verde | 10 | ✅ ok | 0.18 |
+| 1451 | CH | Especial | laranja_ampliada | 10 | ✅ ok | - |
+| 1452 | CH | Especial | laranja_superampliada | 10 | ✅ ok | - |
+| 1454 | CH | Especial | laranja_adaptada_ledor | 10 | ✅ ok | - |
+| 1455 | CH | Especial | roxa_videoprova_libras | 10 | ✅ ok | - |
+| 1459 | LC | 1ª Aplicação | azul | 10 | ✅ ok | 0.45 |
+| 1460 | LC | 1ª Aplicação | amarela | 10 | ✅ ok | 0.65 |
+| 1461 | LC | 1ª Aplicação | verde | 10 | ✅ ok | 0.51 |
+| 1462 | LC | 1ª Aplicação | branca | 10 | ✅ ok | 0.63 |
+| 1463 | LC | Especial | laranja_ampliada | 10 | ℹ️ aviso_leve | - |
+| 1464 | LC | Especial | laranja_superampliada | 10 | ℹ️ aviso_leve | - |
+| 1466 | LC | Especial | laranja_adaptada_ledor | 10 | ℹ️ aviso_leve | - |
+| 1467 | LC | Especial | roxa_videoprova_libras | 10 | ℹ️ aviso_leve | - |
+| 1471 | MT | 1ª Aplicação | azul | 10 | ✅ ok | 0.08 |
+| 1472 | MT | 1ª Aplicação | amarela | 10 | ✅ ok | 0.07 |
+| 1473 | MT | 1ª Aplicação | verde | 10 | ✅ ok | 0.06 |
+| 1474 | MT | 1ª Aplicação | cinza | 10 | ✅ ok | 0.10 |
+| 1475 | MT | Especial | laranja_ampliada | 10 | ✅ ok | - |
+| 1476 | MT | Especial | laranja_superampliada | 10 | ✅ ok | - |
+| 1478 | MT | Especial | laranja_adaptada_ledor | 10 | ✅ ok | - |
+| 1479 | MT | Especial | roxa_videoprova_libras | 10 | ✅ ok | - |
+| 1483 | CN | 1ª Aplicação | azul | 10 | ✅ ok | 0.14 |
+| 1484 | CN | 1ª Aplicação | amarela | 10 | ✅ ok | 0.15 |
+| 1485 | CN | 1ª Aplicação | verde | 10 | ✅ ok | 0.17 |
+| 1486 | CN | 1ª Aplicação | cinza | 10 | ✅ ok | 0.16 |
+| 1487 | CN | Especial | laranja_ampliada | 10 | ✅ ok | - |
+| 1488 | CN | Especial | laranja_superampliada | 10 | ✅ ok | - |
+| 1490 | CN | Especial | laranja_adaptada_ledor | 10 | ✅ ok | - |
+| 1491 | CN | Especial | roxa_videoprova_libras | 10 | ✅ ok | - |
+| 1495 | CH | Especial | laranja_atendimento_especializado | 10 | ✅ ok | - |
+| 1496 | LC | Especial | laranja_atendimento_especializado | 10 | ℹ️ aviso_leve | - |
+| 1497 | MT | Especial | laranja_atendimento_especializado | 10 | ✅ ok | - |
+| 1498 | CN | Especial | laranja_atendimento_especializado | 10 | ✅ ok | - |
+| 1539 | CH | Reaplicação | azul | 10 | ✅ ok | 0.06 |
+| 1541 | CH | Reaplicação | branca | 10 | ✅ ok | 0.06 |
+| 1542 | CH | Reaplicação | verde | 10 | ✅ ok | 0.05 |
+| 1549 | LC | Reaplicação | azul | 10 | ⚠️ aviso_forte | 4.54 |
+| 1551 | LC | Reaplicação | verde | 10 | ℹ️ aviso_leve | 5.71 |
+| 1552 | LC | Reaplicação | branca | 10 | ℹ️ aviso_leve | 5.10 |
+| 1559 | MT | Reaplicação | azul | 10 | ✅ ok | 0.12 |
+| 1560 | MT | Reaplicação | amarela | 10 | ✅ ok | 0.13 |
+| 1561 | MT | Reaplicação | verde | 10 | ✅ ok | 0.14 |
+| 1562 | MT | Reaplicação | cinza | 10 | ✅ ok | 0.13 |
+| 1569 | CN | Reaplicação | azul | 10 | ✅ ok | 0.21 |
+| 1570 | CN | Reaplicação | amarela | 10 | ✅ ok | 0.24 |
+| 1571 | CN | Reaplicação | cinza | 10 | ✅ ok | 0.17 |
+| 1572 | CN | Reaplicação | verde | 10 | ✅ ok | 0.24 |

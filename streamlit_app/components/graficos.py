@@ -57,7 +57,7 @@ def grafico_notas_barras(resultados: List[Dict]) -> go.Figure:
         x=notas,
         orientation='h',
         marker_color=cores,
-        text=[f"{n:.0f} pts ({a})" for n, a in zip(notas, acertos)],
+        text=[f"{n:.1f} pts ({a})" for n, a in zip(notas, acertos)],
         textposition='outside',
         textfont=dict(size=12, color='#2C3E50'),
         hovertemplate="<b>%{y}</b><br>Nota: %{x:.1f} pontos<extra></extra>"
@@ -71,7 +71,7 @@ def grafico_notas_barras(resultados: List[Dict]) -> go.Figure:
     media = sum(notas) / len(notas)
     fig.add_vline(x=media, line_dash="solid", line_color=COR_SECUNDARIA, 
                   line_width=2, opacity=0.8,
-                  annotation_text=f"Média: {media:.0f}",
+                  annotation_text=f"Média: {media:.1f}",
                   annotation_position="top")
     
     fig.update_layout(

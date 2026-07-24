@@ -3,10 +3,53 @@
 """
 Calculadora Nota TRI ENEM - Módulo Principal de Cálculo
 
-Implementa o modelo logístico de 3 parâmetros (ML3) com estimação
-bayesiana Expected a Posteriori (EAP) usando quadratura gaussiana.
+Implementa o modelo logístico de 3 parâmetros (ML3) com estimação bayesiana
+Expected a Posteriori (EAP) sobre quadratura de Gauss-Hermite.
 
-Este módulo foi desenvolvido via engenharia reversa dos microdados do INEP.
+Desenvolvido por engenharia reversa dos microdados do INEP. A documentação a
+seguir registra as decisões que não decorrem do modelo TRI padrão e que foram
+estabelecidas empiricamente por comparação com notas oficiais.
+
+Método
+------
+- Modelo ML3: P(acerto|θ) = c + (1 - c) / (1 + exp(-D·a·(θ - b)))
+- Fator de escala D = 1.0 (e não 1.7, como é usual na literatura)
+- Prior N(0, 1); estimação EAP com 80 pontos de quadratura
+- Itens anulados são excluídos da verossimilhança, não contados como erro
+
+Transformação para a escala ENEM
+--------------------------------
+O INEP não usa nota = 100·θ + 500. Cada prova tem seu próprio par
+(slope, intercept), estimado por regressão contra notas oficiais e
+armazenado em coeficientes_data.json. Os valores típicos por área são
+MT ≈ 129,6 · CN ≈ 113,1 · CH ≈ 112,3 · LC ≈ 108,1, com intercepto próximo
+de 500 e variação inferior a 0,1% entre anos.
+
+Toda conversão θ -> nota deve ser feita por transformar_escala() com co_prova
+informado. A omissão de co_prova recai no coeficiente médio da área e
+introduz desvio de até 1,25 ponto.
+
+Indexação das respostas
+-----------------------
+CO_POSICAO é a posição global no caderno (MT ocupa 136-180), enquanto
+TX_RESPOSTAS_<área> tem 45 caracteres indexados de 0 a 44. O pareamento é
+feito pelo índice na lista de itens ordenada por CO_POSICAO, nunca pelo
+valor de CO_POSICAO.
+
+Estrutura de LC ao longo dos anos
+---------------------------------
+    Ano        Itens no arquivo   TP_LINGUA   Posições
+    2009       45                 ausente     91-135
+    2010-2019  50                 presente    91-135 (pares por idioma)
+    2020+      50                 presente    1-45   (pares por idioma)
+
+De 2010 em diante, filtra-se por TP_LINGUA (0=inglês, 1=espanhol) mantendo
+os itens comuns (TP_LINGUA nulo), o que reduz 50 para 45 itens. Ver
+tradutor.py. LC 2009 não é reconstituível a partir dos dados públicos; ver a análise
+registrada em precisao.py.
+
+Limitações conhecidas estão documentadas em precisao.py, que classifica cada
+prova por erro medido contra notas oficiais.
 """
 
 import numpy as np
@@ -155,9 +198,9 @@ class CalculadorTRI:
                 (df_prova['TP_LINGUA'] == tp_lingua)
             ].copy()
         
-        # Deduplicar itens (preferência por versão impressa = 0)
-        # df_prova já está filtrado por CO_PROVA, então a linha `df = df[df['CO_PROVA'] == co_prova]`
-        # da instrução é redundante e incorreta aqui.
+        # Deduplicação: provas digitais (2020+) repetem o mesmo item em duas
+        # linhas, uma por versão. Mantém-se a impressa (TP_VERSAO_DIGITAL
+        # menor ou NaN), que corresponde à versão usada na calibração.
         if 'TP_VERSAO_DIGITAL' in df_prova.columns:
             df_prova.sort_values(by=['CO_POSICAO', 'TP_VERSAO_DIGITAL'], na_position='first', inplace=True)
             df_prova.drop_duplicates(subset=['CO_POSICAO'], keep='first', inplace=True)
@@ -167,23 +210,24 @@ class CalculadorTRI:
 
         itens = []
         for _, row in df_prova.iterrows():
-            # item_id = str(int(row['CO_ITEM'])) if pd.notna(row['CO_ITEM']) else str(len(itens_list)) # This line is from the instruction but not used.
-            
-            # Verificar se foi anulada
+            # Item anulado: excluído da verossimilhança (ver estimar_theta_eap).
+            # A sinalização varia conforme o ano, daí as quatro condições: flag
+            # explícita, parâmetros TRI ausentes ou gabarito marcado como
+            # anulado ('X', '.', '*' ou vazio).
             is_abandonado = (
                 row.get('IN_ITEM_ABAN') == 1
             ) or (
-                pd.isna(row['NU_PARAM_A']) or 
-                pd.isna(row['NU_PARAM_B']) or 
+                pd.isna(row['NU_PARAM_A']) or
+                pd.isna(row['NU_PARAM_B']) or
                 pd.isna(row['NU_PARAM_C'])
             ) or (
                 str(row['TX_GABARITO']).upper() == 'X'
-            ) or ( # Added from instruction
-                pd.isna(row['TX_GABARITO']) or 
-                str(row['TX_GABARITO']) == '.' or 
+            ) or (
+                pd.isna(row['TX_GABARITO']) or
+                str(row['TX_GABARITO']) == '.' or
                 str(row['TX_GABARITO']) == '*'
             )
-            
+
             try:
                 co_item_val = int(row['CO_ITEM'])
             except (ValueError, TypeError):
@@ -321,10 +365,6 @@ class CalculadorTRI:
             'tp_lingua': tp_lingua,
         }
     
-    def atualizar_coeficientes(self, coef_dict: Dict):
-        """Atualiza os coeficientes de equalização."""
-        self.COEF_EQUALIZACAO.update(coef_dict)
-    
     def analisar_impacto_erros(self, ano: int, area: str, co_prova: int,
                                respostas_str: str, tp_lingua: Optional[int] = None) -> List[Dict]:
         """
@@ -335,8 +375,8 @@ class CalculadorTRI:
         respostas_bin = self.converter_respostas(respostas_str, itens)
         
         theta_original = self.estimar_theta_eap(respostas_bin, itens)
-        nota_original = self.transformar_escala(theta_original, ano, area)
-        
+        nota_original = self.transformar_escala(theta_original, ano, area, co_prova)
+
         impactos = []
         
         # Mapear índice na string para o item correspondente
@@ -346,8 +386,8 @@ class CalculadorTRI:
                 respostas_mod[idx] = 1
                 
                 theta_mod = self.estimar_theta_eap(respostas_mod, itens)
-                nota_mod = self.transformar_escala(theta_mod, ano, area)
-                
+                nota_mod = self.transformar_escala(theta_mod, ano, area, co_prova)
+
                 # idx é o índice na lista de itens, que corresponde ao índice na string de respostas
                 resposta_dada = respostas_str[idx] if idx < len(respostas_str) else '?'
                 
@@ -382,8 +422,8 @@ class CalculadorTRI:
         respostas_bin = self.converter_respostas(respostas_str, itens)
         
         theta_original = self.estimar_theta_eap(respostas_bin, itens)
-        nota_original = self.transformar_escala(theta_original, ano, area)
-        
+        nota_original = self.transformar_escala(theta_original, ano, area, co_prova)
+
         acertos = []
         erros = []
         
@@ -397,7 +437,7 @@ class CalculadorTRI:
             respostas_mod = respostas_bin.copy()
             respostas_mod[idx] = 1 - resp  # Inverter acerto/erro
             theta_mod = self.estimar_theta_eap(respostas_mod, itens)
-            nota_mod = self.transformar_escala(theta_mod, ano, area)
+            nota_mod = self.transformar_escala(theta_mod, ano, area, co_prova)
             
             questao = {
                 'posicao': item.posicao,  # Posição original no microdado

@@ -92,7 +92,7 @@ def tabela_resumo_areas(areas, largura_max: float = 450) -> Table:
         pct = (area.acertos / area.total_itens * 100) if area.total_itens > 0 else 0
         dados.append([
             f"{area.sigla} – {area.nome[:18]}",
-            f'{area.nota:.0f}',
+            f'{area.nota:.1f}',
             f'{area.acertos}/{area.total_itens}',
             f'{pct:.0f}%'
         ])
@@ -103,7 +103,7 @@ def tabela_resumo_areas(areas, largura_max: float = 450) -> Table:
         total_a = sum(a.acertos for a in areas)
         total_q = sum(a.total_itens for a in areas)
         pct_total = (total_a / total_q * 100) if total_q > 0 else 0
-        dados.append(['MÉDIA', f'{media:.0f}', f'{total_a}/{total_q}', f'{pct_total:.0f}%'])
+        dados.append(['MÉDIA', f'{media:.1f}', f'{total_a}/{total_q}', f'{pct_total:.0f}%'])
     
     col_widths = [4.5*cm, 1.3*cm, 1.8*cm, 1.0*cm]
     tabela = Table(dados, colWidths=col_widths)

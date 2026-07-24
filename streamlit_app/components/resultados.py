@@ -51,7 +51,7 @@ def exibir_resumo_geral(resultados: List[Dict]):
         with cols[i]:
             st.metric(
                 label=f"{r['sigla']}",
-                value=f"{r['nota']:.0f}",
+                value=f"{r['nota']:.1f}",
                 delta=f"{r['acertos']}/{r['total_itens']} acertos",
                 delta_color="off"
             )
@@ -59,7 +59,7 @@ def exibir_resumo_geral(resultados: List[Dict]):
     with cols[-1]:
         st.metric(
             label="MÉDIA",
-            value=f"{media:.0f}",
+            value=f"{media:.1f}",
             delta=f"{total_acertos}/{total_questoes} total",
             delta_color="off"
         )
@@ -107,10 +107,17 @@ def exibir_resultado_area(resultado: Dict):
             'param_b': q.get('param_b', 0),
         })
     
-    # Aviso de precisão se houver
+    # Aviso de precisão, exibido conforme a gravidade informada por
+    # verificar_precisao_prova (antes todo aviso saía em vermelho, inclusive
+    # os meramente informativos).
     aviso = resultado.get('aviso_precisao')
     if aviso:
-        st.error(aviso)
+        exibir = {
+            'info': st.info,
+            'atencao': st.warning,
+            'alerta': st.error,
+        }.get(resultado.get('severidade_precisao'), st.warning)
+        exibir(aviso)
     
     # Seção 1: Grade de questões + Pizza
     st.markdown("##### Grade de Questões")

@@ -111,14 +111,17 @@ class CalculadorEnem:
             
             # Verificar precisão
             aviso = None
+            severidade = None
             try:
                 from tri_enem import verificar_precisao_prova
                 precisao = verificar_precisao_prova(ano, area, co_prova)
                 if precisao.get('aviso'):
                     aviso = precisao['aviso']
+                    severidade = precisao.get('severidade')
             except Exception:
                 # Silenciar erros - continua sem aviso
                 aviso = None
+                severidade = None
             
             return {
                 'sigla': area.upper(),
@@ -134,6 +137,7 @@ class CalculadorEnem:
                 'lingua': lingua if area.upper() == 'LC' else None,
                 'cor_prova': cor,
                 'aviso_precisao': aviso,
+                'severidade_precisao': severidade,
             }
             
         except Exception as e:
