@@ -24,6 +24,10 @@ ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in __import__("sys").path:
     __import__("sys").path.insert(0, str(ROOT))
 
+# Quem usa só o CLI não instala o streamlit; a suíte pula em vez de quebrar.
+# A CI instala streamlit_app/requirements.txt, então lá nunca pula.
+pytest.importorskip("streamlit")
+
 from streamlit.testing.v1 import AppTest  # noqa: E402
 
 APP = str(ROOT / "streamlit_app" / "app.py")

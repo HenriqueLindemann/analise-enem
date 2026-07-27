@@ -26,7 +26,9 @@ jobs:
       - name: Instalar dependencias
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt -r requirements-dev.txt
+          pip install -r requirements.txt \
+                      -r requirements-dev.txt \
+                      -r streamlit_app/requirements.txt
 
       - name: Rodar a suite
         run: pytest -q
