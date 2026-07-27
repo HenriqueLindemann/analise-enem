@@ -15,9 +15,6 @@ microdados_limpos/**/DADOS_ENEM*.csv
 microdados_limpos/**/AMOSTRA_CALIBRACAO_*.csv
 # Nota: ITENS_PROVA*.csv são incluídos (pequenos, essenciais para cálculo)
 
-# Documento de trabalho interno da auditoria: não versionado
-docs/ANALISE_ERROS.md
-
 # Outputs de análise
 graficos/
 graficos_tri/

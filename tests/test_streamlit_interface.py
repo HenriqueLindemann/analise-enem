@@ -141,6 +141,36 @@ class TestFluxoCompleto:
                 f"{area}: web deu {calculada:.2f}, oficial {oficial:.2f}"
             )
 
+    @pytest.mark.parametrize("ano,co_prova,tem_alerta", [
+        (2017, 403, True),    # erro_alto: não reproduz a nota oficial
+        (2023, 1211, False),  # ok
+    ])
+    def test_prova_nao_confiavel_exibe_alerta(self, exemplos, ano, co_prova,
+                                              tem_alerta):
+        """Prova com erro_alto tem de chegar ao usuário como st.error."""
+        from tri_enem import MapeadorProvas
+
+        e = next(x for x in exemplos if x["ano"] == ano and x["area"] == "MT")
+        info = next(p for p in MapeadorProvas().listar_todas_provas(ano)
+                    if p.codigo == co_prova)
+
+        at = _app_com_respostas({"MT": e["respostas"]})
+        at.selectbox[0].set_value(ano)
+        at.session_state["cor_MT"] = info.cor
+        at.run()
+        next(b for b in at.button
+             if "CALCULAR" in (b.label or "").upper()).click().run()
+
+        resultado = [r for r in at.session_state["resultados"]
+                     if r["sigla"] == "MT"][0]
+        assert resultado["co_prova"] == co_prova
+        if tem_alerta:
+            assert resultado["severidade_precisao"] == "alerta"
+            assert len(at.error) == 1
+        else:
+            assert resultado["aviso_precisao"] is None
+            assert len(at.error) == 0
+
     def test_calcular_sem_respostas_avisa_e_nao_quebra(self):
         at = AppTest.from_file(APP, default_timeout=TIMEOUT)
         at.run()

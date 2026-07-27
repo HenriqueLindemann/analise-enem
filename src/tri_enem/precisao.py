@@ -27,18 +27,28 @@ Três causas distintas de imprecisão, em ordem de frequência:
    2013-LC-189 a correlação entre theta e nota oficial fica próxima de zero, e
    nenhuma escolha de duplicata as recupera.
 
-   LC 2009 constava aqui como caso mais grave, com MAE de 45 a 70 pontos e a
-   conclusão de que a correspondência item/resposta não seria reconstituível.
-   Estava errado: as quatro provas têm um item anulado sem CO_ITEM, que o
-   carregador descartava, deslocando todas as respostas seguintes. Restaurado
-   o item, a correlação com a nota oficial é 1,000000. Registrado para que a
-   medição não seja refeita.
-
-3. Qualidade inferior do ajuste. A relação theta -> nota afasta-se da reta
-   estimada mesmo havendo dados suficientes.
+3. Divergência não explicada. Ver abaixo.
 
 Os limiares abaixo separam esses regimes pelo MAE (erro médio absoluto, em
 pontos da escala 0-1000) medido contra notas oficiais.
+
+Provas que não reproduzem a nota (2017 e 2019)
+----------------------------------------------
+1as aplicações de 2017 em CN, CH e MT, e MT de 2019. Investigado em 2026-07,
+causa desconhecida; ficam sinalizadas como erro_alto.
+
+Verificados e corretos: o pareamento resposta/item, o gabarito e o modelo —
+em 2018 e 2023 a nota oficial é reproduzida com resíduo mediano zero. Por
+eliminação restam os parâmetros publicados, mas isso não está provado.
+
+Duas medições foram tentadas e não servem: o refit dos parâmetros item a item
+reprova no controle (2018-MT-459 dá MAE 19,66 onde o correto é 0,10), e o
+ajuste da curva empírica depende do coeficiente canônico da área, que é
+justamente o que não vale nessas provas.
+
+LC 2009 já constou aqui como irrecuperável. Estava errado: um item anulado sem
+CO_ITEM era descartado, deslocando as respostas seguintes. Corrigido, a
+correlação com a nota oficial é 1,000000.
 """
 
 import json
@@ -97,6 +107,20 @@ def _msg_nao_calibrada() -> str:
     return (
         "Prova não conferida contra notas oficiais. Foi aplicado o ajuste médio da "
         "área; o resultado deve ser interpretado como estimativa."
+    )
+
+
+def _msg_nao_reproduz() -> str:
+    """
+    Prova conferida que reprovou, e por isso ficou sem coeficiente próprio.
+
+    Sem essa mensagem cairia em _msg_nao_calibrada, que diz o contrário do que
+    aconteceu.
+    """
+    return (
+        "Esta prova foi conferida contra notas oficiais e não as reproduz. A "
+        "contagem de acertos e a análise por questão permanecem válidas; a nota "
+        "deve ser considerada apenas como referência aproximada."
     )
 
 
@@ -175,6 +199,8 @@ def verificar_precisao_prova(ano: int, area: str, co_prova: int) -> Dict:
             # divergentes, e em 16 provas com erro_alto estavam ausentes, caso em
             # que a interface não exibia aviso algum.
             resultado['aviso'] = _msg_por_mae(mae)
+        elif status == 'erro_alto':
+            resultado['aviso'] = _msg_nao_reproduz()
         else:
             resultado['aviso'] = _msg_nao_calibrada()
 
@@ -205,7 +231,9 @@ def verificar_precisao_prova(ano: int, area: str, co_prova: int) -> Dict:
     # mensagem e severidade.
     if not resultado['confiavel']:
         if not resultado['aviso']:
-            resultado['aviso'] = _msg_nao_calibrada()
+            resultado['aviso'] = (_msg_nao_reproduz()
+                                  if resultado['status'] == 'erro_alto'
+                                  else _msg_nao_calibrada())
         if not resultado['severidade']:
             resultado['severidade'] = 'alerta'
 

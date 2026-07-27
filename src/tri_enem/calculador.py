@@ -17,6 +17,14 @@ Método
 - Prior N(0, 1); estimação EAP com 80 pontos de quadratura
 - Itens anulados são excluídos da verossimilhança, não contados como erro
 
+Alternativas medidas e descartadas, avaliadas pelo MAE com refit ótimo (que
+isola a qualidade do θ). Não vale retestá-las:
+
+    D = 1.7 em vez de 1.0        pior em todos os casos; 2023-MT vai de 0,09 a 8,79
+    relação θ->nota quadrática   ganha no máximo 6%, às vezes piora
+    200 pontos de quadratura     não altera o resultado
+    anulados contam como acerto  efeito nulo; os parâmetros são NaN
+
 Transformação para a escala ENEM
 --------------------------------
 O INEP não usa nota = 100·θ + 500. Cada prova tem seu próprio par
