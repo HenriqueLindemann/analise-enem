@@ -109,7 +109,7 @@ def executar_testes_completos():
                 idx_primeira = todas_q[0]['idx_area'] if todas_q else 0
                 esperado_real = offset_base + idx_primeira + 1
                 
-                ordem_ok = "✅" if primeira_pos == esperado_real else f"❌ (Exp {esperado_real})"
+                ordem_ok = "[ok]" if primeira_pos == esperado_real else f"[falha] (Exp {esperado_real})"
                 if primeira_pos != esperado_real:
                     falhas_ordem += 1
                 

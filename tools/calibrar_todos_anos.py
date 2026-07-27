@@ -69,7 +69,7 @@ for ano in anos:
                         'slope': r.get('slope'),
                         'intercept': r.get('intercept')
                     })
-                    print(f"  ⚠️ PROVA PROBLEMÁTICA: {area} {r.get('prova')} MAE={r['mae']:.2f}")
+                    print(f"  [aviso] PROVA PROBLEMÁTICA: {area} {r.get('prova')} MAE={r['mae']:.2f}")
                     # Não salvar coeficientes ruins (exceto se for única opção, mas melhor não)
                     if r['mae'] > 20.0:  # Se muito ruim, descarta
                         continue
@@ -105,7 +105,7 @@ for ano in anos:
         print(f"Dados salvos parcialmente.")
         
     except Exception as e:
-        print(f"\n❌ Erro ao calibrar {ano}: {e}")
+        print(f"\n[falha] Erro ao calibrar {ano}: {e}")
 
 # Salvar lista de provas problemáticas
 with open('tri_enem/provas_problematicas.json', 'w', encoding='utf-8') as f:

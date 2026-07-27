@@ -1,0 +1,14 @@
+# Calculadora Nota TRI ENEM - Dependências de desenvolvimento
+# https://notatri.com
+#
+# Complementa requirements.txt; não o inclui, porque este arquivo também é
+# lido pelo pyproject.toml como o extra `dev`, e ali só valem nomes de pacote.
+#
+#   pip install -r requirements.txt -r requirements-dev.txt
+#   pip install -e ".[dev]"          # equivalente, via empacotamento
+
+# Testes
+pytest>=7.0.0
+
+# Empacotamento (pip install -e .)
+setuptools>=64

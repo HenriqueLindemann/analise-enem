@@ -91,18 +91,38 @@ def filtrar_itens_lc(df_itens: pd.DataFrame, co_prova: int, tp_lingua: int, conf
         DataFrame com 45 itens ordenados por posição
     """
     lc = df_itens[(df_itens['SG_AREA'] == 'LC') & (df_itens['CO_PROVA'] == co_prova)].copy()
-    
-    if config.n_itens_arquivo == 45:
-        # 2009: já tem apenas 45 itens, não precisa filtrar
-        # Mas precisamos verificar se são os itens da língua correta
-        return lc.sort_values('CO_POSICAO')
-    
-    # 50 itens: filtrar por TP_LINGUA
-    if config.tem_tp_lingua_itens and 'TP_LINGUA' in lc.columns:
-        # Manter itens comuns (TP_LINGUA=NaN) + itens da língua escolhida
+
+    # Mantém itens comuns (TP_LINGUA=NaN) + os da língua escolhida. Só filtra
+    # se a prova oferecer a língua pedida: 2012/LC/165 só tem inglês, e filtrar
+    # por espanhol deixaria 40 itens para 45 respostas.
+    if 'TP_LINGUA' in lc.columns and (lc['TP_LINGUA'] == tp_lingua).any():
         lc = lc[(pd.isna(lc['TP_LINGUA'])) | (lc['TP_LINGUA'] == tp_lingua)]
-    
-    return lc.sort_values('CO_POSICAO')
+
+    return deduplicar_itens_por_posicao(lc)
+
+
+def deduplicar_itens_por_posicao(lc: pd.DataFrame) -> pd.DataFrame:
+    """
+    Ordena por posição e mantém um item por CO_POSICAO.
+
+    Posições repetidas são comuns em LC, com gabarito e parâmetros diferentes.
+    Sem deduplicar, a prova chega com mais de 45 itens e o pareamento desloca.
+
+    Desempate: TP_VERSAO_DIGITAL menor ou nulo (só existe em 2020, seleciona a
+    versão impressa), depois a ordem de aparição no arquivo — validada contra as
+    notas oficiais. Daí o `kind='stable'`; o quicksort padrão do pandas tornaria
+    a escolha arbitrária.
+    """
+    if 'TP_VERSAO_DIGITAL' in lc.columns:
+        lc = lc.sort_values(by=['CO_POSICAO', 'TP_VERSAO_DIGITAL'],
+                            na_position='first', kind='stable')
+    else:
+        lc = lc.sort_values('CO_POSICAO', kind='stable')
+
+    if 'CO_POSICAO' in lc.columns:
+        lc = lc.drop_duplicates(subset=['CO_POSICAO'], keep='first')
+
+    return lc
 
 
 def mapear_respostas_para_itens(respostas_45: str, itens: pd.DataFrame) -> List[Tuple[int, str, str]]:

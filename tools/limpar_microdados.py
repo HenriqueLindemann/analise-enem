@@ -84,10 +84,10 @@ def limpar_arquivo_chunked(ano, colunas_lista=None):
         arquivo_destino = f'microdados_limpos/{ano}/DADOS_ENEM_{ano}.csv'
     
     if not os.path.exists(arquivo_origem):
-        print(f"❌ Arquivo não encontrado: {arquivo_origem}")
+        print(f"[falha] Arquivo não encontrado: {arquivo_origem}")
         return 0, 0
     
-    print(f"📁 Processando {ano}...")
+    print(f"Processando {ano}...")
     
     tamanho_original = os.path.getsize(arquivo_origem) / (1024 * 1024)
     print(f"   Original: {tamanho_original:.2f} MB")
@@ -125,7 +125,7 @@ def limpar_arquivo_chunked(ano, colunas_lista=None):
     reducao = ((tamanho_original - tamanho_limpo) / tamanho_original) * 100
     
     print(f"   Limpo:    {total_linhas:,} linhas, {len(colunas_manter)} colunas, {tamanho_limpo:.2f} MB")
-    print(f"   ✅ Redução: {reducao:.1f}% ({tamanho_original - tamanho_limpo:.2f} MB economizados)")
+    print(f"   [ok] Redução: {reducao:.1f}% ({tamanho_original - tamanho_limpo:.2f} MB economizados)")
     print()
     
     return tamanho_original, tamanho_limpo
@@ -133,7 +133,7 @@ def limpar_arquivo_chunked(ano, colunas_lista=None):
 
 def copiar_itens_prova():
     """Copia os arquivos ITENS_PROVA (já são pequenos)"""
-    print("📋 Copiando arquivos ITENS_PROVA...")
+    print("Copiando arquivos ITENS_PROVA...")
     total = 0
     for ano in range(2009, 2026):
         arquivo_origem = f'microdados/{ano}/ITENS_PROVA_{ano}.csv'
@@ -144,7 +144,7 @@ def copiar_itens_prova():
             df = pd.read_csv(arquivo_origem, encoding='latin1', sep=';')
             df.to_csv(arquivo_destino, index=False, encoding='utf-8', sep=';')
             total += os.path.getsize(arquivo_destino) / (1024 * 1024)
-    print(f"✅ Arquivos ITENS_PROVA copiados ({total:.2f} MB total)\n")
+    print(f"[ok] Arquivos ITENS_PROVA copiados ({total:.2f} MB total)\n")
     return total
 
 
@@ -178,7 +178,7 @@ def main():
     total_limpo += itens_total
     
     print("=" * 70)
-    print("✅ LIMPEZA CONCLUÍDA!")
+    print("[ok] LIMPEZA CONCLUÍDA!")
     print("=" * 70)
     print()
     
@@ -187,15 +187,15 @@ def main():
     tamanho_total_mb = tamanho_total / (1024 * 1024)
     tamanho_total_gb = tamanho_total / (1024 * 1024 * 1024)
     
-    print(f"📊 Tamanho original total: {total_original:.2f} MB ({total_original/1024:.2f} GB)")
-    print(f"📊 Tamanho limpo total:    {tamanho_total_mb:.2f} MB ({tamanho_total_gb:.2f} GB)")
-    print(f"📊 Economia total:         {total_original - tamanho_total_mb:.2f} MB")
+    print(f"Tamanho original total: {total_original:.2f} MB ({total_original/1024:.2f} GB)")
+    print(f"Tamanho limpo total:    {tamanho_total_mb:.2f} MB ({tamanho_total_gb:.2f} GB)")
+    print(f"Economia total:         {total_original - tamanho_total_mb:.2f} MB")
     print()
     
     if tamanho_total_gb < 5:
-        print("✅ Os arquivos cabem no limite do GitHub Pro Student (5GB)")
+        print("[ok] Os arquivos cabem no limite do GitHub Pro Student (5GB)")
     else:
-        print("⚠️  Os arquivos ainda excedem 5GB. Considere compressão adicional.")
+        print("[aviso] Os arquivos ainda excedem 5GB. Considere compressão adicional.")
 
 
 if __name__ == "__main__":

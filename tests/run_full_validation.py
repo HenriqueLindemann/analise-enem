@@ -53,9 +53,9 @@ def verificar_requisitos() -> bool:
     ok = True
     for path, descricao in requisitos:
         if path.exists():
-            print(f"  ✅ {descricao}: {path}")
+            print(f"  [ok] {descricao}: {path}")
         else:
-            print(f"  ❌ {descricao} não encontrado: {path}")
+            print(f"  [falha] {descricao} não encontrado: {path}")
             ok = False
     
     return ok
@@ -75,10 +75,10 @@ def run_step(name: str, script: str, args: list[str]) -> bool:
     elapsed = time.time() - start
     
     if result.returncode == 0:
-        print(f"\n✅ {name} concluído em {elapsed:.1f}s")
+        print(f"\n[ok] {name} concluído em {elapsed:.1f}s")
         return True
     else:
-        print(f"\n❌ {name} falhou (código {result.returncode})")
+        print(f"\n[falha] {name} falhou (código {result.returncode})")
         return False
 
 
@@ -128,9 +128,9 @@ def main():
     print("="*70)
     
     # Verificar requisitos
-    print("\n📋 Verificando requisitos...")
+    print("\nVerificando requisitos...")
     if not verificar_requisitos():
-        print("\n❌ Requisitos não atendidos. Abortando.")
+        print("\n[falha] Requisitos não atendidos. Abortando.")
         return 1
     
     # Criar diretório fixtures se necessário
@@ -141,7 +141,7 @@ def main():
     
     # Passo 1: Gerar exemplos
     if args.skip_gerar and exemplos_path.exists():
-        print(f"\n⏭️  Pulando geração de exemplos (--skip-gerar)")
+        print(f"\nPulando geração de exemplos (--skip-gerar)")
         print(f"   Usando: {exemplos_path}")
     else:
         ok = run_step(
@@ -159,7 +159,7 @@ def main():
     
     # Verificar se exemplos foram gerados
     if not exemplos_path.exists():
-        print(f"\n❌ Arquivo de exemplos não encontrado: {exemplos_path}")
+        print(f"\n[falha] Arquivo de exemplos não encontrado: {exemplos_path}")
         return 1
     
     # Passo 2: Validar exemplos
@@ -175,7 +175,7 @@ def main():
         validar_args,
     )
     if not ok:
-        print("⚠️  Validação teve problemas, mas continuando...")
+        print("[aviso] Validação teve problemas, mas continuando...")
     
     # Passo 3: Gerar relatório de provas problemáticas
     relatorio_path = TESTS_DIR / "provas_problematicas.md"
@@ -190,7 +190,7 @@ def main():
         ]
     )
     if not ok:
-        print("⚠️  Geração de relatório teve problemas")
+        print("[aviso] Geração de relatório teve problemas")
     
     # Resumo final
     print("\n" + "="*70)
@@ -207,9 +207,9 @@ def main():
         if path.exists():
             size = path.stat().st_size
             size_str = f"{size:,} bytes" if size < 1024*1024 else f"{size/1024/1024:.1f} MB"
-            print(f"  ✅ {desc}: {path.name} ({size_str})")
+            print(f"  [ok] {desc}: {path.name} ({size_str})")
         else:
-            print(f"  ❌ {desc}: não gerado")
+            print(f"  [falha] {desc}: não gerado")
     
     print(f"\nConcluído em: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print("="*70)

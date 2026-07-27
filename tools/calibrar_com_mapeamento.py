@@ -59,7 +59,7 @@ class StatusCalibracao:
         """Classifica a qualidade da calibração baseado em MAE e R²."""
         if not self.calibrado or self.mae is None:
             self.status = 'nao_calibrado'
-            self.mensagem_aviso = '⚠️ Esta prova não possui calibração específica. Estamos usando parâmetros genéricos da área, o que pode resultar em uma nota menos precisa. Use o resultado como estimativa.'
+            self.mensagem_aviso = 'Esta prova não possui calibração específica. Estamos usando parâmetros genéricos da área, o que pode resultar em uma nota menos precisa. Use o resultado como estimativa.'
             return
         
         r2 = self.r_squared or 0
@@ -69,13 +69,13 @@ class StatusCalibracao:
             self.mensagem_aviso = None
         elif self.mae <= LIMIAR_MAE_ACEITAVEL and r2 >= 0.95:
             self.status = 'aviso_leve'
-            self.mensagem_aviso = f'ℹ️ Esta prova tem boa calibração, mas pode haver uma pequena diferença de até {self.mae:.1f} pontos em relação à nota oficial.'
+            self.mensagem_aviso = f'Esta prova tem boa calibração, mas pode haver uma pequena diferença de até {self.mae:.1f} pontos em relação à nota oficial.'
         elif self.mae <= LIMIAR_MAE_RUIM and r2 >= LIMIAR_R2_MINIMO:
             self.status = 'aviso_forte'
-            self.mensagem_aviso = f'⚠️ Atenção: Esta prova tem calibração parcial. O erro médio é de aproximadamente {self.mae:.1f} pontos. Sua nota calculada é uma estimativa e pode diferir da nota oficial.'
+            self.mensagem_aviso = f'Atenção: esta prova tem calibração parcial. O erro médio é de aproximadamente {self.mae:.1f} pontos. Sua nota calculada é uma estimativa e pode diferir da nota oficial.'
         else:
             self.status = 'erro_alto'
-            self.mensagem_aviso = f'⚠️ ATENÇÃO: Esta prova não está calibrada corretamente. O erro médio é de {self.mae:.1f} pontos, o que significa que a nota calculada pode variar bastante da nota oficial. Use apenas como estimativa aproximada.'
+            self.mensagem_aviso = f'Atenção: esta prova não está calibrada corretamente. O erro médio é de {self.mae:.1f} pontos, o que significa que a nota calculada pode variar bastante da nota oficial. Use apenas como estimativa aproximada.'
 
 
 def carregar_dados_existentes(caminho: Path) -> Dict:
@@ -104,8 +104,32 @@ def carregar_dados_existentes(caminho: Path) -> Dict:
     return dados_padrao
 
 
+def atualizar_metadata_por_area(dados: Dict):
+    """
+    Média por área a partir das médias por ano.
+
+    Último recurso de coeficientes.obter_coeficiente, para provas sem
+    coeficiente próprio nem do par (ano, área). Ficava congelado em calibrações
+    antigas porque nada o reescrevia.
+    """
+    import numpy as np
+
+    por_area_agrupado = {}
+    for chave, valor in dados['por_area'].items():
+        _, area = chave.split(',')
+        por_area_agrupado.setdefault(area, []).append(valor)
+
+    for area, valores in por_area_agrupado.items():
+        dados['metadata'][area] = {
+            'slope_medio': float(np.mean([v['slope'] for v in valores])),
+            'intercept_medio': float(np.mean([v['intercept'] for v in valores])),
+            'n_anos': len(valores),
+        }
+
+
 def salvar_dados(dados: Dict, caminho: Path):
     """Salva dados de calibração."""
+    atualizar_metadata_por_area(dados)
     dados['metadata']['ultima_calibracao'] = datetime.now().isoformat()
     with open(caminho, 'w', encoding='utf-8') as f:
         json.dump(dados, f, indent=2, ensure_ascii=False)
@@ -145,7 +169,7 @@ def calibrar_prova_completa(cal: Calibrador, prova, n_amostras: int = 200, verbo
             status.status = 'falhou'
             status.mensagem_aviso = f"Falha: {resultado['erro']}"
             if verbose:
-                print(f"❌ {resultado['erro']}")
+                print(f"falhou: {resultado['erro']}")
             return status
         
         # Preencher resultados
@@ -160,8 +184,7 @@ def calibrar_prova_completa(cal: Calibrador, prova, n_amostras: int = 200, verbo
         status.classificar_qualidade()
         
         if verbose:
-            emoji = {'ok': '✅', 'aviso_leve': '⚠️', 'aviso_forte': '⚠️', 'erro_alto': '❌'}
-            print(f"{emoji.get(status.status, '❓')} MAE={status.mae:.2f} R²={status.r_squared:.4f}")
+            print(f"{status.status} MAE={status.mae:.2f} R2={status.r_squared:.4f}")
         
         return status
         
@@ -169,7 +192,7 @@ def calibrar_prova_completa(cal: Calibrador, prova, n_amostras: int = 200, verbo
         status.status = 'falhou'
         status.mensagem_aviso = f"Erro: {str(e)}"
         if verbose:
-            print(f"❌ Erro: {e}")
+            print(f"erro: {e}")
         return status
 
 
@@ -266,10 +289,10 @@ def gerar_resumo(resultados_todos: Dict[int, Dict[str, List[StatusCalibracao]]])
             total_erro += erro
             total_falhou += falhou
             
-            linhas.append(f"  {area}: ✅{ok} ⚠️{aviso} ❌{erro} ❓{falhou}")
+            linhas.append(f"  {area}: {ok} ok, {aviso} aviso, {erro} erro alto, {falhou} falhou")
     
     linhas.append(f"\n{'=' * 70}")
-    linhas.append(f"TOTAL: ✅ {total_ok} OK | ⚠️ {total_aviso} avisos | ❌ {total_erro} erro alto | ❓ {total_falhou} falhou")
+    linhas.append(f"TOTAL: {total_ok} ok | {total_aviso} avisos | {total_erro} erro alto | {total_falhou} falhou")
     
     return "\n".join(linhas)
 
@@ -320,10 +343,10 @@ def main():
             
             # Salvar progresso
             salvar_dados(dados, caminho_dados)
-            print(f"\n  💾 Dados salvos ({len(dados['por_prova'])} provas)")
+            print(f"\n  Dados salvos ({len(dados['por_prova'])} provas)")
             
         except Exception as e:
-            print(f"\n  ❌ Erro ao calibrar {ano}: {e}")
+            print(f"\n  Erro ao calibrar {ano}: {e}")
             import traceback
             traceback.print_exc()
     

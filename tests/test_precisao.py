@@ -147,9 +147,16 @@ class TestClassificacaoPorMae:
         r = verificar_precisao_prova("2023", "MT", "1211")
         assert r["status"] != "desconhecido"
 
-    def test_lc_2009_marcada_como_nao_confiavel(self):
-        """LC 2009 não é reconstituível a partir dos dados públicos (MAE de 45 a 70)."""
+    def test_lc_2009_e_confiavel(self):
+        """
+        LC 2009 constava como não reconstituível, com MAE de 45 a 70 pontos.
+
+        A causa era um item anulado sem CO_ITEM que o carregador descartava,
+        deslocando o pareamento de todas as posições seguintes. Preservado o
+        item, as quatro provas calibram com correlação 1,000000 contra a nota
+        oficial. Este teste falha se o descarte voltar.
+        """
         for co_prova in (57, 58, 59, 60):
             r = verificar_precisao_prova(2009, "LC", co_prova)
-            assert r["confiavel"] is False, co_prova
-            assert r["aviso"], co_prova
+            assert r["confiavel"] is True, co_prova
+            assert r["aviso"] is None, co_prova

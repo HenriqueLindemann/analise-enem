@@ -207,7 +207,7 @@ def grade_questoes(questoes: List[Dict], colunas: int = 15) -> go.Figure:
         linha = linhas - 1 - (i // colunas)
         
         cor = COR_ACERTO if q['acertou'] else COR_ERRO
-        status = "✓ Acerto" if q['acertou'] else "✗ Erro"
+        status = "Acerto" if q['acertou'] else "Erro"
         
         fig.add_trace(go.Scatter(
             x=[col + 0.5],

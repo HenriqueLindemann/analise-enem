@@ -159,13 +159,13 @@ def main():
             
             if 'erro' in resultado:
                 print(f"\n--- {area} ---")
-                print(f"  ❌ {resultado['erro']}")
+                print(f"  [falha] {resultado['erro']}")
                 continue
             
             resultados = resultado['resultados']
             if not resultados:
                 print(f"\n--- {area} ---")
-                print(f"  ⚠️  Sem dados")
+                print(f"  [aviso] Sem dados")
                 continue
             
             # Calcular MAE geral
@@ -178,7 +178,7 @@ def main():
             print(f"\n--- {area} (MAE geral: {mae_geral:.2f}) ---")
             for faixa, stats in resultados.items():
                 mae = stats['mae']
-                status = "✅" if mae < 1.0 else "⚠️" if mae < 5.0 else "❌"
+                status = "[ok]" if mae < 1.0 else "[aviso]" if mae < 5.0 else "[falha]"
                 print(f"  {faixa:8} | N={stats['n']:2} | MAE={mae:6.2f} | "
                       f"Real={stats['nota_media_real']:.0f} | {status}")
             
@@ -196,7 +196,7 @@ def main():
         maes_ano = [v for k, v in resumo_geral.items() if k.startswith(f'{ano}-')]
         if maes_ano:
             mae_ano = np.mean(maes_ano)
-            status = "✅" if mae_ano < 1.0 else "⚠️" if mae_ano < 5.0 else "❌"
+            status = "[ok]" if mae_ano < 1.0 else "[aviso]" if mae_ano < 5.0 else "[falha]"
             print(f"{ano}: MAE={mae_ano:.2f} {status}")
     
     if todos_problemas:

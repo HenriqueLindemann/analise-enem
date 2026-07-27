@@ -237,7 +237,7 @@ def main():
     # Mostrar avisos de precisão
     if avisos:
         print("\n" + "-" * 60)
-        print("⚠️  AVISOS DE PRECISÃO:")
+        print("AVISOS DE PRECISAO:")
         print("-" * 60)
         for aviso in avisos:
             print(aviso)

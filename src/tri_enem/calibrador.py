@@ -29,36 +29,61 @@ class Calibrador:
     def __init__(self, microdados_path: str = None):
         self.calc = CalculadorTRI(microdados_path)
         self.base_path = Path(microdados_path or "microdados_limpos")
-    
-    def _carregar_dados(self, ano: int, area: str, n_max: int = None) -> pd.DataFrame:
-        """Carrega dados dos participantes para uma área."""
-        microdados_file = self.base_path / str(ano) / f"DADOS_ENEM_{ano}.csv"
-        if not microdados_file.exists():
-            raise FileNotFoundError(f"Microdados não encontrados: {microdados_file}")
-        
+        self._cache_dados: Dict[tuple, pd.DataFrame] = {}
+
+    def _localizar_arquivo(self, ano: int) -> Path:
+        """
+        Resolve o arquivo de participantes do ano.
+
+        A amostra de tools/amostrar_microdados_brutos.py tem precedência: cobre
+        todas as provas do ano em poucos MB, enquanto DADOS_ENEM_<ano>.csv só
+        existe para os anos limpos localmente.
+        """
+        dir_ano = self.base_path / str(ano)
+        for nome in (f"AMOSTRA_CALIBRACAO_{ano}.csv", f"DADOS_ENEM_{ano}.csv"):
+            caminho = dir_ano / nome
+            if caminho.exists():
+                return caminho
+        raise FileNotFoundError(
+            f"Microdados não encontrados em {dir_ano} "
+            f"(esperado AMOSTRA_CALIBRACAO_{ano}.csv ou DADOS_ENEM_{ano}.csv)"
+        )
+
+    def _carregar_dados(self, ano: int, area: str) -> pd.DataFrame:
+        """
+        Participantes de uma área, filtrados por presença e nota válida.
+
+        Cache por (ano, área): reler o arquivo a cada prova dominava o tempo.
+        """
+        if (ano, area) in self._cache_dados:
+            return self._cache_dados[(ano, area)]
+
+        microdados_file = self._localizar_arquivo(ano)
+
         # Colunas necessárias
         pres_col = f'TP_PRESENCA_{area}'
         prova_col = f'CO_PROVA_{area}'
         nota_col = f'NU_NOTA_{area}'
         resp_col = f'TX_RESPOSTAS_{area}'
-        
+
         usecols = [pres_col, prova_col, nota_col, resp_col]
         if area == 'LC':
             usecols.append('TP_LINGUA')
-        
+
         # Verificar colunas existentes
         df_header = pd.read_csv(microdados_file, encoding='latin1', sep=';', nrows=0)
         usecols = [c for c in usecols if c in df_header.columns]
-        
-        df = pd.read_csv(microdados_file, encoding='latin1', sep=';', 
-                        usecols=usecols, nrows=n_max)
-        
+
+        df = pd.read_csv(microdados_file, encoding='latin1', sep=';',
+                        usecols=usecols, low_memory=False)
+
         # Filtrar presentes com nota válida
         df = df[(df[pres_col] == 1) & (df[nota_col] > 0)]
         df = df.dropna(subset=[nota_col, resp_col, prova_col])
-        
+
+        self._cache_dados[(ano, area)] = df
         return df
-    
+
     def calibrar_prova(self, ano: int, area: str, co_prova: int, 
                        n_amostras: int = 200, verbose: bool = True,
                        estratificado: bool = True) -> Dict:
@@ -76,17 +101,12 @@ class Calibrador:
         nota_col = f'NU_NOTA_{area}'
         resp_col = f'TX_RESPOSTAS_{area}'
         
-        df = self._carregar_dados(ano, area, n_amostras * 30)
+        df = self._carregar_dados(ano, area)
         df_prova = df[df[prova_col] == co_prova].copy()  # Explicit copy to avoid warning
-        
+
         if len(df_prova) < 10:
-            # Tentar carregar todos os dados se for uma prova rara (ex: reaplicação)
-            df = self._carregar_dados(ano, area, None)
-            df_prova = df[df[prova_col] == co_prova].copy()
-            
-            if len(df_prova) < 10:
-                return {'erro': f'Poucos participantes: {len(df_prova)}'}
-        
+            return {'erro': f'Poucos participantes: {len(df_prova)}'}
+
         # Amostragem estratificada por faixa de nota
         if estratificado and len(df_prova) >= n_amostras:
             # Dividir em faixas de nota
@@ -118,11 +138,6 @@ class Calibrador:
             print(f"Prova {co_prova}: {len(df_amostra)} participantes", end='')
         
         dados = []
-        # Pré-carregar config_lc se a área for LC
-        config_lc = None
-        if area == 'LC':
-            from .tradutor import obter_config_lc, filtrar_respostas_lc
-            config_lc = obter_config_lc(ano)
 
         for _, row in df_amostra.iterrows():
             # Identificar língua para LC
@@ -132,25 +147,22 @@ class Calibrador:
                     tp_lingua = int(row['TP_LINGUA'])
                 except ValueError:
                     tp_lingua = None
-            elif area == 'LC' and config_lc.tem_tp_lingua_dados:
-                # Se deveria ter mas não tem, tenta inferir ou ignora (neste caso assume None)
-                pass
-            
-            respostas = row[resp_col]
-            if area == 'LC' and config_lc:
-                respostas = filtrar_respostas_lc(respostas, tp_lingua, config_lc)
-            
+
             try:
-                itens = self.calc.carregar_itens(ano, area, co_prova, tp_lingua)
-                respostas_bin = self.calc.converter_respostas(respostas, itens)
+                # Mesmo ponto de entrada de calcular_nota. Calibrar por outro
+                # caminho ajustaria o coeficiente contra um theta que o usuário
+                # nunca obtém.
+                itens, respostas_bin, _ = self.calc._preparar_calculo(
+                    ano, area, co_prova, row[resp_col], tp_lingua
+                )
                 theta = self.calc.estimar_theta_eap(respostas_bin, itens)
                 dados.append({'theta': theta, 'nota': row[nota_col]})
-            except Exception as e:
+            except Exception:
                 if verbose and len(dados) == 0:
                      import traceback
                      print(f"Erro row: {traceback.format_exc()}")
                 continue
-        
+
         if len(dados) < 10:
             return {'erro': 'Poucos cálculos válidos'}
         

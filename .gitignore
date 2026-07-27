@@ -10,7 +10,13 @@ DADOS/
 
 # Microdados limpos - manter estrutura mas ignorar arquivos grandes
 microdados_limpos/**/DADOS_ENEM*.csv
+# Amostras de calibração (tools/amostrar_microdados_brutos.py): derivadas dos
+# brutos do INEP, ~150 MB no total, regeneráveis
+microdados_limpos/**/AMOSTRA_CALIBRACAO_*.csv
 # Nota: ITENS_PROVA*.csv são incluídos (pequenos, essenciais para cálculo)
+
+# Documento de trabalho interno da auditoria: não versionado
+docs/ANALISE_ERROS.md
 
 # Outputs de análise
 graficos/

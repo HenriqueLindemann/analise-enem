@@ -20,15 +20,19 @@ Três causas distintas de imprecisão, em ordem de frequência:
    públicos (comum em PPL e reaplicações), o que impede estimar slope e
    intercept específicos; aplica-se a média da área.
 
-2. Incompatibilidade estrutural do arquivo do ano. Caso mais grave: LC 2009,
-   com MAE de 45 a 70 pontos. O arquivo de 2009 não possui a coluna
-   TP_LINGUA, mas a ausência de idioma explicaria no máximo 5 itens; a
-   medição mostra problema mais amplo — a taxa de acerto agregada é de 66%
-   nas posições 1-5 e de 31% nas posições 6-45, próxima do acaso (20%), e
-   nenhuma reordenação por CO_ITEM ou deslocamento de índice melhora a
-   correlação com a nota oficial (0,70 no melhor caso, contra 1,00 em
-   CN/CH/MT de 2009). A correspondência entre item e resposta em LC 2009
-   não é reconstituível a partir dos microdados públicos.
+2. Ambiguidade estrutural do arquivo do ano. Provas adaptadas
+   (IN_ITEM_ADAPTADO = 1) trazem mais de um item para a mesma CO_POSICAO, com
+   gabarito e parâmetros distintos, e o arquivo não registra qual deles foi
+   apresentado ao participante. Em 2013-CH-187, 2013-CN-188, 2013-MT-190 e
+   2013-LC-189 a correlação entre theta e nota oficial fica próxima de zero, e
+   nenhuma escolha de duplicata as recupera.
+
+   LC 2009 constava aqui como caso mais grave, com MAE de 45 a 70 pontos e a
+   conclusão de que a correspondência item/resposta não seria reconstituível.
+   Estava errado: as quatro provas têm um item anulado sem CO_ITEM, que o
+   carregador descartava, deslocando todas as respostas seguintes. Restaurado
+   o item, a correlação com a nota oficial é 1,000000. Registrado para que a
+   medição não seja refeita.
 
 3. Qualidade inferior do ajuste. A relação theta -> nota afasta-se da reta
    estimada mesmo havendo dados suficientes.

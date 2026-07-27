@@ -118,7 +118,7 @@ def validar(
     for (ano, area, co_prova), erros in sorted(por_prova.items()):
         mae    = sum(erros) / len(erros)
         status = _classificar_mae(mae)
-        flag   = "" if status == "ok" else ("⚠" if "aviso" in status else "❌")
+        flag   = "" if status == "ok" else ("[aviso]" if "aviso" in status else "[falha]")
         print(f"{ano:<5} {area:<4} {co_prova:<6} {len(erros):>3} {mae:>6.2f} {flag} {status}")
         if status != "ok":
             provas_com_aviso.append((ano, area, co_prova, mae, status))
@@ -140,7 +140,7 @@ def _atualizar_coeficientes(
     """Atualiza status_provas em coeficientes_data.json com base na validação."""
     data_path = Path(__file__).resolve().parents[1] / "src" / "tri_enem" / "coeficientes_data.json"
     if not data_path.exists():
-        print("\n⚠️  coeficientes_data.json não encontrado — status não atualizado.")
+        print("\n[aviso] coeficientes_data.json não encontrado — status não atualizado.")
         return
 
     data = json.loads(data_path.read_text(encoding="utf-8"))
@@ -175,7 +175,7 @@ def _atualizar_coeficientes(
             print(f"  Atualizado {key}: {atual} → {novo_status} (MAE={mae:.2f})")
 
     data_path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(f"\n✅ {atualizados} status atualizados em {data_path.name}")
+    print(f"\n[ok] {atualizados} status atualizados em {data_path.name}")
 
 
 def main() -> None:

@@ -45,8 +45,9 @@ Estrutura de LC ao longo dos anos
 
 De 2010 em diante, filtra-se por TP_LINGUA (0=inglês, 1=espanhol) mantendo
 os itens comuns (TP_LINGUA nulo), o que reduz 50 para 45 itens. Ver
-tradutor.py. LC 2009 não é reconstituível a partir dos dados públicos; ver a análise
-registrada em precisao.py.
+tradutor.py. Em 2009 não há coluna de idioma e as 45 posições valem para
+todos, inclusive as quatro provas de LC, cujo item anulado sem CO_ITEM precisa
+ser preservado para não deslocar o pareamento (ver carregar_itens).
 
 Limitações conhecidas estão documentadas em precisao.py, que classifica cada
 prova por erro medido contra notas oficiais.
@@ -183,30 +184,24 @@ class CalculadorTRI:
             if co_prova in TRADUCAO_BAM2:
                 co_prova_busca = TRADUCAO_BAM2[co_prova]
 
+        from .tradutor import (
+            obter_config_lc, filtrar_itens_lc, deduplicar_itens_por_posicao,
+        )
+
         df = self._carregar_df_itens(ano)
-        df_prova = df[(df['SG_AREA'] == area.upper()) & (df['CO_PROVA'] == co_prova_busca)].copy()
-        
+
+        if area.upper() == 'LC':
+            # Filtro de idioma e dedup vivem em tradutor.py, um só lugar.
+            df_prova = filtrar_itens_lc(
+                df, co_prova_busca, tp_lingua, obter_config_lc(ano)
+            )
+        else:
+            df_prova = deduplicar_itens_por_posicao(
+                df[(df['SG_AREA'] == area.upper()) & (df['CO_PROVA'] == co_prova_busca)]
+            )
+
         if df_prova.empty:
             raise ValueError(f"Prova não encontrada: {ano}/{area}/{co_prova}")
-        
-        # Para LC: filtrar por tp_lingua
-        # - Manter itens com TP_LINGUA == tp_lingua (questões de idioma)
-        # - Manter itens com TP_LINGUA == NaN (questões comuns)
-        if area.upper() == 'LC' and 'TP_LINGUA' in df_prova.columns:
-            df_prova = df_prova[
-                (pd.isna(df_prova['TP_LINGUA'])) | 
-                (df_prova['TP_LINGUA'] == tp_lingua)
-            ].copy()
-        
-        # Deduplicação: provas digitais (2020+) repetem o mesmo item em duas
-        # linhas, uma por versão. Mantém-se a impressa (TP_VERSAO_DIGITAL
-        # menor ou NaN), que corresponde à versão usada na calibração.
-        if 'TP_VERSAO_DIGITAL' in df_prova.columns:
-            df_prova.sort_values(by=['CO_POSICAO', 'TP_VERSAO_DIGITAL'], na_position='first', inplace=True)
-            df_prova.drop_duplicates(subset=['CO_POSICAO'], keep='first', inplace=True)
-        else:
-             if 'CO_POSICAO' in df_prova.columns:
-                  df_prova.drop_duplicates(subset=['CO_POSICAO'], keep='first', inplace=True)
 
         itens = []
         for _, row in df_prova.iterrows():
@@ -228,12 +223,14 @@ class CalculadorTRI:
                 str(row['TX_GABARITO']) == '*'
             )
 
+            # CO_ITEM é só identificador e falta em itens anulados (LC 2009
+            # tem um por prova). Descartar a linha desalinharia todas as
+            # posições seguintes.
             try:
                 co_item_val = int(row['CO_ITEM'])
             except (ValueError, TypeError):
-                # Se CO_ITEM não puder ser convertido para int, pular este item
-                continue
-                    
+                co_item_val = 0
+
             item = ItemTRI(
                 posicao=int(row['CO_POSICAO']),
                 gabarito=str(row['TX_GABARITO']),
@@ -320,6 +317,45 @@ class CalculadorTRI:
         
         return respostas
     
+    def normalizar_respostas(self, respostas_str: str, area: str, ano: int,
+                             tp_lingua: Optional[int] = None) -> str:
+        """
+        Reduz a string de respostas às 45 posições canônicas.
+
+        LC de 2014 a 2021 vem com 50 caracteres nos microdados: cinco posições
+        por idioma, com '99999' no não escolhido. Sem reduzir, a nota sai
+        deslocada em até 168 pontos. Entradas de 45 passam inalteradas.
+        """
+        if area.upper() == 'LC':
+            from .tradutor import obter_config_lc, filtrar_respostas_lc
+            respostas_str = filtrar_respostas_lc(
+                respostas_str, tp_lingua if tp_lingua is not None else 0,
+                obter_config_lc(ano),
+            )
+        return respostas_str
+
+    def _preparar_calculo(self, ano: int, area: str, co_prova: int,
+                          respostas_str: str, tp_lingua: Optional[int] = None):
+        """
+        Ponto único de entrada: carrega itens, normaliza respostas e pareia.
+
+        CLI, web e PDF passam por aqui, para não divergirem no tratamento da
+        entrada.
+
+        Returns:
+            (itens, respostas_bin, respostas_norm)
+        """
+        itens = self.carregar_itens(ano, area, co_prova, tp_lingua)
+        respostas_norm = self.normalizar_respostas(respostas_str, area, ano, tp_lingua)
+
+        if len(respostas_norm) != len(itens):
+            raise ValueError(
+                f"{ano}/{area}/{co_prova}: a prova tem {len(itens)} itens, mas "
+                f"foram fornecidas {len(respostas_norm)} respostas"
+            )
+
+        return itens, self.converter_respostas(respostas_norm, itens), respostas_norm
+
     def transformar_escala(self, theta: float, ano: int = None, area: str = None,
                           co_prova: int = None) -> float:
         """
@@ -345,12 +381,13 @@ class CalculadorTRI:
         Returns:
             Dicionário com resultado completo
         """
-        itens = self.carregar_itens(ano, area, co_prova, tp_lingua)
-        respostas_bin = self.converter_respostas(respostas_str, itens)
-        
+        itens, respostas_bin, _ = self._preparar_calculo(
+            ano, area, co_prova, respostas_str, tp_lingua
+        )
+
         itens_validos = [i for i in itens if not i.abandonado]
         respostas_validas = [r for r, i in zip(respostas_bin, itens) if not i.abandonado]
-        
+
         theta = self.estimar_theta_eap(respostas_bin, itens)
         nota = self.transformar_escala(theta, ano, area, co_prova)
         
@@ -370,69 +407,56 @@ class CalculadorTRI:
         """
         Analisa o impacto de cada erro na nota final.
         Retorna lista ordenada por ganho potencial (maior primeiro).
+
+        Recorte de `analisar_todas_questoes` restrito aos erros, mantido pela
+        API pública. Evita um segundo laço de reestimação.
         """
-        itens = self.carregar_itens(ano, area, co_prova, tp_lingua)
-        respostas_bin = self.converter_respostas(respostas_str, itens)
-        
-        theta_original = self.estimar_theta_eap(respostas_bin, itens)
-        nota_original = self.transformar_escala(theta_original, ano, area, co_prova)
+        analise = self.analisar_todas_questoes(
+            ano, area, co_prova, respostas_str, tp_lingua
+        )
+        return [
+            {
+                'posicao': q['posicao'],
+                'gabarito': q['gabarito'],
+                'resposta_dada': q['resposta_dada'],
+                'param_a': q['param_a'],
+                'param_b': q['param_b'],
+                'param_c': q['param_c'],
+                'ganho_potencial': q['ganho_se_acertasse'],
+            }
+            for q in analise['erros']
+        ]
 
-        impactos = []
-        
-        # Mapear índice na string para o item correspondente
-        for idx, (resp, item) in enumerate(zip(respostas_bin, itens)):
-            if resp == 0 and not item.abandonado:
-                respostas_mod = respostas_bin.copy()
-                respostas_mod[idx] = 1
-                
-                theta_mod = self.estimar_theta_eap(respostas_mod, itens)
-                nota_mod = self.transformar_escala(theta_mod, ano, area, co_prova)
-
-                # idx é o índice na lista de itens, que corresponde ao índice na string de respostas
-                resposta_dada = respostas_str[idx] if idx < len(respostas_str) else '?'
-                
-                impactos.append({
-                    'posicao': item.posicao,
-                    'gabarito': item.gabarito,
-                    'resposta_dada': resposta_dada,
-                    'param_a': item.param_a,
-                    'param_b': item.param_b,
-                    'param_c': item.param_c,
-                    'ganho_potencial': nota_mod - nota_original,
-                })
-        
-        impactos.sort(key=lambda x: x['ganho_potencial'], reverse=True)
-        return impactos
-    
     def analisar_todas_questoes(self, ano: int, area: str, co_prova: int,
                                  respostas_str: str, tp_lingua: Optional[int] = None) -> Dict:
         """
         Analisa TODAS as questões da prova (acertos e erros).
-        
+
         Para cada questão retorna:
         - Status (acerto/erro)
         - Ganho potencial (se errasse) ou ganho obtido (se acertou)
         - Dificuldade relativa
         - Parâmetros TRI
-        
+
         Returns:
             Dict com 'nota', 'theta', 'acertos', 'erros' e listas detalhadas
         """
-        itens = self.carregar_itens(ano, area, co_prova, tp_lingua)
-        respostas_bin = self.converter_respostas(respostas_str, itens)
-        
+        itens, respostas_bin, respostas_norm = self._preparar_calculo(
+            ano, area, co_prova, respostas_str, tp_lingua
+        )
+
         theta_original = self.estimar_theta_eap(respostas_bin, itens)
         nota_original = self.transformar_escala(theta_original, ano, area, co_prova)
 
         acertos = []
         erros = []
-        
+
         for idx, (resp, item) in enumerate(zip(respostas_bin, itens)):
             if item.abandonado:
                 continue
-                
-            resposta_dada = respostas_str[idx] if idx < len(respostas_str) else '?'
-            
+
+            resposta_dada = respostas_norm[idx] if idx < len(respostas_norm) else '?'
+
             # Simular o cenário oposto
             respostas_mod = respostas_bin.copy()
             respostas_mod[idx] = 1 - resp  # Inverter acerto/erro

@@ -41,16 +41,6 @@ TIPO_LEGIVEL = {
     "ppl":                "PPL",
 }
 
-STATUS_EMOJI = {
-    "ok":           "✅",
-    "aviso_leve":   "ℹ️",
-    "aviso_forte":  "⚠️",
-    "erro_alto":    "❌",
-    "falhou":       "❌",
-    "nao_calibrado":"❓",
-    "desconhecido": "❓",
-}
-
 STATUS_ORDER = ["ok", "aviso_leve", "aviso_forte", "erro_alto", "falhou", "nao_calibrado", "desconhecido"]
 
 
@@ -162,14 +152,14 @@ def gerar(saida: Path = SAIDA) -> None:
         "O status é derivado do MAE (Erro Absoluto Médio) entre nota calculada e nota oficial,",
         "medido sobre os 10 exemplos reais de cada prova.",
         "",
-        "| Emoji | Status | Critério | Interpretação |",
-        "|-------|--------|----------|---------------|",
-        "| ✅ | `ok` | MAE ≤ 2 pts | Calibração confiável |",
-        "| ℹ️ | `aviso_leve` | 2 < MAE ≤ 5 pts | Boa estimativa, pequena diferença possível |",
-        "| ⚠️ | `aviso_forte` | 5 < MAE ≤ 15 pts | Estimativa com margem maior |",
-        "| ❌ | `erro_alto` | MAE > 15 pts | Calibração ruim — use com cautela |",
-        "| ❌ | `falhou` | Erro na calibração | Coeficientes inválidos ou ausentes |",
-        "| ❓ | `desconhecido` | Sem dados suficientes | Não há exemplos válidos para estimar MAE |",
+        "| Status | Critério | Interpretação |",
+        "|--------|----------|---------------|",
+        "| `ok` | MAE ≤ 2 pts | Calibração confiável |",
+        "| `aviso_leve` | 2 < MAE ≤ 5 pts | Boa estimativa, pequena diferença possível |",
+        "| `aviso_forte` | 5 < MAE ≤ 15 pts | Estimativa com margem maior |",
+        "| `erro_alto` | MAE > 15 pts | Calibração ruim — use com cautela |",
+        "| `falhou` | Erro na calibração | Coeficientes inválidos ou ausentes |",
+        "| `desconhecido` | Sem dados suficientes | Não há exemplos válidos para estimar MAE |",
         "",
         "> **MAE `-`**: prova com status definido pela calibração (`calibrar_com_mapeamento.py`),",
         "> sem coeficientes lineares em `por_prova` (comum em provas de reaplicação e especiais).",
@@ -207,12 +197,11 @@ def gerar(saida: Path = SAIDA) -> None:
         ]
         for (co_prova, area, tipo, cor, n, status, mae_str) in rows:
             tipo_leg = TIPO_LEGIVEL.get(tipo, tipo)
-            emoji    = STATUS_EMOJI.get(status, "❓")
-            md.append(f"| {co_prova} | {area} | {tipo_leg} | {cor} | {n} | {emoji} {status} | {mae_str} |")
+            md.append(f"| {co_prova} | {area} | {tipo_leg} | {cor} | {n} | {status} | {mae_str} |")
         md.append("")
 
     saida.write_text("\n".join(md), encoding="utf-8")
-    print(f"✅ {saida.relative_to(ROOT)} — {total_provas} provas, {total_exemplos} exemplos")
+    print(f"{saida.relative_to(ROOT)} — {total_provas} provas, {total_exemplos} exemplos")
 
 
 if __name__ == "__main__":

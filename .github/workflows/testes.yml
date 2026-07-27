@@ -1,0 +1,32 @@
+name: Testes
+
+# A suite roda offline: os parametros TRI (microdados_limpos/*/ITENS_PROVA_*.csv)
+# e os exemplos com nota oficial (tests/fixtures/) sao versionados, de modo que
+# nao ha download de microdados nem dependencia de dados externos ao repo.
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Instalar dependencias
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt -r requirements-dev.txt
+
+      - name: Rodar a suite
+        run: pytest -q
