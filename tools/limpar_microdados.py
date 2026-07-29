@@ -1,202 +1,175 @@
-"""
-Script para limpar os microdados do ENEM, removendo colunas não essenciais.
-Processa em chunks para evitar erro de memória.
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""Gera extratos locais de participantes e os dados empacotados de itens.
 
-Execute a partir da raiz do projeto:
-    python tools/limpar_microdados.py
+Os extratos são opcionais e servem apenas a investigações legadas. O catálogo
+v3 e o holdout são sempre gerados diretamente dos microdados brutos por
+``recalibrar_validacao.py``.
+
+Exemplo:
+    python tools/limpar_microdados.py \
+      --microdados-dir /caminho/MICRODADOS_ENEM
 """
 
-import pandas as pd
+from __future__ import annotations
+
+import argparse
 import os
+import tempfile
 from pathlib import Path
 
-# Colunas essenciais para cálculo de notas e análise
+import pandas as pd
+
+try:
+    from gerar_dados_itens import gerar_dados_itens
+except ImportError:  # Importado como módulo a partir da raiz do projeto.
+    from tools.gerar_dados_itens import gerar_dados_itens
+
+ANOS = tuple(range(2009, 2026))
+CHUNK_SIZE = 100_000
 COLUNAS_ESSENCIAIS = [
-    'NU_INSCRICAO',
-    'TP_PRESENCA_CN',
-    'TP_PRESENCA_CH',
-    'TP_PRESENCA_LC',
-    'TP_PRESENCA_MT',
-    'CO_PROVA_CN',
-    'CO_PROVA_CH',
-    'CO_PROVA_LC',
-    'CO_PROVA_MT',
-    'NU_NOTA_CN',
-    'NU_NOTA_CH',
-    'NU_NOTA_LC',
-    'NU_NOTA_MT',
-    'TX_RESPOSTAS_CN',
-    'TX_RESPOSTAS_CH',
-    'TX_RESPOSTAS_LC',
-    'TX_RESPOSTAS_MT',
-    'TP_LINGUA',
-    'TP_STATUS_REDACAO',
-    'NU_NOTA_COMP1',
-    'NU_NOTA_COMP2',
-    'NU_NOTA_COMP3',
-    'NU_NOTA_COMP4',
-    'NU_NOTA_COMP5',
-    'NU_NOTA_REDACAO',
+    "NU_INSCRICAO",
+    "NU_SEQUENCIAL",
+    "CO_INSCRICAO",
+    "IN_INSCRICAO",
+    *[f"TP_PRESENCA_{area}" for area in ("CN", "CH", "LC", "MT")],
+    *[f"CO_PROVA_{area}" for area in ("CN", "CH", "LC", "MT")],
+    *[f"NU_NOTA_{area}" for area in ("CN", "CH", "LC", "MT")],
+    *[f"TX_RESPOSTAS_{area}" for area in ("CN", "CH", "LC", "MT")],
+    "TP_LINGUA",
+    "TP_STATUS_REDACAO",
+    *[f"NU_NOTA_COMP{i}" for i in range(1, 6)],
+    "NU_NOTA_REDACAO",
 ]
 
-# Para 2024 - RESULTADOS (usa NU_SEQUENCIAL ao invés de NU_INSCRICAO)
-COLUNAS_RESULTADOS_2024 = [
-    'NU_SEQUENCIAL',
-    'TP_PRESENCA_CN',
-    'TP_PRESENCA_CH',
-    'TP_PRESENCA_LC',
-    'TP_PRESENCA_MT',
-    'CO_PROVA_CN',
-    'CO_PROVA_CH',
-    'CO_PROVA_LC',
-    'CO_PROVA_MT',
-    'NU_NOTA_CN',
-    'NU_NOTA_CH',
-    'NU_NOTA_LC',
-    'NU_NOTA_MT',
-    'TX_RESPOSTAS_CN',
-    'TX_RESPOSTAS_CH',
-    'TX_RESPOSTAS_LC',
-    'TX_RESPOSTAS_MT',
-    'TP_LINGUA',
-    'TP_STATUS_REDACAO',
-    'NU_NOTA_COMP1',
-    'NU_NOTA_COMP2',
-    'NU_NOTA_COMP3',
-    'NU_NOTA_COMP4',
-    'NU_NOTA_COMP5',
-    'NU_NOTA_REDACAO',
-]
 
-CHUNK_SIZE = 100_000  # Processar 100k linhas por vez
+def localizar_participantes(base: Path, ano: int) -> Path:
+    candidatos = (
+        base / f"microdados_enem_{ano}" / "DADOS" / f"RESULTADOS_{ano}.csv",
+        base / f"microdados_enem_{ano}" / "DADOS" / f"MICRODADOS_ENEM_{ano}.csv",
+        base / str(ano) / f"RESULTADOS_{ano}.csv",
+        base / str(ano) / f"MICRODADOS_ENEM_{ano}.csv",
+    )
+    for caminho in candidatos:
+        if caminho.is_file():
+            return caminho
+    raise FileNotFoundError(
+        f"Microdados de participantes de {ano} não encontrados sob {base}"
+    )
 
 
-def limpar_arquivo_chunked(ano, colunas_lista=None):
-    """Limpa arquivo de microdados processando em chunks para evitar OOM"""
-    if colunas_lista is None:
-        colunas_lista = COLUNAS_ESSENCIAIS
-    
-    if ano in (2024, 2025):
-        arquivo_origem = f'microdados/{ano}/RESULTADOS_{ano}.csv'
-        arquivo_destino = f'microdados_limpos/{ano}/DADOS_ENEM_{ano}.csv'
-    else:
-        arquivo_origem = f'microdados/{ano}/MICRODADOS_ENEM_{ano}.csv'
-        arquivo_destino = f'microdados_limpos/{ano}/DADOS_ENEM_{ano}.csv'
-    
-    if not os.path.exists(arquivo_origem):
-        print(f"[falha] Arquivo não encontrado: {arquivo_origem}")
-        return 0, 0
-    
-    print(f"Processando {ano}...")
-    
-    tamanho_original = os.path.getsize(arquivo_origem) / (1024 * 1024)
-    print(f"   Original: {tamanho_original:.2f} MB")
-    
-    # Criar diretório de destino
-    Path(f'microdados_limpos/{ano}').mkdir(parents=True, exist_ok=True)
-    
-    # Ler header para descobrir quais colunas existem
-    df_header = pd.read_csv(arquivo_origem, encoding='latin1', sep=';', nrows=0)
-    colunas_manter = [col for col in colunas_lista if col in df_header.columns]
-    
-    # Processar em chunks
-    primeiro_chunk = True
+def limpar_arquivo_chunked(
+    ano: int,
+    microdados_dir: Path,
+    destino_base: Path,
+    chunk_size: int = CHUNK_SIZE,
+) -> tuple[float, float]:
+    """Publica atomicamente o extrato de participantes de um ano."""
+    origem = localizar_participantes(microdados_dir, ano)
+    destino = destino_base / str(ano) / f"DADOS_ENEM_{ano}.csv"
+    destino.parent.mkdir(parents=True, exist_ok=True)
+    header = pd.read_csv(origem, encoding="latin1", sep=";", nrows=0)
+    colunas = [coluna for coluna in COLUNAS_ESSENCIAIS if coluna in header.columns]
+    obrigatorias = {
+        f"{prefixo}_{area}"
+        for prefixo in ("TP_PRESENCA", "CO_PROVA", "NU_NOTA", "TX_RESPOSTAS")
+        for area in ("CN", "CH", "LC", "MT")
+    }
+    faltantes = sorted(obrigatorias - set(colunas))
+    if faltantes:
+        raise ValueError(f"{origem}: colunas essenciais ausentes: {faltantes}")
+
+    tamanho_original = origem.stat().st_size / (1024 * 1024)
     total_linhas = 0
-    
-    for chunk in pd.read_csv(
-        arquivo_origem, 
-        encoding='latin1', 
-        sep=';', 
-        usecols=colunas_manter,
-        chunksize=CHUNK_SIZE,
-        low_memory=False
-    ):
-        total_linhas += len(chunk)
-        
-        if primeiro_chunk:
-            chunk.to_csv(arquivo_destino, index=False, encoding='utf-8', sep=';', mode='w')
-            primeiro_chunk = False
-        else:
-            chunk.to_csv(arquivo_destino, index=False, encoding='utf-8', sep=';', mode='a', header=False)
-        
-        print(f"   ... {total_linhas:,} linhas processadas", end='\r')
-    
-    tamanho_limpo = os.path.getsize(arquivo_destino) / (1024 * 1024)
-    reducao = ((tamanho_original - tamanho_limpo) / tamanho_original) * 100
-    
-    print(f"   Limpo:    {total_linhas:,} linhas, {len(colunas_manter)} colunas, {tamanho_limpo:.2f} MB")
-    print(f"   [ok] Redução: {reducao:.1f}% ({tamanho_original - tamanho_limpo:.2f} MB economizados)")
-    print()
-    
+    with tempfile.TemporaryDirectory(dir=destino.parent) as temp_nome:
+        temporario = Path(temp_nome) / destino.name
+        primeiro = True
+        for chunk in pd.read_csv(
+            origem,
+            encoding="latin1",
+            sep=";",
+            usecols=colunas,
+            chunksize=chunk_size,
+            low_memory=False,
+        ):
+            total_linhas += len(chunk)
+            chunk.to_csv(
+                temporario,
+                index=False,
+                encoding="utf-8",
+                sep=";",
+                mode="w" if primeiro else "a",
+                header=primeiro,
+                lineterminator="\n",
+            )
+            primeiro = False
+            print(f"  {ano}: {total_linhas:,} linhas", end="\r", flush=True)
+        if primeiro:
+            raise ValueError(f"{origem}: arquivo sem participantes")
+        os.replace(temporario, destino)
+
+    tamanho_limpo = destino.stat().st_size / (1024 * 1024)
+    print(
+        f"  {ano}: {total_linhas:,} linhas, {len(colunas)} colunas, "
+        f"{tamanho_limpo:.2f} MiB"
+    )
     return tamanho_original, tamanho_limpo
 
 
-def copiar_itens_prova():
-    """Copia os arquivos ITENS_PROVA (já são pequenos)"""
-    print("Copiando arquivos ITENS_PROVA...")
-    total = 0
-    for ano in range(2009, 2026):
-        arquivo_origem = f'microdados/{ano}/ITENS_PROVA_{ano}.csv'
-        arquivo_destino = f'microdados_limpos/{ano}/ITENS_PROVA_{ano}.csv'
-        
-        if os.path.exists(arquivo_origem):
-            Path(f'microdados_limpos/{ano}').mkdir(parents=True, exist_ok=True)
-            df = pd.read_csv(arquivo_origem, encoding='latin1', sep=';')
-            df.to_csv(arquivo_destino, index=False, encoding='utf-8', sep=';')
-            total += os.path.getsize(arquivo_destino) / (1024 * 1024)
-    print(f"[ok] Arquivos ITENS_PROVA copiados ({total:.2f} MB total)\n")
-    return total
+def copiar_itens_prova(microdados_dir: Path) -> float:
+    """Delega os 17 anos ao gerador único, validado e atômico de itens."""
+    manifesto = gerar_dados_itens(microdados_dir)
+    total = sum(item["bytes_normalizado"] for item in manifesto["files"])
+    print(
+        f"  {len(manifesto['files'])} arquivos de itens empacotados "
+        f"({total / 1024 / 1024:.2f} MiB)"
+    )
+    return total / (1024 * 1024)
 
 
-def main():
-    print("=" * 70)
-    print("LIMPEZA DE MICRODADOS DO ENEM")
-    print("=" * 70)
-    print()
-    
-    total_original = 0
-    total_limpo = 0
-    
-    # Processar anos 2009-2023
-    for ano in range(2009, 2024):
-        orig, limpo = limpar_arquivo_chunked(ano, COLUNAS_ESSENCIAIS)
-        total_original += orig
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--microdados-dir", required=True, type=Path)
+    parser.add_argument(
+        "--destino-participantes",
+        type=Path,
+        default=Path("microdados_limpos"),
+    )
+    parser.add_argument("--anos", nargs="+", type=int, default=list(ANOS))
+    parser.add_argument("--chunk-size", type=int, default=CHUNK_SIZE)
+    parser.add_argument(
+        "--sem-itens",
+        action="store_true",
+        help="Não regenera os 17 CSVs de itens empacotados.",
+    )
+    args = parser.parse_args()
+    if args.chunk_size <= 0:
+        parser.error("--chunk-size deve ser positivo")
+    anos = sorted(set(args.anos))
+    invalidos = sorted(set(anos) - set(ANOS))
+    if invalidos:
+        parser.error(f"anos fora do intervalo 2009-2025: {invalidos}")
+
+    total_original = 0.0
+    total_limpo = 0.0
+    for ano in anos:
+        original, limpo = limpar_arquivo_chunked(
+            ano,
+            args.microdados_dir,
+            args.destino_participantes,
+            args.chunk_size,
+        )
+        total_original += original
         total_limpo += limpo
-    
-    # Processar 2024 (arquitetura diferente)
-    orig, limpo = limpar_arquivo_chunked(2024, COLUNAS_RESULTADOS_2024)
-    total_original += orig
-    total_limpo += limpo
-    
-    # Processar 2025 (mesma arquitetura de 2024)
-    orig, limpo = limpar_arquivo_chunked(2025, COLUNAS_RESULTADOS_2024)
-    total_original += orig
-    total_limpo += limpo
-    
-    # Copiar ITENS_PROVA
-    itens_total = copiar_itens_prova()
-    total_limpo += itens_total
-    
-    print("=" * 70)
-    print("[ok] LIMPEZA CONCLUÍDA!")
-    print("=" * 70)
-    print()
-    
-    import glob
-    tamanho_total = sum(os.path.getsize(f) for f in glob.glob('microdados_limpos/**/*.csv', recursive=True))
-    tamanho_total_mb = tamanho_total / (1024 * 1024)
-    tamanho_total_gb = tamanho_total / (1024 * 1024 * 1024)
-    
-    print(f"Tamanho original total: {total_original:.2f} MB ({total_original/1024:.2f} GB)")
-    print(f"Tamanho limpo total:    {tamanho_total_mb:.2f} MB ({tamanho_total_gb:.2f} GB)")
-    print(f"Economia total:         {total_original - tamanho_total_mb:.2f} MB")
-    print()
-    
-    if tamanho_total_gb < 5:
-        print("[ok] Os arquivos cabem no limite do GitHub Pro Student (5GB)")
-    else:
-        print("[aviso] Os arquivos ainda excedem 5GB. Considere compressão adicional.")
+    if not args.sem_itens:
+        copiar_itens_prova(args.microdados_dir)
+
+    print(
+        f"[ok] {len(anos)} extratos publicados: {total_limpo:.2f} MiB "
+        f"de {total_original:.2f} MiB."
+    )
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

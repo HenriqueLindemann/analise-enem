@@ -1,19 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Valida exemplos de microdados: compara nota calculada vs nota oficial.
+Valida exemplos auxiliares: compara nota calculada vs nota oficial.
 
-Quando há múltiplos exemplos por CO_PROVA (--n-max > 1 em gerar_exemplos_microdados.py)
-o MAE por prova é muito mais representativo.
-
-Com --atualizar-status, provas com validação divergente do status atual são
-atualizadas em coeficientes_data.json (status e mensagem de aviso).
+O script é somente leitura. O catálogo e seus status são publicados
+atomicamente por ``tools/recalibrar_validacao.py``.
 """
 
 from __future__ import annotations
 
 import argparse
 import json
+import math
 from collections import defaultdict
 from pathlib import Path
 from typing import Dict, List
@@ -24,43 +22,14 @@ _utils.add_src_to_path()
 
 from tri_enem.simulador import SimuladorNota
 
-# Thresholds de classificação (alinhados com calibrar_com_mapeamento.py)
-MAE_OK          = 2.0
-MAE_AVISO_LEVE  = 5.0
-MAE_AVISO_FORTE = 15.0
-
-
-def _classificar_mae(mae: float) -> str:
-    if mae <= MAE_OK:
-        return "ok"
-    if mae <= MAE_AVISO_LEVE:
-        return "aviso_leve"
-    if mae <= MAE_AVISO_FORTE:
-        return "aviso_forte"
-    return "erro_alto"
-
-
-def _mensagem_para_status(status: str, mae: float) -> str | None:
-    """
-    Anotação técnica gravada em coeficientes_data.json.
-
-    Não é texto de interface: a mensagem exibida ao usuário é derivada do MAE
-    em tri_enem.precisao, que é a única fonte de redação voltada ao usuário
-    final. Manter texto de interface aqui foi o que produziu, no passado,
-    redações divergentes entre versões do calibrador.
-    """
-    if status == "ok":
-        return None
-    return f"Status {status} definido por MAE de {mae:.1f} pontos."
-
-
 def validar(
     exemplos_path: Path,
-    microdados_limpos: Path,
-    atualizar_status: bool = False,
-) -> None:
+    itens_path: Path | None = None,
+) -> bool:
     exemplos: List[dict] = json.loads(exemplos_path.read_text(encoding="utf-8"))
-    sim = SimuladorNota(microdados_path=str(microdados_limpos))
+    sim = SimuladorNota(
+        microdados_path=str(itens_path) if itens_path is not None else None
+    )
 
     total = len(exemplos)
     print(f"Total de exemplos: {total}", flush=True)
@@ -69,22 +38,30 @@ def validar(
     diffs_global: List[float] = []
     por_prova: Dict[tuple, List[float]] = defaultdict(list)  # (ano,area,co_prova) -> [|dif|]
     provas_nao_encontradas: Dict[tuple, int] = {}
+    casos_invalidos: List[str] = []
 
     for i, item in enumerate(exemplos, start=1):
         ano      = int(item["ano"])
         area     = item["area"]
         co_prova = int(item["co_prova"])
         tp_lingua = item.get("tp_lingua")
-        lingua    = _utils.lingua_por_tp(tp_lingua)
+        lingua = (
+            _utils.lingua_por_tp(tp_lingua) if area == "LC" else None
+        )
         nota_oficial = _utils.to_float(item["nota_oficial"])
         respostas    = item["respostas"]
+        if not math.isfinite(nota_oficial) or nota_oficial <= 0:
+            casos_invalidos.append(
+                f"{ano}/{area}/{co_prova}: nota oficial {nota_oficial!r}"
+            )
+            continue
 
         try:
             resultado = sim.calcular(
                 area=area,
                 ano=ano,
                 respostas=respostas,
-                lingua=lingua if area == "LC" else "ingles",
+                lingua=lingua,
                 co_prova=co_prova,
             )
         except (KeyError, ValueError) as e:
@@ -110,77 +87,51 @@ def validar(
     print(f"Provas sem dados    : {len(provas_nao_encontradas)}")
 
     # Relatório por prova
-    provas_com_aviso: List[tuple] = []
     print("\n--- MAE por CO_PROVA ---")
-    print(f"{'ANO':<5} {'AREA':<4} {'PROVA':<6} {'N':>3} {'MAE':>6} STATUS")
+    print(f"{'ANO':<5} {'AREA':<4} {'PROVA':<6} {'N':>3} {'MAE':>6}")
     print("-" * 40)
 
     for (ano, area, co_prova), erros in sorted(por_prova.items()):
         mae    = sum(erros) / len(erros)
-        status = _classificar_mae(mae)
-        flag   = "" if status == "ok" else ("[aviso]" if "aviso" in status else "[falha]")
-        print(f"{ano:<5} {area:<4} {co_prova:<6} {len(erros):>3} {mae:>6.2f} {flag} {status}")
-        if status != "ok":
-            provas_com_aviso.append((ano, area, co_prova, mae, status))
+        print(f"{ano:<5} {area:<4} {co_prova:<6} {len(erros):>3} {mae:>6.2f}")
 
     if provas_nao_encontradas:
         print("\n--- Provas não encontradas ---")
         for (ano, area, co_prova), count in sorted(provas_nao_encontradas.items()):
             print(f"  {ano} {area} CO_PROVA {co_prova}: {count} caso(s)")
 
-    # Atualizar status em coeficientes_data.json se solicitado
-    if atualizar_status and por_prova:
-        _atualizar_coeficientes(provas_com_aviso, por_prova)
+    from tri_enem import verificar_precisao_prova
 
+    faltas_inesperadas = []
+    for ano, area, co_prova in provas_nao_encontradas:
+        status = verificar_precisao_prova(ano, area, co_prova)["status"]
+        if status != "sem_itens":
+            faltas_inesperadas.append((ano, area, co_prova))
 
-def _atualizar_coeficientes(
-    provas_com_aviso: List[tuple],
-    por_prova: Dict[tuple, List[float]],
-) -> None:
-    """Atualiza status_provas em coeficientes_data.json com base na validação."""
-    data_path = Path(__file__).resolve().parents[1] / "src" / "tri_enem" / "coeficientes_data.json"
-    if not data_path.exists():
-        print("\n[aviso] coeficientes_data.json não encontrado — status não atualizado.")
-        return
-
-    data = json.loads(data_path.read_text(encoding="utf-8"))
-    status_provas = data.setdefault("status_provas", {})
-    por_prova_coef = data.setdefault("por_prova", {})
-
-    atualizados = 0
+    violacoes_ok = []
     for (ano, area, co_prova), erros in por_prova.items():
-        # Só atualiza se temos amostras suficientes para ter confiança
-        if len(erros) < 3:
-            continue
+        precisao = verificar_precisao_prova(ano, area, co_prova)
+        if precisao["status"] == "ok" and max(erros) > 2.0 + 1e-12:
+            violacoes_ok.append((ano, area, co_prova, max(erros)))
 
-        key       = f"{ano},{area},{co_prova}"
-        mae       = sum(erros) / len(erros)
-        novo_status = _classificar_mae(mae)
-        atual     = status_provas.get(key, {}).get("status", "desconhecido")
-
-        # Só atualiza quando a validação revela problema não registrado
-        # ou quando melhora um status pessimista anterior
-        mudou = novo_status != atual and atual not in ("falhou", "nao_calibrado")
-        if mudou:
-            status_provas[key] = {
-                **status_provas.get(key, {}),
-                "status":   novo_status,
-                "mensagem": _mensagem_para_status(novo_status, mae),
-            }
-            # Atualiza MAE em por_prova apenas se a entrada já existe (preserva slope/intercept)
-            coef_atual = por_prova_coef.get(key)
-            if coef_atual is not None and len(erros) >= (coef_atual.get("n_amostras") or 0):
-                por_prova_coef[key] = {**coef_atual, "mae": mae}
-            atualizados += 1
-            print(f"  Atualizado {key}: {atual} → {novo_status} (MAE={mae:.2f})")
-
-    data_path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(f"\n[ok] {atualizados} status atualizados em {data_path.name}")
+    if casos_invalidos:
+        print("\n[falha] Casos com nota oficial inválida:")
+        for caso in casos_invalidos[:20]:
+            print(f"  {caso}")
+    if faltas_inesperadas:
+        print("\n[falha] Provas puladas sem status sem_itens:")
+        for chave in faltas_inesperadas[:20]:
+            print(f"  {chave}")
+    if violacoes_ok:
+        print("\n[falha] Provas ok com erro individual acima de 2 pontos:")
+        for caso in violacoes_ok[:20]:
+            print(f"  {caso[0]}/{caso[1]}/{caso[2]}: {caso[3]:.2f}")
+    return not (casos_invalidos or faltas_inesperadas or violacoes_ok)
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Comparar notas calculadas vs microdados e (opcionalmente) atualizar status."
+        description="Comparar notas calculadas contra exemplos oficiais."
     )
     parser.add_argument(
         "--exemplos",
@@ -188,27 +139,25 @@ def main() -> None:
         help="Arquivo JSON de exemplos gerado por gerar_exemplos_microdados.py",
     )
     parser.add_argument(
-        "--microdados-limpos", default="microdados_limpos",
-        help="Diretório microdados_limpos",
-    )
-    parser.add_argument(
-        "--atualizar-status", action="store_true",
+        "--itens-path",
+        type=Path,
         help=(
-            "Atualiza status_provas em coeficientes_data.json quando a validação "
-            "diverge da calibração (requer ≥3 exemplos por prova)"
+            "Diretório externo opcional com ITENS_PROVA_<ano>.csv; quando "
+            "omitido, usa os itens incluídos no pacote"
         ),
     )
     args = parser.parse_args()
 
     exemplos_path    = Path(args.exemplos)
-    microdados_limpos = Path(args.microdados_limpos)
-
     if not exemplos_path.exists():
         raise SystemExit(f"Arquivo não encontrado: {exemplos_path}")
-    if not microdados_limpos.exists():
-        raise SystemExit(f"Diretório não encontrado: {microdados_limpos}")
+    if args.itens_path is not None and not args.itens_path.is_dir():
+        raise SystemExit(
+            f"Diretório de itens não encontrado: {args.itens_path}"
+        )
 
-    validar(exemplos_path, microdados_limpos, args.atualizar_status)
+    if not validar(exemplos_path, args.itens_path):
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":

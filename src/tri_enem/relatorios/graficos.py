@@ -54,9 +54,20 @@ def grafico_barras_notas(areas: List[AreaAnalise], largura: float = 6) -> Image:
     Design limpo com cores suaves.
     """
     fig, ax = plt.subplots(figsize=(largura, 1.4))
+
+    if not areas:
+        ax.text(
+            0.5, 0.5, "Sem resultados", ha="center", va="center",
+            color=COR_CINZA,
+        )
+        ax.axis("off")
+        return _fig_para_image(fig, largura)
     
     siglas = [a.sigla for a in areas]
     notas = [a.nota for a in areas]
+    limite_superior = max(
+        1000, int(np.ceil((max(notas) * 1.10) / 100.0) * 100)
+    )
     
     # Cores baseadas na nota - gradiente suave
     cores = []
@@ -81,8 +92,8 @@ def grafico_barras_notas(areas: List[AreaAnalise], largura: float = 6) -> Image:
     # Labels - fonte limpa
     ax.set_yticks(y_pos)
     ax.set_yticklabels(siglas, fontsize=9, fontweight='medium', color='#2C3E50')
-    ax.set_xlim(0, 1000)
-    ax.set_xticks([0, 500, 700, 1000])
+    ax.set_xlim(0, limite_superior)
+    ax.set_xticks(sorted({0, 500, 700, 1000, limite_superior}))
     ax.tick_params(axis='x', labelsize=7, colors=COR_CINZA)
     
     # Valores nas barras - discretos

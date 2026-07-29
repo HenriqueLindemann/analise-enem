@@ -14,11 +14,14 @@ from typing import Dict, List
 #                         INFORMAÇÕES DO PROJETO
 # ============================================================================
 
-APP_VERSION = "27/07/2026"
+APP_VERSION = "29/07/2026"
 APP_AUTHOR = "Henrique Lindemann"
 APP_AUTHOR_URL = "https://www.linkedin.com/in/henriquelindemann/"
 APP_GITHUB_URL = "https://github.com/HenriqueLindemann/analise-enem"
 APP_ISSUES_URL = f"{APP_GITHUB_URL}/issues"
+APP_VALIDATION_REPORT_URL = (
+    f"{APP_GITHUB_URL}/blob/master/docs/VALIDATION_REPORT.md"
+)
 APP_CANONICAL_URL = "https://notatri.com"
 
 # ============================================================================
@@ -35,7 +38,7 @@ class SEOConfig:
     # Descrição (máx 160 caracteres para Google)
     meta_description: str = (
         "Calculadora Nota TRI ENEM - Calcule sua nota do ENEM online e grátis. "
-        "Método TRI oficial usado pelo INEP. Gabaritos de 2009 a 2025. "
+        "Estimativa TRI validada em microdados oficiais. Gabaritos de 2009 a 2025. "
         "Análise detalhada por área."
     )
     
@@ -104,18 +107,20 @@ ORDEM_CORES: List[str] = ['azul', 'amarela', 'rosa', 'cinza', 'branca', 'verde',
 #                         TEXTOS DA INTERFACE
 # ============================================================================
 
-TEXTO_SOBRE = """
-O cálculo usa **Teoria de Resposta ao Item (TRI)**, 
-o mesmo método usado pelo INEP.
+TEXTO_SOBRE = f"""
+O cálculo é uma **estimativa por Teoria de Resposta ao Item (TRI)**,
+verificada contra notas oficiais dos microdados do INEP.
 
 **Características:**
 - Modelo Logístico de 3 Parâmetros (ML3)
 - Estimação EAP (Expected a Posteriori)
 - Coeficientes de equalização calibrados
 
-**Precisão:**
-- Erro típico < 1 ponto para provas calibradas
-- Pode haver diferenças em provas não calibradas
+**Validação:**
+- Cada prova é conferida em holdout de participantes reais
+- A interface mostra erro médio e maior diferença observada
+
+[Consulte o relatório técnico completo, com métricas e erros por prova]({APP_VALIDATION_REPORT_URL})
 """
 
 TEXTO_FOOTER = f"""
@@ -129,7 +134,7 @@ TEXTO_FOOTER = f"""
         Este projeto é <strong>gratuito</strong> e de <strong>uso livre</strong> para estudantes, professores e pesquisadores. Uso comercial requer autorização.
     </p>
     <p style="font-size: 0.8rem; color: #888;">
-        Cálculo aproximado usando Teoria de Resposta ao Item (TRI) - erro típico &lt; 1 ponto para provas calibradas
+        Estimativa TRI validada em microdados oficiais; a precisão é informada por prova
     </p>
 </div>
 
@@ -150,8 +155,8 @@ TEXTO_FOOTER = f"""
 TEXTO_ABOUT_MENU = f"""
 # Calculadora Nota TRI ENEM
 
-Calcule sua nota real do ENEM usando **Teoria de Resposta ao Item (TRI)** - 
-o mesmo método oficial usado pelo INEP/MEC.
+Estime sua nota do ENEM usando **Teoria de Resposta ao Item (TRI)**,
+com precisão verificada por prova em microdados oficiais do INEP.
 
 Ferramenta gratuita para estudantes, professores e pesquisadores.
 

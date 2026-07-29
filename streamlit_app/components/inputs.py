@@ -8,7 +8,7 @@ import streamlit as st
 from st_keyup import st_keyup
 from typing import Dict, List, Tuple, Optional
 import html
-from config import AREAS_ENEM, ORDEM_AREAS
+from ..config import AREAS_ENEM, ORDEM_AREAS
 
 
 TOTAL_RESPOSTAS = 45

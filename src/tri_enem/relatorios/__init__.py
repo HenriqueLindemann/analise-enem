@@ -26,7 +26,7 @@ Uso básico:
 from .gerador import RelatorioPDF
 from .base import RelatorioBase, DadosRelatorio, AreaAnalise, QuestaoAnalise
 # Re-exportar do pacote principal para compatibilidade
-from ..precisao import verificar_precisao_prova
+from ..precisao import formatar_resumo_validacao, verificar_precisao_prova
 
 __all__ = [
     'RelatorioPDF',
@@ -35,4 +35,5 @@ __all__ = [
     'AreaAnalise',
     'QuestaoAnalise',
     'verificar_precisao_prova',
+    'formatar_resumo_validacao',
 ]

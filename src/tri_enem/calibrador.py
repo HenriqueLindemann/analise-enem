@@ -3,8 +3,8 @@
 """
 Calibrador de Coeficientes TRI
 
-Ferramenta para descobrir os coeficientes de equalização usados pelo INEP
-para cada ano/área/prova através de regressão linear.
+Ferramenta legada para ajustar um baseline linear empírico por
+ano/área/prova através de regressão.
 """
 
 import pandas as pd
@@ -17,18 +17,37 @@ from .calculador import CalculadorTRI
 
 class Calibrador:
     """
-    Descobre os coeficientes de equalização usados pelo INEP.
-    
-    O INEP transforma theta em nota usando:
+    Ajusta coeficientes lineares aos pares theta/nota dos microdados.
+
+    O baseline usa:
         nota = slope * theta + intercept
     
     Esta classe encontra (slope, intercept) via regressão nos microdados.
     Suporta calibração por prova individual ou por área (todas as provas).
     """
     
-    def __init__(self, microdados_path: str = None):
-        self.calc = CalculadorTRI(microdados_path)
-        self.base_path = Path(microdados_path or "microdados_limpos")
+    def __init__(
+        self,
+        participantes_path: str = None,
+        itens_path: str = None,
+        **kwargs,
+    ):
+        """Cria calibrador com fontes de participantes e itens independentes.
+
+        ``microdados_path`` é aceito como alias legado de
+        ``participantes_path``. Os parâmetros de itens usam o pacote por padrão.
+        """
+        legado = kwargs.pop("microdados_path", None)
+        if kwargs:
+            raise TypeError(f"Argumentos desconhecidos: {sorted(kwargs)}")
+        if participantes_path is None:
+            participantes_path = legado
+        elif legado is not None:
+            raise TypeError(
+                "Use apenas participantes_path; microdados_path é um alias legado"
+            )
+        self.calc = CalculadorTRI(itens_path)
+        self.base_path = Path(participantes_path or "microdados_limpos")
         self._cache_dados: Dict[tuple, pd.DataFrame] = {}
 
     def _localizar_arquivo(self, ano: int) -> Path:

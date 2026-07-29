@@ -21,7 +21,9 @@ Este e o modulo principal para calculo de notas do ENEM usando TRI.
 from tri_enem import SimuladorNota
 
 sim = SimuladorNota()
-resultado = sim.calcular('MT', 2023, 'ABCDE...')  # 45 respostas
+resultado = sim.calcular(
+    'MT', 2023, 'ABCDE...', co_prova=1211
+)  # 45 respostas
 print(f"Nota: {resultado.nota:.1f}")
 ```
 

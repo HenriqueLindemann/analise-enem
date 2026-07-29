@@ -7,14 +7,16 @@ Scripts para validar a precisão do cálculo TRI contra os microdados reais do E
 ```bash
 # Pipeline completo (requer microdados brutos do INEP)
 python tests/run_full_validation.py \
-  --microdados-dir /caminho/para/microdados \
-  --microdados-limpos microdados_limpos
+  --microdados-dir /caminho/para/MICRODADOS_ENEM
 
-# Pular geração se os exemplos já existem
-python tests/run_full_validation.py --skip-gerar
+# Revalidar catálogo/holdout já publicados sem reler 47 GB
+python tests/run_full_validation.py \
+  --microdados-dir /caminho/para/MICRODADOS_ENEM \
+  --somente-validar
 
-# Também atualiza o status em coeficientes_data.json (requer ≥3 exemplos por prova)
-python tests/run_full_validation.py --atualizar-status
+# Catálogo v3 e holdout estratificado (fluxo de publicação)
+python tools/recalibrar_validacao.py \
+  --microdados-dir /caminho/para/MICRODADOS_ENEM
 
 # Só testes unitários (sem microdados)
 pytest tests/ -v
@@ -27,7 +29,7 @@ quanto a estrutura de download do INEP (`microdados_enem_YYYY/DADOS/RESULTADOS_Y
 
 | Arquivo | Descrição |
 |---------|-----------|
-| `run_full_validation.py` | Pipeline completo de validação (orquestra os 3 passos abaixo) |
+| `run_full_validation.py` | Pipeline canônico: itens, recalibração, holdout e pytest |
 | `gerar_exemplos_microdados.py` | Extrai até N exemplos por CO_PROVA dos microdados brutos |
 | `validar_exemplos_microdados.py` | Compara notas calculadas vs oficiais; MAE por prova e global |
 | `gerar_provas_problematicas.py` | Gera relatório Markdown de provas com erro acima do limite |
@@ -44,7 +46,8 @@ quanto a estrutura de download do INEP (`microdados_enem_YYYY/DADOS/RESULTADOS_Y
 ## Pré-requisitos
 
 - Microdados brutos do INEP — arquivos originais por ano (para gerar exemplos)
-- `microdados_limpos/` — dados processados por ano (para cálculo TRI)
+- `src/tri_enem/data/itens/` — parâmetros de itens usados no cálculo e no wheel
+- `microdados_limpos/` — amostras locais de participantes para ferramentas legadas
 - `src/tri_enem/mapeamento_provas.yaml` — mapeamento de códigos
 
 Os microdados brutos do INEP estão disponíveis em
@@ -55,10 +58,11 @@ Os microdados brutos do INEP estão disponíveis em
 | Arquivo | Commitado | Descrição |
 |---------|-----------|-----------|
 | `fixtures/exemplos_microdados.json` | Sim | Exemplos extraídos dos microdados (10 por CO_PROVA) |
+| `fixtures/validation_holdout.jsonl.gz` | Sim | Holdout estratificado sem identificadores pessoais |
+| `fixtures/validation_manifest.json` | Sim | Origem, hashes, cobertura e versão da amostragem |
 | `fixtures/golden_notas.json` | Sim | Valores de referência de nota e theta usados na regressão |
-| `fixtures/codigos_presentes.json` | Sim | Cache de CO_PROVAs presentes nos arquivos `ITENS_PROVA_*` |
-| `fixtures/provas_validacao.md` | Sim | Índice legível de todas as provas (nome + status + MAE) |
-| `fixtures/gerar_provas_validacao.py` | Sim | Script que regera `provas_validacao.md` |
+| `fixtures/codigos_presentes.json` | Sim | Cache legado de CO_PROVAs presentes nos dados de participantes |
+| `../docs/VALIDATION_REPORT.md` | Sim | Relatório gerado do mesmo catálogo e manifesto do holdout |
 | `provas_problematicas.md` | Não | Relatório transitório de provas com erro alto |
 
 Os arquivos commitados em `fixtures/` permitem rodar `pytest` e consultar o
@@ -66,27 +70,29 @@ mapeamento de provas sem precisar dos microdados brutos do INEP.
 
 ## Pipeline Completo
 
+O pipeline de publicação é `tools/recalibrar_validacao.py`. Ele substitui os
+artefatos de forma atômica e deve ser seguido por:
+
+```bash
+python tests/validar_holdout.py
+pytest -q
 ```
-run_full_validation.py
-    │
-    ├─► gerar_exemplos_microdados.py  ──► fixtures/exemplos_microdados.json
-    │        (até 10 exemplos por CO_PROVA; suporta estruturas de download do INEP)
-    │
-    ├─► validar_exemplos_microdados.py ──► MAE global + MAE por prova no console
-    │        (--atualizar-status → atualiza coeficientes_data.json quando diverge)
-    │
-    └─► gerar_provas_problematicas.py ──► provas_problematicas.md
+
+```text
+tools/recalibrar_validacao.py
+    ├─► src/tri_enem/coeficientes_data.json
+    ├─► tests/fixtures/validation_holdout.jsonl.gz
+    ├─► tests/fixtures/validation_manifest.json
+    └─► docs/VALIDATION_REPORT.md
 ```
 
 ## Como o status em runtime é atualizado
 
-A fonte única de verdade é `src/tri_enem/coeficientes_data.json`, lido por `precisao.py`:
-
-```
-tools/calibrar_com_mapeamento.py  → coeficientes_data.json (por_prova + status_provas)
-                                         ↑
-tests/validar_exemplos_microdados.py  (--atualizar-status, quando validação diverge)
-```
+A fonte única de verdade é a entrada de cada prova em
+`src/tri_enem/coeficientes_data.json` (schema v3), lida por `precisao.py`.
+Modelo, métricas e status são publicados juntos; não existe `status_provas`
+paralelo. `tests/validar_holdout.py` recalcula as métricas sem modificar o
+catálogo.
 
 ## Execução Individual
 
@@ -97,10 +103,9 @@ python tests/gerar_exemplos_microdados.py \
   --microdados-limpos microdados_limpos \
   --n-max 10
 
-# Validar e atualizar status
+# Validar exemplos auxiliares (somente leitura no schema v3)
 python tests/validar_exemplos_microdados.py \
-  --exemplos tests/fixtures/exemplos_microdados.json \
-  --atualizar-status
+  --exemplos tests/fixtures/exemplos_microdados.json
 
 # Gerar relatório de provas problemáticas
 python tests/gerar_provas_problematicas.py \
@@ -113,16 +118,20 @@ pytest tests/ -v
 # Validação por amostragem (todos os anos, estratificada por faixa de nota)
 python tests/validar_todos_anos.py
 
-# Regenerar índice de provas (após novo ciclo de validação)
-python tests/fixtures/gerar_provas_validacao.py
+# Recalcular o holdout publicado
+python tests/validar_holdout.py
 ```
 
 ## Resultados Esperados
 
 | Métrica | Esperado |
 |---------|----------|
-| MAE global | < 1 ponto |
-| R² por prova calibrada | > 0.999 |
+| Prova `ok` | erro máximo individual ≤ 2 pontos |
+| Cobertura | todas as provas mapeadas catalogadas |
+| Integridade | nenhum caso pulado sem motivo explícito |
+| Apresentação | confirmação positiva, perfil intermediário ou cautela forte |
 
-Provas da 1ª aplicação (2018+) têm maior precisão. Provas especiais (PPL, Libras,
-provas digitais LC 2020) podem ter erros maiores e estão marcadas em `status_provas`.
+O status de cada prova é derivado do maior erro absoluto do holdout e aparece
+na própria entrada da prova no catálogo v3. O perfil intermediário descreve o
+desempenho típico sem alterar o status estrito nem promover a prova a
+`confiavel=True`.

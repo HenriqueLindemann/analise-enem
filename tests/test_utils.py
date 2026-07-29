@@ -7,6 +7,7 @@ Execute com: python -m pytest tests/test_utils.py -v
 """
 
 import json
+import math
 import tempfile
 from pathlib import Path
 
@@ -31,10 +32,10 @@ class TestLinguaPorTp:
         assert _utils.lingua_por_tp("1") == "espanhol"
         assert _utils.lingua_por_tp(" 1 ") == "espanhol"
 
-    def test_outros_valores_retornam_espanhol(self):
-        """Qualquer valor diferente de 0 deve retornar espanhol."""
-        assert _utils.lingua_por_tp(2) == "espanhol"
-        assert _utils.lingua_por_tp("abc") == "espanhol"
+    @pytest.mark.parametrize("valor", [2, "abc", "", -1])
+    def test_outros_valores_sao_rejeitados(self, valor):
+        with pytest.raises(ValueError, match="TP_LINGUA inválido"):
+            _utils.lingua_por_tp(valor)
 
 
 class TestToFloat:
@@ -52,6 +53,20 @@ class TestToFloat:
 
     def test_float_nativo(self):
         assert _utils.to_float(123.45) == 123.45
+
+
+def test_fixture_microdados_nao_contem_notas_oficiais_invalidas():
+    fixture = Path(__file__).parent / "fixtures" / "exemplos_microdados.json"
+    casos = json.loads(fixture.read_text(encoding="utf-8"))
+
+    invalidos = [
+        caso
+        for caso in casos
+        if not math.isfinite(_utils.to_float(caso["nota_oficial"]))
+        or _utils.to_float(caso["nota_oficial"]) <= 0
+    ]
+
+    assert invalidos == []
 
 
 class TestAddSrcToPath:

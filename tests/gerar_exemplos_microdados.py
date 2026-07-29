@@ -15,7 +15,9 @@ from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
 import json
+import math
 import re
 from pathlib import Path
 from typing import Dict, List, Optional, Set
@@ -24,7 +26,7 @@ import _utils
 
 _utils.add_src_to_path()
 
-from tri_enem import MapeadorProvas
+from tri_enem import CalculadorTRI, MapeadorProvas
 
 # Número máximo de exemplos por CO_PROVA (aumentar dá MAE mais estável)
 N_MAX_POR_PROVA = 10
@@ -43,12 +45,29 @@ def _col_idx(header: List[str]) -> Dict[str, int]:
     return {name: i for i, name in enumerate(header)}
 
 
-def _cor_por_codigo(mapeador: MapeadorProvas, codigo: str) -> Optional[str]:
+def _cor_por_codigo(
+    mapeador: MapeadorProvas,
+    ano: int,
+    area: str,
+    codigo: str,
+) -> Optional[str]:
     if not codigo:
         return None
     try:
-        info = mapeador.descobrir_prova_por_codigo(int(codigo))
-        return info.cor if info else None
+        candidatos = [
+            prova
+            for prova in mapeador.listar_todas_provas(int(ano))
+            if prova.area.upper() == area.upper()
+            and int(prova.codigo) == int(codigo)
+        ]
+        candidatos.sort(
+            key=lambda prova: (
+                prova.tipo_aplicacao.lower() == "especiais",
+                prova.tipo_aplicacao,
+                prova.cor,
+            )
+        )
+        return candidatos[0].cor if candidatos else None
     except Exception:
         return None
 
@@ -156,23 +175,28 @@ def _carregar_codigos_presentes(microdados_limpos_dir: Path) -> Set[str]:
     return codigos
 
 
-def _carregar_alvos(microdados_limpos_dir: Path) -> Set[str]:
-    alvos_mapeamento = _utils.listar_chaves_mapeamento(_utils.MAPEAMENTO_PATH, "codigo")
-    if not alvos_mapeamento:
-        print("Aviso: mapeamento vazio. Usando codigos presentes.", flush=True)
-        return _carregar_codigos_presentes(microdados_limpos_dir)
-
-    presentes = _carregar_codigos_presentes(microdados_limpos_dir)
-    if presentes:
-        alvos = alvos_mapeamento.intersection(presentes)
-        faltantes = alvos_mapeamento.difference(presentes)
-        print(
-            f"Mapeamento: {len(alvos_mapeamento)} | presentes: {len(presentes)} | "
-            f"alvos: {len(alvos)} | faltantes: {len(faltantes)}",
-            flush=True,
-        )
-        return alvos
-    return alvos_mapeamento
+def _carregar_alvos(_: Path) -> Set[tuple[int, str, str]]:
+    """Interseção exata entre mapeamento e parâmetros de itens utilizáveis."""
+    mapeados = _utils.listar_chaves_mapeamento(
+        _utils.MAPEAMENTO_PATH, "ano-area-codigo"
+    )
+    calc = CalculadorTRI()
+    alvos: Set[tuple[int, str, str]] = set()
+    for ano, area, codigo in sorted(mapeados):
+        linguas = (0, 1) if area == "LC" and ano != 2009 else (None,)
+        for lingua in linguas:
+            try:
+                if len(calc.carregar_itens(ano, area, int(codigo), lingua)) == 45:
+                    alvos.add((ano, area, str(codigo)))
+                    break
+            except (FileNotFoundError, KeyError, ValueError):
+                continue
+    print(
+        f"Mapeamento: {len(mapeados)} | com itens utilizáveis: {len(alvos)} | "
+        f"sem itens: {len(mapeados - alvos)}",
+        flush=True,
+    )
+    return alvos
 
 
 def gerar_exemplos(
@@ -183,10 +207,10 @@ def gerar_exemplos(
 ) -> None:
     mapeador = MapeadorProvas()
     resultados: List[dict] = []
-    contagens: Dict[str, int] = {}   # co_prova -> número de exemplos já coletados
+    contagens: Dict[tuple, int] = {}
     total_registros = 0
     total_codigos: Set[int] = set()
-    completos: Set[str] = set()
+    completos: Set[tuple] = set()
     alvos = _carregar_alvos(microdados_limpos_dir)
     total_alvos = len(alvos)
     parar = False
@@ -240,11 +264,12 @@ def gerar_exemplos(
 
                 for area in ["CN", "CH", "LC", "MT"]:
                     co_prova = row[idx[f"CO_PROVA_{area}"]].strip()
-                    if not _is_valid(co_prova) or co_prova not in alvos:
+                    chave = (ano, area, co_prova)
+                    if not _is_valid(co_prova) or chave not in alvos:
                         continue
 
                     # Já atingiu o limite para esta prova?
-                    if contagens.get(co_prova, 0) >= n_max:
+                    if contagens.get(chave, 0) >= n_max:
                         continue
 
                     if f"TP_PRESENCA_{area}" in idx:
@@ -255,15 +280,26 @@ def gerar_exemplos(
                     respostas = row[idx[f"TX_RESPOSTAS_{area}"]]
                     if not _is_valid(nota) or not _is_valid(respostas):
                         continue
+                    try:
+                        nota_num = float(nota.replace(",", "."))
+                    except ValueError:
+                        continue
+                    if not math.isfinite(nota_num) or nota_num <= 0:
+                        continue
+
+                    case_id = hashlib.sha256(
+                        f"{ano}|{area}|{co_prova}|{row[idx[id_col]]}".encode()
+                    ).hexdigest()[:24]
 
                     registro = {
                         "ano":          ano,
-                        "id_col":       id_col,
-                        "id":           row[idx[id_col]],
+                        "case_id":      case_id,
                         "area":         area,
                         "tp_lingua":    row[idx["TP_LINGUA"]] if "TP_LINGUA" in idx else None,
                         "co_prova":     co_prova,
-                        "cor_prova":    _cor_por_codigo(mapeador, co_prova),
+                        "cor_prova":    _cor_por_codigo(
+                            mapeador, ano, area, co_prova
+                        ),
                         "nota_oficial": nota,
                         "respostas":    respostas,
                         "len_respostas": len(respostas),
@@ -271,7 +307,7 @@ def gerar_exemplos(
                     }
                     resultados.append(registro)
                     # FIX: incrementar contador em vez de resetar para 1
-                    contagens[co_prova] = contagens.get(co_prova, 0) + 1
+                    contagens[chave] = contagens.get(chave, 0) + 1
                     registros_ano += 1
                     total_registros += 1
                     try:
@@ -280,8 +316,8 @@ def gerar_exemplos(
                     except ValueError:
                         pass
 
-                    if contagens[co_prova] >= n_max:
-                        completos.add(co_prova)
+                    if contagens[chave] >= n_max:
+                        completos.add(chave)
 
                 if len(completos) == total_alvos:
                     print("Todos os alvos cobertos. Encerrando leitura.", flush=True)
@@ -313,7 +349,7 @@ def gerar_exemplos(
     if faltantes:
         print(
             "  Faltantes (primeiros 20): "
-            + ", ".join(sorted(faltantes)[:20]),
+            + ", ".join(f"{a}/{b}/{c}" for a, b, c in sorted(faltantes)[:20]),
             flush=True,
         )
 
@@ -349,8 +385,6 @@ def main() -> None:
 
     if not microdados_dir.exists():
         raise SystemExit(f"Diretório não encontrado: {microdados_dir}")
-    if not microdados_limpos.exists():
-        raise SystemExit(f"Diretório não encontrado: {microdados_limpos}")
     if not _utils.MAPEAMENTO_PATH.exists():
         raise SystemExit(f"Arquivo não encontrado: {_utils.MAPEAMENTO_PATH}")
 

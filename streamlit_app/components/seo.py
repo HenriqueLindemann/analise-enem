@@ -153,7 +153,7 @@ def gerar_schema_json_ld(
                 "name": "Como calcular minha nota do ENEM usando TRI?",
                 "acceptedAnswer": {
                     "@type": "Answer",
-                    "text": "Selecione o ano da prova, digite suas 45 respostas para cada área (Linguagens, Humanas, Natureza e Matemática), e clique em Calcular. A calculadora usa o mesmo método TRI oficial do INEP."
+                    "text": "Selecione o ano e a prova, digite suas 45 respostas e clique em Calcular. A estimativa TRI informa a precisão medida em microdados oficiais."
                 }
             },
             {
@@ -161,7 +161,7 @@ def gerar_schema_json_ld(
                 "name": "O que é TRI - Teoria de Resposta ao Item?",
                 "acceptedAnswer": {
                     "@type": "Answer",
-                    "text": "TRI é o método estatístico usado pelo INEP para calcular as notas do ENEM. Diferente de uma correção simples, a TRI considera a dificuldade de cada questão e a coerência das respostas do candidato."
+                    "text": "A TRI modela a probabilidade de acerto a partir dos parâmetros dos itens. Esta calculadora produz uma estimativa e publica sua validação contra notas oficiais."
                 }
             },
             {
@@ -233,14 +233,14 @@ def gerar_noscript_seo() -> str:
     <div style="padding: 20px; font-family: Arial, sans-serif;">
         <h1>Calculadora Nota TRI ENEM - Calcule sua Nota Online Grátis</h1>
         <p>
-            Esta é uma calculadora gratuita para calcular sua nota do ENEM 
-            usando Teoria de Resposta ao Item (TRI), o mesmo método oficial 
-            usado pelo INEP/MEC.
+            Esta calculadora gratuita produz uma estimativa da nota do ENEM
+            usando Teoria de Resposta ao Item (TRI), com validação por prova
+            em microdados oficiais.
         </p>
         <h2>Funcionalidades:</h2>
         <ul>
             <li>Suporte a provas de 2009 a 2025</li>
-            <li>Cálculo TRI preciso com erro típico menor que 1 ponto</li>
+            <li>Precisão informada com erro médio e maior diferença por prova</li>
             <li>Análise detalhada de cada questão</li>
             <li>Gráficos de impacto por questão</li>
             <li>Relatório PDF para download</li>

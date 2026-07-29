@@ -168,11 +168,22 @@ class TestFluxoCompleto:
         resultado = [r for r in at.session_state["resultados"]
                      if r["sigla"] == "MT"][0]
         assert resultado["co_prova"] == co_prova
+        resumo = resultado["resumo_validacao"]
+        assert "erro médio" in resumo
+        assert "maior diferença" in resumo
+        assert "MAE" not in resumo
+        assert "p95" not in resumo
+        assert "aviso_forte" not in resumo
         if tem_alerta:
             assert resultado["severidade_precisao"] == "alerta"
             assert len(at.error) == 1
         else:
-            assert resultado["aviso_precisao"] is None
+            assert "boa calibração" in resultado["aviso_precisao"].lower()
+            assert resultado["severidade_precisao"] == "sucesso"
+            assert any(
+                "boa calibração" in mensagem.value.lower()
+                for mensagem in at.success
+            )
             assert len(at.error) == 0
 
     def test_calcular_sem_respostas_avisa_e_nao_quebra(self):

@@ -71,7 +71,7 @@ def validar_respostas(respostas, nome):
     if len(respostas) != 45:
         print(f"ERRO: {nome} deve ter 45 respostas, tem {len(respostas)}")
         return False
-    invalidas = [c for c in respostas.upper() if c not in 'ABCDE.']
+    invalidas = [c for c in respostas.upper() if c not in 'ABCDE.*']
     if invalidas:
         print(f"ERRO: {nome} tem caracteres invalidos: {set(invalidas)}")
         return False
@@ -88,18 +88,25 @@ def calcular_e_analisar(calc, area, ano, respostas, lingua=None, co_prova=None, 
             mapeador = MapeadorProvas()
             co_prova = mapeador.obter_codigo(ano, area, tipo_aplicacao, cor_prova)
         
-        tp_lingua = 0 if lingua == 'ingles' else 1 if area == 'LC' else None
+        if area == "LC":
+            lingua_norm = str(lingua or "").strip().lower()
+            if lingua_norm in {"ingles", "inglês"}:
+                tp_lingua = 0
+            elif lingua_norm in {"espanhol", "español"}:
+                tp_lingua = 1
+            else:
+                raise ValueError("Para LC, informe LINGUA='ingles' ou 'espanhol'")
+        else:
+            tp_lingua = None
         analise = calc.analisar_todas_questoes(ano, area, co_prova, respostas, tp_lingua)
         
-        # Verificar precisão da prova
-        aviso = None
-        try:
-            from tri_enem.relatorios import verificar_precisao_prova
-            precisao = verificar_precisao_prova(ano, area, co_prova)
-            if precisao.get('aviso'):
-                aviso = precisao['aviso']
-        except:
-            pass
+        # Falhas inesperadas desta camada chegam ao tratamento externo, que
+        # mostra a causa no CLI em vez de ocultá-la.
+        from tri_enem.relatorios import (
+            formatar_resumo_validacao,
+            verificar_precisao_prova,
+        )
+        precisao = verificar_precisao_prova(ano, area, co_prova)
         
         return {
             'sigla': area,
@@ -114,7 +121,16 @@ def calcular_e_analisar(calc, area, ano, respostas, lingua=None, co_prova=None, 
             'questoes_erradas': analise['erros'],
             'lingua': lingua if area == 'LC' else None,
             'cor_prova': cor_prova,
-            'aviso_precisao': aviso,
+            'aviso_precisao': precisao.get("aviso"),
+            'severidade_precisao': precisao.get("severidade"),
+            'status_precisao': precisao.get("status"),
+            'perfil_precisao': precisao.get("perfil"),
+            'n_validacao': precisao.get("n_validacao"),
+            'mae_validacao': precisao.get("mae"),
+            'erro_p95': precisao.get("erro_p95"),
+            'erro_maximo': precisao.get("erro_maximo"),
+            'n_acima_2': precisao.get("n_acima_2"),
+            'resumo_validacao': formatar_resumo_validacao(precisao),
         }
     except Exception as e:
         print(f"Erro ao calcular {area}: {e}")
@@ -227,6 +243,8 @@ def main():
             resultados.append(res)
             notas[sigla] = res['nota']
             print(f"{nome:.<35} {res['nota']:>6.1f} pts ({res['acertos']}/{res['total_itens']})")
+            if res.get("resumo_validacao"):
+                print(f"  {sigla}: {res['resumo_validacao']}")
             if res.get('aviso_precisao'):
                 avisos.append(f"  {sigla}: {res['aviso_precisao']}")
     
@@ -234,10 +252,11 @@ def main():
         print("-" * 60)
         print(f"{'MÉDIA':.<35} {sum(notas.values())/len(notas):>6.1f} pts")
     
-    # Mostrar avisos de precisão
+    # Mostrar mensagens de validação, inclusive a confirmação positiva das
+    # provas com boa calibração.
     if avisos:
         print("\n" + "-" * 60)
-        print("AVISOS DE PRECISAO:")
+        print("VALIDACAO DAS PROVAS:")
         print("-" * 60)
         for aviso in avisos:
             print(aviso)
@@ -258,7 +277,7 @@ def main():
             print(f"Relatorio salvo: {caminho}")
     
     print("\n" + "=" * 60)
-    print("Cálculo aproximado - erro típico < 1 ponto para provas calibradas")
+    print("Nota estimada com TRI e verificada contra microdados oficiais")
     print("Contribua: github.com/HenriqueLindemann/analise-enem")
     print("=" * 60 + "\n")
 

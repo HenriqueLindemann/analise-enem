@@ -12,16 +12,17 @@
 # =============================================================================
 
 [build-system]
-requires = ["setuptools>=64"]
+requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "tri-enem"
-version = "3.0.0"  # espelha src/tri_enem/__init__.py:__version__
+version = "4.0.0"  # espelha src/tri_enem/__init__.py:__version__
 description = "Calculadora de nota TRI do ENEM (2009-2025) por Teoria de Resposta ao Item"
 readme = "README.md"
 requires-python = ">=3.9"
-license = { text = "PolyForm-Noncommercial-1.0.0" }
+license = "PolyForm-Noncommercial-1.0.0"
+license-files = ["LICENSE", "NOTICE"]
 authors = [{ name = "Henrique Lindemann" }]
 
 # As dependencias sao lidas dos requirements.txt, que continuam sendo a fonte
@@ -46,7 +47,7 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 # Dados essenciais empacotados junto com o modulo
-tri_enem = ["*.yaml", "*.json"]
+tri_enem = ["*.yaml", "*.json", "data/itens/manifest.json", "data/itens/*/*.csv"]
 
 # --- Configuracao do pytest -------------------------------------------------
 # Coleta apenas os testes reais (test_*.py); os scripts de validacao em

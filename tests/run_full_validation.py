@@ -1,27 +1,6 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Pipeline Completo de Validação do Calculador TRI
-
-Este script executa o fluxo completo de validação:
-1. Gera exemplos de microdados (1 por CO_PROVA)
-2. Valida as notas calculadas contra as oficiais
-3. Gera relatório de provas problemáticas
-
-Uso:
-    python tests/run_full_validation.py
-
-Requisitos:
-    - Diretório microdados/ com arquivos originais
-    - Diretório microdados_limpos/ com dados processados
-    - Arquivo src/tri_enem/mapeamento_provas.yaml
-
-Saídas:
-    - tests/fixtures/exemplos_microdados.json
-    - tests/fixtures/codigos_presentes.json (cache)
-    - tests/provas_problematicas.md
-    - Relatório no console com métricas de validação
-"""
+# SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
+"""Executa geração de itens, recalibração real e todas as validações v4."""
 
 from __future__ import annotations
 
@@ -29,193 +8,87 @@ import argparse
 import subprocess
 import sys
 import time
-from datetime import datetime
 from pathlib import Path
 
-# Adicionar tests/ ao path para imports
-TESTS_DIR = Path(__file__).resolve().parent
-ROOT_DIR = TESTS_DIR.parent
-sys.path.insert(0, str(TESTS_DIR))
-
-import _utils
-
-_utils.add_src_to_path()
+ROOT = Path(__file__).resolve().parents[1]
 
 
-def verificar_requisitos() -> bool:
-    """Verifica se os diretórios necessários existem."""
-    requisitos = [
-        (_utils.ROOT / "microdados", "Diretório de microdados originais"),
-        (_utils.ROOT / "microdados_limpos", "Diretório de microdados processados"),
-        (_utils.MAPEAMENTO_PATH, "Mapeamento de provas"),
-    ]
-    
-    ok = True
-    for path, descricao in requisitos:
-        if path.exists():
-            print(f"  [ok] {descricao}: {path}")
-        else:
-            print(f"  [falha] {descricao} não encontrado: {path}")
-            ok = False
-    
-    return ok
+def executar(nome: str, comando: list[str]) -> None:
+    print(f"\n{'=' * 72}\n{nome}\n{'=' * 72}", flush=True)
+    inicio = time.monotonic()
+    resultado = subprocess.run(comando, cwd=ROOT)
+    if resultado.returncode:
+        raise RuntimeError(
+            f"{nome} falhou com código {resultado.returncode}: "
+            + " ".join(comando)
+        )
+    print(f"[ok] {nome}: {time.monotonic() - inicio:.1f}s", flush=True)
 
 
-def run_step(name: str, script: str, args: list[str]) -> bool:
-    """Executa um passo do pipeline."""
-    print(f"\n{'='*70}")
-    print(f"PASSO: {name}")
-    print(f"{'='*70}")
-    
-    cmd = [sys.executable, str(TESTS_DIR / script)] + args
-    print(f"Comando: {' '.join(cmd)}\n")
-    
-    start = time.time()
-    result = subprocess.run(cmd, cwd=str(ROOT_DIR))
-    elapsed = time.time() - start
-    
-    if result.returncode == 0:
-        print(f"\n[ok] {name} concluído em {elapsed:.1f}s")
-        return True
-    else:
-        print(f"\n[falha] {name} falhou (código {result.returncode})")
-        return False
-
-
-def main():
-    parser = argparse.ArgumentParser(
-        description="Pipeline completo de validação do calculador TRI",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog=__doc__
-    )
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--microdados-dir", required=True, type=Path)
+    parser.add_argument("--chunk-size", type=int, default=250_000)
+    parser.add_argument("--workers", type=int, default=1)
+    parser.add_argument("--itens-path", type=Path)
     parser.add_argument(
-        "--microdados-dir",
-        default="microdados",
-        help="Diretório com microdados originais (default: microdados)"
-    )
-    parser.add_argument(
-        "--microdados-limpos",
-        default="microdados_limpos", 
-        help="Diretório com microdados processados (default: microdados_limpos)"
-    )
-    parser.add_argument(
-        "--skip-gerar",
+        "--sem-gerar-itens",
         action="store_true",
-        help="Pular geração de exemplos (usar existentes)"
+        help="Usa os itens já empacotados sem regenerá-los.",
     )
     parser.add_argument(
-        "--limite-dif",
-        type=float,
-        default=_utils.LIMITE_DIF_PADRAO,
-        help=f"Limite de diferença para marcar como problemático (default: {_utils.LIMITE_DIF_PADRAO})"
-    )
-    parser.add_argument(
-        "--n-max",
-        type=int,
-        default=10,
-        help="Máximo de exemplos por CO_PROVA para gerar_exemplos_microdados.py (default: 10)"
-    )
-    parser.add_argument(
-        "--atualizar-status",
+        "--somente-validar",
         action="store_true",
-        help="Atualiza coeficientes_data.json quando a validação diverge da calibração"
+        help="Não recalibra; valida os artefatos já publicados e roda pytest.",
     )
     args = parser.parse_args()
-    
-    print("="*70)
-    print("PIPELINE DE VALIDAÇÃO COMPLETA")
-    print(f"Iniciado em: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    print("="*70)
-    
-    # Verificar requisitos
-    print("\nVerificando requisitos...")
-    if not verificar_requisitos():
-        print("\n[falha] Requisitos não atendidos. Abortando.")
-        return 1
-    
-    # Criar diretório fixtures se necessário
-    fixtures_dir = TESTS_DIR / "fixtures"
-    fixtures_dir.mkdir(exist_ok=True)
-    
-    exemplos_path = fixtures_dir / "exemplos_microdados.json"
-    
-    # Passo 1: Gerar exemplos
-    if args.skip_gerar and exemplos_path.exists():
-        print(f"\nPulando geração de exemplos (--skip-gerar)")
-        print(f"   Usando: {exemplos_path}")
-    else:
-        ok = run_step(
-            "Gerar Exemplos por CO_PROVA",
-            "gerar_exemplos_microdados.py",
+
+    if not args.microdados_dir.is_dir():
+        parser.error(f"diretório inexistente: {args.microdados_dir}")
+    if not args.somente_validar and not args.sem_gerar_itens:
+        executar(
+            "Gerar e validar os dados de itens",
             [
-                "--microdados-dir", args.microdados_dir,
-                "--microdados-limpos", args.microdados_limpos,
-                "--saida", str(exemplos_path),
-                "--n-max", str(args.n_max),
-            ]
+                sys.executable,
+                str(ROOT / "tools" / "gerar_dados_itens.py"),
+                "--microdados-dir",
+                str(args.microdados_dir),
+            ],
         )
-        if not ok:
-            return 1
-    
-    # Verificar se exemplos foram gerados
-    if not exemplos_path.exists():
-        print(f"\n[falha] Arquivo de exemplos não encontrado: {exemplos_path}")
-        return 1
-    
-    # Passo 2: Validar exemplos
-    validar_args = [
-        "--exemplos", str(exemplos_path),
-        "--microdados-limpos", args.microdados_limpos,
-    ]
-    if args.atualizar_status:
-        validar_args.append("--atualizar-status")
-    ok = run_step(
-        "Validar Exemplos contra Microdados",
-        "validar_exemplos_microdados.py",
-        validar_args,
-    )
-    if not ok:
-        print("[aviso] Validação teve problemas, mas continuando...")
-    
-    # Passo 3: Gerar relatório de provas problemáticas
-    relatorio_path = TESTS_DIR / "provas_problematicas.md"
-    ok = run_step(
-        "Gerar Relatório de Provas Problemáticas",
-        "gerar_provas_problematicas.py",
-        [
-            "--exemplos", str(exemplos_path),
-            "--microdados-limpos", args.microdados_limpos,
-            "--saida", str(relatorio_path),
-            "--limite-dif", str(args.limite_dif),
+
+    if not args.somente_validar:
+        recalibrar = [
+            sys.executable,
+            str(ROOT / "tools" / "recalibrar_validacao.py"),
+            "--microdados-dir",
+            str(args.microdados_dir),
+            "--chunk-size",
+            str(args.chunk_size),
+            "--workers",
+            str(args.workers),
         ]
+        if args.itens_path:
+            recalibrar.extend(["--itens-path", str(args.itens_path)])
+        executar("Recalibrar catálogo e publicar holdout", recalibrar)
+    executar(
+        "Recalcular o holdout publicado",
+        [sys.executable, str(ROOT / "tests" / "validar_holdout.py")],
     )
-    if not ok:
-        print("[aviso] Geração de relatório teve problemas")
-    
-    # Resumo final
-    print("\n" + "="*70)
-    print("RESUMO FINAL")
-    print("="*70)
-    
-    outputs = [
-        (exemplos_path, "Exemplos gerados"),
-        (fixtures_dir / "codigos_presentes.json", "Cache de códigos"),
-        (relatorio_path, "Relatório de provas problemáticas"),
-    ]
-    
-    for path, desc in outputs:
-        if path.exists():
-            size = path.stat().st_size
-            size_str = f"{size:,} bytes" if size < 1024*1024 else f"{size/1024/1024:.1f} MB"
-            print(f"  [ok] {desc}: {path.name} ({size_str})")
-        else:
-            print(f"  [falha] {desc}: não gerado")
-    
-    print(f"\nConcluído em: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    print("="*70)
-    
+    executar(
+        "Regenerar golden tests determinísticos",
+        [sys.executable, str(ROOT / "tests" / "fixtures" / "gerar_golden_notas.py")],
+    )
+    executar(
+        "Executar a suíte pytest",
+        [sys.executable, "-m", "pytest", "-q"],
+    )
+    print("\n[ok] Pipeline v4 concluído sem publicação parcial.", flush=True)
     return 0
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    try:
+        raise SystemExit(main())
+    except RuntimeError as exc:
+        print(f"\n[falha] {exc}", file=sys.stderr)
+        raise SystemExit(1)

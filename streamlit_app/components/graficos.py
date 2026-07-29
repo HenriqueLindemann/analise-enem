@@ -38,6 +38,9 @@ def grafico_notas_barras(resultados: List[Dict]) -> go.Figure:
     
     siglas = [r['sigla'] for r in resultados]
     notas = [r['nota'] for r in resultados]
+    limite_superior = max(
+        1000, int(np.ceil((max(notas) * 1.10) / 100.0) * 100)
+    )
     acertos = [f"{r['acertos']}/{r['total_itens']}" for r in resultados]
     
     # Cores baseadas na nota
@@ -81,8 +84,8 @@ def grafico_notas_barras(resultados: List[Dict]) -> go.Figure:
         ),
         xaxis=dict(
             title="Nota",
-            range=[0, 1000],
-            tickvals=[0, 500, 700, 1000],
+            range=[0, limite_superior],
+            tickvals=sorted({0, 500, 700, 1000, limite_superior}),
             gridcolor=COR_CINZA_CLARO,
             gridwidth=0.5,
         ),
@@ -307,6 +310,7 @@ def grafico_comparativo_areas(resultados: List[Dict]) -> go.Figure:
     
     siglas = [r['sigla'] for r in resultados]
     notas = [r['nota'] for r in resultados]
+    limite_superior = max(1000, int(np.ceil(max(notas) / 100.0) * 100))
     
     # Fechar o polígono
     siglas_closed = siglas + [siglas[0]]
@@ -327,8 +331,8 @@ def grafico_comparativo_areas(resultados: List[Dict]) -> go.Figure:
         polar=dict(
             radialaxis=dict(
                 visible=True,
-                range=[0, 1000],
-                tickvals=[0, 250, 500, 750, 1000],
+                range=[0, limite_superior],
+                tickvals=sorted({0, 250, 500, 750, 1000, limite_superior}),
             ),
         ),
         height=300,

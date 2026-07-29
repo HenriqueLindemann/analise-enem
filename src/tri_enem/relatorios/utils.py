@@ -10,7 +10,7 @@ A função verificar_precisao_prova foi movida para o pacote principal (tri_enem
 from typing import Dict
 
 # Re-exportar para compatibilidade com código antigo
-from ..precisao import verificar_precisao_prova
+from ..precisao import formatar_resumo_validacao, verificar_precisao_prova
 
 
 def formatar_dificuldade(param_b: float) -> str:

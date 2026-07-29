@@ -17,7 +17,9 @@ Execute a partir da raiz do projeto:
 """
 import argparse
 import json
+import os
 import sys
+import tempfile
 from collections import defaultdict
 from pathlib import Path
 
@@ -74,7 +76,10 @@ def selecionar_por_extremos(exemplos: list) -> list:
     selecionados = []
     for par in sorted(por_par):
         ordenados = sorted(por_par[par],
-                           key=lambda e: (float(e['nota_oficial']), str(e['id'])))
+                           key=lambda e: (
+                               float(e['nota_oficial']),
+                               str(e.get('case_id', e.get('id', ''))),
+                           ))
         escolhidos = [ordenados[0], ordenados[-1]][:CASOS_POR_PAR]
         selecionados.extend(escolhidos)
 
@@ -128,19 +133,24 @@ def main() -> int:
             falhas.append((exemplo['ano'], exemplo['area'],
                            exemplo['co_prova'], str(e)))
 
-    with open(GOLDEN, 'w', encoding='utf-8') as f:
-        json.dump(casos, f, ensure_ascii=False, indent=2)
-        f.write('\n')
-
     pares = len({(c['ano'], c['area']) for c in casos})
+    for falha in falhas:
+        print(f"  falhou: {falha}")
+    if falhas:
+        return 1
     erros = sorted(abs(c['erro']) for c in casos)
+    with tempfile.NamedTemporaryFile(
+        "w", encoding="utf-8", dir=FIXTURES, delete=False
+    ) as temporario:
+        json.dump(casos, temporario, ensure_ascii=False, indent=2)
+        temporario.write('\n')
+        temp_nome = temporario.name
+    os.replace(temp_nome, GOLDEN)
     print(f"{GOLDEN.relative_to(ROOT)}: {len(casos)} casos, {pares} pares ano x area")
     print(f"  erro contra a nota oficial: mediana {erros[len(erros) // 2]:.3f}, "
           f"maximo {erros[-1]:.3f}")
-    for falha in falhas:
-        print(f"  falhou: {falha}")
 
-    return 1 if falhas else 0
+    return 0
 
 
 if __name__ == '__main__':

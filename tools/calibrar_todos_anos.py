@@ -1,143 +1,60 @@
-"""
-Calibração completa salvando resultados em JSON.
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""Atalho compatível para a recalibração v4 de todos os anos.
 
-Execute a partir da raiz do projeto:
-    python tools/calibrar_todos_anos.py
+O script antigo mantinha um segundo algoritmo, pulava 2017 e escrevia
+resultados parciais no esquema v2. Este atalho agora delega ao único pipeline
+reproduzível, que só publica catálogo, holdout, manifesto e relatório após
+validar o conjunto completo.
+
+Exemplo:
+    python tools/calibrar_todos_anos.py \
+      --microdados-dir /caminho/MICRODADOS_ENEM --workers 3
 """
+
+from __future__ import annotations
+
+import argparse
+import subprocess
 import sys
 from pathlib import Path
 
-# Adicionar src ao path
-sys.path.insert(0, str(Path(__file__).parent.parent / 'src'))
+ROOT = Path(__file__).resolve().parents[1]
 
-from tri_enem import Calibrador
-import json
 
-print("=" * 80)
-print("CALIBRAÇÃO COMPLETA - SALVANDO EM JSON")
-print("Amostragem estratificada com 200 participantes por prova")
-print("=" * 80)
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--microdados-dir", required=True, type=Path)
+    parser.add_argument("--itens-path", type=Path)
+    parser.add_argument("--chunk-size", type=int, default=250_000)
+    parser.add_argument("--workers", type=int, default=1)
+    parser.add_argument("--cap-por-estrato", type=int, default=160)
+    parser.add_argument(
+        "--nao-publicar",
+        action="store_true",
+        help="Executa o diagnóstico completo sem substituir artefatos.",
+    )
+    args = parser.parse_args()
 
-# Recalibrar todos os anos, mas pulando 2017 (muito problemático)
-cal = Calibrador("microdados_limpos")
-anos = [a for a in range(2009, 2025) if a != 2017]
+    comando = [
+        sys.executable,
+        str(ROOT / "tools" / "recalibrar_validacao.py"),
+        "--microdados-dir",
+        str(args.microdados_dir),
+        "--chunk-size",
+        str(args.chunk_size),
+        "--workers",
+        str(args.workers),
+        "--cap-por-estrato",
+        str(args.cap_por_estrato),
+    ]
+    if args.itens_path:
+        comando.extend(["--itens-path", str(args.itens_path)])
+    if args.nao_publicar:
+        comando.append("--nao-publicar")
+    print("[aviso] Atalho legado: delegando ao pipeline de calibração v4.", flush=True)
+    return subprocess.run(comando, cwd=ROOT).returncode
 
-# Carregar dados existentes
-coeficientes_data = {
-    'por_prova': {},
-    'por_area': {},
-    'metadata': {}
-}
-if Path('tri_enem/coeficientes_data.json').exists():
-    with open('tri_enem/coeficientes_data.json', 'r', encoding='utf-8') as f:
-        coeficientes_data = json.load(f)
 
-print(f"Carregados {len(coeficientes_data['por_prova'])} coeficientes existentes.")
-
-provas_problematicas = []
-
-for ano in anos:
-    print(f"\n{'='*80}")
-    print(f"ANO {ano}")
-    print('='*80)
-    
-    try:
-        # Calibrar ano completo
-        resultados = cal.calibrar_ano_completo(ano, n_amostras_por_prova=200, verbose=True)
-        
-        # Processar resultados
-        for area, lista_provas in resultados.items():
-            if not isinstance(lista_provas, list):
-                continue
-            
-            slopes_area = []
-            intercepts_area = []
-            
-            for r in lista_provas:
-                # Verificar se houve erro
-                if 'erro' in r:
-                    continue
-                    
-                # Verificar MAE alto (limiar 10.0) ou R² baixo
-                if r['mae'] > 10.0 or r.get('r_squared', 0) < 0.90:
-                    provas_problematicas.append({
-                        'ano': ano,
-                        'area': area,
-                        'prova': r.get('prova'),
-                        'mae': r['mae'],
-                        'r_squared': r.get('r_squared'),
-                        'slope': r.get('slope'),
-                        'intercept': r.get('intercept')
-                    })
-                    print(f"  [aviso] PROVA PROBLEMÁTICA: {area} {r.get('prova')} MAE={r['mae']:.2f}")
-                    # Não salvar coeficientes ruins (exceto se for única opção, mas melhor não)
-                    if r['mae'] > 20.0:  # Se muito ruim, descarta
-                        continue
-
-                # Salvar coeficientes aceitáveis (mesmo com MAE 10-20, pode ser útil)
-                key = f"{r['ano']},{r['area']},{r['prova']}"
-                coeficientes_data['por_prova'][key] = {
-                    'slope': r['slope'],
-                    'intercept': r['intercept'],
-                    'r_squared': r['r_squared'],
-                    'mae': r['mae'],
-                    'n_amostras': r['n_amostras']
-                }
-                
-                slopes_area.append(r['slope'])
-                intercepts_area.append(r['intercept'])
-            
-            # Salvar média da área
-            if slopes_area:
-                import numpy as np
-                key = f"{ano},{area}"
-                coeficientes_data['por_area'][key] = {
-                    'slope': float(np.mean(slopes_area)),
-                    'intercept': float(np.mean(intercepts_area)),
-                    'n_provas': len(slopes_area)
-                }
-        
-        print(f"\n{cal.resumo_calibracao(resultados)}")
-        
-        # Salvar JSON parcial para não perder progresso
-        with open('tri_enem/coeficientes_data.json', 'w', encoding='utf-8') as f:
-            json.dump(coeficientes_data, f, indent=2, ensure_ascii=False)
-        print(f"Dados salvos parcialmente.")
-        
-    except Exception as e:
-        print(f"\n[falha] Erro ao calibrar {ano}: {e}")
-
-# Salvar lista de provas problemáticas
-with open('tri_enem/provas_problematicas.json', 'w', encoding='utf-8') as f:
-    json.dump(provas_problematicas, f, indent=2, ensure_ascii=False)
-    
-# Salvar JSON Final (Metadata será adicionado depois)
-output_file = Path('tri_enem/coeficientes_data.json')
-with open(output_file, 'w', encoding='utf-8') as f:
-    json.dump(coeficientes_data, f, indent=2, ensure_ascii=False)
-print(f"\nSalvas {len(provas_problematicas)} provas problemáticas em tri_enem/provas_problematicas.json")
-
-# Calcular padrões por área
-import numpy as np
-for area in ['MT', 'CN', 'CH', 'LC']:
-    valores = [v for k, v in coeficientes_data['por_area'].items() if k.endswith(f',{area}')]
-    if valores:
-        slopes = [v['slope'] for v in valores]
-        intercepts = [v['intercept'] for v in valores]
-        coeficientes_data['metadata'][area] = {
-            'slope_medio': float(np.mean(slopes)),
-            'intercept_medio': float(np.mean(intercepts)),
-            'n_anos': len(valores)
-        }
-
-# Salvar JSON
-output_file = Path('tri_enem/coeficientes_data.json')
-with open(output_file, 'w', encoding='utf-8') as f:
-    json.dump(coeficientes_data, f, indent=2, ensure_ascii=False)
-
-print(f"\n{'='*80}")
-print("CALIBRAÇÃO COMPLETA!")
-print(f"{'='*80}")
-print(f"Coeficientes salvos em: {output_file}")
-print(f"  Por prova: {len(coeficientes_data['por_prova'])}")
-print(f"  Por área: {len(coeficientes_data['por_area'])}")
+if __name__ == "__main__":
+    raise SystemExit(main())

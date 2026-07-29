@@ -1,56 +1,73 @@
-# Ferramentas de Desenvolvimento
+# Ferramentas de desenvolvimento
 
-Scripts para manutenção e calibração do módulo.
+## Fonte dos itens de prova
 
-## Arquivos
+Os parâmetros versionados têm uma única localização:
 
-| Arquivo | Descrição |
-|---------|-----------|
-| `amostrar_microdados_brutos.py` | Reduz cada ano do INEP a uma amostra por prova, própria para calibrar |
-| `calibrar_com_mapeamento.py` | Calibra coeficientes usando mapeamento YAML |
-| `limpar_microdados.py` | Reduz CSVs do INEP para apenas colunas essenciais |
-| `calibrar_todos_anos.py` | Recalibra coeficientes para todos os anos |
+```text
+src/tri_enem/data/itens/<ano>/ITENS_PROVA_<ano>.csv
+```
 
-## Uso
-
-Estes scripts requerem os microdados do INEP. Execute da raiz do projeto:
+O gerador reproduzível lê diretamente a estrutura oficial extraída do INEP:
 
 ```bash
-# Amostrar os brutos: ~50 GB -> ~150 MB, cerca de 1500 participantes por prova
-python tools/amostrar_microdados_brutos.py --brutos <dir com microdados_enem_YYYY/>
-
-# Recalibrar todas as provas a partir das amostras
-python tools/calibrar_com_mapeamento.py
-
-# Ou apenas um ano
-python tools/calibrar_com_mapeamento.py 2023
+python tools/gerar_dados_itens.py \
+  --microdados-dir /caminho/MICRODADOS_ENEM
 ```
 
-Prefira a amostragem. `limpar_microdados.py` preserva todos os participantes e
-produz dezenas de GB; a calibração satura com algumas centenas por prova, já que
-a relação θ → nota tem R² acima de 0,9999.
+Ele exige os 17 anos, valida colunas e áreas, normaliza os CSVs para UTF-8 com
+separador `;` e publica tudo somente após validar o conjunto completo. O
+`manifest.json` gerado registra caminho relativo, contagens e hashes SHA-256
+da fonte e da saída. `tools/limpar_microdados.py` delega essa etapa ao mesmo
+gerador; os participantes reduzidos continuam locais em `microdados_limpos/`
+e não entram no pacote.
 
-## Microdados
+Para também criar esses extratos locais de participantes:
 
-Baixe em: https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/microdados/enem
-
-Estrutura esperada:
-```
-microdados/
-├── 2023/
-│   ├── MICRODADOS_ENEM_2023.csv
-│   └── ITENS_PROVA_2023.csv
-└── ...
+```bash
+python tools/limpar_microdados.py \
+  --microdados-dir /caminho/MICRODADOS_ENEM
 ```
 
-## Calibração
+O script reconhece os mesmos layouts oficiais, exige as colunas essenciais e
+substitui cada extrato somente depois de terminar a escrita do respectivo ano.
 
-O processo de calibração:
-1. Carrega a amostra do ano (`microdados_limpos/<ano>/AMOSTRA_CALIBRACAO_<ano>.csv`)
-2. Para cada prova, calcula θ pelo mesmo ponto de entrada do cálculo entregue ao
-   usuário (`CalculadorTRI._preparar_calculo`)
-3. Ajusta regressão linear: `nota = slope × θ + intercept`
-4. Salva coeficientes e métricas de qualidade em `coeficientes_data.json`
+## Recalibração oficial
 
-O passo 2 importa: calibrar por outro caminho faria o coeficiente absorver
-defeitos de pareamento, escondendo o erro dentro dos coeficientes.
+O fluxo v4 recomendado lê diretamente a estrutura de download do INEP:
+
+```bash
+python tools/recalibrar_validacao.py \
+  --microdados-dir /caminho/MICRODADOS_ENEM \
+  --workers 3
+```
+
+Ele:
+
+1. cobre cada prova mapeada e cada idioma disponível;
+2. amostra deterministicamente todas as faixas, inclusive notas acima de 1000;
+3. separa calibração, seleção e holdout;
+4. compara modelos lineares e monotônicos;
+5. publica catálogo, fixture, manifesto e relatório somente após validar todas
+   as invariantes.
+
+Saídas:
+
+```text
+src/tri_enem/coeficientes_data.json
+tests/fixtures/validation_holdout.jsonl.gz
+tests/fixtures/validation_manifest.json
+docs/VALIDATION_REPORT.md
+```
+
+Use `python tests/validar_holdout.py` para recalcular a fixture publicada.
+
+## Atalhos e ferramentas legadas
+
+`calibrar_com_mapeamento.py` delega ao calibrador v4 em modo diagnóstico e
+nunca publica artefatos. `calibrar_todos_anos.py` é um atalho compatível para a
+recalibração v4 completa; não existe mais um segundo formato de coeficientes.
+
+`amostrar_microdados_brutos.py` continua disponível apenas para investigações
+com amostras reduzidas em `microdados_limpos/`. Essas amostras não são usadas
+para publicar o catálogo nem o holdout de precisão.

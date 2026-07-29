@@ -32,22 +32,22 @@ from pathlib import Path
 _app_dir = Path(__file__).parent
 _root_dir = _app_dir.parent
 sys.path.insert(0, str(_root_dir / 'src'))
-sys.path.insert(0, str(_app_dir))
+sys.path.insert(0, str(_root_dir))
 
 # ============================================================================
 #                         IMPORTS LOCAIS
 # ============================================================================
 
-from config import (
+from streamlit_app.config import (
     SEO,
     AREAS_ENEM,
     APP_VERSION,
 )
-from calculador import get_calculador
-from components.inputs import input_respostas, validar_todas_respostas
-from components.resultados import exibir_resumo_geral, exibir_resultado_area
-from components.impressao import exibir_download_pdf
-from components.layout import (
+from streamlit_app.calculador import get_calculador
+from streamlit_app.components.inputs import input_respostas, validar_todas_respostas
+from streamlit_app.components.resultados import exibir_resumo_geral, exibir_resultado_area
+from streamlit_app.components.impressao import exibir_download_pdf
+from streamlit_app.components.layout import (
     configurar_pagina,
     carregar_css,
     render_header,
@@ -56,7 +56,11 @@ from components.layout import (
     render_botao_calcular,
     render_footer,
 )
-from components.seo import gerar_meta_tags, gerar_schema_json_ld, gerar_noscript_seo
+from streamlit_app.components.seo import (
+    gerar_meta_tags,
+    gerar_schema_json_ld,
+    gerar_noscript_seo,
+)
 
 # ============================================================================
 #                         CONFIGURAÇÃO INICIAL
@@ -74,7 +78,12 @@ carregar_css()
 
 def injetar_seo():
     """Injeta meta tags, Schema.org JSON-LD e noscript para SEO."""
-    from config import APP_AUTHOR, APP_AUTHOR_URL, APP_GITHUB_URL, APP_CANONICAL_URL
+    from streamlit_app.config import (
+        APP_AUTHOR,
+        APP_AUTHOR_URL,
+        APP_GITHUB_URL,
+        APP_CANONICAL_URL,
+    )
     
     # Meta tags HTML
     meta_html = gerar_meta_tags(

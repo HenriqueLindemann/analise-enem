@@ -1,6 +1,7 @@
 # Calculadora Nota TRI ENEM
 
-Calcule sua nota do ENEM usando **Teoria de Resposta ao Item (TRI)** com alta precisão.
+Estime sua nota do ENEM usando **Teoria de Resposta ao Item (TRI)**, com
+precisão medida por prova em participantes reais dos microdados oficiais.
 
 Suporta todas as provas de **2009 a 2025** com análise detalhada e relatórios completos.
 
@@ -16,7 +17,7 @@ Suporta todas as provas de **2009 a 2025** com análise detalhada e relatórios 
 
 ### Para quem nunca programou
 
-**Este programa calcula sua nota do ENEM como o INEP calcula.** Você precisa:
+**Este programa produz uma estimativa TRI e informa a validação da prova.** Você precisa:
 
 1. **Baixar este projeto** (botão verde "Code" → Download ZIP)
 2. **Instalar Python**: https://www.python.org/downloads/
@@ -45,6 +46,8 @@ Opcionalmente, instale o pacote em modo editável (inclui extras web e de teste)
 ```bash
 pip install -e ".[web,dev]"
 ```
+
+Ao atualizar da versão 3, consulte [Migração para 4.0.0](docs/MIGRATION_V4.md).
 
 ---
 
@@ -99,7 +102,7 @@ MÉDIA...............................   711.0 pts
 
 ## Funcionalidades
 
-- ✓ **Cálculo TRI preciso** (erro < 1 ponto em provas calibradas)
+- ✓ **Precisão verificável** com MAE e maior erro observado por prova
 - ✓ **Relatórios PDF** com análise de cada questão
 - ✓ **Análise de impacto** - descubra quais erros mais afetaram sua nota
 - ✓ **Todas as áreas**: MT, CN, CH, LC (inglês/espanhol)
@@ -141,7 +144,7 @@ Defina `GERAR_PDF = True` em `meu_simulado.py` e um relatório será salvo em `r
 - Notas de cada área
 - Erros ordenados por impacto
 - Parâmetros TRI de cada questão
-- **Avisos de precisão** para provas não calibradas ou com erro alto
+- **Mensagem de validação** positiva, intermediária ou de cautela por prova
 
 ## Como Funciona
 
@@ -151,41 +154,31 @@ O cálculo usa o **Modelo Logístico de 3 Parâmetros (ML3P)** com estimação E
 - **B (Dificuldade)**: Nível de dificuldade
 - **C (Chute)**: Probabilidade de acerto casual
 
-A nota final: `nota = slope × theta + intercept`
+A transformação final pode ser linear ou monotônica linear por partes,
+conforme o desempenho em um conjunto independente de validação.
 
-> Os parâmetros são disponíveis publicamente pelo INEP. Para resultados corretos, foi necessário descobrir os valores corretos de transformação (slope e intercept) para cada prova via engenharia reversa.
+> Os parâmetros dos itens são publicados pelo INEP. As transformações de
+> escala são estimadas e validadas pelo projeto contra notas oficiais.
 
 ## Precisão e Calibração
 
-A precisão varia conforme a prova. O programa sinaliza na interface e no
-relatório em PDF sempre que a prova selecionada não é confiável.
+A precisão varia conforme a prova. Cada transformação é ajustada sem usar o
+holdout final. Uma prova só recebe `ok` quando todos os casos desse holdout
+ficam a até 2 pontos da nota oficial e a cobertura mínima é satisfeita.
 
-Medido contra 6300 participantes reais, com nota oficial, cobrindo 2009 a 2025:
-o erro médio absoluto global é de **2,82 pontos** na escala 0–1000.
+Provas que não atingem o limite continuam disponíveis como estimativa e
+mostram MAE, erro máximo observado e quantidade de casos. Provas sem parâmetros
+de itens são explicitamente marcadas como incalculáveis.
 
-| Situação | Provas | Erro médio |
-|----------|-------:|-----------|
-| Calibradas (maioria das 1ªs aplicações) | 580 | < 2 pontos |
-| Calibração fraca | 30 | 2 a 15 pontos |
-| Não reproduzem a nota oficial | 41 | > 15 pontos |
-| Sem participantes nos microdados públicos | 60 | não estimável |
+Na interface, uma prova `ok` recebe uma confirmação verde. Quando o desempenho
+é consistente na maioria dos casos, mas poucas exceções impedem a garantia
+estrita, a mensagem intermediária comunica esse resultado sem tratar toda a
+calibração como ruim. Diferenças sistemáticas continuam recebendo alerta forte.
+Os critérios e números exatos permanecem no relatório técnico.
 
-Casos conhecidos não recuperáveis a partir dos dados públicos:
-
-- **Provas adaptadas de 2013** (CH 187, CN 188, MT 190 e LC 189) — o arquivo
-  traz mais de um item para a mesma posição, sem registrar qual foi
-  apresentado ao participante. A contagem de acertos e a análise por questão
-  permanecem válidas; a nota, não.
-- **1ªs aplicações de 2017** (CN, CH e MT) **e MT de 2019** — a nota calculada
-  diverge da oficial em dezenas de pontos. O pareamento entre resposta e item e
-  o gabarito conferem; a causa da divergência segue em investigação. A contagem
-  de acertos e a análise por questão permanecem válidas; a nota, não.
-- **Provas sem participantes** (PPL e reaplicações recém-divulgadas) — a
-  ausência de participantes impede estimar os coeficientes específicos da
-  prova, sendo aplicada a média da área.
-
-Os critérios e as causas estão documentados em
-[`src/tri_enem/precisao.py`](src/tri_enem/precisao.py).
+Os números atuais são gerados automaticamente em
+[docs/VALIDATION_REPORT.md](docs/VALIDATION_REPORT.md); os critérios executáveis
+estão em [`src/tri_enem/precisao.py`](src/tri_enem/precisao.py).
 
 ## Desenvolvimento e Testes
 
@@ -195,7 +188,8 @@ O projeto possui uma suite de testes abrangente para garantir a precisão dos c�
 
 ```bash
 pip install -r requirements.txt -r requirements-dev.txt
-pytest            # 863 testes, ~8 min, sem precisar dos microdados do INEP
+pytest
+python tests/validar_holdout.py
 ```
 
 Rodam também na integração contínua (`.github/workflows/testes.yml`), a cada
@@ -204,13 +198,16 @@ push e pull request. Utilizam os dados versionados no repositório e cobrem:
 - **Regressão (golden)** — fixa nota e theta de 136 casos reais abrangendo
   todo ano × área. Qualquer alteração no motor que modifique um resultado é
   detectada. Regenerado por `tests/fixtures/gerar_golden_notas.py`.
+- **Holdout oficial estratificado** — cobre todas as provas calculáveis e faz
+  o CI falhar se uma prova `ok` tiver qualquer erro acima de 2 pontos.
 - **Percurso do usuário ponta a ponta** — as 45 letras digitadas produzem a
   mesma nota nas três interfaces (web, `analisar_todas_questoes` e
-  `SimuladorNota`), e essa nota bate com a nota oficial do participante.
+  `SimuladorNota`), e os casos elegíveis são comparados à nota oficial.
 - **Propriedades do modelo** — monotonicidade da curva ML3, limites do EAP e
   ausência de efeito de itens anulados sobre a nota.
-- **Avisos de precisão** — verifica o invariante de que prova não confiável
-  nunca é apresentada sem aviso.
+- **Mensagens de precisão** — verifica a confirmação positiva das provas
+  `ok`, o aviso intermediário para exceções concentradas e o invariante de que
+  prova não confiável nunca é apresentada sem aviso.
 
 ### Suite de Testes TRI
 Para validar os cálculos contra dados oficiais do INEP e garantir que não existam regressões na ordem das questões:
@@ -238,7 +235,8 @@ analise-enem/
 │   ├── calibrador.py             # Calibração de coeficientes
 │   ├── mapeador_provas.py        # API do mapeamento
 │   ├── mapeamento_provas.yaml    # Todas as provas 2009-2025
-│   ├── coeficientes_data.json    # Coeficientes + status
+│   ├── coeficientes_data.json    # Modelos + holdout + status (schema v3)
+│   ├── data/itens/<ano>/         # Parâmetros oficiais incluídos no pacote
 │   ├── precisao.py               # Verificação de erros intrínsecos
 │   ├── tradutor.py               # LC (inglês/espanhol)
 │   └── relatorios/               # Gerador de PDF
@@ -254,9 +252,17 @@ analise-enem/
 └── relatorios/                   # PDFs gerados
 ```
 
-As descobertas da engenharia reversa ficam nos docstrings dos módulos que as
-implementam (`calculador.py`, `precisao.py`, `tradutor.py`). Documentação
-adicional em [docs/](docs/README.md).
+Os arquivos `ITENS_PROVA_<ano>.csv` têm uma única fonte versionada:
+`src/tri_enem/data/itens/<ano>/`. Eles são gerados por
+`tools/gerar_dados_itens.py`, que valida o esquema e grava
+`src/tri_enem/data/itens/manifest.json` com os hashes das fontes oficiais e dos
+arquivos normalizados. Eles são incluídos no wheel por `pyproject.toml` e
+carregados com `importlib.resources`. `microdados_limpos/` é reservado para
+amostras locais de participantes e não é necessário para usar o pacote.
+
+As decisões de implementação validadas contra os microdados ficam nos
+docstrings dos módulos correspondentes (`calculador.py`, `precisao.py`,
+`tradutor.py`). Documentação adicional em [docs/](docs/README.md).
 
 ## Para Estudantes
 

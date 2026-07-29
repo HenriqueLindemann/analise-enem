@@ -9,14 +9,8 @@ Separa a estrutura visual da lógica de negócio.
 import streamlit as st
 from pathlib import Path
 from typing import Tuple, Dict, Optional
-import sys
 
-# Adicionar path para imports
-_app_dir = Path(__file__).parent.parent
-if str(_app_dir) not in sys.path:
-    sys.path.insert(0, str(_app_dir))
-
-from config import (
+from ..config import (
     APP_VERSION,
     APP_AUTHOR,
     APP_AUTHOR_URL,
@@ -71,14 +65,14 @@ def render_header() -> None:
     )
     
     st.markdown(
-        'Calcule sua nota <strong>REAL</strong> do ENEM online e grátis usando o método TRI oficial do INEP',
+        'Estime sua nota do ENEM com TRI e validação em microdados oficiais do INEP',
         unsafe_allow_html=True
     )
     
     # Destaques (SEO-friendly com keywords)
     st.markdown("""
 <div class="highlights" style="margin: 1rem 0;">
-    <p><strong>Nota REAL, não estimativa</strong> — Usamos os parâmetros oficiais disponibilizados pelo INEP</p>
+    <p><strong>Estimativa verificada</strong> — Cada prova informa sua precisão medida em participantes reais</p>
     <p><strong>Impacto de cada questão</strong> — Veja quanto cada acerto ou erro afetou sua nota final</p>
     <p><strong>Análise completa</strong> — Gráficos e relatório PDF das 4 áreas de conhecimento</p>
 </div>

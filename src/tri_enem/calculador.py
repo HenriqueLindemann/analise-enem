@@ -6,9 +6,9 @@ Calculadora Nota TRI ENEM - Módulo Principal de Cálculo
 Implementa o modelo logístico de 3 parâmetros (ML3) com estimação bayesiana
 Expected a Posteriori (EAP) sobre quadratura de Gauss-Hermite.
 
-Desenvolvido por engenharia reversa dos microdados do INEP. A documentação a
-seguir registra as decisões que não decorrem do modelo TRI padrão e que foram
-estabelecidas empiricamente por comparação com notas oficiais.
+A documentação a seguir registra as decisões que não decorrem do modelo TRI
+padrão e que foram estabelecidas empiricamente por comparação com notas
+oficiais dos microdados públicos.
 
 Método
 ------
@@ -21,21 +21,21 @@ Alternativas medidas e descartadas, avaliadas pelo MAE com refit ótimo (que
 isola a qualidade do θ). Não vale retestá-las:
 
     D = 1.7 em vez de 1.0        pior em todos os casos; 2023-MT vai de 0,09 a 8,79
-    relação θ->nota quadrática   ganha no máximo 6%, às vezes piora
+    relação θ->nota quadrática   não garante monotonicidade nem melhora o holdout
     200 pontos de quadratura     não altera o resultado
     anulados contam como acerto  efeito nulo; os parâmetros são NaN
 
 Transformação para a escala ENEM
 --------------------------------
-O INEP não usa nota = 100·θ + 500. Cada prova tem seu próprio par
-(slope, intercept), estimado por regressão contra notas oficiais e
-armazenado em coeficientes_data.json. Os valores típicos por área são
-MT ≈ 129,6 · CN ≈ 113,1 · CH ≈ 112,3 · LC ≈ 108,1, com intercepto próximo
-de 500 e variação inferior a 0,1% entre anos.
+A transformação simples nota = 100·θ + 500 não descreve adequadamente as notas
+oficiais observadas. O catálogo pode aplicar uma transformação afim ou
+monotônica linear por partes, escolhida sem reutilizar o holdout final. O
+baseline (slope, intercept), os nós e as métricas ficam em
+coeficientes_data.json.
 
-Toda conversão θ -> nota deve ser feita por transformar_escala() com co_prova
-informado. A omissão de co_prova recai no coeficiente médio da área e
-introduz desvio de até 1,25 ponto.
+Toda conversão θ -> nota no motor principal é feita por transformar_escala()
+com co_prova informado. A API legada ainda admite a transformação por
+ano/área quando não existe um modelo específico.
 
 Indexação das respostas
 -----------------------
@@ -49,11 +49,13 @@ Estrutura de LC ao longo dos anos
     Ano        Itens no arquivo   TP_LINGUA   Posições
     2009       45                 ausente     91-135
     2010-2019  50                 presente    91-135 (pares por idioma)
-    2020+      50                 presente    1-45   (pares por idioma)
+    2020+      50*                presente    1-45   (pares por idioma)
 
 De 2010 em diante, filtra-se por TP_LINGUA (0=inglês, 1=espanhol) mantendo
 os itens comuns (TP_LINGUA nulo), o que reduz 50 para 45 itens. Ver
-tradutor.py. Em 2009 não há coluna de idioma e as 45 posições valem para
+tradutor.py. *As digitais 691–694 de 2020 têm 90 linhas: duas versões completas
+de 45 itens, selecionadas pelo idioma antes do pareamento. Em 2009 não há
+coluna de idioma e as 45 posições valem para
 todos, inclusive as quatro provas de LC, cujo item anulado sem CO_ITEM precisa
 ser preservado para não deslocar o pareamento (ver carregar_itens).
 
@@ -63,11 +65,12 @@ prova por erro medido contra notas oficiais.
 
 import numpy as np
 import pandas as pd
+from importlib.resources import files
 from pathlib import Path
-from typing import Tuple, List, Dict, Optional
+from typing import Iterable, Tuple, List, Dict, Optional
 from dataclasses import dataclass
 
-from .coeficientes import obter_coeficiente
+from .coeficientes import aplicar_transformacao, obter_transformacao
 
 
 @dataclass
@@ -87,14 +90,11 @@ class CalculadorTRI:
     """
     Calculador de proficiência TRI usando modelo ML3 + EAP.
     
-    Conforme documentação INEP:
+    Implementação:
     - Modelo Logístico de 3 Parâmetros (ML3)
     - Estimação EAP com pontos de quadratura gaussiana
     - Prior: N(0, 1) - Normal padrão
-    
-    DESCOBERTA via engenharia reversa:
-    O INEP NÃO usa exatamente nota = 100*θ + 500
-    Cada área tem seu próprio coeficiente de equalização.
+    - Transformação de escala calibrada por prova contra notas oficiais
     
     LC (Linguagens 2023+): 
     - 50 itens no arquivo (posições 1-45)
@@ -112,10 +112,19 @@ class CalculadorTRI:
     def __init__(self, microdados_path: str = None):
         """
         Args:
-            microdados_path: Caminho para pasta com arquivos de dados
-                            (padrão: microdados_limpos)
+            microdados_path: Caminho externo opcional para a pasta de itens.
+                Quando omitido, usa os parâmetros empacotados com ``tri_enem``.
         """
-        self.base_path = Path(microdados_path or "microdados_limpos")
+        self._packaged_base = Path(
+            str(files("tri_enem").joinpath("data", "itens"))
+        )
+        if microdados_path is None:
+            self.base_path = self._packaged_base
+            # Compatibilidade durante desenvolvimento de checkouts v3.
+            if not self.base_path.exists():
+                self.base_path = Path(__file__).resolve().parents[2] / "microdados_limpos"
+        else:
+            self.base_path = Path(microdados_path)
         self._cache_itens: Dict[str, List[ItemTRI]] = {}
         self._cache_df_itens: Dict[str, pd.DataFrame] = {}
         self._pontos_quad, self._pesos_quad = self._calcular_quadratura()
@@ -133,11 +142,16 @@ class CalculadorTRI:
             return self._cache_df_itens[ano]
         
         itens_path = self.base_path / str(ano) / f"ITENS_PROVA_{ano}.csv"
-        
         if not itens_path.exists():
             raise FileNotFoundError(f"Arquivo não encontrado: {itens_path}")
-        
-        df = pd.read_csv(itens_path, encoding='latin1', sep=';')
+
+        # O gerador do pacote normaliza para UTF-8. Caminhos externos podem
+        # apontar aos CSVs oficiais antigos em Latin-1, por isso o fallback de
+        # codificação é explícito e não muda a origem solicitada.
+        try:
+            df = pd.read_csv(itens_path, encoding="utf-8", sep=";")
+        except UnicodeDecodeError:
+            df = pd.read_csv(itens_path, encoding="latin1", sep=";")
         self._cache_df_itens[ano] = df
         return df
     
@@ -163,12 +177,24 @@ class CalculadorTRI:
             ano: Ano do ENEM
             area: Área (CN, CH, LC, MT)
             co_prova: Código da prova
-            tp_lingua: Para LC: 0=inglês, 1=espanhol. Filtra questões de idioma.
-                       Se None para LC, usa inglês (0) como padrão.
+            tp_lingua: Para LC: 0=inglês, 1=espanhol. É obrigatório nas
+                provas que registram idioma.
         """
-        # Para LC, sempre definir tp_lingua
-        if area.upper() == 'LC' and tp_lingua is None:
-            tp_lingua = 0
+        ano = int(ano)
+        area = area.upper()
+        co_prova = int(co_prova)
+
+        if area == "LC":
+            from .tradutor import obter_config_lc
+
+            config_lc = obter_config_lc(ano)
+            if config_lc.tem_tp_lingua_itens and tp_lingua not in (0, 1):
+                raise ValueError(
+                    f"{ano}/LC/{co_prova}: informe tp_lingua=0 (inglês) "
+                    "ou tp_lingua=1 (espanhol)"
+                )
+        elif tp_lingua is not None:
+            tp_lingua = None
         
         cache_key = f"{ano}_{area}_{co_prova}_{tp_lingua}"
         
@@ -198,7 +224,7 @@ class CalculadorTRI:
 
         df = self._carregar_df_itens(ano)
 
-        if area.upper() == 'LC':
+        if area == 'LC':
             # Filtro de idioma e dedup vivem em tradutor.py, um só lugar.
             df_prova = filtrar_itens_lc(
                 df, co_prova_busca, tp_lingua, obter_config_lc(ano)
@@ -301,6 +327,60 @@ class CalculadorTRI:
         denominador = np.sum(L * self._pesos_quad)
         
         return numerador / denominador if denominador > 0 else 0.0
+
+    def estimar_theta_eap_batch(
+        self,
+        respostas: Iterable[Iterable[int]],
+        itens: List[ItemTRI],
+        batch_size: int = 4096,
+    ) -> np.ndarray:
+        """Estima EAP em lotes pelo mesmo modelo do caminho escalar.
+
+        A matriz de respostas deve ter uma coluna por item. Itens anulados são
+        retirados antes da multiplicação matricial. O processamento em blocos
+        limita memória sem alterar o resultado matemático.
+        """
+        matriz = np.asarray(respostas, dtype=float)
+        if matriz.ndim != 2 or matriz.shape[1] != len(itens):
+            raise ValueError(
+                "A matriz de respostas deve ser bidimensional e ter "
+                f"{len(itens)} colunas"
+            )
+        if not np.all((matriz == 0) | (matriz == 1)):
+            raise ValueError("Respostas binárias devem conter somente 0 ou 1")
+        if batch_size <= 0:
+            raise ValueError("batch_size deve ser positivo")
+
+        ativos = np.asarray([not item.abandonado for item in itens])
+        matriz = matriz[:, ativos]
+        itens_ativos = [item for item in itens if not item.abandonado]
+        if not itens_ativos:
+            return np.zeros(matriz.shape[0], dtype=float)
+
+        probabilidades = np.asarray([
+            [self.probabilidade_acerto(theta, item) for item in itens_ativos]
+            for theta in self._pontos_quad
+        ])
+        probabilidades = np.clip(probabilidades, 1e-15, 1 - 1e-15)
+        log_p = np.log(probabilidades)
+        log_q = np.log(1 - probabilidades)
+
+        resultado = np.empty(matriz.shape[0], dtype=float)
+        for inicio in range(0, matriz.shape[0], batch_size):
+            fim = min(inicio + batch_size, matriz.shape[0])
+            bloco = matriz[inicio:fim]
+            log_l = bloco @ log_p.T + (1 - bloco) @ log_q.T
+            log_l -= np.max(log_l, axis=1, keepdims=True)
+            posterior = np.exp(log_l) * self._pesos_quad
+            denominador = posterior.sum(axis=1)
+            numerador = posterior @ self._pontos_quad
+            resultado[inicio:fim] = np.divide(
+                numerador,
+                denominador,
+                out=np.zeros_like(numerador),
+                where=denominador > 0,
+            )
+        return resultado
     
     def converter_respostas(self, respostas_str: str, itens: List[ItemTRI]) -> List[int]:
         """
@@ -334,11 +414,19 @@ class CalculadorTRI:
         por idioma, com '99999' no não escolhido. Sem reduzir, a nota sai
         deslocada em até 168 pontos. Entradas de 45 passam inalteradas.
         """
+        if not isinstance(respostas_str, str):
+            raise TypeError("respostas_str deve ser uma string")
+
         if area.upper() == 'LC':
             from .tradutor import obter_config_lc, filtrar_respostas_lc
+            config = obter_config_lc(ano)
+            if config.tem_tp_lingua_dados and tp_lingua not in (0, 1):
+                raise ValueError(
+                    f"{ano}/LC: informe tp_lingua=0 (inglês) ou "
+                    "tp_lingua=1 (espanhol)"
+                )
             respostas_str = filtrar_respostas_lc(
-                respostas_str, tp_lingua if tp_lingua is not None else 0,
-                obter_config_lc(ano),
+                respostas_str, tp_lingua if tp_lingua is not None else 0, config,
             )
         return respostas_str
 
@@ -362,17 +450,42 @@ class CalculadorTRI:
                 f"foram fornecidas {len(respostas_norm)} respostas"
             )
 
+        invalidos = sorted(set(respostas_norm.upper()) - set("ABCDE.*"))
+        if invalidos:
+            raise ValueError(
+                f"{ano}/{area}/{co_prova}: respostas contêm caracteres inválidos: "
+                f"{', '.join(repr(c) for c in invalidos)}"
+            )
+
         return itens, self.converter_respostas(respostas_norm, itens), respostas_norm
+
+    def preparar_respostas_batch(
+        self,
+        ano: int,
+        area: str,
+        co_prova: int,
+        respostas: Iterable[str],
+        tp_lingua: Optional[int] = None,
+    ) -> Tuple[List[ItemTRI], np.ndarray]:
+        """Normaliza e converte um lote de respostas da mesma prova/idioma."""
+        itens = self.carregar_itens(ano, area, co_prova, tp_lingua)
+        binarias = []
+        for resposta in respostas:
+            _, vetor, _ = self._preparar_calculo(
+                ano, area, co_prova, resposta, tp_lingua
+            )
+            binarias.append(vetor)
+        return itens, np.asarray(binarias, dtype=np.int8)
 
     def transformar_escala(self, theta: float, ano: int = None, area: str = None,
                           co_prova: int = None) -> float:
         """
         Transforma θ da escala (0,1) para escala ENEM.
         
-        Usa coeficientes de equalização do módulo coeficientes.py
+        Usa a transformação validada por prova, com fallback por área.
         """
-        slope, intercept = obter_coeficiente(ano or 2023, area or 'MT', co_prova)
-        return slope * theta + intercept
+        transformacao = obter_transformacao(ano or 2023, area or 'MT', co_prova)
+        return aplicar_transformacao(theta, transformacao)
     
     def calcular_nota(self, ano: int, area: str, co_prova: int, 
                      respostas_str: str, tp_lingua: Optional[int] = None) -> Dict:

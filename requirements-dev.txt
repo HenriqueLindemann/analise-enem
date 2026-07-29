@@ -12,3 +12,4 @@ pytest>=7.0.0
 
 # Empacotamento (pip install -e .)
 setuptools>=64
+build>=1.2

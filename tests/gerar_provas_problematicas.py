@@ -22,13 +22,15 @@ from tri_enem.simulador import SimuladorNota
 
 def gerar_relatorio(
     exemplos_path: Path,
-    microdados_limpos: Path,
+    itens_path: Path | None,
     mapeamento_path: Path,
     saida: Path,
     limite_dif: float,
 ) -> None:
     exemplos = json.loads(exemplos_path.read_text(encoding="utf-8"))
-    sim = SimuladorNota(microdados_path=str(microdados_limpos))
+    sim = SimuladorNota(
+        microdados_path=str(itens_path) if itens_path is not None else None
+    )
 
     mapeamento, duplicados = _utils.carregar_mapeamento(mapeamento_path)
 
@@ -64,14 +66,16 @@ def gerar_relatorio(
         nota_oficial = _utils.to_float(item["nota_oficial"])
         respostas = item["respostas"]
         tp_lingua = item.get("tp_lingua")
-        lingua = _utils.lingua_por_tp(tp_lingua)
+        lingua = (
+            _utils.lingua_por_tp(tp_lingua) if area == "LC" else None
+        )
 
         try:
             resultado = sim.calcular(
                 area=area,
                 ano=ano,
                 respostas=respostas,
-                lingua=lingua if area == "LC" else "ingles",
+                lingua=lingua,
                 co_prova=co_prova,
             )
         except KeyError as exc:
@@ -131,7 +135,10 @@ def gerar_relatorio(
     linhas.append("")
     linhas.append(f"Gerado em: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     linhas.append(f"Exemplos: {exemplos_path.as_posix()}")
-    linhas.append(f"Microdados limpos: {microdados_limpos.as_posix()}")
+    linhas.append(
+        "Itens: "
+        + (itens_path.as_posix() if itens_path else "dados internos do pacote")
+    )
     linhas.append(f"Mapeamento: {mapeamento_path.as_posix()}")
     linhas.append("")
     linhas.append("Resumo")
@@ -158,7 +165,7 @@ def gerar_relatorio(
         linhas.append("Nenhum caso acima do limite.")
     linhas.append("")
 
-    linhas.append("## Provas nao encontradas no microdados_limpos")
+    linhas.append("## Provas sem itens calculáveis")
     if nao_encontradas:
         linhas.append("| ano | area | co_prova | tipo | cor | especial | erro |")
         linhas.append("| --- | --- | --- | --- | --- | --- | --- |")
@@ -199,7 +206,14 @@ def gerar_relatorio(
 def main() -> None:
     parser = argparse.ArgumentParser(description="Gerar relatorio de provas problematicas.")
     parser.add_argument("--exemplos", default="tests/fixtures/exemplos_microdados.json", help="JSON de exemplos")
-    parser.add_argument("--microdados-limpos", default="microdados_limpos", help="Diretorio microdados_limpos")
+    parser.add_argument(
+        "--itens-path",
+        type=Path,
+        help=(
+            "Diretório externo opcional com ITENS_PROVA_<ano>.csv; quando "
+            "omitido, usa os itens incluídos no pacote"
+        ),
+    )
     parser.add_argument(
         "--mapeamento",
         default="src/tri_enem/mapeamento_provas.yaml",
@@ -211,20 +225,21 @@ def main() -> None:
     args = parser.parse_args()
 
     exemplos_path = Path(args.exemplos)
-    microdados_limpos = Path(args.microdados_limpos)
     mapeamento_path = Path(args.mapeamento)
     saida = Path(args.saida)
 
     if not exemplos_path.exists():
         raise SystemExit(f"Arquivo nao encontrado: {exemplos_path}")
-    if not microdados_limpos.exists():
-        raise SystemExit(f"Diretorio nao encontrado: {microdados_limpos}")
+    if args.itens_path is not None and not args.itens_path.is_dir():
+        raise SystemExit(
+            f"Diretorio de itens nao encontrado: {args.itens_path}"
+        )
     if not mapeamento_path.exists():
         raise SystemExit(f"Arquivo nao encontrado: {mapeamento_path}")
 
     gerar_relatorio(
         exemplos_path,
-        microdados_limpos,
+        args.itens_path,
         mapeamento_path,
         saida,
         limite_dif=args.limite_dif,

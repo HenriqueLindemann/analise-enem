@@ -1,108 +1,192 @@
 # SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 # Copyright (c) 2026 Henrique Lindemann
-"""
-Coeficientes de Equalização TRI do ENEM
+"""Transformações da escala latente para a escala de notas do ENEM.
 
-Os coeficientes são carregados automaticamente de coeficientes_data.json
-Este arquivo é gerado pela calibração e pode ser atualizado facilmente.
-
-Fórmula: nota = slope * θ + intercept
+O catálogo v3 aceita uma transformação afim ou uma transformação monotônica
+linear por partes. ``obter_coeficiente`` continua disponível para clientes
+antigos, mas o motor usa ``obter_transformacao`` e ``aplicar_transformacao``.
 """
+
+from __future__ import annotations
 
 import json
+from copy import deepcopy
 from pathlib import Path
-from typing import Tuple
+from typing import Any, Dict, Tuple
 
-# Carregar dados de calibração
-_data_file = Path(__file__).parent / 'coeficientes_data.json'
+import numpy as np
 
-if _data_file.exists():
-    with open(_data_file, 'r', encoding='utf-8') as f:
-        _data = json.load(f)
-    
-    # Converter chaves de string para tuplas
-    COEF_POR_PROVA = {}
-    for key_str, value in _data.get('por_prova', {}).items():
-        ano, area, prova = key_str.split(',')
-        COEF_POR_PROVA[(int(ano), area, int(prova))] = (value['slope'], value['intercept'])
-    
-    COEF_POR_AREA = {}
-    for key_str, value in _data.get('por_area', {}).items():
-        ano, area = key_str.split(',')
-        COEF_POR_AREA[(int(ano), area)] = (value['slope'], value['intercept'])
-    
-    # Padrões por área (filtrar apenas entradas com slope_medio)
-    COEF_PADRAO = {}
-    for area, meta in _data.get('metadata', {}).items():
-        if isinstance(meta, dict) and 'slope_medio' in meta:
-            COEF_PADRAO[area] = (meta['slope_medio'], meta['intercept_medio'])
-else:
-    # Fallback caso o arquivo não exista (usar calibração de 2023)
-    print("Aviso: arquivo coeficientes_data.json não encontrado. Usando coeficientes padrão.")
-    
-    COEF_POR_PROVA = {
-        (2023, 'MT', 1211): (129.6216, 500.03),
-        (2023, 'MT', 1212): (129.6774, 500.06),
-        (2023, 'MT', 1213): (129.6053, 500.02),
-        (2023, 'MT', 1214): (129.6043, 500.03),
-        (2023, 'CN', 1221): (113.0801, 501.15),
-        (2023, 'CN', 1222): (113.1134, 501.16),
-        (2023, 'CN', 1223): (113.1357, 501.17),
-        (2023, 'CN', 1224): (113.1860, 501.16),
-        (2023, 'CH', 1191): (112.2900, 501.52),
-        (2023, 'CH', 1192): (112.4399, 501.49),
-        (2023, 'CH', 1193): (112.2257, 501.40),
-        (2023, 'CH', 1194): (112.3245, 501.45),
-        (2023, 'LC', 1201): (108.0987, 499.99),
-        (2023, 'LC', 1202): (108.1044, 500.03),
-        (2023, 'LC', 1203): (108.0811, 499.95),
-        (2023, 'LC', 1204): (108.0377, 499.96),
-    }
-    
-    COEF_POR_AREA = {
-        (2023, 'MT'): (129.63, 500.0),
-        (2023, 'CN'): (113.13, 501.16),
-        (2023, 'CH'): (112.32, 501.47),
-        (2023, 'LC'): (108.08, 500.0),
-    }
-    
-    COEF_PADRAO = {
-        'MT': (129.63, 500.0),
-        'CN': (113.13, 501.16),
-        'CH': (112.32, 501.47),
-        'LC': (108.08, 500.0),
+_DATA_FILE = Path(__file__).parent / "coeficientes_data.json"
+
+_PADRAO_EMERGENCIA = {
+    "MT": (129.63, 500.0),
+    "CN": (113.13, 501.16),
+    "CH": (112.32, 501.47),
+    "LC": (108.08, 500.0),
+}
+
+
+def _carregar_catalogo() -> Dict[str, Any]:
+    try:
+        data = json.loads(_DATA_FILE.read_text(encoding="utf-8"))
+        return data if isinstance(data, dict) else {}
+    except (OSError, ValueError, TypeError):
+        return {}
+
+
+_DATA = _carregar_catalogo()
+
+
+def _linear(slope: float, intercept: float, origem: str) -> Dict[str, Any]:
+    return {
+        "tipo": "linear",
+        "slope": float(slope),
+        "intercept": float(intercept),
+        "origem": origem,
     }
 
 
-def obter_coeficiente(ano: int, area: str, co_prova: int = None) -> Tuple[float, float]:
-    """
-    Obtém o coeficiente de equalização para uma prova.
-    
-    Ordem de precedência:
-    1. Coeficiente específico para (ano, area, prova)
-    2. Coeficiente por área para (ano, area)
-    3. Coeficiente padrão da área
-    
-    Args:
-        ano: Ano do ENEM
-        area: Área (MT, CN, CH, LC)
-        co_prova: Código da prova (opcional)
-        
-    Returns:
-        Tupla (slope, intercept)
-    """
+def _normalizar_transformacao(info: Dict[str, Any], origem: str) -> Dict[str, Any]:
+    """Converte entradas v2/v3 para o contrato único usado pelo motor."""
+    slope = float(info.get("slope", 100.0))
+    intercept = float(info.get("intercept", 500.0))
+    transformacao = info.get("transformacao")
+    if not isinstance(transformacao, dict):
+        return _linear(slope, intercept, origem)
+
+    tipo = transformacao.get("tipo", "linear")
+    if tipo == "linear":
+        return _linear(
+            transformacao.get("slope", slope),
+            transformacao.get("intercept", intercept),
+            origem,
+        )
+
+    if tipo != "monotonica_linear":
+        return _linear(slope, intercept, origem)
+
+    try:
+        theta = np.asarray(transformacao["theta_knots"], dtype=float)
+        notas = np.asarray(transformacao["score_knots"], dtype=float)
+    except (KeyError, TypeError, ValueError):
+        return _linear(slope, intercept, origem)
+
+    valida = (
+        theta.ndim == notas.ndim == 1
+        and theta.size == notas.size
+        and theta.size >= 2
+        and np.all(np.isfinite(theta))
+        and np.all(np.isfinite(notas))
+        and np.all(np.diff(theta) > 0)
+        and np.all(np.diff(notas) >= 0)
+    )
+    if not valida:
+        return _linear(slope, intercept, origem)
+
+    return {
+        "tipo": "monotonica_linear",
+        "slope": slope,
+        "intercept": intercept,
+        "theta_knots": theta.tolist(),
+        "score_knots": notas.tolist(),
+        "origem": origem,
+    }
+
+
+def _coeficientes_area() -> Dict[Tuple[int, str], Tuple[float, float]]:
+    resultado: Dict[Tuple[int, str], Tuple[float, float]] = {}
+    for key, value in _DATA.get("por_area", {}).items():
+        try:
+            ano, area = key.split(",")
+            resultado[(int(ano), area.upper())] = (
+                float(value["slope"]),
+                float(value["intercept"]),
+            )
+        except (AttributeError, KeyError, TypeError, ValueError):
+            continue
+    return resultado
+
+
+def _coeficientes_padrao() -> Dict[str, Tuple[float, float]]:
+    resultado = dict(_PADRAO_EMERGENCIA)
+    for area, meta in _DATA.get("metadata", {}).items():
+        if not isinstance(meta, dict):
+            continue
+        try:
+            resultado[area.upper()] = (
+                float(meta["slope_medio"]),
+                float(meta["intercept_medio"]),
+            )
+        except (KeyError, TypeError, ValueError):
+            continue
+    return resultado
+
+
+COEF_POR_AREA = _coeficientes_area()
+COEF_PADRAO = _coeficientes_padrao()
+COEF_POR_PROVA: Dict[Tuple[int, str, int], Tuple[float, float]] = {}
+for _key, _value in _DATA.get("por_prova", {}).items():
+    try:
+        _ano, _area, _prova = _key.split(",")
+        if _value.get("slope") is not None and _value.get("intercept") is not None:
+            COEF_POR_PROVA[(int(_ano), _area.upper(), int(_prova))] = (
+                float(_value["slope"]),
+                float(_value["intercept"]),
+            )
+    except (AttributeError, KeyError, TypeError, ValueError):
+        continue
+
+
+def obter_transformacao(
+    ano: int, area: str, co_prova: int | None = None
+) -> Dict[str, Any]:
+    """Obtém a melhor transformação disponível, com origem explícita."""
+    ano = int(ano)
     area = area.upper()
-    
-    # 1. Tentar coeficiente específico por prova
+
     if co_prova is not None:
-        key = (ano, area, co_prova)
-        if key in COEF_POR_PROVA:
-            return COEF_POR_PROVA[key]
-    
-    # 2. Tentar coeficiente por área/ano
-    key = (ano, area)
-    if key in COEF_POR_AREA:
-        return COEF_POR_AREA[key]
-    
-    # 3. Usar padrão da área
-    return COEF_PADRAO.get(area, (100.0, 500.0))
+        key = f"{ano},{area},{int(co_prova)}"
+        info = _DATA.get("por_prova", {}).get(key)
+        if isinstance(info, dict) and info.get("slope") is not None:
+            return _normalizar_transformacao(info, "prova")
+
+    coef_area = COEF_POR_AREA.get((ano, area))
+    if coef_area is not None:
+        return _linear(*coef_area, origem="area_ano")
+
+    return _linear(*COEF_PADRAO.get(area, (100.0, 500.0)), origem="area_padrao")
+
+
+def aplicar_transformacao(theta: float, transformacao: Dict[str, Any]) -> float:
+    """Aplica transformação linear ou monotônica, incluindo extrapolação."""
+    theta = float(theta)
+    if transformacao.get("tipo") != "monotonica_linear":
+        return (
+            float(transformacao["slope"]) * theta
+            + float(transformacao["intercept"])
+        )
+
+    xs = np.asarray(transformacao["theta_knots"], dtype=float)
+    ys = np.asarray(transformacao["score_knots"], dtype=float)
+    nota = float(np.interp(theta, xs, ys))
+
+    if theta < xs[0]:
+        slope = max(0.0, float((ys[1] - ys[0]) / (xs[1] - xs[0])))
+        nota = float(ys[0] + slope * (theta - xs[0]))
+    elif theta > xs[-1]:
+        slope = max(0.0, float((ys[-1] - ys[-2]) / (xs[-1] - xs[-2])))
+        nota = float(ys[-1] + slope * (theta - xs[-1]))
+    return nota
+
+
+def obter_coeficiente(
+    ano: int, area: str, co_prova: int | None = None
+) -> Tuple[float, float]:
+    """Retorna o baseline afim para compatibilidade com a API v3."""
+    transformacao = obter_transformacao(ano, area, co_prova)
+    return float(transformacao["slope"]), float(transformacao["intercept"])
+
+
+def obter_catalogo() -> Dict[str, Any]:
+    """Retorna uma cópia defensiva do catálogo carregado."""
+    return deepcopy(_DATA)

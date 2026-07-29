@@ -113,11 +113,16 @@ def exibir_resultado_area(resultado: Dict):
     aviso = resultado.get('aviso_precisao')
     if aviso:
         exibir = {
+            'sucesso': st.success,
             'info': st.info,
             'atencao': st.warning,
             'alerta': st.error,
         }.get(resultado.get('severidade_precisao'), st.warning)
         exibir(aviso)
+
+    resumo_validacao = resultado.get('resumo_validacao')
+    if resumo_validacao:
+        st.caption(resumo_validacao)
     
     # Seção 1: Grade de questões + Pizza
     st.markdown("##### Grade de Questões")

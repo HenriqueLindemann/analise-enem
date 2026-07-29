@@ -3,9 +3,10 @@
 """
 Amostragem dos microdados brutos do INEP para calibração.
 
-Os arquivos brutos têm de 2 a 4 GB por ano e não cabem no disco do projeto. A
-calibração só precisa de algumas centenas de participantes por prova: a relação
-theta -> nota é uma reta com R² acima de 0,9999.
+Os arquivos brutos têm de 2 a 4 GB por ano e não cabem no disco do projeto.
+Esta ferramenta cria amostras uniformes para investigações legadas. A
+publicação v3 usa `tools/recalibrar_validacao.py`, que preserva separadamente
+faixas de nota, extremos, seleção de modelo e holdout.
 
 Reduz cada ano a microdados_limpos/<ano>/AMOSTRA_CALIBRACAO_<ano>.csv, que
 tools/calibrar_com_mapeamento.py consome no lugar do arquivo bruto.

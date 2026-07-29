@@ -224,7 +224,7 @@ def main():
     
     print()
     print('=' * 80)
-    print('  VALIDACAO: Erro medio < 1 ponto confirma precisao do calculo TRI')
+    print('  ESTIMATIVA TRI: consulte o status e as métricas da prova no resultado')
     print('=' * 80)
     print()
 

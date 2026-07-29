@@ -1,8 +1,8 @@
 name: Testes
 
-# A suite roda offline: os parametros TRI (microdados_limpos/*/ITENS_PROVA_*.csv)
-# e os exemplos com nota oficial (tests/fixtures/) sao versionados, de modo que
-# nao ha download de microdados nem dependencia de dados externos ao repo.
+# A suite roda offline: os parametros TRI empacotados em
+# src/tri_enem/data/itens/ e o holdout oficial comprimido em tests/fixtures/
+# sao versionados. Nao ha download nem dependencia do diretorio atual.
 
 on:
   push:
@@ -32,3 +32,15 @@ jobs:
 
       - name: Rodar a suite
         run: pytest -q
+
+      - name: Validar holdout oficial completo
+        run: python tests/validar_holdout.py
+
+      - name: Construir e instalar o wheel
+        run: |
+          python -m build --wheel
+          python -m pip install --force-reinstall --no-deps dist/*.whl
+
+      - name: Testar wheel fora do repositorio
+        working-directory: /tmp
+        run: python "$GITHUB_WORKSPACE/tests/smoke_instalacao.py"

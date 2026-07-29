@@ -26,7 +26,7 @@ from .base import DadosRelatorio, AreaAnalise
 from .estilos import criar_estilos, Cores
 from .graficos import grafico_barras_notas, grafico_impacto_questoes, grade_questoes, legenda_grafico_impacto
 from .tabelas import tabela_erros_completa, tabela_resumo_areas
-from .utils import verificar_precisao_prova
+from .utils import formatar_resumo_validacao, verificar_precisao_prova
 from ..mapeador_provas import MapeadorProvas
 
 TZ_BRASILIA = timezone(timedelta(hours=-3))
@@ -196,6 +196,12 @@ class RelatorioPDF:
                 precisao['aviso'],
                 self.styles['AvisoPrecisao']
             ))
+        resumo_validacao = formatar_resumo_validacao(precisao)
+        if resumo_validacao:
+            elementos.append(Paragraph(
+                resumo_validacao,
+                self.styles['Disclaimer'],
+            ))
         
         elementos.append(Spacer(1, 4))
         
@@ -233,8 +239,8 @@ class RelatorioPDF:
         
         # Disclaimer
         elementos.append(Paragraph(
-            "Cálculo aproximado por engenharia reversa dos microdados INEP. "
-            "Precisão varia por prova. Use como referência.",
+            "Estimativa TRI validada contra microdados oficiais do INEP. "
+            "Consulte as métricas de precisão de cada prova e use como referência.",
             self.styles['Disclaimer']
         ))
         

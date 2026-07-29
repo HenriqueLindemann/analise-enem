@@ -1,153 +1,133 @@
 # ENEM Score Recalculation
 
-The library reproduces official ENEM scores by reimplementing the Item Response Theory pipeline used by INEP, calibrated against real participant data from the public microdata releases. Scores are accurate to within 1 point for **92% of all exam booklets from 2009 to 2025**.
+The library estimates ENEM scores with the published item parameters and
+validates each exam booklet against official participant scores.
 
----
+## Versioned item data
 
-## Data
+The 17 `ITENS_PROVA_<year>.csv` files are stored once, under
+`src/tri_enem/data/itens/<year>/`. They are:
 
-All inputs come from INEP's publicly released annual microdata ([dados.gov.br](https://dados.gov.br/dados/conjuntos-dados/microdados-do-enem)):
+- produced from the official releases by `tools/gerar_dados_itens.py`;
+- schema-checked and recorded in `data/itens/manifest.json`, including source
+  and normalized SHA-256 hashes;
+- included in wheels by the package-data rule in `pyproject.toml`;
+- loaded through `importlib.resources` when no external item path is supplied.
 
-- **Item parameters** — the three IRT parameters (a, b, c) for every question in every booklet
-- **Answer keys** — correct answers per question per booklet color
-- **Participant records** — response strings and official scores used for calibration and validation
+`microdados_limpos/` contains only local participant extracts used by legacy
+calibration tools. It is not required at runtime and is not packaged.
 
----
+Regenerate the package data with:
 
-## Calculation Pipeline
-
-### 1. IRT Model
-
-ENEM scores use the **3-Parameter Logistic Model (3PL)**:
-
-```
-P(correct | θ) = c + (1 - c) / (1 + exp(-D · a · (θ - b)))
-```
-
-- **a** — discrimination
-- **b** — difficulty
-- **c** — pseudo-guessing floor
-- **D = 1.0**
-
-### 2. Ability Estimation (EAP)
-
-Each student's latent ability θ is estimated via **Expected A Posteriori** integration:
-
-```
-θ̂ = ∫ θ · L(responses | θ) · N(0,1) dθ  /  ∫ L(responses | θ) · N(0,1) dθ
+```bash
+python tools/gerar_dados_itens.py \
+  --microdados-dir /path/to/MICRODADOS_ENEM
 ```
 
-Computed using **80-point Gauss-Hermite quadrature** with a standard normal prior N(0, 1).
+The generator accepts the extracted official `microdados_enem_<year>/DADOS`
+layout (including the lowercase 2016 filename), normalizes all files
+atomically, and fails if any year or required column is missing.
 
-### 3. Score Transformation
+## Ability calculation
 
+The response model is the three-parameter logistic model:
+
+```text
+P(correct | θ) = c + (1 - c) / (1 + exp(-a · (θ - b)))
 ```
-score = slope × θ + intercept
+
+Ability is estimated by EAP with an `N(0, 1)` prior and 80-point
+Gauss-Hermite quadrature. Scalar and vectorized implementations are tested for
+numerical equivalence. Abandoned items do not enter the likelihood.
+
+LC item selection is language-strict. In particular, the 2020 digital
+booklets 691–694 contain two complete 45-item versions under each proof code;
+the version matching the participant language is selected before positions
+are paired with responses.
+
+The adapted 2013 booklets 187–190 also contain two distinct item collections
+under each code, but neither the item file nor the participant file exposes a
+version discriminator. They remain calculable through a deterministic choice
+of the first collection in the normalized official file. Their holdout status,
+sample size, MAE, and maximum observed error are always presented with the
+score, so this unresolved ambiguity is not hidden from users.
+
+## Score transformation
+
+`coeficientes_data.json` uses schema v3. Each mapped proof has one entry with:
+
+- an affine baseline (`slope`, `intercept`);
+- either a linear transformation or monotonic piecewise-linear knots;
+- calibration and model-selection sample sizes;
+- untouched holdout metrics;
+- status and reason.
+
+Candidate models are linear and monotonic piecewise-linear transformations with
+5, 9, 17, or 33 requested knots. Knot scores are fitted with weighted isotonic
+regression. Selection minimizes, in order, validation errors above two points,
+maximum error, MAE, and model complexity.
+
+## Real-data sampling and validation
+
+Run:
+
+```bash
+python tools/recalibrar_validacao.py \
+  --microdados-dir /path/to/MICRODADOS_ENEM \
+  --workers 3
 ```
 
-The coefficients are not constant and vary per subject area. They were determined by fitting against real participant data from the INEP microdata:
+For every mapped proof, and separately by language in LC, valid participant
+records are stratified into:
 
-| Area | Slope (≈) | Intercept (≈) |
-|------|----------:|---------------:|
-| MT   | 129.6     | 500.0          |
-| CN   | 113.1     | 501.2          |
-| CH   | 112.3     | 501.5          |
-| LC   | 108.1     | 500.0          |
+```text
+(0,400], (400,500], (500,600], (600,700], (700,800],
+(800,900], (900,1000], (1000,+∞)
+```
 
-Coefficients are stable across years (year-to-year variation < 0.1%) and stored per exam booklet in [coeficientes_data.json](../src/tri_enem/coeficientes_data.json).
+Up to 160 deterministic cases are retained per stratum: 100 calibration,
+30 model selection, and 30 final holdout cases. Official zeros, absent
+participants, missing responses, unmapped proofs, and proofs without item
+parameters cannot enter calibration. Minimum and maximum official scores are
+reserved for holdout whenever possible.
 
----
+The generator publishes atomically:
 
-## Calibration
+- `src/tri_enem/coeficientes_data.json`;
+- `tests/fixtures/validation_holdout.jsonl.gz`;
+- `tests/fixtures/validation_manifest.json`;
+- `docs/VALIDATION_REPORT.md`.
 
-INEP applies an annual equalization step that adjusts slope and intercept per exam. Coefficients were recovered by fitting a linear regression between EAP-estimated θ values and official scores from the microdata.
+The manifest records source hashes, sampling parameters, coverage, source
+commit, and status counts. No participant identifier is stored.
 
-**Pipeline** (`calibrador.py` / `tools/calibrar_com_mapeamento.py`):
+## Status contract
 
-1. Load microdata for a given year and area from `microdados_limpos/`
-2. Filter to participants with valid attendance and official score
-3. Draw a stratified sample of up to 200 participants per booklet, across score bands (0–500, 500–600, 600–700, 700–800, 800+)
-4. Estimate θ via EAP using published item parameters
-5. Fit OLS: `official_score ≈ slope × θ̂ + intercept`
-6. Store slope, intercept, MAE, and R² per booklet in `coeficientes_data.json`
+Status uses the maximum absolute holdout error, not training MAE:
 
----
+| Status | Maximum holdout error |
+|---|---:|
+| `ok` | ≤ 2 points |
+| `aviso_leve` | > 2 and ≤ 5 |
+| `aviso_forte` | > 5 and ≤ 15 |
+| `erro_alto` | > 15 |
 
-## Validation
+Fewer than 30 holdout records, fewer than two populated score bands, or
+incomplete band coverage results in `nao_calibrado`. Only `ok` is exposed as
+`confiavel=True`; every other calculable result is explicitly an estimate.
 
-Test cases come from real participant records in `tests/fixtures/exemplos_microdados.json`, extracted from INEP microdata.
+The user-facing message has a separate presentation profile. An `ok` proof
+receives a positive confirmation. A proof whose typical holdout errors are
+low but whose strict status is caused by a small number of exceptions receives
+an intermediate message. This profile never changes the strict status or
+promotes the proof to `confiavel=True`.
 
-**`tests/extrair_exemplos_completos.py`** — builds the test suite by resolving each participant's exam color and application type from their `CO_PROVA` code and writing rows to `tests/suite_testes_completos.txt`.
+Current generated results are in [VALIDATION_REPORT.md](VALIDATION_REPORT.md).
+The report includes plain-language guidance, statistics by year and area,
+human-readable booklet names, status/profile lists, and exact per-proof
+metrics.
+CI recomputes the committed holdout with:
 
-**`tests/executar_testes_completos.py`** — runs the full Streamlit app calculation path against 40+ real participants, comparing recalculated scores against official scores and validating question-order mappings per year.
-
----
-
-## Precision
-
-Measured as **Mean Absolute Error (MAE)** between recalculated and official scores on the validation sample.
-
-| Metric | Value |
-|--------|-------|
-| Median MAE (368 exams) | 0.14 pts |
-| Mean MAE | 1.89 pts |
-| Exams with MAE ≤ 2 pts | 340 / 368 (92%) |
-| Exams with MAE ≤ 5 pts | 345 / 368 (94%) |
-| Coverage | 2009–2025 |
-
-**By year:**
-
-| Year | Reliable | Partial | High Error | No Data |
-|------|--------:|---------:|-----------:|--------:|
-| 2009 | 28 | 0 | 5 | 0 |
-| 2010 | 24 | 0 | 0 | 0 |
-| 2011 | 12 | 1 | 3 | 0 |
-| 2012 | 20 | 0 | 0 | 0 |
-| 2013 | 12 | 0 | 8 | 0 |
-| 2014 | 20 | 0 | 2 | 0 |
-| 2015 | 35 | 1 | 0 | 0 |
-| 2016 | 42 | 0 | 0 | 0 |
-| 2017 | 17 | 0 | 15 | 0 |
-| 2018 | 26 | 6 | 0 | 0 |
-| 2019 | 18 | 0 | 6 | 0 |
-| 2020 | 52 | 0 | 4 | 0 |
-| 2021 | 70 | 2 | 0 | 0 |
-| 2022 | 56 | 0 | 0 | 0 |
-| 2023 | 48 | 0 | 4 | 0 |
-| 2024 | 32 | 0 | 0 | 16 |
-| 2025 | 52 | 2 | 0 | 2 |
-
-*Reliable: MAE ≤ 5 pts. Partial: MAE 5–15 pts. High Error: MAE > 15 pts. No Data: zero participants in public microdata (adapted booklets).*
-
-Precision warnings are surfaced at runtime by `precisao.py` and shown in the web UI.
-
----
-
-## Answer-Order Mapping
-
-Each booklet color presents the same questions in a different order. Every `(year, area, application_type, color)` combination maps to a specific INEP exam code (`CO_PROVA`) via [mapeamento_provas.yaml](../src/tri_enem/mapeamento_provas.yaml).
-
-Structural changes across years:
-
-| Period | Change |
-|--------|--------|
-| Pre-2016 | Colors were Cinza/Laranja; `TX_COR` column absent from microdata |
-| 2016–2017 | CH question sequence shifted in some booklets |
-| 2020 | Physical and digital editions share item codes with different orderings |
-| 2020+ | LC answer block moved from positions 91–135 to 1–45 in item files |
-| 2009 | LC lacks `TP_LINGUA`; English/Spanish blocks cannot be separated |
-
----
-
-## Known Limitations
-
-| Case | MAE | Cause |
-|------|-----|-------|
-| 2009 LC (all booklets) | 46–71 pts | `TP_LINGUA` absent; language blocks cannot be separated |
-| 2013 LC booklet 189 | 231.6 pts | Item order mismatch in INEP file |
-| 2013 CH/CN/MT (selected) | 21–110 pts | Item order anomalies for special booklets |
-| 2017 CH/CN/MT (15 booklets) | 15–84 pts | Mixed question-numbering conventions in special booklets |
-| 2019 MT PPL booklets | ≈26 pts | PPL booklet ordering not resolved |
-| 2020 digital LC (4 booklets) | 34–40 pts | Duplicate item entries for physical/digital editions |
-| 2024–2025 adapted booklets | N/A | Zero participants in public microdata |
-| Any exam, score > 900 pts | ±5 pts | Sparse quadrature grid at the upper tail |
+```bash
+python tests/validar_holdout.py
+```

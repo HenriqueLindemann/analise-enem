@@ -69,7 +69,12 @@ def lingua_por_tp(tp_lingua: Optional[Any]) -> str:
     """
     if tp_lingua is None:
         return "ingles"
-    return "ingles" if str(tp_lingua).strip() == "0" else "espanhol"
+    normalizado = str(tp_lingua).strip()
+    if normalizado == "0":
+        return "ingles"
+    if normalizado == "1":
+        return "espanhol"
+    raise ValueError(f"TP_LINGUA inválido: {tp_lingua!r}")
 
 
 def to_float(value: Any) -> float:

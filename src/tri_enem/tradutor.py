@@ -6,7 +6,8 @@ Tradutor de Respostas LC
 Este módulo lida com as diferenças de estrutura LC entre anos:
 - 2009: 45 itens no arquivo, posições 91-135, sem TP_LINGUA
 - 2010-2019: 50 itens (ambas línguas), posições 91-135
-- 2020+: 50 itens (ambas línguas), posições 1-45
+- 2020+: 50 itens (ambas línguas), posições 1-45; as digitais 691–694
+  de 2020 têm duas versões completas e totalizam 90 linhas
 
 O tradutor garante que o usuário sempre forneça 45 respostas e
 mapeia corretamente para os itens da prova.
@@ -92,10 +93,47 @@ def filtrar_itens_lc(df_itens: pd.DataFrame, co_prova: int, tp_lingua: int, conf
     """
     lc = df_itens[(df_itens['SG_AREA'] == 'LC') & (df_itens['CO_PROVA'] == co_prova)].copy()
 
-    # Mantém itens comuns (TP_LINGUA=NaN) + os da língua escolhida. Só filtra
-    # se a prova oferecer a língua pedida: 2012/LC/165 só tem inglês, e filtrar
-    # por espanhol deixaria 40 itens para 45 respostas.
-    if 'TP_LINGUA' in lc.columns and (lc['TP_LINGUA'] == tp_lingua).any():
+    # As provas digitais de LC de 2020 (691–694) armazenam dois cadernos
+    # completos sob o mesmo CO_PROVA. Nesse caso TP_VERSAO_DIGITAL não é uma
+    # duplicata descartável: a versão 0 contém inglês e a versão 1 contém
+    # espanhol, inclusive com posições diferentes para os 40 itens comuns.
+    # Selecionar sempre a versão menor desalinha toda a prova de espanhol.
+    if (
+        config.tem_tp_lingua_itens
+        and "TP_VERSAO_DIGITAL" in lc.columns
+        and tp_lingua in (0, 1)
+    ):
+        versao = lc[
+            pd.to_numeric(
+                lc["TP_VERSAO_DIGITAL"], errors="coerce"
+            ).eq(tp_lingua)
+        ]
+        if (
+            len(versao) == 45
+            and versao["CO_POSICAO"].nunique() == 45
+            and tp_lingua
+            in {
+                int(valor)
+                for valor in versao["TP_LINGUA"].dropna().unique()
+                if int(valor) in (0, 1)
+            }
+        ):
+            lc = versao
+
+    # Não troca silenciosamente o idioma solicitado. Algumas provas especiais
+    # oferecem apenas uma língua (por exemplo 2012/LC/165).
+    if config.tem_tp_lingua_itens and 'TP_LINGUA' in lc.columns:
+        disponiveis = {
+            int(valor) for valor in lc["TP_LINGUA"].dropna().unique()
+            if int(valor) in (0, 1)
+        }
+        if tp_lingua not in disponiveis:
+            nomes = {0: "inglês", 1: "espanhol"}
+            ofertadas = ", ".join(nomes[x] for x in sorted(disponiveis)) or "nenhuma"
+            raise ValueError(
+                f"Prova LC {co_prova} não oferece "
+                f"{nomes.get(tp_lingua, tp_lingua)}; disponível: {ofertadas}"
+            )
         lc = lc[(pd.isna(lc['TP_LINGUA'])) | (lc['TP_LINGUA'] == tp_lingua)]
 
     return deduplicar_itens_por_posicao(lc)
@@ -103,15 +141,14 @@ def filtrar_itens_lc(df_itens: pd.DataFrame, co_prova: int, tp_lingua: int, conf
 
 def deduplicar_itens_por_posicao(lc: pd.DataFrame) -> pd.DataFrame:
     """
-    Ordena por posição e mantém um item por CO_POSICAO.
+    Ordena por posição e escolhe deterministicamente a primeira ocorrência.
 
-    Posições repetidas são comuns em LC, com gabarito e parâmetros diferentes.
-    Sem deduplicar, a prova chega com mais de 45 itens e o pareamento desloca.
-
-    Desempate: TP_VERSAO_DIGITAL menor ou nulo (só existe em 2020, seleciona a
-    versão impressa), depois a ordem de aparição no arquivo — validada contra as
-    notas oficiais. Daí o `kind='stable'`; o quicksort padrão do pandas tornaria
-    a escolha arbitrária.
+    Os pares de língua são filtrados antes desta função e as digitais de 2020
+    são separadas por ``TP_VERSAO_DIGITAL``. As adaptadas 187–190 de 2013
+    ainda contêm duas coleções sem discriminador público; para que continuem
+    calculáveis, conservamos a primeira coleção na ordem oficial normalizada.
+    A precisão observada dessas provas permanece registrada no catálogo e deve
+    ser mostrada como aviso junto da estimativa.
     """
     if 'TP_VERSAO_DIGITAL' in lc.columns:
         lc = lc.sort_values(by=['CO_POSICAO', 'TP_VERSAO_DIGITAL'],
@@ -119,10 +156,7 @@ def deduplicar_itens_por_posicao(lc: pd.DataFrame) -> pd.DataFrame:
     else:
         lc = lc.sort_values('CO_POSICAO', kind='stable')
 
-    if 'CO_POSICAO' in lc.columns:
-        lc = lc.drop_duplicates(subset=['CO_POSICAO'], keep='first')
-
-    return lc
+    return lc.drop_duplicates(subset=["CO_POSICAO"], keep="first")
 
 
 def mapear_respostas_para_itens(respostas_45: str, itens: pd.DataFrame) -> List[Tuple[int, str, str]]:
@@ -156,9 +190,9 @@ def filtrar_respostas_lc(respostas_str: str, tp_lingua: int, config: Configuraca
     """
     Filtra respostas LC para obter apenas as 45 válidas.
     
-    Anos 2015-2020 têm 50 chars com "99999" padding:
-    - Se TP_LINGUA=0 (inglês): "ABCDE..." + "99999..." -> retorna primeiros 45
-    - Se TP_LINGUA=1 (espanhol): "99999..." + "AB CDE..." -> remove primeiros 5, retorna próximos 45
+    Alguns registros de 2010 em diante têm 50 caracteres com padding "99999":
+    - TP_LINGUA=0: inglês nas posições 0-4, padding em 5-9 e 40 comuns;
+    - TP_LINGUA=1: padding em 0-4, espanhol em 5-9 e 40 comuns.
     
     Args:
         respostas_str: String de respostas original (45 ou 50 chars)
@@ -173,19 +207,28 @@ def filtrar_respostas_lc(respostas_str: str, tp_lingua: int, config: Configuraca
         return respostas_str
     
     if len(respostas_str) == 50:
-        # Formato com padding: remover os 5 "9"s
+        # Formato com padding: remover somente o bloco literal "99999".
         # Se inglês (tp_lingua=0): caracteres 0-44 são válidos, 45-49 são "9"s
         # Se espanhol (tp_lingua=1): caracteres 0-4 são "9"s, 5-49 são válidos
         
         if tp_lingua == 0:
             # Inglês: pos 0-4 (inglês) + pos 10-49 (comuns)
             # Pula pos 5-9 que é espanhol (99999)
+            if respostas_str[5:10] != "99999":
+                raise ValueError(
+                    "Resposta LC de 50 caracteres deve conter padding "
+                    "'99999' nas posições do idioma não escolhido"
+                )
             return respostas_str[:5] + respostas_str[10:]
         else:
             # Espanhol: pos 5-49 (espanhol + comuns)
             # Pula pos 0-4 que é inglês (99999)
+            if respostas_str[:5] != "99999":
+                raise ValueError(
+                    "Resposta LC de 50 caracteres deve conter padding "
+                    "'99999' nas posições do idioma não escolhido"
+                )
             return respostas_str[5:50]
     
-    # Formato desconhecido, retornar como está
-    return respostas_str[:45] if len(respostas_str) >= 45 else respostas_str
-
+    # Formato desconhecido: o chamador valida o comprimento e apresenta erro.
+    return respostas_str

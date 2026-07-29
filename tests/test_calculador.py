@@ -3,8 +3,8 @@
 """
 Testes do motor de cálculo TRI.
 
-Executam integralmente offline, a partir dos itens versionados em
-`microdados_limpos/` e dos exemplos reais em `fixtures/`. Não dependem dos
+Executam integralmente offline, a partir dos itens empacotados em
+`src/tri_enem/data/itens/` e dos exemplos reais em `fixtures/`. Não dependem dos
 microdados brutos do INEP.
 
 Organizam-se em três camadas:
@@ -21,6 +21,7 @@ Organizam-se em três camadas:
 import json
 from pathlib import Path
 
+import numpy as np
 import pytest
 
 import _utils
@@ -84,6 +85,30 @@ class TestRegressaoGolden:
 
     def test_golden_cobre_todas_as_areas(self):
         assert {c["area"] for c in CASOS} == {"LC", "CH", "CN", "MT"}
+
+
+class TestOrigemDosItens:
+    def test_caminho_externo_incompleto_nao_recai_no_pacote(self, tmp_path):
+        calculador = CalculadorTRI(str(tmp_path))
+        with pytest.raises(FileNotFoundError, match=str(tmp_path)):
+            calculador.listar_provas(2023)
+
+    @pytest.mark.parametrize(
+        ("area", "co_prova", "tp_lingua"),
+        [
+            ("CH", 187, None),
+            ("CN", 188, None),
+            ("LC", 189, 0),
+            ("LC", 189, 1),
+            ("MT", 190, None),
+        ],
+    )
+    def test_versoes_adaptadas_ambiguas_de_2013_continuam_calculaveis(
+        self, calc, area, co_prova, tp_lingua
+    ):
+        itens = calc.carregar_itens(2013, area, co_prova, tp_lingua)
+        assert len(itens) == 45
+        assert len({item.posicao for item in itens}) == 45
 
 
 class TestCoerenciaEntreInterfaces:
@@ -192,6 +217,20 @@ class TestEstimacaoEAP:
             calc.estimar_theta_eap(com_erro, itens), abs=1e-12
         )
 
+    def test_caminhos_escalar_e_vetorizado_sao_equivalentes(self, calc):
+        itens = self._prova()
+        matriz = [
+            [1] * k + [0] * (45 - k)
+            for k in (0, 1, 10, 22, 44, 45)
+        ]
+        escalar = np.asarray([
+            calc.estimar_theta_eap(respostas, itens) for respostas in matriz
+        ])
+        vetorizado = calc.estimar_theta_eap_batch(
+            matriz, itens, batch_size=2
+        )
+        assert vetorizado == pytest.approx(escalar, abs=2e-14)
+
 
 class TestConverterRespostas:
     @staticmethod
@@ -220,6 +259,10 @@ class TestConverterRespostas:
         itens = self._itens("ABC")
         assert calc.converter_respostas(".B.", itens) == [0, 1, 0]
 
+    def test_asterisco_conta_como_omissao(self, calc):
+        itens = self._itens("ABC")
+        assert calc.converter_respostas("*B*", itens) == [0, 1, 0]
+
 
 class TestCarregarItens:
     def test_prova_real_tem_45_itens(self, calc):
@@ -236,6 +279,23 @@ class TestCarregarItens:
         ingles = calc.carregar_itens(2023, "LC", 1201, tp_lingua=0)
         espanhol = calc.carregar_itens(2023, "LC", 1201, tp_lingua=1)
         assert [i.co_item for i in ingles] != [i.co_item for i in espanhol]
+
+    def test_lc_digital_2020_seleciona_versao_completa_do_idioma(self, calc):
+        df = calc._carregar_df_itens(2020)
+        for lingua in (0, 1):
+            itens = calc.carregar_itens(2020, "LC", 691, tp_lingua=lingua)
+            esperado = (
+                df[
+                    (df["SG_AREA"] == "LC")
+                    & (df["CO_PROVA"] == 691)
+                    & (df["TP_VERSAO_DIGITAL"] == lingua)
+                ]
+                .sort_values("CO_POSICAO")
+            )
+            assert len(itens) == len(esperado) == 45
+            assert [item.co_item for item in itens] == (
+                esperado["CO_ITEM"].astype(int).tolist()
+            )
 
     def test_itens_vem_ordenados_por_posicao(self, calc):
         itens = calc.carregar_itens(2023, "CH", 1191)
@@ -257,6 +317,32 @@ class TestCarregarItens:
 
     def test_cache_devolve_mesma_lista(self, calc):
         assert calc.carregar_itens(2023, "MT", 1211) is calc.carregar_itens(2023, "MT", 1211)
+
+    def test_lc_exige_idioma_valido(self, calc):
+        with pytest.raises(ValueError, match="tp_lingua"):
+            calc.carregar_itens(2023, "LC", 1201)
+        with pytest.raises(ValueError, match="tp_lingua"):
+            calc.carregar_itens(2023, "LC", 1201, tp_lingua=2)
+
+    def test_nao_substitui_idioma_indisponivel(self, calc):
+        with pytest.raises(ValueError, match="não oferece espanhol"):
+            calc.carregar_itens(2012, "LC", 165, tp_lingua=1)
+
+
+class TestValidacaoEntradaNucleo:
+    def test_rejeita_caractere_fora_do_contrato(self, calc):
+        with pytest.raises(ValueError, match="caracteres inválidos"):
+            calc.calcular_nota(2023, "MT", 1211, "A" * 44 + "9")
+
+    def test_padding_nove_so_e_removido_em_lc_50(self, calc):
+        resposta = "BCBAB99999BACBEACBDCCABAEAAABCCCDECDCECADAAEBCECBD"
+        resultado = calc.calcular_nota(
+            2014, "LC", 213, resposta, tp_lingua=0
+        )
+        assert resultado["total_itens"] == 45
+        adulterada = resposta[:5] + "AAAAA" + resposta[10:]
+        with pytest.raises(ValueError, match="padding"):
+            calc.calcular_nota(2014, "LC", 213, adulterada, tp_lingua=0)
 
 
 RESPOSTAS_MT_2023 = "CEAEACCCDABCDAACEDDBAAEBABDDEEBDAECABDBCBCADE"

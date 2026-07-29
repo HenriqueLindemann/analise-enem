@@ -1,0 +1,298 @@
+{
+  "schema_version": 1,
+  "generator": "tools/gerar_dados_itens.py",
+  "normalization": "pandas-read-latin1-write-utf8-semicolon-lf",
+  "years": [
+    2009,
+    2010,
+    2011,
+    2012,
+    2013,
+    2014,
+    2015,
+    2016,
+    2017,
+    2018,
+    2019,
+    2020,
+    2021,
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "files": [
+    {
+      "ano": 2009,
+      "linhas": 1440,
+      "provas": 32,
+      "areas": [
+        "CH",
+        "CN",
+        "LC",
+        "MT"
+      ],
+      "arquivo": "2009/ITENS_PROVA_2009.csv",
+      "fonte": "microdados_enem_2009/DADOS/ITENS_PROVA_2009.csv",
+      "sha256_fonte": "7d9dde49c641782b12d8a1097a497df673d81f79e86bed1856c0f0f3568c42aa",
+      "sha256_normalizado": "39646b0adca6fe2a1ecc2964416e91052a70293364e53ed7d5b7c7340198713d",
+      "bytes_normalizado": 79162
+    },
+    {
+      "ano": 2010,
+      "linhas": 1480,
+      "provas": 32,
+      "areas": [
+        "CH",
+        "CN",
+        "LC",
+        "MT"
+      ],
+      "arquivo": "2010/ITENS_PROVA_2010.csv",
+      "fonte": "microdados_enem_2010/DADOS/ITENS_PROVA_2010.csv",
+      "sha256_fonte": "bf297cad3e15d28979c229827cc6233ab23d593ab17067bc97353441cdbbfa18",
+      "sha256_normalizado": "ae70ffe310b5e9f9bfa5d8fd3a952c7977ab55018c680e638e92da86ccd75938",
+      "bytes_normalizado": 85401
+    },
+    {
+      "ano": 2011,
+      "linhas": 925,
+      "provas": 20,
+      "areas": [
+        "CH",
+        "CN",
+        "LC",
+        "MT"
+      ],
+      "arquivo": "2011/ITENS_PROVA_2011.csv",
+      "fonte": "microdados_enem_2011/DADOS/ITENS_PROVA_2011.csv",
+      "sha256_fonte": "17311f673302921c3fc0453c0019eb4c5c46c7adc8070888c1b1a443b3a590f6",
+      "sha256_normalizado": "13fe428f16f75c3ec0819ef15e61e8541a2aaaf8474679fe83564a517f71b4a5",
+      "bytes_normalizado": 52012
+    },
+    {
+      "ano": 2012,
+      "linhas": 1015,
+      "provas": 22,
+      "areas": [
+        "CH",
+        "CN",
+        "LC",
+        "MT"
+      ],
+      "arquivo": "2012/ITENS_PROVA_2012.csv",
+      "fonte": "microdados_enem_2012/DADOS/ITENS_PROVA_2012.csv",
+      "sha256_fonte": "8d171b0de7d5766b247d1b5e08bb2afa381c2af3690f8f55e258f2614248a677",
+      "sha256_normalizado": "f943c4557ce78704c15620a031b95d867c0781559935d5060b311ab2f8698a72",
+      "bytes_normalizado": 51092
+    },
+    {
+      "ano": 2013,
+      "linhas": 1295,
+      "provas": 24,
+      "areas": [
+        "CH",
+        "CN",
+        "LC",
+        "MT"
+      ],
+      "arquivo": "2013/ITENS_PROVA_2013.csv",
+      "fonte": "microdados_enem_2013/DADOS/ITENS_PROVA_2013.csv",
+      "sha256_fonte": "87f8353454cb47653c457f41814e5a569d6a7c5e3fda4d1dc8e0ea9d3cf67e58",
+      "sha256_normalizado": "892aaa9127821d4f34a6a6f90771c7f84df431b4c2649433bdbd7967a86c41fc",
+      "bytes_normalizado": 72592
+    },
+    {
+      "ano": 2014,
+      "linhas": 1665,
+      "provas": 36,
+      "areas": [
+        "CH",
+        "CN",
+        "LC",
+        "MT"
+      ],
+      "arquivo": "2014/ITENS_PROVA_2014.csv",
+      "fonte": "microdados_enem_2014/DADOS/ITENS_PROVA_2014.csv",
+      "sha256_fonte": "d584838cc6683c8990b371cf5d94586640609c1606ea62aa32d4b87b842c1f6e",
+      "sha256_normalizado": "7db923724d32c11a6b75a54090e55b33da2843649d365db9e56ab6cccd5aeff7",
+      "bytes_normalizado": 96591
+    },
+    {
+      "ano": 2015,
+      "linhas": 2775,
+      "provas": 60,
+      "areas": [
+        "CH",
+        "CN",
+        "LC",
+        "MT"
+      ],
+      "arquivo": "2015/ITENS_PROVA_2015.csv",
+      "fonte": "microdados_enem_2015/DADOS/ITENS_PROVA_2015.csv",
+      "sha256_fonte": "c3c3a9a98d33ffc513c767b373d1f82d2ebd5d6431147c1bb2ba76ba63fbe392",
+      "sha256_normalizado": "c294729aa33d931dba12953c110a564857db3f30fb44ba9540e42b9729d99eeb",
+      "bytes_normalizado": 156907
+    },
+    {
+      "ano": 2016,
+      "linhas": 2590,
+      "provas": 56,
+      "areas": [
+        "CH",
+        "CN",
+        "LC",
+        "MT"
+      ],
+      "arquivo": "2016/ITENS_PROVA_2016.csv",
+      "fonte": "microdados_enem_2016/DADOS/ITENS_PROVA_2016.csv",
+      "sha256_fonte": "9043f322d31c30c31637ee946f86f50759311c87405f532f9d34c20cc4163406",
+      "sha256_normalizado": "43e6006cd2af0ceb443e7ea036d0853319b8eefdc8b66581b16919b27fb5f2d7",
+      "bytes_normalizado": 148742
+    },
+    {
+      "ano": 2017,
+      "linhas": 1850,
+      "provas": 40,
+      "areas": [
+        "CH",
+        "CN",
+        "LC",
+        "MT"
+      ],
+      "arquivo": "2017/ITENS_PROVA_2017.csv",
+      "fonte": "microdados_enem_2017/DADOS/ITENS_PROVA_2017.csv",
+      "sha256_fonte": "bd6a258576b65be0b64ba5cee3fc8c4576e008af7672c90c4c79f3abeb6e2e0f",
+      "sha256_normalizado": "29c093322011ac235744334166f0e30e109dc4b8b87b3f0b15f422572c8166f0",
+      "bytes_normalizado": 105009
+    },
+    {
+      "ano": 2018,
+      "linhas": 1850,
+      "provas": 40,
+      "areas": [
+        "CH",
+        "CN",
+        "LC",
+        "MT"
+      ],
+      "arquivo": "2018/ITENS_PROVA_2018.csv",
+      "fonte": "microdados_enem_2018/DADOS/ITENS_PROVA_2018.csv",
+      "sha256_fonte": "b521f22e9cd60067943df84e188e25a590d766750c1fbed4b29b2ca32d230626",
+      "sha256_normalizado": "330d2a26ba963ba84519f4c0783a06298e17818bd6069f5ad7dcef21319184c5",
+      "bytes_normalizado": 106453
+    },
+    {
+      "ano": 2019,
+      "linhas": 1945,
+      "provas": 42,
+      "areas": [
+        "CH",
+        "CN",
+        "LC",
+        "MT"
+      ],
+      "arquivo": "2019/ITENS_PROVA_2019.csv",
+      "fonte": "microdados_enem_2019/DADOS/ITENS_PROVA_2019.csv",
+      "sha256_fonte": "360fbd34557a4e9889b969c8e80e8fe139f109677bde5e6082e750a4fa227efc",
+      "sha256_normalizado": "2c7af4a732917d896944860f8c4a04fccb62094eea74fa0c3a343a4e4cc8ccc5",
+      "bytes_normalizado": 113415
+    },
+    {
+      "ano": 2020,
+      "linhas": 4415,
+      "provas": 92,
+      "areas": [
+        "CH",
+        "CN",
+        "LC",
+        "MT"
+      ],
+      "arquivo": "2020/ITENS_PROVA_2020.csv",
+      "fonte": "microdados_enem_2020/DADOS/ITENS_PROVA_2020.csv",
+      "sha256_fonte": "57c9eea2a56d45271d036da38f1219bdedf4a6295a9b6829690fe6b8db96444b",
+      "sha256_normalizado": "8dd629c9524df5f72f1080653ad3eac697ddf2ffe21ebe2bb22d729cf0b69345",
+      "bytes_normalizado": 264413
+    },
+    {
+      "ano": 2021,
+      "linhas": 5365,
+      "provas": 116,
+      "areas": [
+        "CH",
+        "CN",
+        "LC",
+        "MT"
+      ],
+      "arquivo": "2021/ITENS_PROVA_2021.csv",
+      "fonte": "microdados_enem_2021/DADOS/ITENS_PROVA_2021.csv",
+      "sha256_fonte": "94b1dedbe1b32cab244dcf8b7dee13a8a4c651e0edb45ca6f2d3178297efef1f",
+      "sha256_normalizado": "0bf2e0bb2c4faa4fd2bb60835523864d1333e759d81d084a600c38736773bf26",
+      "bytes_normalizado": 325077
+    },
+    {
+      "ano": 2022,
+      "linhas": 5365,
+      "provas": 116,
+      "areas": [
+        "CH",
+        "CN",
+        "LC",
+        "MT"
+      ],
+      "arquivo": "2022/ITENS_PROVA_2022.csv",
+      "fonte": "microdados_enem_2022/DADOS/ITENS_PROVA_2022.csv",
+      "sha256_fonte": "58c274f15013094f950ac813fe61c29ea68a557e48e013e45ba2b3abec629400",
+      "sha256_normalizado": "200c8f27f4e400c8a60d3b6a0842e411de208264ba06b09fa1bfc10ace4e8693",
+      "bytes_normalizado": 315839
+    },
+    {
+      "ano": 2023,
+      "linhas": 5550,
+      "provas": 120,
+      "areas": [
+        "CH",
+        "CN",
+        "LC",
+        "MT"
+      ],
+      "arquivo": "2023/ITENS_PROVA_2023.csv",
+      "fonte": "microdados_enem_2023/DADOS/ITENS_PROVA_2023.csv",
+      "sha256_fonte": "27b19a80c78071a3ef49b87aa3b89b17cfbeffcf1fa4f1899913d36a54652468",
+      "sha256_normalizado": "53e7dcec6ce95f8fac8bb7ff4df7a7e95630a5233fd19e0245dd9d36ed00aae9",
+      "bytes_normalizado": 331345
+    },
+    {
+      "ano": 2024,
+      "linhas": 5550,
+      "provas": 120,
+      "areas": [
+        "CH",
+        "CN",
+        "LC",
+        "MT"
+      ],
+      "arquivo": "2024/ITENS_PROVA_2024.csv",
+      "fonte": "microdados_enem_2024/DADOS/ITENS_PROVA_2024.csv",
+      "sha256_fonte": "6d8e293d1bd59f495feff9deee4aaa9b64fe82fd38a0169e4a06e81e1ade31de",
+      "sha256_normalizado": "6e36141d806f3e67e9d842f92672d7f3fd305048b4ee6ae019f6bdaba682fd3c",
+      "bytes_normalizado": 331306
+    },
+    {
+      "ano": 2025,
+      "linhas": 6105,
+      "provas": 132,
+      "areas": [
+        "CH",
+        "CN",
+        "LC",
+        "MT"
+      ],
+      "arquivo": "2025/ITENS_PROVA_2025.csv",
+      "fonte": "microdados_enem_2025/DADOS/ITENS_PROVA_2025.csv",
+      "sha256_fonte": "16688912785563f418773a5c99e562f4b43a95cac79357622f05b3d47c7a35d0",
+      "sha256_normalizado": "8614fe3881bca8b22643f3a2d07bbfcbbd051cc0a6e4744f4986ab4825d59520",
+      "bytes_normalizado": 366454
+    }
+  ]
+}

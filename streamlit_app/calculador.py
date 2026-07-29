@@ -95,7 +95,15 @@ class CalculadorEnem:
             # Definir língua para LC
             tp_lingua = None
             if area.upper() == 'LC':
-                tp_lingua = 0 if lingua == 'ingles' else 1
+                lingua_norm = str(lingua or "").strip().lower()
+                if lingua_norm in {"ingles", "inglês"}:
+                    tp_lingua = 0
+                elif lingua_norm in {"espanhol", "español"}:
+                    tp_lingua = 1
+                else:
+                    raise ValueError(
+                        "Para LC, informe língua 'ingles' ou 'espanhol'"
+                    )
             
             # Calcular análise completa
             try:
@@ -109,19 +117,13 @@ class CalculadorEnem:
                     'erro': f"Erro no cálculo TRI: {calc_err}",
                 }
             
-            # Verificar precisão
-            aviso = None
-            severidade = None
-            try:
-                from tri_enem import verificar_precisao_prova
-                precisao = verificar_precisao_prova(ano, area, co_prova)
-                if precisao.get('aviso'):
-                    aviso = precisao['aviso']
-                    severidade = precisao.get('severidade')
-            except Exception:
-                # Silenciar erros - continua sem aviso
-                aviso = None
-                severidade = None
+            # Uma falha inesperada da camada de precisão é devolvida ao usuário
+            # pelo tratamento externo como erro explícito.
+            from tri_enem import (
+                formatar_resumo_validacao,
+                verificar_precisao_prova,
+            )
+            precisao = verificar_precisao_prova(ano, area, co_prova)
             
             return {
                 'sigla': area.upper(),
@@ -136,8 +138,20 @@ class CalculadorEnem:
                 'questoes_erradas': analise['erros'],
                 'lingua': lingua if area.upper() == 'LC' else None,
                 'cor_prova': cor,
-                'aviso_precisao': aviso,
-                'severidade_precisao': severidade,
+                'aviso_precisao': precisao.get('aviso'),
+                'severidade_precisao': precisao.get('severidade'),
+                'status_precisao': precisao.get('status'),
+                'confiavel': precisao.get('confiavel', False),
+                'n_validacao': precisao.get('n_validacao'),
+                'mae_validacao': precisao.get('mae'),
+                'erro_p95': precisao.get('erro_p95'),
+                'erro_maximo': precisao.get('erro_maximo'),
+                'n_acima_2': precisao.get('n_acima_2'),
+                'percentual_ate_2': precisao.get('percentual_ate_2'),
+                'perfil_precisao': precisao.get('perfil'),
+                'modelo_nota': precisao.get('modelo'),
+                'validado_em': precisao.get('validado_em'),
+                'resumo_validacao': formatar_resumo_validacao(precisao),
             }
             
         except Exception as e:

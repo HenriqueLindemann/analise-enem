@@ -34,7 +34,7 @@ def executar_testes_completos():
 
     calc_app = CalculadorEnem()
     
-    print(f"\n{'ANO':<5} | {'ID':<15} | {'AREA':<4} | {'NOTA REAL':<10} | {'NOTA CALC':<10} | {'DIFF':<7} | {'POS (1ª)':<8} | {'ORDEM OK?':<10}")
+    print(f"\n{'ANO':<5} | {'ID':<15} | {'AREA':<4} | {'NOTA OFICIAL':<13} | {'NOTA CALC':<10} | {'DIFF':<7} | {'POS (1ª)':<8} | {'ORDEM OK?':<10}")
     print("-" * 100)
 
     total_casos = 0

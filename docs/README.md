@@ -6,11 +6,11 @@ Documentação técnica da Calculadora Nota TRI ENEM.
 
 | Documento | Descrição |
 |-----------|-----------|
-| [SCORE_RECALCULATION.md](SCORE_RECALCULATION.md) | (EN) Como e por que as notas do ENEM podem ser reproduzidas a partir dos microdados públicos |
+| [SCORE_RECALCULATION.md](SCORE_RECALCULATION.md) | (EN) Método de estimativa TRI e validação contra os microdados públicos |
 
-As descobertas da engenharia reversa (fórmula de transformação, indexação das
-respostas, estrutura de LC por ano, metodologia ML3 + EAP) ficam junto do código
-que as implementa, para não divergirem dele:
+As decisões empíricas sobre transformação, indexação das respostas, estrutura
+de LC por ano e metodologia ML3 + EAP ficam junto do código que as implementa,
+para não divergirem dele:
 
 - [`../src/tri_enem/calculador.py`](../src/tri_enem/calculador.py) — método, transformação de escala, indexação das respostas e estrutura de LC por ano
 - [`../src/tri_enem/precisao.py`](../src/tri_enem/precisao.py) — causas de imprecisão por prova e limiares de erro

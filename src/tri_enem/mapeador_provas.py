@@ -19,6 +19,8 @@ Exemplo de uso:
     # Retorna: 1011
 """
 
+from __future__ import annotations
+
 import yaml
 from pathlib import Path
 from typing import Optional, Dict, List, Tuple
@@ -243,7 +245,7 @@ class MapeadorProvas:
         area: str,
         tipo_aplicacao: str,
         cor: str,
-        permitir_fallback: bool = True
+        permitir_fallback: bool = False
     ) -> int:
         """
         Obtém código numérico da prova.
@@ -407,7 +409,12 @@ class MapeadorProvas:
             cor=self.normalizar_cor(cor)
         )
     
-    def descobrir_prova_por_codigo(self, codigo: int) -> Optional[InfoProva]:
+    def descobrir_prova_por_codigo(
+        self,
+        codigo: int,
+        ano: int | None = None,
+        area: str | None = None,
+    ) -> Optional[InfoProva]:
         """
         Busca reversa: descobre informações da prova pelo código.
         
@@ -415,6 +422,8 @@ class MapeadorProvas:
         
         Args:
             codigo: Código numérico da prova
+            ano: Ano opcional para desambiguar códigos reutilizados
+            area: Área opcional para desambiguar códigos reutilizados
             
         Returns:
             InfoProva se encontrado, None caso contrário
@@ -424,28 +433,13 @@ class MapeadorProvas:
             >>> print(f"{info.ano} {info.area} {info.tipo_aplicacao} {info.cor}")
             2021 CN digital azul
         """
-        for ano_key, dados_ano in self.dados.items():
-            if str(ano_key).startswith('_'):
+        area_norm = self.normalizar_area(area) if area is not None else None
+        for prova in self.listar_todas_provas(int(ano) if ano is not None else None):
+            if prova.codigo != int(codigo):
                 continue
-            
-            for area, dados_area in dados_ano.items():
-                for tipo, cores in dados_area.items():
-                    if tipo == 'especiais':
-                        continue
-                    
-                    if not isinstance(cores, dict):
-                        continue
-                    
-                    for cor, cod in cores.items():
-                        if cod == codigo:
-                            return InfoProva(
-                                codigo=codigo,
-                                ano=int(ano_key),
-                                area=area,
-                                tipo_aplicacao=tipo,
-                                cor=cor
-                            )
-        
+            if area_norm is not None and prova.area != area_norm:
+                continue
+            return prova
         return None
     
     def validar_mapeamento(self) -> List[str]:
@@ -521,7 +515,7 @@ class MapeadorProvas:
                     continue
                 
                 for tipo, cores in dados_area.items():
-                    if tipo == 'especiais' or not isinstance(cores, dict):
+                    if not isinstance(cores, dict):
                         continue
                     
                     for cor, codigo in cores.items():
@@ -530,7 +524,9 @@ class MapeadorProvas:
                             ano=ano_int,
                             area=area,
                             tipo_aplicacao=tipo,
-                            cor=cor
+                            cor=cor,
+                            eh_especial=tipo == "especiais",
+                            descricao_especial=cor if tipo == "especiais" else None,
                         ))
         
         return provas

@@ -18,7 +18,11 @@ import _utils
 
 _utils.add_src_to_path()
 
-from tri_enem import verificar_precisao_prova  # noqa: E402
+from tri_enem import (  # noqa: E402
+    formatar_resumo_validacao,
+    verificar_precisao_prova,
+)
+import tri_enem.precisao as precisao_module  # noqa: E402
 from tri_enem.precisao import (  # noqa: E402
     MAE_OK,
     MAE_AVISO_LEVE,
@@ -36,10 +40,42 @@ def dados():
 
 
 def _chaves_por_status(dados, alvo):
+    if int(dados.get("schema_version", 2)) >= 3:
+        return [
+            k for k, v in dados.get("por_prova", {}).items()
+            if (v.get("qualidade") or {}).get("status") == alvo
+        ]
     return [
         k for k, v in dados.get("status_provas", {}).items()
         if v.get("status") == alvo
     ]
+
+
+def test_resumo_para_usuario_e_curto_e_sem_codigos_internos():
+    resumo = formatar_resumo_validacao({
+        "n_validacao": 300,
+        "mae": 0.38,
+        "erro_p95": 1.82,
+        "erro_maximo": 6.51,
+        "n_acima_2": 6,
+        "perfil": "boa_na_maioria_com_excecoes",
+        "status": "aviso_forte",
+    })
+
+    assert resumo == (
+        "Validação: 300 casos reais · erro médio: 0,38 · "
+        "em 95% dos casos: até 1,82 · maior diferença: 6,51 · "
+        "6 exceções · confiável na maioria"
+    )
+    assert "MAE" not in resumo
+    assert "p95" not in resumo
+    assert "aviso_forte" not in resumo
+
+
+def _todas_chaves(dados):
+    if int(dados.get("schema_version", 2)) >= 3:
+        return list(dados.get("por_prova", {}))
+    return list(dados.get("status_provas", {}))
 
 
 def _consultar(chave):
@@ -52,7 +88,7 @@ class TestInvarianteNaoSilenciar:
 
     def test_toda_prova_nao_confiavel_tem_aviso(self, dados):
         sem_aviso = []
-        for chave in dados.get("status_provas", {}):
+        for chave in _todas_chaves(dados):
             r = _consultar(chave)
             if not r["confiavel"] and not r["aviso"]:
                 sem_aviso.append(chave)
@@ -60,7 +96,7 @@ class TestInvarianteNaoSilenciar:
 
     def test_toda_prova_nao_confiavel_tem_severidade(self, dados):
         sem_sev = []
-        for chave in dados.get("status_provas", {}):
+        for chave in _todas_chaves(dados):
             r = _consultar(chave)
             if not r["confiavel"] and not r["severidade"]:
                 sem_sev.append(chave)
@@ -72,12 +108,17 @@ class TestInvarianteNaoSilenciar:
         for chave in chaves:
             r = _consultar(chave)
             assert r["aviso"], f"{chave} sem aviso"
-            assert r["severidade"] == "alerta", chave
+            assert r["severidade"] in {"atencao", "alerta"}, chave
             assert r["confiavel"] is False, chave
 
     def test_provas_sem_participantes_explicam_a_causa(self, dados):
-        chaves = _chaves_por_status(dados, "falhou")
-        assert chaves, "fixture sem provas 'falhou'"
+        alvo = (
+            "sem_participantes"
+            if int(dados.get("schema_version", 2)) >= 3
+            else "falhou"
+        )
+        chaves = _chaves_por_status(dados, alvo)
+        assert chaves, f"catálogo sem provas {alvo!r}"
         for chave in chaves:
             r = _consultar(chave)
             assert "sem participantes" in r["aviso"].lower(), chave
@@ -87,7 +128,7 @@ class TestInvarianteNaoSilenciar:
 def avisos(dados):
     """Conjunto de todas as mensagens distintas produzidas pelo catálogo."""
     vistos = set()
-    for chave in dados.get("status_provas", {}):
+    for chave in _todas_chaves(dados):
         aviso = _consultar(chave)["aviso"]
         if aviso:
             vistos.add(aviso)
@@ -122,17 +163,35 @@ class TestClassificacaoPorMae:
     def test_limiares_ordenados(self):
         assert MAE_OK < MAE_AVISO_LEVE < MAE_AVISO_FORTE
 
-    def test_prova_ok_nao_gera_ruido(self, dados):
+    def test_prova_ok_exibe_confirmacao_positiva(self, dados):
         chaves = _chaves_por_status(dados, "ok")
         assert chaves
         for chave in chaves[:200]:
             r = _consultar(chave)
-            assert r["aviso"] is None, f"{chave} gerou aviso desnecessário"
+            assert "boa calibração" in r["aviso"].lower()
             assert r["confiavel"] is True
-            assert r["severidade"] is None
+            assert r["severidade"] == "sucesso"
+            assert r["perfil"] == "calibracao_verificada"
+
+    def test_perfil_intermediario_nao_esconde_excecoes(self, dados):
+        encontrados = []
+        for chave in _todas_chaves(dados):
+            r = _consultar(chave)
+            if r["perfil"] != "boa_na_maioria_com_excecoes":
+                continue
+            encontrados.append(chave)
+            assert r["confiavel"] is False
+            assert r["severidade"] == "atencao"
+            assert "maioria dos casos" in r["aviso"].lower()
+            assert "confiável" in r["aviso"].lower()
+            assert "exceções" in r["aviso"].lower()
+            assert not any(
+                caractere.isdigit() for caractere in r["aviso"]
+            ), r["aviso"]
+        assert encontrados
 
     def test_severidade_coerente_com_status(self, dados):
-        for chave in dados.get("status_provas", {}):
+        for chave in _todas_chaves(dados):
             r = _consultar(chave)
             assert r["severidade"] == SEVERIDADE_POR_STATUS.get(r["status"]) \
                 or not r["confiavel"], chave
@@ -147,16 +206,68 @@ class TestClassificacaoPorMae:
         r = verificar_precisao_prova("2023", "MT", "1211")
         assert r["status"] != "desconhecido"
 
-    def test_lc_2009_e_confiavel(self):
+    def test_normaliza_area_para_maiusculas(self):
+        assert verificar_precisao_prova(2023, "mt", 1211) == (
+            verificar_precisao_prova(2023, "MT", 1211)
+        )
+
+    def test_catalogo_corrompido_falha_fechado(self, tmp_path, monkeypatch):
+        corrompido = tmp_path / "coeficientes_data.json"
+        corrompido.write_text("{não é json", encoding="utf-8")
+        monkeypatch.setattr(precisao_module, "DATA_FILE", corrompido)
+        r = verificar_precisao_prova(2023, "MT", 1211)
+        assert r["confiavel"] is False
+        assert r["status"] == "nao_calibrado"
+        assert r["aviso"]
+
+    @pytest.mark.parametrize(
+        "conteudo",
+        [
+            {"schema_version": "inválido", "por_prova": {}},
+            {"schema_version": 3, "por_prova": []},
+            {
+                "schema_version": 3,
+                "por_prova": {
+                    "2023,MT,1211": {
+                        "qualidade": {"status": "ok"},
+                        "validacao": {
+                            "n": 30,
+                            "mae": 0.1,
+                            "erro_p95": 0.2,
+                            "erro_maximo": "NaN",
+                            "faixas_cobertas": ["(400,500]", "(500,600]"],
+                            "faixas_existentes": ["(400,500]", "(500,600]"],
+                        },
+                    }
+                },
+            },
+        ],
+    )
+    def test_catalogo_estruturalmente_corrompido_falha_fechado(
+        self, conteudo, tmp_path, monkeypatch
+    ):
+        corrompido = tmp_path / "coeficientes_data.json"
+        corrompido.write_text(json.dumps(conteudo), encoding="utf-8")
+        monkeypatch.setattr(precisao_module, "DATA_FILE", corrompido)
+        r = verificar_precisao_prova(2023, "MT", 1211)
+        assert r["confiavel"] is False
+        assert r["status"] == "nao_calibrado"
+        assert r["aviso"]
+
+    def test_lc_2009_tem_validacao_catalogada(self):
         """
         LC 2009 constava como não reconstituível, com MAE de 45 a 70 pontos.
 
         A causa era um item anulado sem CO_ITEM que o carregador descartava,
         deslocando o pareamento de todas as posições seguintes. Preservado o
-        item, as quatro provas calibram com correlação 1,000000 contra a nota
-        oficial. Este teste falha se o descarte voltar.
+        item, as quatro provas precisam ter validação calculada. A classificação
+        final continua sendo determinada exclusivamente pelo holdout.
         """
         for co_prova in (57, 58, 59, 60):
             r = verificar_precisao_prova(2009, "LC", co_prova)
-            assert r["confiavel"] is True, co_prova
-            assert r["aviso"] is None, co_prova
+            assert r["status"] not in {
+                "nao_calibrado",
+                "sem_participantes",
+                "sem_itens",
+            }, co_prova
+            assert r["n_validacao"], co_prova

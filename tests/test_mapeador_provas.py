@@ -98,6 +98,16 @@ class TestMapeadorProvas:
         assert info.area == "CN"
         assert info.tipo_aplicacao == "digital"
         assert info.cor == "azul"
+
+    def test_busca_reversa_pode_ser_desambiguada_por_ano_e_area(self, mapeador):
+        info = mapeador.descobrir_prova_por_codigo(
+            1011, ano=2021, area="cn"
+        )
+        assert info is not None
+        assert (info.ano, info.area, info.codigo) == (2021, "CN", 1011)
+        assert mapeador.descobrir_prova_por_codigo(
+            1011, ano=2022, area="CN"
+        ) is None
     
     def test_info_completa(self, mapeador):
         """Teste de obtenção de informações completas."""
@@ -123,6 +133,13 @@ class TestMapeadorProvas:
         """Teste de erro para tipo inexistente."""
         with pytest.raises(KeyError, match="Tipo de aplicação .* não encontrado"):
             mapeador.obter_codigo(2024, "MT", "digital", "azul", permitir_fallback=False)
+
+    def test_fallback_regular_e_somente_opt_in(self, mapeador):
+        with pytest.raises(KeyError, match="Tipo de aplicação"):
+            mapeador.obter_codigo(2024, "MT", "digital", "azul")
+        assert mapeador.obter_codigo(
+            2024, "MT", "digital", "azul", permitir_fallback=True
+        ) == mapeador.obter_codigo(2024, "MT", "1a_aplicacao", "azul")
     
     def test_validar_mapeamento(self, mapeador):
         """Teste de validação da estrutura do mapeamento."""
@@ -131,6 +148,14 @@ class TestMapeadorProvas:
         # (pode ter duplicatas se o mesmo código aparecer em anos diferentes)
         # O importante é que não falhe
         assert isinstance(avisos, list)
+
+    def test_listagem_inclui_provas_especiais_sem_itens_de_2009(self, mapeador):
+        codigos = {prova.codigo for prova in mapeador.listar_todas_provas(2009)}
+        assert {81, 82, 83, 84}.issubset(codigos)
+        info = mapeador.descobrir_prova_por_codigo(81)
+        assert info is not None
+        assert info.tipo_aplicacao == "especiais"
+        assert info.eh_especial is True
 
     # ========================================================================
     # Testes para listar_ordem_provas (nova funcionalidade)

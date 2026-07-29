@@ -88,7 +88,8 @@ def _gerar_pdf(resultados: List[Dict], ano: int, tipo_aplicacao: str, cor_prova:
         )
         dados.areas.append(area)
     
-    # Gerar PDF
+    # Gerar PDF. Exceções são propagadas para que a interface mostre a causa.
+    tmp_path = None
     try:
         fd, tmp_path = tempfile.mkstemp(suffix='.pdf')
         os.close(fd)
@@ -98,12 +99,10 @@ def _gerar_pdf(resultados: List[Dict], ano: int, tipo_aplicacao: str, cor_prova:
         
         with open(tmp_path, 'rb') as f:
             pdf_bytes = f.read()
-        
-        os.unlink(tmp_path)
         return pdf_bytes
-        
-    except Exception:
-        return None
+    finally:
+        if tmp_path and os.path.exists(tmp_path):
+            os.unlink(tmp_path)
 
 
 def exibir_download_pdf(resultados: List[Dict], ano: int, tipo_aplicacao: str = ""):
@@ -133,7 +132,13 @@ def exibir_download_pdf(resultados: List[Dict], ano: int, tipo_aplicacao: str = 
     # Gerar PDF apenas uma vez e salvar na session
     if 'pdf_bytes' not in st.session_state or st.session_state.get('pdf_ano') != ano:
         with st.spinner("Gerando PDF..."):
-            pdf_bytes = _gerar_pdf(resultados, ano, tipo_aplicacao, cor_prova)
+            try:
+                pdf_bytes = _gerar_pdf(
+                    resultados, ano, tipo_aplicacao, cor_prova
+                )
+            except Exception as exc:
+                st.error(f"Não foi possível gerar o PDF: {exc}")
+                return
             if pdf_bytes:
                 st.session_state['pdf_bytes'] = pdf_bytes
                 st.session_state['pdf_ano'] = ano
