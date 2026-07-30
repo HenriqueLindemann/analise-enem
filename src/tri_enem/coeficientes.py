@@ -3,8 +3,7 @@
 """Transformações da escala latente para a escala de notas do ENEM.
 
 O catálogo v3 aceita uma transformação afim ou uma transformação monotônica
-linear por partes. ``obter_coeficiente`` continua disponível para clientes
-antigos, mas o motor usa ``obter_transformacao`` e ``aplicar_transformacao``.
+linear por partes.
 """
 
 from __future__ import annotations
@@ -47,7 +46,7 @@ def _linear(slope: float, intercept: float, origem: str) -> Dict[str, Any]:
 
 
 def _normalizar_transformacao(info: Dict[str, Any], origem: str) -> Dict[str, Any]:
-    """Converte entradas v2/v3 para o contrato único usado pelo motor."""
+    """Valida a transformação e a converte para o contrato usado pelo motor."""
     slope = float(info.get("slope", 100.0))
     intercept = float(info.get("intercept", 500.0))
     transformacao = info.get("transformacao")
@@ -122,19 +121,8 @@ def _coeficientes_padrao() -> Dict[str, Tuple[float, float]]:
     return resultado
 
 
-COEF_POR_AREA = _coeficientes_area()
-COEF_PADRAO = _coeficientes_padrao()
-COEF_POR_PROVA: Dict[Tuple[int, str, int], Tuple[float, float]] = {}
-for _key, _value in _DATA.get("por_prova", {}).items():
-    try:
-        _ano, _area, _prova = _key.split(",")
-        if _value.get("slope") is not None and _value.get("intercept") is not None:
-            COEF_POR_PROVA[(int(_ano), _area.upper(), int(_prova))] = (
-                float(_value["slope"]),
-                float(_value["intercept"]),
-            )
-    except (AttributeError, KeyError, TypeError, ValueError):
-        continue
+_COEF_POR_AREA = _coeficientes_area()
+_COEF_PADRAO = _coeficientes_padrao()
 
 
 def obter_transformacao(
@@ -150,11 +138,11 @@ def obter_transformacao(
         if isinstance(info, dict) and info.get("slope") is not None:
             return _normalizar_transformacao(info, "prova")
 
-    coef_area = COEF_POR_AREA.get((ano, area))
+    coef_area = _COEF_POR_AREA.get((ano, area))
     if coef_area is not None:
         return _linear(*coef_area, origem="area_ano")
 
-    return _linear(*COEF_PADRAO.get(area, (100.0, 500.0)), origem="area_padrao")
+    return _linear(*_COEF_PADRAO.get(area, (100.0, 500.0)), origem="area_padrao")
 
 
 def aplicar_transformacao(theta: float, transformacao: Dict[str, Any]) -> float:
@@ -177,14 +165,6 @@ def aplicar_transformacao(theta: float, transformacao: Dict[str, Any]) -> float:
         slope = max(0.0, float((ys[-1] - ys[-2]) / (xs[-1] - xs[-2])))
         nota = float(ys[-1] + slope * (theta - xs[-1]))
     return nota
-
-
-def obter_coeficiente(
-    ano: int, area: str, co_prova: int | None = None
-) -> Tuple[float, float]:
-    """Retorna o baseline afim para compatibilidade com a API v3."""
-    transformacao = obter_transformacao(ano, area, co_prova)
-    return float(transformacao["slope"]), float(transformacao["intercept"])
 
 
 def obter_catalogo() -> Dict[str, Any]:

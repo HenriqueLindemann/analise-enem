@@ -51,7 +51,7 @@ tri_enem = ["*.yaml", "*.json", "data/itens/manifest.json", "data/itens/*/*.csv"
 
 # --- Configuracao do pytest -------------------------------------------------
 # Coleta apenas os testes reais (test_*.py); os scripts de validacao em
-# tests/ (gerar_*, validar_*, extrair_*, executar_*, run_full_validation)
+# tests/ (gerar_*, validar_* e run_full_validation)
 # nao sao coletados como testes.
 [tool.pytest.ini_options]
 testpaths = ["tests"]

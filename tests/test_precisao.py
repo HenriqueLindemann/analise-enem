@@ -23,12 +23,7 @@ from tri_enem import (  # noqa: E402
     verificar_precisao_prova,
 )
 import tri_enem.precisao as precisao_module  # noqa: E402
-from tri_enem.precisao import (  # noqa: E402
-    MAE_OK,
-    MAE_AVISO_LEVE,
-    MAE_AVISO_FORTE,
-    SEVERIDADE_POR_STATUS,
-)
+from tri_enem.precisao import SEVERIDADE_POR_STATUS  # noqa: E402
 
 DADOS = Path(_utils.SRC_DIR) / "tri_enem" / "coeficientes_data.json"
 
@@ -40,14 +35,9 @@ def dados():
 
 
 def _chaves_por_status(dados, alvo):
-    if int(dados.get("schema_version", 2)) >= 3:
-        return [
-            k for k, v in dados.get("por_prova", {}).items()
-            if (v.get("qualidade") or {}).get("status") == alvo
-        ]
     return [
-        k for k, v in dados.get("status_provas", {}).items()
-        if v.get("status") == alvo
+        k for k, v in dados.get("por_prova", {}).items()
+        if (v.get("qualidade") or {}).get("status") == alvo
     ]
 
 
@@ -73,9 +63,7 @@ def test_resumo_para_usuario_e_curto_e_sem_codigos_internos():
 
 
 def _todas_chaves(dados):
-    if int(dados.get("schema_version", 2)) >= 3:
-        return list(dados.get("por_prova", {}))
-    return list(dados.get("status_provas", {}))
+    return list(dados.get("por_prova", {}))
 
 
 def _consultar(chave):
@@ -112,11 +100,7 @@ class TestInvarianteNaoSilenciar:
             assert r["confiavel"] is False, chave
 
     def test_provas_sem_participantes_explicam_a_causa(self, dados):
-        alvo = (
-            "sem_participantes"
-            if int(dados.get("schema_version", 2)) >= 3
-            else "falhou"
-        )
+        alvo = "sem_participantes"
         chaves = _chaves_por_status(dados, alvo)
         assert chaves, f"catálogo sem provas {alvo!r}"
         for chave in chaves:
@@ -157,11 +141,8 @@ class TestMensagens:
             assert aviso.rstrip().endswith("."), f"sem pontuação final: {aviso}"
 
 
-class TestClassificacaoPorMae:
+class TestClassificacao:
     """Coerência entre status, severidade e confiabilidade."""
-
-    def test_limiares_ordenados(self):
-        assert MAE_OK < MAE_AVISO_LEVE < MAE_AVISO_FORTE
 
     def test_prova_ok_exibe_confirmacao_positiva(self, dados):
         chaves = _chaves_por_status(dados, "ok")
@@ -223,6 +204,7 @@ class TestClassificacaoPorMae:
     @pytest.mark.parametrize(
         "conteudo",
         [
+            {"schema_version": 2, "por_prova": {}},
             {"schema_version": "inválido", "por_prova": {}},
             {"schema_version": 3, "por_prova": []},
             {

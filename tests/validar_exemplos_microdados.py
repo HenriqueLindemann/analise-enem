@@ -28,7 +28,7 @@ def validar(
 ) -> bool:
     exemplos: List[dict] = json.loads(exemplos_path.read_text(encoding="utf-8"))
     sim = SimuladorNota(
-        microdados_path=str(itens_path) if itens_path is not None else None
+        itens_path=str(itens_path) if itens_path is not None else None
     )
 
     total = len(exemplos)

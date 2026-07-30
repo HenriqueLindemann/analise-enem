@@ -14,7 +14,7 @@ python tests/run_full_validation.py \
   --microdados-dir /caminho/para/MICRODADOS_ENEM \
   --somente-validar
 
-# Catálogo v3 e holdout estratificado (fluxo de publicação)
+# Catálogo v3 e holdout estratificado (publica artefatos)
 python tools/recalibrar_validacao.py \
   --microdados-dir /caminho/para/MICRODADOS_ENEM
 
@@ -32,14 +32,18 @@ quanto a estrutura de download do INEP (`microdados_enem_YYYY/DADOS/RESULTADOS_Y
 | `run_full_validation.py` | Pipeline canônico: itens, recalibração, holdout e pytest |
 | `gerar_exemplos_microdados.py` | Extrai até N exemplos por CO_PROVA dos microdados brutos |
 | `validar_exemplos_microdados.py` | Compara notas calculadas vs oficiais; MAE por prova e global |
-| `gerar_provas_problematicas.py` | Gera relatório Markdown de provas com erro acima do limite |
-| `validar_todos_anos.py` | Validação por amostragem estratificada (2009-2025, por faixa de nota) |
-| `extrair_exemplos_completos.py` | Converte fixtures para formato de estudante completo (Streamlit) |
-| `executar_testes_completos.py` | Testa o CalculadorEnem do app Streamlit com dados reais |
+| `validar_holdout.py` | Recalcula o holdout e confere catálogo, manifesto e relatório |
 | `test_calculador.py` | Motor TRI: regressão (golden), coerência CLI × web e propriedades do modelo |
+| `test_calibracao.py` | Ajuste monotônico, amostragem estratificada e geração do relatório |
+| `test_e2e_usuario.py` | Coerência ponta a ponta das três interfaces em 2009-2025 |
+| `test_streamlit_interface.py` | App Streamlit, gráficos, entrada e PDF |
+| `test_itens_empacotados.py` | Integridade dos 17 CSVs incluídos no pacote |
 | `test_precisao.py` | Classificação de confiabilidade e invariantes dos avisos |
 | `test_mapeador_provas.py` | Testes unitários do mapeamento de códigos de prova |
+| `test_simulador.py` | Seleção explícita da prova na interface simplificada |
+| `test_validadores_cli.py` | Códigos de saída e falha fechada dos validadores |
 | `test_utils.py` | Testes unitários de `_utils.py` |
+| `smoke_instalacao.py` | Testa o wheel instalado fora do repositório |
 | `_utils.py` | Funções compartilhadas entre os scripts |
 | `conftest.py` | Configuração pytest |
 
@@ -47,7 +51,6 @@ quanto a estrutura de download do INEP (`microdados_enem_YYYY/DADOS/RESULTADOS_Y
 
 - Microdados brutos do INEP — arquivos originais por ano (para gerar exemplos)
 - `src/tri_enem/data/itens/` — parâmetros de itens usados no cálculo e no wheel
-- `microdados_limpos/` — amostras locais de participantes para ferramentas legadas
 - `src/tri_enem/mapeamento_provas.yaml` — mapeamento de códigos
 
 Os microdados brutos do INEP estão disponíveis em
@@ -61,9 +64,7 @@ Os microdados brutos do INEP estão disponíveis em
 | `fixtures/validation_holdout.jsonl.gz` | Sim | Holdout estratificado sem identificadores pessoais |
 | `fixtures/validation_manifest.json` | Sim | Origem, hashes, cobertura e versão da amostragem |
 | `fixtures/golden_notas.json` | Sim | Valores de referência de nota e theta usados na regressão |
-| `fixtures/codigos_presentes.json` | Sim | Cache legado de CO_PROVAs presentes nos dados de participantes |
 | `../docs/VALIDATION_REPORT.md` | Sim | Relatório gerado do mesmo catálogo e manifesto do holdout |
-| `provas_problematicas.md` | Não | Relatório transitório de provas com erro alto |
 
 Os arquivos commitados em `fixtures/` permitem rodar `pytest` e consultar o
 mapeamento de provas sem precisar dos microdados brutos do INEP.
@@ -90,9 +91,8 @@ tools/recalibrar_validacao.py
 
 A fonte única de verdade é a entrada de cada prova em
 `src/tri_enem/coeficientes_data.json` (schema v3), lida por `precisao.py`.
-Modelo, métricas e status são publicados juntos; não existe `status_provas`
-paralelo. `tests/validar_holdout.py` recalcula as métricas sem modificar o
-catálogo.
+Modelo, métricas e status são publicados juntos.
+`tests/validar_holdout.py` recalcula as métricas sem modificar o catálogo.
 
 ## Execução Individual
 
@@ -100,23 +100,14 @@ catálogo.
 # Gerar exemplos (10 por prova)
 python tests/gerar_exemplos_microdados.py \
   --microdados-dir /caminho/para/microdados_inep \
-  --microdados-limpos microdados_limpos \
   --n-max 10
 
 # Validar exemplos auxiliares (somente leitura no schema v3)
 python tests/validar_exemplos_microdados.py \
   --exemplos tests/fixtures/exemplos_microdados.json
 
-# Gerar relatório de provas problemáticas
-python tests/gerar_provas_problematicas.py \
-  --exemplos tests/fixtures/exemplos_microdados.json \
-  --limite-dif 2.0
-
 # Testes unitários
 pytest tests/ -v
-
-# Validação por amostragem (todos os anos, estratificada por faixa de nota)
-python tests/validar_todos_anos.py
 
 # Recalcular o holdout publicado
 python tests/validar_holdout.py

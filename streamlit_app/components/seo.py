@@ -11,7 +11,6 @@ Este módulo gera:
 - Canonical URL
 """
 
-import streamlit as st
 import json
 from datetime import datetime
 from typing import Optional
@@ -95,8 +94,7 @@ def gerar_schema_json_ld(
     
     Implementa:
     - WebApplication schema
-    - Organization schema
-    - BreadcrumbList schema
+    - FAQPage schema
     
     Args:
         name: Nome do app
@@ -116,6 +114,7 @@ def gerar_schema_json_ld(
         "name": name,
         "description": description,
         "url": url,
+        "codeRepository": github_url,
         "applicationCategory": "EducationalApplication",
         "operatingSystem": "All",
         "offers": {
@@ -183,29 +182,6 @@ def gerar_schema_json_ld(
         ]
     }
     
-    # SoftwareApplication schema (alternativo)
-    software_schema = {
-        "@context": "https://schema.org",
-        "@type": "SoftwareApplication",
-        "name": name,
-        "description": description,
-        "url": url,
-        "applicationCategory": "EducationalApplication",
-        "operatingSystem": "Web",
-        "offers": {
-            "@type": "Offer",
-            "price": "0",
-            "priceCurrency": "BRL"
-        },
-        "author": {
-            "@type": "Person",
-            "name": author_name,
-            "url": author_url
-        },
-        "codeRepository": github_url,
-        "programmingLanguage": "Python",
-    }
-    
     # Combinar schemas
     return f'''
 <!-- Schema.org JSON-LD Structured Data -->
@@ -231,7 +207,7 @@ def gerar_noscript_seo() -> str:
     return '''
 <noscript>
     <div style="padding: 20px; font-family: Arial, sans-serif;">
-        <h1>Calculadora Nota TRI ENEM - Calcule sua Nota Online Grátis</h1>
+        <h1>Calculadora Nota TRI ENEM - Estime sua Nota Online Grátis</h1>
         <p>
             Esta calculadora gratuita produz uma estimativa da nota do ENEM
             usando Teoria de Resposta ao Item (TRI), com validação por prova

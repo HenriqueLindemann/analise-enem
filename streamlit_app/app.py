@@ -41,7 +41,6 @@ sys.path.insert(0, str(_root_dir))
 from streamlit_app.config import (
     SEO,
     AREAS_ENEM,
-    APP_VERSION,
 )
 from streamlit_app.calculador import get_calculador
 from streamlit_app.components.inputs import input_respostas, validar_todas_respostas

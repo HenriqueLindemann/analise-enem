@@ -102,7 +102,7 @@ def calcular_e_analisar(calc, area, ano, respostas, lingua=None, co_prova=None, 
         
         # Falhas inesperadas desta camada chegam ao tratamento externo, que
         # mostra a causa no CLI em vez de ocultá-la.
-        from tri_enem.relatorios import (
+        from tri_enem import (
             formatar_resumo_validacao,
             verificar_precisao_prova,
         )

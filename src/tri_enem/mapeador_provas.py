@@ -23,7 +23,7 @@ from __future__ import annotations
 
 import yaml
 from pathlib import Path
-from typing import Optional, Dict, List, Tuple
+from typing import Optional, Dict, List
 from dataclasses import dataclass
 
 
@@ -245,7 +245,6 @@ class MapeadorProvas:
         area: str,
         tipo_aplicacao: str,
         cor: str,
-        permitir_fallback: bool = False
     ) -> int:
         """
         Obtém código numérico da prova.
@@ -255,7 +254,6 @@ class MapeadorProvas:
             area: Área da prova (MT, CN, CH, LC ou nome completo)
             tipo_aplicacao: Tipo (1a aplicacao, digital, reaplicacao, etc.)
             cor: Cor da prova (azul, rosa, etc.)
-            permitir_fallback: Se True, tenta 1a aplicação como fallback
             
         Returns:
             Código numérico da prova
@@ -302,11 +300,6 @@ class MapeadorProvas:
                     f"Cor '{cor}' não encontrada para {area_norm} {ano} {tipo_aplicacao}. "
                     f"Cores disponíveis: {cores_disponiveis}"
                 )
-        
-        # Fallback: tentar em 1a_aplicacao se permitido
-        if permitir_fallback and tipo_norm != '1a_aplicacao' and '1a_aplicacao' in dados_area:
-            if cor_norm in dados_area['1a_aplicacao']:
-                return dados_area['1a_aplicacao'][cor_norm]
         
         tipos_disponiveis = [k for k in dados_area.keys() if k != 'especiais']
         raise KeyError(

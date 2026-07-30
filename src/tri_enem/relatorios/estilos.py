@@ -8,7 +8,7 @@ Design minimalista e moderno.
 
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
+from reportlab.lib.enums import TA_CENTER
 
 
 # =============================================================================
@@ -26,6 +26,8 @@ class Cores:
     # Acertos e erros - tons mais suaves
     ACERTO = colors.HexColor('#27AE60')        # Verde esmeralda
     ACERTO_CLARO = colors.HexColor('#D5F5E3')
+    ATENCAO = colors.HexColor('#B7791F')       # Amarelo escuro
+    ATENCAO_CLARO = colors.HexColor('#FFF3CD')
     ERRO = colors.HexColor('#E74C3C')          # Vermelho coral
     ERRO_CLARO = colors.HexColor('#FADBD8')
     
@@ -165,15 +167,48 @@ def criar_estilos():
         leading=9
     ))
     
-    # Aviso de precisão - sutil mas visível
+    # Validação por prova: boa (verde), intermediária (amarela) e baixa
+    # confiabilidade (vermelha).
     styles.add(ParagraphStyle(
-        name='AvisoPrecisao',
+        name='ValidacaoBoa',
         parent=styles['Normal'],
         fontName='Helvetica',
         fontSize=7,
-        textColor=colors.HexColor('#D35400'),
-        backColor=colors.HexColor('#FEF9E7'),
-        borderColor=colors.HexColor('#F39C12'),
+        textColor=Cores.ACERTO,
+        backColor=Cores.ACERTO_CLARO,
+        borderColor=Cores.ACERTO,
+        borderWidth=0.5,
+        borderPadding=5,
+        borderRadius=3,
+        spaceBefore=4,
+        spaceAfter=6,
+        leftIndent=0,
+        rightIndent=0
+    ))
+    styles.add(ParagraphStyle(
+        name='ValidacaoMedia',
+        parent=styles['Normal'],
+        fontName='Helvetica',
+        fontSize=7,
+        textColor=Cores.ATENCAO,
+        backColor=Cores.ATENCAO_CLARO,
+        borderColor=Cores.ATENCAO,
+        borderWidth=0.5,
+        borderPadding=5,
+        borderRadius=3,
+        spaceBefore=4,
+        spaceAfter=6,
+        leftIndent=0,
+        rightIndent=0
+    ))
+    styles.add(ParagraphStyle(
+        name='ValidacaoBaixa',
+        parent=styles['Normal'],
+        fontName='Helvetica',
+        fontSize=7,
+        textColor=Cores.ERRO,
+        backColor=Cores.ERRO_CLARO,
+        borderColor=Cores.ERRO,
         borderWidth=0.5,
         borderPadding=5,
         borderRadius=3,

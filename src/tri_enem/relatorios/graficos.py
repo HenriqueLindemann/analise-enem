@@ -6,7 +6,7 @@ Gráficos para o relatório PDF usando matplotlib.
 Gera imagens que são inseridas no PDF via reportlab.
 """
 
-from typing import List, Optional
+from typing import List
 from io import BytesIO
 import matplotlib
 matplotlib.use('Agg')  # Backend sem GUI
@@ -229,8 +229,3 @@ def grade_questoes(questoes: List[QuestaoAnalise], largura: float = 6,
     
     plt.tight_layout(pad=0.05)
     return _fig_para_image(fig, largura)
-
-
-def legenda_grafico_impacto() -> str:
-    """Retorna texto da legenda do gráfico de impacto."""
-    return "Verde = acerto · Vermelho = erro"

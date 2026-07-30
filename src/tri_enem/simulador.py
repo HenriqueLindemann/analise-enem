@@ -62,14 +62,14 @@ class SimuladorNota:
     pela interface web. Não reimplementa nada do cálculo.
     """
     
-    def __init__(self, microdados_path: str = None):
+    def __init__(self, itens_path: str = None):
         """
         Args:
-            microdados_path: Caminho externo opcional para os itens. Quando
+            itens_path: Caminho externo opcional para os itens. Quando
                 omitido, usa os CSVs incluídos no pacote.
         """
-        self.base_path = Path(microdados_path) if microdados_path else None
-        self._calc = CalculadorTRI(microdados_path)
+        self.base_path = Path(itens_path) if itens_path else None
+        self._calc = CalculadorTRI(itens_path)
 
     def listar_provas(self, ano: int, area: str = None) -> Dict[str, List[int]]:
         """Lista provas disponíveis para um ano."""
@@ -102,7 +102,7 @@ class SimuladorNota:
         Calcula a nota TRI.
         
         Modos de especificação da prova (ordem de precedência):
-        1. co_prova: Código numérico direto (retrocompatibilidade)
+        1. co_prova: Código numérico direto
         2. cor_prova + tipo_aplicacao: Busca no mapeamento
         3. Auto-descoberta somente se existir uma única prova possível
         
@@ -120,7 +120,7 @@ class SimuladorNota:
             ResultadoNota com nota e detalhes
             
         Exemplos:
-            # Modo 1: Código direto (retrocompatibilidade)
+            # Modo 1: Código direto
             sim.calcular('CN', 2021, respostas, co_prova=1011)
             
             # Modo 2: Por cor e tipo

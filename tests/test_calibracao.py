@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
-"""Propriedades críticas da calibração e da amostragem v3."""
+"""Propriedades críticas da calibração e da amostragem."""
 
 from __future__ import annotations
 

@@ -23,14 +23,13 @@ from pathlib import Path
 # Adiciona o modulo ao path
 sys.path.insert(0, str(Path(__file__).parent.parent / 'src'))
 
-from tri_enem import SimuladorNota, CalculadorTRI
+from tri_enem import CalculadorTRI
 
 # ==============================================================================
 #                    DADOS REAIS - PARTICIPANTE ENEM 2024
 # ==============================================================================
 
-# Participante real (extraido dos microdados INEP)
-# Encontrado via: tools/encontrar_exemplo.py
+# Participante real dos microdados do INEP; todos os dados pessoais foram removidos
 PARTICIPANTE = {
     'MT': {
         'prova': 1410,
@@ -89,7 +88,7 @@ def analisar_area_completa(calc, area, dados):
     if area == 'LC':
         tp_lingua = 0 if dados.get('lingua', 'ingles') == 'ingles' else 1
     
-    # Usar novo metodo de analise completa
+    # Calcular a análise completa
     analise = calc.analisar_todas_questoes(ANO, area, prova, respostas, tp_lingua)
     
     erro = analise['nota'] - nota_oficial
@@ -183,7 +182,8 @@ def main():
     print('=' * 80)
     print()
     print('Este exemplo usa dados reais de um participante do ENEM 2024')
-    print('extraidos dos microdados oficiais do INEP.')
+    print('extraidos dos microdados oficiais do INEP; todos os dados pessoais')
+    print('foram removidos.')
     print()
     
     # Inicializar

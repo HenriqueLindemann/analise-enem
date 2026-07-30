@@ -3,7 +3,7 @@
 Estime sua nota do ENEM usando **Teoria de Resposta ao Item (TRI)**, com
 precisão medida por prova em participantes reais dos microdados oficiais.
 
-Suporta todas as provas de **2009 a 2025** com análise detalhada e relatórios completos.
+Suporta provas de **2009 a 2025** com análise detalhada e relatórios completos.
 
 ---
 
@@ -27,9 +27,13 @@ Suporta todas as provas de **2009 a 2025** com análise detalhada e relatórios 
    ```
 4. **Abrir o arquivo `meu_simulado.py`** com Bloco de Notas
 5. **Trocar as alternativas** pelas suas respostas da prova
-6. **Clicar duas vezes** no arquivo para rodar
+6. **Executar o simulador** no terminal:
+   ```bash
+   python meu_simulado.py
+   ```
 
-**Pronto!** Sua nota aparece na tela e um PDF é criado na pasta `relatorios/`.
+**Pronto!** Sua nota aparece na tela e, com `GERAR_PDF = True`, um PDF é criado
+na pasta `relatorios/`.
 
 **Precisa de ajuda?** Pergunte para sua IA favorita como instalar e rodar um programa Python no seu sistema operacional.
 
@@ -38,16 +42,8 @@ Suporta todas as provas de **2009 a 2025** com análise detalhada e relatórios 
 ```bash
 git clone https://github.com/HenriqueLindemann/analise-enem.git
 cd analise-enem
-pip install -r requirements.txt
-```
-
-Opcionalmente, instale o pacote em modo editável (inclui extras web e de teste):
-
-```bash
 pip install -e ".[web,dev]"
 ```
-
-Ao atualizar da versão 3, consulte [Migração para 4.0.0](docs/MIGRATION_V4.md).
 
 ---
 
@@ -57,7 +53,8 @@ Edite o arquivo **`meu_simulado.py`** com suas respostas:
 
 ```python
 ANO = 2023
-TIPO_APLICACAO = '1a_aplicacao'  # 1a_aplicacao, digital, reaplicacao
+TIPO_APLICACAO = '1a_aplicacao'
+LINGUA = 'ingles'  # Para LC: ingles ou espanhol
 
 # DIA 1
 COR_LC = 'azul'
@@ -102,18 +99,17 @@ MÉDIA...............................   711.0 pts
 
 ## Funcionalidades
 
-- ✓ **Precisão verificável** com MAE e maior erro observado por prova
-- ✓ **Relatórios PDF** com análise de cada questão
-- ✓ **Análise de impacto** - descubra quais erros mais afetaram sua nota
-- ✓ **Todas as áreas**: MT, CN, CH, LC (inglês/espanhol)
-- ✓ **17 anos**: 2009 a 2025
+- **Precisão verificável** com erro médio e maior erro observado por prova
+- **Relatórios PDF** com análise de cada questão
+- **Análise de impacto** — descubra quais erros mais afetaram sua nota
+- **Todas as áreas**: MT, CN, CH, LC (inglês/espanhol)
+- **Cobertura de 17 anos**: 2009 a 2025
 
 ## Uso Avançado
 
 ### Via código Python
 
 ```python
-import sys; sys.path.insert(0, 'src')
 from tri_enem import MapeadorProvas, CalculadorTRI
 
 mapeador = MapeadorProvas()
@@ -182,7 +178,8 @@ estão em [`src/tri_enem/precisao.py`](src/tri_enem/precisao.py).
 
 ## Desenvolvimento e Testes
 
-O projeto possui uma suite de testes abrangente para garantir a precisão dos cálculos e a integridade do mapeamento de questões ao longo dos anos.
+O projeto possui uma suíte de testes abrangente para garantir a precisão dos
+cálculos e a integridade do mapeamento de questões ao longo dos anos.
 
 ### Testes automatizados (offline)
 
@@ -209,16 +206,20 @@ push e pull request. Utilizam os dados versionados no repositório e cobrem:
   `ok`, o aviso intermediário para exceções concentradas e o invariante de que
   prova não confiável nunca é apresentada sem aviso.
 
-### Suite de Testes TRI
-Para validar os cálculos contra dados oficiais do INEP e garantir que não existam regressões na ordem das questões:
+### Validação e publicação
 
-1. **Extrair Casos**: `python3 tests/extrair_exemplos_completos.py`
-   - Gera a base `tests/suite_testes_completos.txt` com centenas de estudantes reais extraídos dos microdados.
-2. **Executar Testes**: `python3 tests/executar_testes_completos.py`
-   - Simula o comportamento do App Streamlit.
-   - Compara a nota calculada com a nota oficial (precisão).
-   - Valida se a **ordem das questões** está correta (ex: 2016 CH iniciando na 1, 2017+ CH na 46).
-   - Lida corretamente com questões anuladas.
+O pipeline que recalibra os modelos exige os microdados brutos do INEP. Ele
+separa calibração, seleção e holdout e publica os artefatos de forma atômica:
+
+```bash
+python tests/run_full_validation.py \
+  --microdados-dir /caminho/para/MICRODADOS_ENEM
+```
+
+Os testes normais não dependem desses arquivos grandes: os parâmetros dos
+itens, casos de regressão e holdout já estão versionados. Veja
+[`tests/README.md`](tests/README.md) para a matriz de testes e
+[`tools/README.md`](tools/README.md) para o fluxo de recalibração.
 
 ## Estrutura do Projeto
 
@@ -232,12 +233,12 @@ analise-enem/
 ├── src/tri_enem/
 │   ├── calculador.py             # Motor de cálculo TRI
 │   ├── simulador.py              # Interface simplificada
-│   ├── calibrador.py             # Calibração de coeficientes
+│   ├── calibracao_modelos.py     # Ajuste e seleção dos modelos de escala
 │   ├── mapeador_provas.py        # API do mapeamento
 │   ├── mapeamento_provas.yaml    # Todas as provas 2009-2025
 │   ├── coeficientes_data.json    # Modelos + holdout + status (schema v3)
 │   ├── data/itens/<ano>/         # Parâmetros oficiais incluídos no pacote
-│   ├── precisao.py               # Verificação de erros intrínsecos
+│   ├── precisao.py               # Contrato de validação exibido ao usuário
 │   ├── tradutor.py               # LC (inglês/espanhol)
 │   └── relatorios/               # Gerador de PDF
 ├── docs/                         # Documentação (ver docs/README.md)
@@ -257,8 +258,7 @@ Os arquivos `ITENS_PROVA_<ano>.csv` têm uma única fonte versionada:
 `tools/gerar_dados_itens.py`, que valida o esquema e grava
 `src/tri_enem/data/itens/manifest.json` com os hashes das fontes oficiais e dos
 arquivos normalizados. Eles são incluídos no wheel por `pyproject.toml` e
-carregados com `importlib.resources`. `microdados_limpos/` é reservado para
-amostras locais de participantes e não é necessário para usar o pacote.
+carregados com `importlib.resources`.
 
 As decisões de implementação validadas contra os microdados ficam nos
 docstrings dos módulos correspondentes (`calculador.py`, `precisao.py`,

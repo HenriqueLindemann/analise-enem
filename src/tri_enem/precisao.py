@@ -10,20 +10,14 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any, Dict, Mapping
 
-MAE_OK = 2.0
-MAE_AVISO_LEVE = 5.0
-MAE_AVISO_FORTE = 15.0
-
 SEVERIDADE_POR_STATUS = {
     "ok": "sucesso",
     "aviso_leve": "info",
     "aviso_forte": "atencao",
     "erro_alto": "alerta",
-    "falhou": "atencao",
     "nao_calibrado": "atencao",
     "sem_participantes": "atencao",
     "sem_itens": "alerta",
-    "desconhecido": "atencao",
 }
 
 DATA_FILE = Path(__file__).parent / "coeficientes_data.json"
@@ -109,7 +103,7 @@ def _msg_por_metricas(status: str, perfil: str) -> str:
         return _msg_sem_participantes()
     if status == "sem_itens":
         return _msg_sem_itens()
-    if status in {"nao_calibrado", "falhou", "desconhecido"}:
+    if status == "nao_calibrado":
         return _msg_nao_calibrada()
     if perfil == PERFIL_BOA_COM_EXCECOES:
         return (
@@ -254,143 +248,98 @@ def verificar_precisao_prova(ano: int, area: str, co_prova: int) -> Dict[str, An
 
     key = f"{ano},{area},{co_prova}"
     try:
+        if int(data.get("schema_version")) != 3:
+            return _resultado_fechado()
         por_prova = data.get("por_prova", {})
         if not isinstance(por_prova, dict):
             return _resultado_fechado()
         info = por_prova.get(key)
-        schema_version = int(data.get("schema_version", 2))
     except (TypeError, ValueError, AttributeError):
         return _resultado_fechado()
     if not isinstance(info, dict):
-        if schema_version >= 3:
-            return _resultado_fechado(_msg_nao_calibrada())
-        info = {}
+        return _resultado_fechado(_msg_nao_calibrada())
 
-    # Esquema v3: métricas, estado e transformação moram na mesma entrada.
-    if schema_version >= 3:
-        validacao_bruta = info.get("validacao")
-        qualidade = info.get("qualidade")
-        transformacao_bruta = info.get("transformacao")
-        if not isinstance(qualidade, dict):
-            return _resultado_fechado()
-        status = qualidade.get("status")
-        if status not in STATUS_VALIDOS:
-            return _resultado_fechado()
-        if validacao_bruta is not None and not isinstance(validacao_bruta, dict):
-            return _resultado_fechado()
-        if transformacao_bruta is not None and not isinstance(
-            transformacao_bruta, dict
-        ):
-            return _resultado_fechado()
-        validacao = validacao_bruta or {}
-        transformacao = transformacao_bruta or {}
-        try:
-            mae = _numero_finito(validacao.get("mae"))
-            erro_maximo = _numero_finito(validacao.get("erro_maximo"))
-            erro_p95 = _numero_finito(validacao.get("erro_p95"))
-            r_squared = _numero_finito(validacao.get("r_squared"))
-            n_validacao = _inteiro_nao_negativo(validacao.get("n"))
-            n_acima_2 = _inteiro_nao_negativo(validacao.get("acima_2"))
-        except ValueError:
-            return _resultado_fechado()
-        faixas_cobertas = validacao.get("faixas_cobertas", [])
-        faixas_existentes = validacao.get("faixas_existentes", [])
-        if not isinstance(faixas_cobertas, list) or not isinstance(
-            faixas_existentes, list
-        ):
-            return _resultado_fechado()
-        if status == "ok" and (
-            mae is None
-            or erro_maximo is None
-            or erro_p95 is None
-            or n_validacao is None
-            or n_acima_2 is None
-            or n_validacao < 30
-            or n_acima_2 != 0
-            or erro_maximo > 2.0 + 1e-12
-            or len(faixas_existentes) < 2
-            or set(faixas_cobertas) != set(faixas_existentes)
-        ):
-            return _resultado_fechado()
-        if (
-            n_acima_2 is not None
-            and n_validacao is not None
-            and n_acima_2 > n_validacao
-        ):
-            return _resultado_fechado()
-        perfil = classificar_perfil_validacao(
-            status, erro_p95, n_acima_2, n_validacao
-        )
-        percentual_ate_2 = (
-            100.0 * (n_validacao - n_acima_2) / n_validacao
-            if n_validacao and n_acima_2 is not None
-            else None
-        )
-        resultado = {
-            "mae": mae,
-            "r_squared": r_squared,
-            "confiavel": status == "ok",
-            "aviso": _msg_por_metricas(status, perfil),
-            "severidade": (
-                "atencao"
-                if perfil == PERFIL_BOA_COM_EXCECOES
-                else SEVERIDADE_POR_STATUS.get(status, "atencao")
-            ),
-            "status": status,
-            "n_validacao": n_validacao,
-            "erro_maximo": erro_maximo,
-            "erro_p95": erro_p95,
-            "n_acima_2": n_acima_2,
-            "percentual_ate_2": percentual_ate_2,
-            "perfil": perfil,
-            "faixas_cobertas": faixas_cobertas,
-            "faixas_existentes": faixas_existentes,
-            "modelo": transformacao.get("tipo"),
-            "validado_em": qualidade.get("validado_em"),
-            "motivo": qualidade.get("motivo"),
-        }
-        return resultado
+    validacao_bruta = info.get("validacao")
+    qualidade = info.get("qualidade")
+    transformacao_bruta = info.get("transformacao")
+    if not isinstance(qualidade, dict):
+        return _resultado_fechado()
+    status = qualidade.get("status")
+    if status not in STATUS_VALIDOS:
+        return _resultado_fechado()
+    if validacao_bruta is not None and not isinstance(validacao_bruta, dict):
+        return _resultado_fechado()
+    if transformacao_bruta is not None and not isinstance(
+        transformacao_bruta, dict
+    ):
+        return _resultado_fechado()
 
-    # Leitura compatível do catálogo v2 durante a migração.
-    mae = info.get("mae")
-    status_info = data.get("status_provas", {}).get(key, {})
-    status = status_info.get("status")
-    if status is None:
-        if mae is None:
-            status = "nao_calibrado"
-        elif mae <= MAE_OK:
-            status = "ok"
-        elif mae <= MAE_AVISO_LEVE:
-            status = "aviso_leve"
-        elif mae <= MAE_AVISO_FORTE:
-            status = "aviso_forte"
-        else:
-            status = "erro_alto"
-    mensagem_legada = status_info.get("mensagem") or ""
-    if status == "falhou" and "participante" in mensagem_legada.lower():
-        aviso = _msg_sem_participantes()
-    else:
-        aviso = _msg_por_metricas(status, PERFIL_ESTIMATIVA)
+    validacao = validacao_bruta or {}
+    transformacao = transformacao_bruta or {}
+    try:
+        mae = _numero_finito(validacao.get("mae"))
+        erro_maximo = _numero_finito(validacao.get("erro_maximo"))
+        erro_p95 = _numero_finito(validacao.get("erro_p95"))
+        r_squared = _numero_finito(validacao.get("r_squared"))
+        n_validacao = _inteiro_nao_negativo(validacao.get("n"))
+        n_acima_2 = _inteiro_nao_negativo(validacao.get("acima_2"))
+    except ValueError:
+        return _resultado_fechado()
+
+    faixas_cobertas = validacao.get("faixas_cobertas", [])
+    faixas_existentes = validacao.get("faixas_existentes", [])
+    if not isinstance(faixas_cobertas, list) or not isinstance(
+        faixas_existentes, list
+    ):
+        return _resultado_fechado()
+    if status == "ok" and (
+        mae is None
+        or erro_maximo is None
+        or erro_p95 is None
+        or n_validacao is None
+        or n_acima_2 is None
+        or n_validacao < 30
+        or n_acima_2 != 0
+        or erro_maximo > 2.0 + 1e-12
+        or len(faixas_existentes) < 2
+        or set(faixas_cobertas) != set(faixas_existentes)
+    ):
+        return _resultado_fechado()
+    if (
+        n_acima_2 is not None
+        and n_validacao is not None
+        and n_acima_2 > n_validacao
+    ):
+        return _resultado_fechado()
+
+    perfil = classificar_perfil_validacao(
+        status, erro_p95, n_acima_2, n_validacao
+    )
+    percentual_ate_2 = (
+        100.0 * (n_validacao - n_acima_2) / n_validacao
+        if n_validacao and n_acima_2 is not None
+        else None
+    )
     return {
         "mae": mae,
-        "r_squared": info.get("r_squared"),
+        "r_squared": r_squared,
         "confiavel": status == "ok",
-        "aviso": aviso,
-        "severidade": SEVERIDADE_POR_STATUS.get(status, "atencao"),
-        "status": status,
-        "n_validacao": info.get("n_amostras"),
-        "erro_maximo": None,
-        "erro_p95": None,
-        "n_acima_2": None,
-        "percentual_ate_2": None,
-        "perfil": (
-            PERFIL_CALIBRACAO_VERIFICADA
-            if status == "ok"
-            else PERFIL_ESTIMATIVA
+        "aviso": _msg_por_metricas(status, perfil),
+        "severidade": (
+            "atencao"
+            if perfil == PERFIL_BOA_COM_EXCECOES
+            else SEVERIDADE_POR_STATUS.get(status, "atencao")
         ),
-        "faixas_cobertas": [],
-        "faixas_existentes": [],
-        "modelo": "linear",
-        "validado_em": None,
-        "motivo": "catalogo_v2",
+        "status": status,
+        "n_validacao": n_validacao,
+        "erro_maximo": erro_maximo,
+        "erro_p95": erro_p95,
+        "n_acima_2": n_acima_2,
+        "percentual_ate_2": percentual_ate_2,
+        "perfil": perfil,
+        "faixas_cobertas": faixas_cobertas,
+        "faixas_existentes": faixas_existentes,
+        "modelo": transformacao.get("tipo"),
+        "validado_em": qualidade.get("validado_em"),
+        "motivo": qualidade.get("motivo"),
     }

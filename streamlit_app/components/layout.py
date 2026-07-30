@@ -8,7 +8,7 @@ Separa a estrutura visual da lógica de negócio.
 
 import streamlit as st
 from pathlib import Path
-from typing import Tuple, Dict, Optional
+from typing import Tuple, Dict
 
 from ..config import (
     APP_VERSION,
@@ -63,9 +63,10 @@ def render_header() -> None:
         '<h1 style="margin-bottom: 0.5rem;">Calculadora Nota TRI ENEM</h1>',
         unsafe_allow_html=True
     )
-    
+
     st.markdown(
-        'Estime sua nota do ENEM com TRI e validação em microdados oficiais do INEP',
+        'Estime sua nota do ENEM com TRI e validação em microdados oficiais do '
+        'INEP. **Agora com mais precisão!**',
         unsafe_allow_html=True
     )
     

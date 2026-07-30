@@ -8,7 +8,6 @@ Execute com: python -m pytest tests/test_utils.py -v
 
 import json
 import math
-import tempfile
 from pathlib import Path
 
 import pytest
@@ -85,50 +84,6 @@ class TestAddSrcToPath:
         _utils.add_src_to_path()
         _utils.add_src_to_path()
         assert sys.path.count(str(_utils.SRC_DIR)) == max(1, initial_count)
-
-
-class TestCarregarCodigosPresentes:
-    """Testes para a funcao carregar_codigos_presentes."""
-
-    def test_formato_codigo(self):
-        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False, encoding="utf-8") as f:
-            json.dump({"agrupar_por": "codigo", "codigos": [100, 200, 300]}, f)
-            f.flush()
-            path = Path(f.name)
-
-        try:
-            result = _utils.carregar_codigos_presentes(path, "codigo")
-            assert result == {"100", "200", "300"}
-        finally:
-            path.unlink()
-
-    def test_formato_ano_area_codigo(self):
-        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False, encoding="utf-8") as f:
-            json.dump({
-                "agrupar_por": "ano-area-codigo",
-                "chaves": [[2021, "MT", "912"], [2021, "CN", "913"]]
-            }, f)
-            f.flush()
-            path = Path(f.name)
-
-        try:
-            result = _utils.carregar_codigos_presentes(path, "ano-area-codigo")
-            assert (2021, "MT", "912") in result
-            assert (2021, "CN", "913") in result
-        finally:
-            path.unlink()
-
-    def test_erro_formato_incompativel(self):
-        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False, encoding="utf-8") as f:
-            json.dump({"agrupar_por": "codigo", "codigos": [100]}, f)
-            f.flush()
-            path = Path(f.name)
-
-        try:
-            with pytest.raises(ValueError, match="esperado 'ano-area-codigo'"):
-                _utils.carregar_codigos_presentes(path, "ano-area-codigo")
-        finally:
-            path.unlink()
 
 
 class TestInfoMapeamento:

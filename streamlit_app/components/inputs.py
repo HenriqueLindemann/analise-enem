@@ -6,7 +6,7 @@ Componentes de entrada de dados para o Streamlit.
 
 import streamlit as st
 from st_keyup import st_keyup
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, List, Tuple
 import html
 from ..config import AREAS_ENEM, ORDEM_AREAS
 
@@ -151,26 +151,15 @@ def input_respostas(ano: int, mapeador=None) -> Dict[str, str]:
 
 
 def _obter_ordem_provas(ano: int, mapeador=None) -> List[str]:
-    """Obtém a ordem das provas a partir do backend, com fallback seguro."""
+    """Obtém a ordem das provas a partir do backend, com padrão seguro."""
     if mapeador is None:
         return ORDEM_AREAS.copy()
 
-    candidatos = [
-        "listar_ordem_provas",
-        "obter_ordem_provas",
-        "get_ordem_provas",
-    ]
-
-    for nome in candidatos:
-        func = getattr(mapeador, nome, None)
-        if callable(func):
-            try:
-                ordem = func(ano)
-            except Exception:
-                ordem = None
-            return _normalizar_ordem_provas(ordem)
-
-    return ORDEM_AREAS.copy()
+    try:
+        ordem = mapeador.listar_ordem_provas(ano)
+    except Exception:
+        ordem = None
+    return _normalizar_ordem_provas(ordem)
 
 
 def _normalizar_ordem_provas(ordem) -> List[str]:

@@ -14,8 +14,7 @@ mapeia corretamente para os itens da prova.
 """
 
 import pandas as pd
-from pathlib import Path
-from typing import List, Tuple, Optional
+from typing import List, Tuple
 from dataclasses import dataclass
 
 

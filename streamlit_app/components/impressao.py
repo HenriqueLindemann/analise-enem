@@ -7,7 +7,6 @@ Componente de geração de relatório PDF para o Streamlit.
 import streamlit as st
 from typing import List, Dict, Optional
 from pathlib import Path
-from datetime import datetime
 import tempfile
 import os
 import sys
@@ -111,14 +110,6 @@ def exibir_download_pdf(resultados: List[Dict], ano: int, tipo_aplicacao: str = 
     
     Usa session_state para manter o PDF gerado entre reruns.
     """
-    # Verificar dependências
-    try:
-        import reportlab
-        import matplotlib
-    except ImportError:
-        st.info("Relatório PDF não disponível. Instale: `pip install reportlab matplotlib`")
-        return
-    
     st.markdown("### Relatório PDF")
     st.caption("Relatório completo com gráficos, tabelas e análise de cada questão")
     

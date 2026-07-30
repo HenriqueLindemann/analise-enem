@@ -8,22 +8,10 @@
 microdados/
 DADOS/
 
-# Microdados limpos - manter estrutura mas ignorar arquivos grandes
-microdados_limpos/**/DADOS_ENEM*.csv
-# Amostras de calibração (tools/amostrar_microdados_brutos.py): derivadas dos
-# brutos do INEP, ~150 MB no total, regeneráveis
-microdados_limpos/**/AMOSTRA_CALIBRACAO_*.csv
-# Nota: ITENS_PROVA*.csv são incluídos (pequenos, essenciais para cálculo)
-
 # Outputs de análise
 graficos/
 graficos_tri/
 resultados/
-
-# Arquivos gerados pelos scripts de teste (não são source)
-tests/suite_testes_tri.txt
-tests/suite_testes_completos.txt
-tests/provas_problematicas.md
 
 # Relatórios PDF gerados
 relatorios/*.pdf

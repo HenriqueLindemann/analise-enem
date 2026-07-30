@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
-"""Mudanças públicas deliberadas da resolução de prova na versão 4."""
+"""Contrato público de resolução de prova do simulador."""
 
 from __future__ import annotations
 

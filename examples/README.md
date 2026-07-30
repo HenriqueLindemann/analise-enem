@@ -7,13 +7,14 @@ Exemplos práticos de como usar o módulo TRI ENEM.
 | Arquivo | Descrição |
 |---------|-----------|
 | `calcular_nota.py` | Cálculo básico de nota + análise de erros |
-| `analise_completa_2024.py` | Análise completa com geração de PDF |
+| `analise_completa_2024.py` | Exemplo de análise detalhada |
 
 ## Uso
 
-Execute da raiz do projeto:
+Instale o projeto em modo editável e execute os exemplos a partir da raiz:
 
 ```bash
+python -m pip install -e .
 python examples/calcular_nota.py
 ```
 
@@ -26,9 +27,6 @@ python meu_simulado.py
 ## Exemplo Rápido
 
 ```python
-import sys
-sys.path.insert(0, 'src')
-
 from tri_enem import MapeadorProvas, CalculadorTRI
 
 # Inicializar
@@ -44,3 +42,7 @@ resultado = calc.calcular_nota(2023, 'MT', co_prova, respostas)
 
 print(f"Nota: {resultado['nota']:.1f}")
 ```
+
+Ao usar `SimuladorNota`, identifique a prova com `co_prova` ou com a combinação
+`cor_prova` + `tipo_aplicacao`. Para LC, informe também `lingua="ingles"` ou
+`lingua="espanhol"`.

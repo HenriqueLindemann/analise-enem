@@ -27,7 +27,6 @@ O que se verifica, por ano e área:
 import json
 import sys
 from collections import defaultdict
-from pathlib import Path
 
 import pytest
 

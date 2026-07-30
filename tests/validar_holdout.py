@@ -97,8 +97,6 @@ def validar(
         return ["coeficientes_data.json não usa schema_version=3"]
     casos = carregar_holdout(holdout_path)
     falhas = []
-    if "status_provas" in catalogo:
-        falhas.append("catálogo v3 ainda contém a fonte duplicada status_provas")
     mapeador = MapeadorProvas()
     esperadas = {
         f"{prova.ano},{prova.area},{prova.codigo}"

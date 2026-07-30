@@ -94,6 +94,10 @@ class TestAppExecuta:
             s.key for s in at.selectbox if s.key
         }
         assert any("CALCULAR" in (b.label or "").upper() for b in at.button)
+        assert any(
+            "Agora com mais precisão!" in bloco.value
+            for bloco in at.markdown
+        )
 
     @pytest.mark.parametrize("ano", [2009, 2015, 2020, 2023, 2025])
     def test_troca_de_ano_nao_quebra(self, ano):
@@ -286,17 +290,37 @@ class TestGraficos:
 
         assert grafico_impacto([], titulo="MT") is not None
 
-    def test_graficos_de_barras_e_comparativo(self, resultado):
-        from streamlit_app.components.graficos import (
-            grafico_notas_barras, grafico_comparativo_areas,
-        )
+    def test_grafico_de_barras(self, resultado):
+        from streamlit_app.components.graficos import grafico_notas_barras
 
         assert grafico_notas_barras([resultado]) is not None
-        assert grafico_comparativo_areas([resultado]) is not None
 
 
 class TestRelatorioPDF:
     """Geração do PDF, via src/tri_enem/relatorios/."""
+
+    @pytest.mark.parametrize(
+        ("severidade", "estilo"),
+        [
+            ("sucesso", "ValidacaoBoa"),
+            ("info", "ValidacaoMedia"),
+            ("atencao", "ValidacaoMedia"),
+            ("alerta", "ValidacaoBaixa"),
+            ("desconhecida", "ValidacaoBaixa"),
+        ],
+    )
+    def test_cor_da_validacao_reflete_a_severidade(self, severidade, estilo):
+        from tri_enem.relatorios.estilos import Cores, criar_estilos
+        from tri_enem.relatorios.gerador import _estilo_validacao
+
+        estilos = criar_estilos()
+        fundos = {
+            "ValidacaoBoa": Cores.ACERTO_CLARO,
+            "ValidacaoMedia": Cores.ATENCAO_CLARO,
+            "ValidacaoBaixa": Cores.ERRO_CLARO,
+        }
+        assert _estilo_validacao(severidade) == estilo
+        assert estilos[estilo].backColor == fundos[estilo]
 
     def test_pdf_e_gerado_e_valido(self, resultados_quatro_areas):
         from streamlit_app.components.impressao import _gerar_pdf

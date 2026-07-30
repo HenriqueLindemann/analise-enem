@@ -132,14 +132,11 @@ class TestMapeadorProvas:
     def test_erro_tipo_inexistente(self, mapeador):
         """Teste de erro para tipo inexistente."""
         with pytest.raises(KeyError, match="Tipo de aplicação .* não encontrado"):
-            mapeador.obter_codigo(2024, "MT", "digital", "azul", permitir_fallback=False)
+            mapeador.obter_codigo(2024, "MT", "digital", "azul")
 
-    def test_fallback_regular_e_somente_opt_in(self, mapeador):
+    def test_nao_redireciona_para_outra_aplicacao(self, mapeador):
         with pytest.raises(KeyError, match="Tipo de aplicação"):
             mapeador.obter_codigo(2024, "MT", "digital", "azul")
-        assert mapeador.obter_codigo(
-            2024, "MT", "digital", "azul", permitir_fallback=True
-        ) == mapeador.obter_codigo(2024, "MT", "1a_aplicacao", "azul")
     
     def test_validar_mapeamento(self, mapeador):
         """Teste de validação da estrutura do mapeamento."""
@@ -158,7 +155,7 @@ class TestMapeadorProvas:
         assert info.eh_especial is True
 
     # ========================================================================
-    # Testes para listar_ordem_provas (nova funcionalidade)
+    # Testes para listar_ordem_provas
     # ========================================================================
 
     def test_ordem_provas_range_2017_2025(self, mapeador):

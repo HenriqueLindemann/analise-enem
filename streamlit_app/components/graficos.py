@@ -5,9 +5,7 @@ Visualizações gráficas para o Streamlit usando Plotly.
 """
 
 import plotly.graph_objects as go
-import plotly.express as px
-from plotly.subplots import make_subplots
-from typing import List, Dict, Optional
+from typing import List, Dict
 import numpy as np
 
 
@@ -290,54 +288,6 @@ def grafico_pizza_acertos(acertos: int, erros: int) -> go.Figure:
             font_size=16,
             showarrow=False
         )]
-    )
-    
-    return fig
-
-
-def grafico_comparativo_areas(resultados: List[Dict]) -> go.Figure:
-    """
-    Gráfico radar comparando as áreas.
-    
-    Args:
-        resultados: Lista de dicts com 'sigla', 'nota'
-        
-    Returns:
-        Figura Plotly
-    """
-    if not resultados:
-        return go.Figure()
-    
-    siglas = [r['sigla'] for r in resultados]
-    notas = [r['nota'] for r in resultados]
-    limite_superior = max(1000, int(np.ceil(max(notas) / 100.0) * 100))
-    
-    # Fechar o polígono
-    siglas_closed = siglas + [siglas[0]]
-    notas_closed = notas + [notas[0]]
-    
-    fig = go.Figure()
-    
-    fig.add_trace(go.Scatterpolar(
-        r=notas_closed,
-        theta=siglas_closed,
-        fill='toself',
-        fillcolor=f'rgba(52, 152, 219, 0.3)',
-        line=dict(color=COR_PRIMARIA, width=2),
-        hovertemplate="<b>%{theta}</b><br>Nota: %{r:.0f}<extra></extra>"
-    ))
-    
-    fig.update_layout(
-        polar=dict(
-            radialaxis=dict(
-                visible=True,
-                range=[0, limite_superior],
-                tickvals=sorted({0, 250, 500, 750, 1000, limite_superior}),
-            ),
-        ),
-        height=300,
-        margin=dict(l=60, r=60, t=40, b=40),
-        showlegend=False,
     )
     
     return fig

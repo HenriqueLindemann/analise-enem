@@ -12,7 +12,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / 'src'))
 
 from tri_enem import CalculadorTRI
 
-# Inicializar calculador (usa microdados_limpos por padrão)
+# Inicializar calculador (usa os parâmetros de itens incluídos no pacote)
 calc = CalculadorTRI()
 
 # Exemplo: calcular nota de Matemática 2023

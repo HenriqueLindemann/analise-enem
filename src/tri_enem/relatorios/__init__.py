@@ -10,7 +10,7 @@ Estrutura:
     - estilos.py: Cores e estilos de texto
     - graficos.py: Visualizações (barras, grade, impacto)
     - tabelas.py: Tabelas de erros e resumos
-    - utils.py: Utilitários (verificação de precisão)
+    - utils.py: Formatação da dificuldade dos itens
     - base.py: Classes de dados
 
 Uso básico:
@@ -25,8 +25,6 @@ Uso básico:
 
 from .gerador import RelatorioPDF
 from .base import RelatorioBase, DadosRelatorio, AreaAnalise, QuestaoAnalise
-# Re-exportar do pacote principal para compatibilidade
-from ..precisao import formatar_resumo_validacao, verificar_precisao_prova
 
 __all__ = [
     'RelatorioPDF',
@@ -34,6 +32,4 @@ __all__ = [
     'DadosRelatorio',
     'AreaAnalise',
     'QuestaoAnalise',
-    'verificar_precisao_prova',
-    'formatar_resumo_validacao',
 ]

@@ -8,8 +8,8 @@ Os casos saem de exemplos_microdados.json, e a nota oficial é copiada junto, de
 modo que o diff de uma regeneração mostre se o motor se aproximou ou se afastou
 da nota do INEP.
 
-Regenerar é obrigatório após qualquer recalibração: o golden anterior fixa notas
-produzidas com os coeficientes antigos.
+Regenerar é obrigatório após qualquer recalibração: o golden existente fixa as
+notas produzidas antes dela.
 
 Execute a partir da raiz do projeto:
     python tests/fixtures/gerar_golden_notas.py

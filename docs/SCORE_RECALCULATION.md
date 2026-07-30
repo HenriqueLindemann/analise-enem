@@ -14,9 +14,6 @@ The 17 `ITENS_PROVA_<year>.csv` files are stored once, under
 - included in wheels by the package-data rule in `pyproject.toml`;
 - loaded through `importlib.resources` when no external item path is supplied.
 
-`microdados_limpos/` contains only local participant extracts used by legacy
-calibration tools. It is not required at runtime and is not packaged.
-
 Regenerate the package data with:
 
 ```bash

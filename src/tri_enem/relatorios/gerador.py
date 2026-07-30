@@ -14,22 +14,29 @@ try:
     from reportlab.lib.pagesizes import A4
     from reportlab.lib.units import cm
     from reportlab.platypus import (
-        SimpleDocTemplate, Paragraph, Spacer, PageBreak, KeepTogether
+        SimpleDocTemplate, Paragraph, Spacer
     )
-    from reportlab.graphics.shapes import Drawing, Line
-    from reportlab.lib.colors import Color
     REPORTLAB_DISPONIVEL = True
 except ImportError:
     REPORTLAB_DISPONIVEL = False
 
 from .base import DadosRelatorio, AreaAnalise
 from .estilos import criar_estilos, Cores
-from .graficos import grafico_barras_notas, grafico_impacto_questoes, grade_questoes, legenda_grafico_impacto
-from .tabelas import tabela_erros_completa, tabela_resumo_areas
-from .utils import formatar_resumo_validacao, verificar_precisao_prova
-from ..mapeador_provas import MapeadorProvas
+from .graficos import grafico_barras_notas, grafico_impacto_questoes, grade_questoes
+from .tabelas import tabela_erros_completa
+from ..precisao import formatar_resumo_validacao, verificar_precisao_prova
 
 TZ_BRASILIA = timezone(timedelta(hours=-3))
+
+
+def _estilo_validacao(severidade: str) -> str:
+    """Mapeia a severidade do catálogo para a cor do bloco no PDF."""
+    return {
+        "sucesso": "ValidacaoBoa",
+        "info": "ValidacaoMedia",
+        "atencao": "ValidacaoMedia",
+        "alerta": "ValidacaoBaixa",
+    }.get(severidade, "ValidacaoBaixa")
 
 
 class RelatorioPDF:
@@ -51,7 +58,6 @@ class RelatorioPDF:
             )
         
         self.styles = criar_estilos()
-        self._mapeador = None  # Lazy loading
     
     def gerar(self, dados: DadosRelatorio, caminho_saida: str) -> str:
         """Gera o relatório PDF."""
@@ -76,7 +82,7 @@ class RelatorioPDF:
         # Cabeçalho
         elementos.extend(self._cabecalho(dados))
         
-        areas_ordenadas = self._ordenar_areas_por_prova(dados.areas, dados.ano_prova)
+        areas_ordenadas = self._ordenar_areas_por_prova(dados.areas)
 
         # Resumo visual (barras)
         elementos.extend(self._resumo_visual(dados, areas_ordenadas))
@@ -164,7 +170,7 @@ class RelatorioPDF:
         elementos.append(Spacer(1, 18))
         return elementos
 
-    def _ordenar_areas_por_prova(self, areas: List[AreaAnalise], ano: int) -> List[AreaAnalise]:
+    def _ordenar_areas_por_prova(self, areas: List[AreaAnalise]) -> List[AreaAnalise]:
         """Ordena áreas conforme a numeração real das questões para corresponder à ordem da prova."""
         def get_min_posicao(area):
             posicoes = [q.posicao for q in area.questoes]
@@ -194,7 +200,7 @@ class RelatorioPDF:
         if precisao.get('aviso'):
             elementos.append(Paragraph(
                 precisao['aviso'],
-                self.styles['AvisoPrecisao']
+                self.styles[_estilo_validacao(precisao.get('severidade'))]
             ))
         resumo_validacao = formatar_resumo_validacao(precisao)
         if resumo_validacao:

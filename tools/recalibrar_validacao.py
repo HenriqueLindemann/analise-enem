@@ -24,7 +24,7 @@ from collections import Counter, defaultdict
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, Iterable, Iterator, List, Sequence, Tuple
+from typing import Any, Dict, Iterable, List, Sequence, Tuple
 
 import numpy as np
 import pandas as pd
@@ -35,7 +35,6 @@ sys.path.insert(0, str(ROOT / "src"))
 from tri_enem import CalculadorTRI, MapeadorProvas  # noqa: E402
 from tri_enem.calibracao_modelos import (  # noqa: E402
     ROTULOS_FAIXAS,
-    ajustar_linear,
     classificar_validacao,
     faixa_nota,
     metricas_modelo,

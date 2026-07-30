@@ -1,12 +1,12 @@
 # Calculadora Nota TRI ENEM - Interface Web
 
-Interface web para cálculo de nota TRI do ENEM.
+Interface web para estimativa da nota TRI do ENEM.
 
 ## Acesse Online
 
 **→ [https://notatri.com/](https://notatri.com/)**
 
-Calcule sua nota do ENEM direto no navegador, sem instalar nada!
+Estime sua nota do ENEM direto no navegador, sem instalar nada.
 
 ---
 
@@ -39,8 +39,6 @@ streamlit_app/
 ├── calculador.py       # Wrapper do módulo tri_enem
 ├── styles.css          # Estilos CSS externos
 ├── requirements.txt    # Dependências específicas
-├── .streamlit/
-│   └── config.toml     # Configurações de deploy
 ├── static/
 │   ├── robots.txt      # Instruções para crawlers
 │   └── sitemap.xml     # Mapa do site para SEO
@@ -83,18 +81,16 @@ O app inclui otimizações para ranqueamento no Google:
 
 ## Funcionalidades
 
-- ✓ Seleção de ano (2009-2025)
-- ✓ Seleção de tipo de aplicação (1ª, Digital, Reaplicação)
-- ✓ Seleção de cor por área
-- ✓ Input de 45 respostas por área
-- ✓ Cálculo TRI preciso
-- ✓ Visualização de notas por área
-- ✓ Grade visual de acertos/erros
-- ✓ Gráfico de impacto das questões
-- ✓ Análise detalhada por área
-- ✓ Download de relatório PDF
-- ✓ Cache para performance
-- ✓ Progress bar durante cálculo
+- Seleção de ano (2009-2025)
+- Seleção de tipo de aplicação (1ª, digital, reaplicação)
+- Seleção de cor por área
+- Entrada de 45 respostas por área
+- Estimativa TRI com validação informada por prova
+- Visualização de notas por área
+- Grade visual de acertos e erros
+- Gráfico de impacto das questões
+- Análise detalhada por área
+- Download de relatório PDF
 
 ## Licença
 

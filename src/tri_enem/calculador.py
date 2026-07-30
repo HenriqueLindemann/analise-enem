@@ -34,8 +34,8 @@ baseline (slope, intercept), os nós e as métricas ficam em
 coeficientes_data.json.
 
 Toda conversão θ -> nota no motor principal é feita por transformar_escala()
-com co_prova informado. A API legada ainda admite a transformação por
-ano/área quando não existe um modelo específico.
+com co_prova informado. Quando não existe um modelo específico, o catálogo
+fornece a transformação do ano/área.
 
 Indexação das respostas
 -----------------------
@@ -109,22 +109,19 @@ class CalculadorTRI:
     # Coeficientes carregados de coeficientes.py
     # Ver coeficientes.py para adicionar novos coeficientes
     
-    def __init__(self, microdados_path: str = None):
+    def __init__(self, itens_path: str = None):
         """
         Args:
-            microdados_path: Caminho externo opcional para a pasta de itens.
+            itens_path: Caminho externo opcional para a pasta de itens.
                 Quando omitido, usa os parâmetros empacotados com ``tri_enem``.
         """
         self._packaged_base = Path(
             str(files("tri_enem").joinpath("data", "itens"))
         )
-        if microdados_path is None:
+        if itens_path is None:
             self.base_path = self._packaged_base
-            # Compatibilidade durante desenvolvimento de checkouts v3.
-            if not self.base_path.exists():
-                self.base_path = Path(__file__).resolve().parents[2] / "microdados_limpos"
         else:
-            self.base_path = Path(microdados_path)
+            self.base_path = Path(itens_path)
         self._cache_itens: Dict[str, List[ItemTRI]] = {}
         self._cache_df_itens: Dict[str, pd.DataFrame] = {}
         self._pontos_quad, self._pesos_quad = self._calcular_quadratura()

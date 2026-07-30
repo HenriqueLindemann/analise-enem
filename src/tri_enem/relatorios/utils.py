@@ -1,16 +1,6 @@
 # SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 # Copyright (c) 2026 Henrique Lindemann
-"""
-Utilitários para o relatório PDF.
-
-Funções auxiliares: formatação, etc.
-A função verificar_precisao_prova foi movida para o pacote principal (tri_enem.precisao).
-"""
-
-from typing import Dict
-
-# Re-exportar para compatibilidade com código antigo
-from ..precisao import formatar_resumo_validacao, verificar_precisao_prova
+"""Utilitários de formatação para o relatório PDF."""
 
 
 def formatar_dificuldade(param_b: float) -> str:

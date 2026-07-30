@@ -20,7 +20,7 @@ Interface simplificada (recomendada):
     )
 
 Interface avançada:
-    from tri_enem import CalculadorTRI, Calibrador
+    from tri_enem import CalculadorTRI
     
     calc = CalculadorTRI()
     nota = calc.calcular_nota(2023, 'MT', 1211, respostas)
@@ -28,14 +28,9 @@ Interface avançada:
 
 from .simulador import SimuladorNota, ResultadoNota
 from .calculador import CalculadorTRI, ItemTRI
-from .calibrador import Calibrador
 from .coeficientes import (
     aplicar_transformacao,
-    obter_coeficiente,
     obter_transformacao,
-    COEF_POR_PROVA,
-    COEF_POR_AREA,
-    COEF_PADRAO,
 )
 from .tradutor import obter_config_lc, filtrar_itens_lc, ConfiguracaoLC
 from .mapeador_provas import MapeadorProvas, InfoProva
@@ -48,14 +43,9 @@ __all__ = [
     # Interface avançada
     'CalculadorTRI',
     'ItemTRI',
-    'Calibrador',
-    # Coeficientes
-    'obter_coeficiente',
+    # Transformações de escala
     'obter_transformacao',
     'aplicar_transformacao',
-    'COEF_POR_PROVA',
-    'COEF_POR_AREA',
-    'COEF_PADRAO',
     # Tradutor LC
     'obter_config_lc',
     'filtrar_itens_lc',

@@ -5,14 +5,13 @@ Componentes de exibição de resultados para o Streamlit.
 """
 
 import streamlit as st
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 from .graficos import (
     grafico_notas_barras, 
     grafico_impacto, 
     grade_questoes,
     grafico_pizza_acertos,
-    grafico_comparativo_areas,
 )
 
 
@@ -108,8 +107,7 @@ def exibir_resultado_area(resultado: Dict):
         })
     
     # Aviso de precisão, exibido conforme a gravidade informada por
-    # verificar_precisao_prova (antes todo aviso saía em vermelho, inclusive
-    # os meramente informativos).
+    # verificar_precisao_prova.
     aviso = resultado.get('aviso_precisao')
     if aviso:
         exibir = {

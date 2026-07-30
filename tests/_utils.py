@@ -13,7 +13,6 @@ Encoding dos dados:
 
 from __future__ import annotations
 
-import json
 import logging
 import sys
 from pathlib import Path
@@ -28,13 +27,11 @@ __all__ = [
     "carregar_mapeamento",
     "info_mapeamento",
     "listar_chaves_mapeamento",
-    "carregar_codigos_presentes",
     "ROOT",
     "SRC_DIR",
     "LIMITE_DIF_PADRAO",
     "FIXTURES_DIR",
     "MAPEAMENTO_PATH",
-    "CACHE_CODIGOS_PATH",
     "EXEMPLOS_PATH",
 ]
 
@@ -47,7 +44,6 @@ SRC_DIR = ROOT / "src"
 LIMITE_DIF_PADRAO = 2.0  # Limite de diferença (pontos) para marcar prova como problemática
 FIXTURES_DIR = ROOT / "tests" / "fixtures"
 MAPEAMENTO_PATH = ROOT / "src" / "tri_enem" / "mapeamento_provas.yaml"
-CACHE_CODIGOS_PATH = FIXTURES_DIR / "codigos_presentes.json"
 EXEMPLOS_PATH = FIXTURES_DIR / "exemplos_microdados.json"
 
 
@@ -217,39 +213,3 @@ def listar_chaves_mapeamento(path: Path, agrupar_por: str) -> Set[Any]:
                         chaves.add(codigo_str)
 
     return chaves
-
-
-def carregar_codigos_presentes(path: Path, agrupar_por: str) -> Set[Any]:
-    """Carrega cache de codigos presentes nos microdados.
-
-    Args:
-        path: Caminho para o arquivo JSON de cache
-        agrupar_por: 'codigo' ou 'ano-area-codigo'
-
-    Returns:
-        Set de codigos ou tuplas
-
-    Raises:
-        ValueError: Se o formato do arquivo nao corresponde ao esperado
-    """
-    data = json.loads(path.read_text(encoding="utf-8"))
-    formato = data.get("agrupar_por")
-    if formato and formato != agrupar_por:
-        raise ValueError(f"Arquivo de codigos usa '{formato}', esperado '{agrupar_por}'")
-
-    if agrupar_por == "ano-area-codigo":
-        chaves = set()
-        for item in data.get("chaves", []):
-            if not isinstance(item, list) or len(item) != 3:
-                continue
-            ano, area, codigo = item
-            try:
-                ano_int = int(ano)
-                area_str = str(area)
-                codigo_str = str(codigo)
-            except (TypeError, ValueError):
-                continue
-            chaves.add((ano_int, area_str, codigo_str))
-        return chaves
-
-    return {str(codigo) for codigo in data.get("codigos", [])}

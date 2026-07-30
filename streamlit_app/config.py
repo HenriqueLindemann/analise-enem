@@ -33,11 +33,11 @@ class SEOConfig:
     """Configuração de SEO para meta tags e Schema.org."""
     
     # Título da página (máx 60 caracteres para Google)
-    page_title: str = "Calculadora Nota TRI ENEM - Calcule sua Nota Online Grátis"
+    page_title: str = "Calculadora Nota TRI ENEM - Estime sua Nota Online Grátis"
         
     # Descrição (máx 160 caracteres para Google)
     meta_description: str = (
-        "Calculadora Nota TRI ENEM - Calcule sua nota do ENEM online e grátis. "
+        "Calculadora Nota TRI ENEM - Estime sua nota do ENEM online e grátis. "
         "Estimativa TRI validada em microdados oficiais. Gabaritos de 2009 a 2025. "
         "Análise detalhada por área."
     )
@@ -51,20 +51,20 @@ class SEOConfig:
     )
     
     # Open Graph (Facebook, LinkedIn, WhatsApp)
-    og_title: str = "Calculadora Nota TRI ENEM - Calcule sua Nota Online Grátis"
+    og_title: str = "Calculadora Nota TRI ENEM - Estime sua Nota Online Grátis"
     og_description: str = (
-        "Simule sua nota do ENEM com precisão usando TRI. "
-        "Gabaritos oficiais de 2009 a 2025. Gratuito."
+        "Estime sua nota do ENEM usando TRI, com validação informada por prova. "
+        "Gabaritos de 2009 a 2025. Gratuito."
     )
     og_type: str = "website"
     og_image: str = ""  # URL da imagem de preview (opcional)
     
     # Twitter Card
     twitter_card: str = "summary_large_image"
-    twitter_title: str = "Calculadora Nota TRI ENEM - Nota Online Grátis"
+    twitter_title: str = "Calculadora Nota TRI ENEM - Estimativa Online"
     twitter_description: str = (
-        "Calcule sua nota do ENEM usando TRI. "
-        "Ferramenta gratuita com gabaritos de 2009 a 2025."
+        "Estime sua nota do ENEM usando TRI. "
+        "Ferramenta gratuita com provas de 2009 a 2025."
     )
 
 
