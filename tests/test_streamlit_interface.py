@@ -185,10 +185,10 @@ class TestFluxoCompleto:
                 for m in at.markdown
             )
         else:
-            assert "boa calibração" in resultado["aviso_precisao"].lower()
+            assert "boa" in resultado["aviso_precisao"].lower()
             assert resultado["severidade_precisao"] == "sucesso"
             assert any(
-                "boa calibração" in m.value.lower()
+                "boa" in m.value.lower() and "calibração" in m.value.lower()
                 for m in at.markdown
             )
 
@@ -347,14 +347,24 @@ class TestRelatorioPDF:
 
 
 class TestAvisoAcuracia:
-    """Verifica formatação discreta e curta dos avisos de acurácia."""
+    """Verifica formatação discreta e curta dos avisos de acurácia com cores e negrito."""
 
     @pytest.mark.parametrize(
-        "resultado_mock,esperado_contem",
+        "resultado_mock,esperado_contem,cor_esperada",
         [
             (
                 {"status_precisao": "ok", "severidade_precisao": "sucesso", "aviso_precisao": "x"},
-                "boa calibração",
+                "boa",
+                "#15803D",
+            ),
+            (
+                {
+                    "status_precisao": "outro",
+                    "perfil_precisao": "calibracao_verificada",
+                    "aviso_precisao": "x",
+                },
+                "boa",
+                "#15803D",
             ),
             (
                 {
@@ -363,7 +373,8 @@ class TestAvisoAcuracia:
                     "severidade_precisao": "atencao",
                     "aviso_precisao": "x",
                 },
-                "calibração moderada",
+                "moderada",
+                "#B45309",
             ),
             (
                 {
@@ -372,6 +383,7 @@ class TestAvisoAcuracia:
                     "aviso_precisao": "x",
                 },
                 "ajuste médio",
+                "#B45309",
             ),
             (
                 {
@@ -379,7 +391,8 @@ class TestAvisoAcuracia:
                     "severidade_precisao": "alerta",
                     "aviso_precisao": "x",
                 },
-                "calibração indisponível",
+                "não possui calibração",
+                "#B91C1C",
             ),
             (
                 {
@@ -387,7 +400,8 @@ class TestAvisoAcuracia:
                     "severidade_precisao": "atencao",
                     "aviso_precisao": "x",
                 },
-                "calibração não verificada",
+                "não possui calibração verificada",
+                "#B45309",
             ),
             (
                 {
@@ -395,15 +409,65 @@ class TestAvisoAcuracia:
                     "severidade_precisao": "alerta",
                     "aviso_precisao": "x",
                 },
-                "variação relevante",
+                "ruim",
+                "#B91C1C",
+            ),
+            (
+                {
+                    "status_precisao": "aviso_leve",
+                    "severidade_precisao": "atencao",
+                    "aviso_precisao": "x",
+                },
+                "estimada",
+                "#B45309",
+            ),
+            (
+                {
+                    "status_precisao": "desconhecido",
+                    "aviso_precisao": "x",
+                },
+                "estimada",
+                "#B45309",
             ),
         ],
     )
-    def test_formatar_aviso_curto(self, resultado_mock, esperado_contem):
+    def test_formatar_aviso_curto(self, resultado_mock, esperado_contem, cor_esperada):
         from streamlit_app.components.resultados import formatar_aviso_curto
 
         aviso_curto = formatar_aviso_curto(resultado_mock)
         assert aviso_curto
-        assert aviso_curto.startswith("Esta prova tem")
-        assert len(aviso_curto) <= 85, f"Frase muito longa: {aviso_curto}"
+        assert aviso_curto.startswith("Esta prova")
         assert esperado_contem.lower() in aviso_curto.lower()
+        assert cor_esperada.lower() in aviso_curto.lower()
+        assert "font-weight: bold" in aviso_curto.lower()
+
+    def test_formatar_aviso_curto_vazio_quando_sem_aviso(self):
+        from streamlit_app.components.resultados import formatar_aviso_curto
+
+        assert formatar_aviso_curto({}) == ""
+        assert formatar_aviso_curto({"nota": 500.0}) == ""
+
+    def test_exibir_aviso_acuracia_renderiza_markdown_com_html(self, monkeypatch):
+        import streamlit as st
+        from streamlit_app.components.resultados import exibir_aviso_acuracia
+
+        markdown_calls = []
+        monkeypatch.setattr(st, "markdown", lambda msg, **kwargs: markdown_calls.append((msg, kwargs)))
+
+        # Caso vazio: não deve renderizar
+        exibir_aviso_acuracia({})
+        assert len(markdown_calls) == 0
+
+        # Caso com aviso: deve chamar st.markdown com unsafe_allow_html=True
+        resultado = {
+            "status_precisao": "ok",
+            "severidade_precisao": "sucesso",
+            "aviso_precisao": "Estimativa verificada",
+        }
+        exibir_aviso_acuracia(resultado)
+        assert len(markdown_calls) == 1
+        msg, kwargs = markdown_calls[0]
+        assert "Esta prova" in msg
+        assert "#15803D" in msg
+        assert kwargs.get("unsafe_allow_html") is True
+

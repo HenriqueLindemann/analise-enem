@@ -227,9 +227,19 @@ def _exibir_tabela_acertos(questoes: List[Dict]):
     )
 
 
+# Cores legíveis de alto contraste para calibração em tema claro (WCAG AA/AAA)
+COR_CALIBRACAO_BOA = "#15803D"        # Verde escuro (boa calibração)
+COR_CALIBRACAO_MODERADA = "#B45309"   # Amarelo/Âmbar escuro legível (calibração moderada/estimada)
+COR_CALIBRACAO_RUIM = "#B91C1C"       # Vermelho escuro (calibração ruim/indisponível)
+
+
 def formatar_aviso_curto(resultado: Dict) -> str:
     """
-    Retorna uma frase curta no formato 'Esta prova tem [X] calibração'.
+    Retorna uma frase no formato 'Esta prova tem uma calibração [X] (detalhes)'.
+    O termo [X] é formatado em negrito com cores legíveis de alto contraste:
+      - Verde (#15803D): boa
+      - Amarelo/Âmbar (#B45309): moderada / por ajuste médio / não verificada / estimada
+      - Vermelho (#B91C1C): ruim / indisponível
     """
     if not resultado.get('aviso_precisao') and not resultado.get('severidade_precisao'):
         return ""
@@ -239,27 +249,35 @@ def formatar_aviso_curto(resultado: Dict) -> str:
     severidade = resultado.get('severidade_precisao')
 
     if status == 'ok' or perfil == 'calibracao_verificada' or severidade == 'sucesso':
-        return "Esta prova tem boa calibração (estimativa verificada em dados oficiais)."
+        x = f'<span style="color: {COR_CALIBRACAO_BOA}; font-weight: bold;">boa</span>'
+        return f"Esta prova tem uma calibração {x} (estimativa verificada em dados oficiais)."
 
     if perfil == 'boa_na_maioria_com_excecoes':
-        return "Esta prova tem calibração moderada (confiável na maioria dos casos)."
+        x = f'<span style="color: {COR_CALIBRACAO_MODERADA}; font-weight: bold;">moderada</span>'
+        return f"Esta prova tem uma calibração {x} (confiável na maioria dos casos)."
 
     if status == 'sem_participantes':
-        return "Esta prova tem calibração por ajuste médio (sem dados nos microdados)."
+        x = f'<span style="color: {COR_CALIBRACAO_MODERADA}; font-weight: bold;">por ajuste médio</span>'
+        return f"Esta prova tem uma calibração {x} (participantes insuficientes nos microdados)."
 
     if status == 'sem_itens':
-        return "Esta prova tem calibração indisponível (itens sem parâmetros públicos)."
+        x = f'<span style="color: {COR_CALIBRACAO_RUIM}; font-weight: bold;">não possui calibração</span>'
+        return f"Esta prova {x} (parâmetros dos itens ausentes nos dados públicos)."
 
     if status == 'nao_calibrado':
-        return "Esta prova tem calibração não verificada (amostra insuficiente)."
+        x = f'<span style="color: {COR_CALIBRACAO_MODERADA}; font-weight: bold;">não possui calibração verificada</span>'
+        return f"Esta prova {x} (amostra insuficiente para validação)."
 
     if severidade == 'alerta' or status == 'erro_alto':
-        return "Esta prova tem calibração estimada com variação relevante."
+        x = f'<span style="color: {COR_CALIBRACAO_RUIM}; font-weight: bold;">ruim</span>'
+        return f"Esta prova tem uma calibração {x} (estimativa com variação relevante)."
 
     if severidade == 'atencao' or status in {'aviso_forte', 'aviso_leve'}:
-        return "Esta prova tem calibração estimada (sujeita a variações)."
+        x = f'<span style="color: {COR_CALIBRACAO_MODERADA}; font-weight: bold;">estimada</span>'
+        return f"Esta prova tem uma calibração {x} (sujeita a variações)."
 
-    return "Esta prova tem calibração estimada."
+    x = f'<span style="color: {COR_CALIBRACAO_MODERADA}; font-weight: bold;">estimada</span>'
+    return f"Esta prova tem uma calibração {x}."
 
 
 def exibir_aviso_acuracia(resultado: Dict):
@@ -270,7 +288,7 @@ def exibir_aviso_acuracia(resultado: Dict):
     if not frase:
         return
 
-    st.markdown(frase)
+    st.markdown(frase, unsafe_allow_html=True)
 
     n_validacao = resultado.get('n_validacao')
     mae = resultado.get('mae_validacao') if resultado.get('mae_validacao') is not None else resultado.get('mae')
