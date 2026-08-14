@@ -106,22 +106,6 @@ def exibir_resultado_area(resultado: Dict):
             'param_b': q.get('param_b', 0),
         })
     
-    # Aviso de precisão, exibido conforme a gravidade informada por
-    # verificar_precisao_prova.
-    aviso = resultado.get('aviso_precisao')
-    if aviso:
-        exibir = {
-            'sucesso': st.success,
-            'info': st.info,
-            'atencao': st.warning,
-            'alerta': st.error,
-        }.get(resultado.get('severidade_precisao'), st.warning)
-        exibir(aviso)
-
-    resumo_validacao = resultado.get('resumo_validacao')
-    if resumo_validacao:
-        st.caption(resumo_validacao)
-    
     # Seção 1: Grade de questões + Pizza
     st.markdown("##### Grade de Questões")
     col_grade, col_pizza = st.columns([3, 1])
@@ -166,6 +150,9 @@ def exibir_resultado_area(resultado: Dict):
             _exibir_tabela_acertos(questoes_acertadas)
         else:
             st.info("Nenhum acerto.")
+
+    # Aviso de calibração discreto (sem fundo colorido) com detalhes explicativos
+    exibir_aviso_acuracia(resultado)
 
 
 def _exibir_tabela_erros(questoes: List[Dict]):
@@ -238,3 +225,99 @@ def _exibir_tabela_acertos(questoes: List[Dict]):
             'Perda': st.column_config.TextColumn('Perda', width='small', help='Pontos que você perderia se errasse'),
         }
     )
+
+
+def formatar_aviso_curto(resultado: Dict) -> str:
+    """
+    Retorna uma frase curta no formato 'Esta prova tem [X] calibração'.
+    """
+    if not resultado.get('aviso_precisao') and not resultado.get('severidade_precisao'):
+        return ""
+
+    status = resultado.get('status_precisao')
+    perfil = resultado.get('perfil_precisao')
+    severidade = resultado.get('severidade_precisao')
+
+    if status == 'ok' or perfil == 'calibracao_verificada' or severidade == 'sucesso':
+        return "Esta prova tem boa calibração (estimativa verificada em dados oficiais)."
+
+    if perfil == 'boa_na_maioria_com_excecoes':
+        return "Esta prova tem calibração moderada (confiável na maioria dos casos)."
+
+    if status == 'sem_participantes':
+        return "Esta prova tem calibração por ajuste médio (sem dados nos microdados)."
+
+    if status == 'sem_itens':
+        return "Esta prova tem calibração indisponível (itens sem parâmetros públicos)."
+
+    if status == 'nao_calibrado':
+        return "Esta prova tem calibração não verificada (amostra insuficiente)."
+
+    if severidade == 'alerta' or status == 'erro_alto':
+        return "Esta prova tem calibração estimada com variação relevante."
+
+    if severidade == 'atencao' or status in {'aviso_forte', 'aviso_leve'}:
+        return "Esta prova tem calibração estimada (sujeita a variações)."
+
+    return "Esta prova tem calibração estimada."
+
+
+def exibir_aviso_acuracia(resultado: Dict):
+    """
+    Exibe a mensagem curta de calibração e expander nativo com métricas detalhadas.
+    """
+    frase = formatar_aviso_curto(resultado)
+    if not frase:
+        return
+
+    st.markdown(frase)
+
+    n_validacao = resultado.get('n_validacao')
+    mae = resultado.get('mae_validacao') if resultado.get('mae_validacao') is not None else resultado.get('mae')
+    erro_p95 = resultado.get('erro_p95')
+    erro_maximo = resultado.get('erro_maximo')
+    n_acima_2 = resultado.get('n_acima_2')
+    percentual_ate_2 = resultado.get('percentual_ate_2')
+    modelo = resultado.get('modelo_nota')
+    status = resultado.get('status_precisao')
+    co_prova = resultado.get('co_prova')
+    aviso = resultado.get('aviso_precisao')
+
+    with st.expander("Mais detalhes da calibração", expanded=False):
+        if n_validacao:
+            c1, c2, c3, c4 = st.columns(4)
+            c1.metric("Casos Reais", f"{n_validacao}")
+            c1.caption("participantes avaliados")
+
+            mae_str = f"{mae:.2f} pts".replace('.', ',') if mae is not None else "—"
+            c2.metric("Erro Médio", mae_str)
+            c2.caption("diferença média para nota oficial")
+
+            p95_str = f"até {erro_p95:.2f} pts".replace('.', ',') if erro_p95 is not None else "—"
+            c3.metric("95% dos Casos", p95_str)
+            c3.caption("erro da grande maioria")
+
+            max_str = f"{erro_maximo:.2f} pts".replace('.', ',') if erro_maximo is not None else "—"
+            c4.metric("Maior Erro", max_str)
+            c4.caption("pior caso observado")
+
+            info_items = []
+            if percentual_ate_2 is not None:
+                casos_ok = n_validacao - (n_acima_2 or 0)
+                pct_str = f"{percentual_ate_2:.1f}%".replace('.', ',')
+                info_items.append(f"**{pct_str} dos casos** com erro ≤ 2,0 pts ({casos_ok}/{n_validacao})")
+            if co_prova:
+                info_items.append(f"Prova {co_prova}")
+            if modelo:
+                info_items.append(f"Ajuste TRI: {modelo}")
+            info_items.append("Microdados oficiais do INEP")
+            st.caption(" · ".join(info_items))
+        else:
+            if status == 'sem_participantes':
+                st.caption("Prova sem participantes suficientes nos microdados do INEP. Aplicado ajuste médio.")
+            elif status == 'nao_calibrado':
+                st.caption("Amostra insuficiente para validação completa. Calculado como estimativa padrão.")
+            elif status == 'sem_itens':
+                st.caption("Parâmetros dos itens indisponíveis nos dados públicos.")
+            elif aviso:
+                st.caption(aviso)

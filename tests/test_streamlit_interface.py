@@ -155,7 +155,7 @@ class TestFluxoCompleto:
     ])
     def test_prova_nao_confiavel_exibe_alerta(self, exemplos, ano, co_prova,
                                               tem_alerta):
-        """Prova com erro_alto tem de chegar ao usuário como st.error."""
+        """Prova com erro_alto exibe mensagem discreta indicando variação relevante."""
         from tri_enem import MapeadorProvas
 
         e = next(x for x in exemplos if x["ano"] == ano and x["area"] == "MT")
@@ -180,15 +180,17 @@ class TestFluxoCompleto:
         assert "aviso_forte" not in resumo
         if tem_alerta:
             assert resultado["severidade_precisao"] == "alerta"
-            assert len(at.error) == 1
+            assert any(
+                "variação relevante" in m.value.lower()
+                for m in at.markdown
+            )
         else:
             assert "boa calibração" in resultado["aviso_precisao"].lower()
             assert resultado["severidade_precisao"] == "sucesso"
             assert any(
-                "boa calibração" in mensagem.value.lower()
-                for mensagem in at.success
+                "boa calibração" in m.value.lower()
+                for m in at.markdown
             )
-            assert len(at.error) == 0
 
     def test_calcular_sem_respostas_avisa_e_nao_quebra(self):
         at = AppTest.from_file(APP, default_timeout=TIMEOUT)
@@ -342,3 +344,66 @@ class TestRelatorioPDF:
 
         pdf = _gerar_pdf([], 2023, "1a_aplicacao", "azul")
         assert pdf is None or pdf.startswith(b"%PDF-")
+
+
+class TestAvisoAcuracia:
+    """Verifica formatação discreta e curta dos avisos de acurácia."""
+
+    @pytest.mark.parametrize(
+        "resultado_mock,esperado_contem",
+        [
+            (
+                {"status_precisao": "ok", "severidade_precisao": "sucesso", "aviso_precisao": "x"},
+                "boa calibração",
+            ),
+            (
+                {
+                    "status_precisao": "aviso_forte",
+                    "perfil_precisao": "boa_na_maioria_com_excecoes",
+                    "severidade_precisao": "atencao",
+                    "aviso_precisao": "x",
+                },
+                "calibração moderada",
+            ),
+            (
+                {
+                    "status_precisao": "sem_participantes",
+                    "severidade_precisao": "atencao",
+                    "aviso_precisao": "x",
+                },
+                "ajuste médio",
+            ),
+            (
+                {
+                    "status_precisao": "sem_itens",
+                    "severidade_precisao": "alerta",
+                    "aviso_precisao": "x",
+                },
+                "calibração indisponível",
+            ),
+            (
+                {
+                    "status_precisao": "nao_calibrado",
+                    "severidade_precisao": "atencao",
+                    "aviso_precisao": "x",
+                },
+                "calibração não verificada",
+            ),
+            (
+                {
+                    "status_precisao": "erro_alto",
+                    "severidade_precisao": "alerta",
+                    "aviso_precisao": "x",
+                },
+                "variação relevante",
+            ),
+        ],
+    )
+    def test_formatar_aviso_curto(self, resultado_mock, esperado_contem):
+        from streamlit_app.components.resultados import formatar_aviso_curto
+
+        aviso_curto = formatar_aviso_curto(resultado_mock)
+        assert aviso_curto
+        assert aviso_curto.startswith("Esta prova tem")
+        assert len(aviso_curto) <= 85, f"Frase muito longa: {aviso_curto}"
+        assert esperado_contem.lower() in aviso_curto.lower()

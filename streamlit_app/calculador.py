@@ -151,6 +151,7 @@ class CalculadorEnem:
                 'perfil_precisao': precisao.get('perfil'),
                 'modelo_nota': precisao.get('modelo'),
                 'validado_em': precisao.get('validado_em'),
+                'motivo': precisao.get('motivo'),
                 'resumo_validacao': formatar_resumo_validacao(precisao),
             }
             
