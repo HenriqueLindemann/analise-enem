@@ -14,6 +14,8 @@ COR_ACERTO = '#27AE60'        # Verde esmeralda
 COR_ACERTO_ESCURO = '#1E8449'
 COR_ERRO = '#E74C3C'          # Vermelho coral
 COR_ERRO_ESCURO = '#C0392B'
+COR_ANULADA = '#94A3B8'       # Cinza ardósia (anulada)
+COR_ANULADA_ESCURO = '#64748B'
 COR_PRIMARIA = '#3498DB'      # Azul suave
 COR_SECUNDARIA = '#9B59B6'    # Roxo
 COR_CINZA = '#7F8C8D'
@@ -105,6 +107,7 @@ def grafico_notas_barras(resultados: List[Dict]) -> go.Figure:
 def grafico_impacto(questoes: List[Dict], titulo: str = "") -> go.Figure:
     """
     Gráfico de impacto das questões (maior para menor).
+    Questões anuladas são desconsideradas.
     
     Args:
         questoes: Lista de dicts com 'posicao', 'impacto', 'acertou'
@@ -113,19 +116,20 @@ def grafico_impacto(questoes: List[Dict], titulo: str = "") -> go.Figure:
     Returns:
         Figura Plotly
     """
-    if not questoes:
+    questoes_validas = [q for q in questoes if not q.get('anulada')]
+    if not questoes_validas:
         fig = go.Figure()
         fig.add_annotation(text="Sem dados", xref="paper", yref="paper",
                            x=0.5, y=0.5, showarrow=False)
         return fig
     
     # Ordenar por impacto decrescente
-    questoes_ord = sorted(questoes, key=lambda q: q['impacto'], reverse=True)
+    questoes_ord = sorted(questoes_validas, key=lambda q: q['impacto'], reverse=True)
     
     posicoes = [str(q['posicao']) for q in questoes_ord]
     valores = [q['impacto'] for q in questoes_ord]
     cores = [COR_ACERTO if q['acertou'] else COR_ERRO for q in questoes_ord]
-    max_valor = max(valores) if valores else 1
+    max_valor = max(max(valores), 1.0) if valores else 1.0
     
     # Texto de hover
     hover_texts = []
@@ -176,15 +180,18 @@ def grafico_impacto(questoes: List[Dict], titulo: str = "") -> go.Figure:
 
 def grade_questoes(questoes: List[Dict], colunas: int = 15) -> go.Figure:
     """
-    Grade visual das questões (acertos/erros).
+    Grade visual das questões (acertos/erros/anuladas).
     
     Args:
-        questoes: Lista de dicts com 'posicao', 'acertou'
+        questoes: Lista de dicts com 'posicao', 'acertou', opcional 'anulada'
         colunas: Número de colunas na grade
         
     Returns:
         Figura Plotly
     """
+    if colunas < 1:
+        raise ValueError("colunas deve ser maior que zero")
+
     if not questoes:
         fig = go.Figure()
         fig.add_annotation(text="Sem dados", xref="paper", yref="paper",
@@ -197,8 +204,9 @@ def grade_questoes(questoes: List[Dict], colunas: int = 15) -> go.Figure:
     linhas = (n + colunas - 1) // colunas
     
     # Calcular taxa de acertos para ajustar altura
-    acertos = sum(1 for q in questoes_ord if q['acertou'])
-    taxa_acertos = acertos / n if n > 0 else 0.5
+    validas = [q for q in questoes_ord if not q.get('anulada')]
+    acertos = sum(1 for q in validas if q.get('acertou'))
+    taxa_acertos = acertos / len(validas) if validas else 0.5
     
     fig = go.Figure()
     
@@ -207,8 +215,18 @@ def grade_questoes(questoes: List[Dict], colunas: int = 15) -> go.Figure:
         col = i % colunas
         linha = linhas - 1 - (i // colunas)
         
-        cor = COR_ACERTO if q['acertou'] else COR_ERRO
-        status = "Acerto" if q['acertou'] else "Erro"
+        if q.get('anulada'):
+            cor = COR_ANULADA
+            status = "Anulada"
+            hover = f"Q{q['posicao']}: Anulada pelo INEP<br>Desconsiderada no cálculo TRI"
+        elif q['acertou']:
+            cor = COR_ACERTO
+            status = "Acerto"
+            hover = f"Q{q['posicao']}: {status}<br>Gabarito: {q.get('gabarito', '?')}<br>Resposta: {q.get('resposta_dada', '?')}"
+        else:
+            cor = COR_ERRO
+            status = "Erro"
+            hover = f"Q{q['posicao']}: {status}<br>Gabarito: {q.get('gabarito', '?')}<br>Resposta: {q.get('resposta_dada', '?')}"
         
         fig.add_trace(go.Scatter(
             x=[col + 0.5],
@@ -224,7 +242,7 @@ def grade_questoes(questoes: List[Dict], colunas: int = 15) -> go.Figure:
             text=[str(q['posicao'])],
             textposition='middle center',
             textfont=dict(color='white', size=11, family="Arial", weight='bold'),
-            hovertext=f"Q{q['posicao']}: {status}<br>Gabarito: {q.get('gabarito', '?')}<br>Resposta: {q.get('resposta_dada', '?')}",
+            hovertext=hover,
             hoverinfo='text',
             showlegend=False,
         ))
@@ -268,6 +286,27 @@ def grafico_pizza_acertos(acertos: int, erros: int) -> go.Figure:
     Returns:
         Figura Plotly
     """
+    if acertos < 0 or erros < 0:
+        raise ValueError("acertos e erros devem ser não negativos")
+
+    total = acertos + erros
+    if total == 0:
+        fig = go.Figure()
+        fig.add_annotation(
+            text="Sem dados",
+            xref="paper",
+            yref="paper",
+            x=0.5,
+            y=0.5,
+            showarrow=False,
+        )
+        fig.update_layout(
+            height=200,
+            margin=dict(l=20, r=20, t=20, b=20),
+            showlegend=False,
+        )
+        return fig
+
     fig = go.Figure(data=[go.Pie(
         labels=['Acertos', 'Erros'],
         values=[acertos, erros],
@@ -283,7 +322,7 @@ def grafico_pizza_acertos(acertos: int, erros: int) -> go.Figure:
         margin=dict(l=20, r=20, t=20, b=20),
         showlegend=False,
         annotations=[dict(
-            text=f'{acertos}/{acertos+erros}',
+            text=f'{acertos}/{total}',
             x=0.5, y=0.5,
             font_size=16,
             showarrow=False

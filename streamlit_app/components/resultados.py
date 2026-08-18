@@ -7,6 +7,8 @@ Componentes de exibição de resultados para o Streamlit.
 import streamlit as st
 from typing import Dict, List
 
+from tri_enem import MapeadorProvas, normalizar_posicoes_resultados
+
 from .graficos import (
     grafico_notas_barras, 
     grafico_impacto, 
@@ -27,7 +29,7 @@ NOMES_AREAS = {
 def exibir_resumo_geral(resultados: List[Dict]):
     """
     Exibe o resumo geral com todas as notas e média.
-    
+
     Args:
         resultados: Lista de resultados por área
     """
@@ -78,12 +80,20 @@ def exibir_resultado_area(resultado: Dict):
     Args:
         resultado: Dict com resultado completo da área
     """
+    resultado = normalizar_posicoes_resultados(
+        [resultado],
+        MapeadorProvas().listar_ordem_provas(resultado.get('ano', 2024)),
+    )[0]
     sigla = resultado['sigla']
     nome = NOMES_AREAS.get(sigla, sigla)
 
     # Preparar dados das questões
     questoes_acertadas = resultado.get('questoes_acertadas', [])
     questoes_erradas = resultado.get('questoes_erradas', [])
+    questoes_anuladas = resultado.get('anuladas', []) or [
+        {'posicao': posicao}
+        for posicao in resultado.get('questoes_anuladas', [])
+    ]
     
     # Converter para formato esperado pelos gráficos
     todas_questoes = []
@@ -91,6 +101,7 @@ def exibir_resultado_area(resultado: Dict):
         todas_questoes.append({
             'posicao': q['posicao'],
             'acertou': True,
+            'anulada': False,
             'gabarito': q['gabarito'],
             'resposta_dada': q['resposta_dada'],
             'impacto': q.get('perda_se_errasse', 0),
@@ -100,12 +111,23 @@ def exibir_resultado_area(resultado: Dict):
         todas_questoes.append({
             'posicao': q['posicao'],
             'acertou': False,
+            'anulada': False,
             'gabarito': q['gabarito'],
             'resposta_dada': q['resposta_dada'],
             'impacto': q.get('ganho_se_acertasse', 0),
             'param_b': q.get('param_b', 0),
         })
-    
+    for q in questoes_anuladas:
+        todas_questoes.append({
+            'posicao': q['posicao'],
+            'acertou': False,
+            'anulada': True,
+            'gabarito': q.get('gabarito', 'X'),
+            'resposta_dada': q.get('resposta_dada', '.'),
+            'impacto': 0,
+            'param_b': q.get('param_b', 0),
+        })
+
     # Seção 1: Grade de questões + Pizza
     st.markdown("##### Grade de Questões")
     col_grade, col_pizza = st.columns([3, 1])
@@ -123,7 +145,11 @@ def exibir_resultado_area(resultado: Dict):
             key=f"pizza_{sigla}",
             config={'displayModeBar': False}
         )
-        st.caption(f"Taxa: {resultado['acertos']/resultado['total_itens']*100:.0f}%")
+        taxa_pct = (resultado['acertos'] / resultado['total_itens'] * 100) if resultado['total_itens'] > 0 else 0
+        st.markdown(
+            f'<div class="taxa-pizza">Taxa: {taxa_pct:.0f}%</div>',
+            unsafe_allow_html=True,
+        )
     
     # Seção 2: Gráfico de impacto
     st.markdown("##### Impacto das Questões na Nota")

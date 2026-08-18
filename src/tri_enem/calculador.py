@@ -71,6 +71,7 @@ from typing import Iterable, Tuple, List, Dict, Optional
 from dataclasses import dataclass
 
 from .coeficientes import aplicar_transformacao, obter_transformacao
+from .posicoes import posicao_caderno as calcular_posicao_caderno
 
 
 @dataclass
@@ -504,7 +505,21 @@ class CalculadorTRI:
         )
 
         itens_validos = [i for i in itens if not i.abandonado]
+        itens_anulados = [i for i in itens if i.abandonado]
         respostas_validas = [r for r, i in zip(respostas_bin, itens) if not i.abandonado]
+        from .mapeador_provas import MapeadorProvas
+
+        ordem_provas = MapeadorProvas().listar_ordem_provas(ano)
+        questoes_anuladas_brutas = [i.posicao for i in itens_anulados]
+        questoes_anuladas_caderno = [
+            calcular_posicao_caderno(
+                area,
+                indice,
+                ordem_provas,
+            )
+            for indice, item in enumerate(itens)
+            if item.abandonado
+        ]
 
         theta = self.estimar_theta_eap(respostas_bin, itens)
         nota = self.transformar_escala(theta, ano, area, co_prova)
@@ -518,6 +533,12 @@ class CalculadorTRI:
             'theta': theta,
             'nota': nota,
             'tp_lingua': tp_lingua,
+            'total_anulados': len(itens_anulados),
+            # ``questoes_anuladas`` é a numeração pública do caderno. O motor
+            # detalhado continua expondo ``posicao`` como CO_POSICAO bruto.
+            'questoes_anuladas': questoes_anuladas_caderno,
+            'questoes_anuladas_caderno': questoes_anuladas_caderno,
+            'questoes_anuladas_brutas': questoes_anuladas_brutas,
         }
     
     def analisar_impacto_erros(self, ano: int, area: str, co_prova: int,
@@ -565,15 +586,34 @@ class CalculadorTRI:
 
         theta_original = self.estimar_theta_eap(respostas_bin, itens)
         nota_original = self.transformar_escala(theta_original, ano, area, co_prova)
+        from .mapeador_provas import MapeadorProvas
+
+        ordem_provas = MapeadorProvas().listar_ordem_provas(ano)
 
         acertos = []
         erros = []
+        anuladas = []
 
         for idx, (resp, item) in enumerate(zip(respostas_bin, itens)):
-            if item.abandonado:
-                continue
-
             resposta_dada = respostas_norm[idx] if idx < len(respostas_norm) else '?'
+
+            if item.abandonado:
+                questao_anulada = {
+                    'posicao': item.posicao,
+                    'posicao_caderno': calcular_posicao_caderno(
+                        area, idx, ordem_provas
+                    ),
+                    'idx_area': idx,
+                    'gabarito': item.gabarito,
+                    'resposta_dada': resposta_dada,
+                    'param_a': item.param_a,
+                    'param_b': item.param_b,
+                    'param_c': item.param_c,
+                    'co_item': item.co_item,
+                    'anulada': True,
+                }
+                anuladas.append(questao_anulada)
+                continue
 
             # Simular o cenário oposto
             respostas_mod = respostas_bin.copy()
@@ -583,6 +623,9 @@ class CalculadorTRI:
             
             questao = {
                 'posicao': item.posicao,  # Posição original no microdado
+                'posicao_caderno': calcular_posicao_caderno(
+                    area, idx, ordem_provas
+                ),
                 'idx_area': idx,          # Posição relativa na área (0 a 44)
                 'gabarito': item.gabarito,
                 'resposta_dada': resposta_dada,
@@ -590,6 +633,7 @@ class CalculadorTRI:
                 'param_b': item.param_b,
                 'param_c': item.param_c,
                 'co_item': item.co_item,
+                'anulada': False,
             }
             
             if resp == 1:  # Acerto
@@ -605,11 +649,19 @@ class CalculadorTRI:
         erros.sort(key=lambda x: x['ganho_se_acertasse'], reverse=True)
         
         return {
+            'area': area,
             'nota': nota_original,
             'theta': theta_original,
             'total_acertos': len(acertos),
             'total_erros': len(erros),
+            'total_anulados': len(anuladas),
             'total_itens': len(acertos) + len(erros),
             'acertos': acertos,
             'erros': erros,
+            'anuladas': anuladas,
+            # A lista sem sufixo mantém a semântica bruta desta API avançada.
+            'questoes_anuladas': [q['posicao'] for q in anuladas],
+            'questoes_anuladas_caderno': [
+                q['posicao_caderno'] for q in anuladas
+            ],
         }

@@ -25,6 +25,8 @@ COR_ACERTO = '#27AE60'        # Verde esmeralda
 COR_ACERTO_ESCURO = '#1E8449'
 COR_ERRO = '#E74C3C'          # Vermelho coral
 COR_ERRO_ESCURO = '#C0392B'
+COR_ANULADA = '#94A3B8'       # Cinza ardósia (anulada)
+COR_ANULADA_ESCURO = '#64748B'
 COR_PRIMARIA = '#3498DB'      # Azul suave
 COR_CINZA = '#7F8C8D'
 COR_CINZA_CLARO = '#BDC3C7'
@@ -114,26 +116,27 @@ def grafico_barras_notas(areas: List[AreaAnalise], largura: float = 6) -> Image:
 
 
 def grafico_impacto_questoes(questoes: List[QuestaoAnalise], titulo: str = "", 
-                              largura: float = 7.5) -> Image:
+                              largura: float = 7.2) -> Image:
     """
     Gráfico de impacto minimalista.
-    Design limpo com números sutis.
+    Design limpo com números sutis. Questões anuladas são excluídas.
     """
-    if not questoes:
+    questoes_validas = [q for q in questoes if not getattr(q, 'anulada', False)]
+    if not questoes_validas:
         fig, ax = plt.subplots(figsize=(largura, 0.5))
         ax.text(0.5, 0.5, 'Sem dados', ha='center', va='center', color=COR_CINZA)
         ax.axis('off')
         return _fig_para_image(fig, largura)
     
     # Ordenar por impacto DECRESCENTE
-    questoes_ord = sorted(questoes, key=lambda q: q.impacto, reverse=True)
+    questoes_ord = sorted(questoes_validas, key=lambda q: q.impacto, reverse=True)
     
     n = len(questoes_ord)
     fig, ax = plt.subplots(figsize=(largura, 2.0))
     
     x_pos = np.arange(n)
     valores = [q.impacto for q in questoes_ord]
-    max_valor = max(valores) if valores else 1
+    max_valor = max(max(valores), 1.0) if valores else 1.0
     
     # Cores suaves
     cores = [COR_ACERTO if q.acertou else COR_ERRO for q in questoes_ord]
@@ -189,6 +192,9 @@ def grade_questoes(questoes: List[QuestaoAnalise], largura: float = 6,
     Grade visual minimalista das questões.
     Design limpo com bordas arredondadas.
     """
+    if colunas < 1:
+        raise ValueError("colunas deve ser maior que zero")
+
     n = len(questoes)
     if n == 0:
         fig, ax = plt.subplots(figsize=(largura, 0.5))
@@ -207,7 +213,12 @@ def grade_questoes(questoes: List[QuestaoAnalise], largura: float = 6,
         col = i % colunas
         linha = linhas - 1 - (i // colunas)
         
-        cor_fundo = COR_ACERTO if q.acertou else COR_ERRO
+        if getattr(q, 'anulada', False):
+            cor_fundo = COR_ANULADA
+        elif q.acertou:
+            cor_fundo = COR_ACERTO
+        else:
+            cor_fundo = COR_ERRO
         
         # Retângulo com bordas mais arredondadas
         rect = mpatches.FancyBboxPatch(

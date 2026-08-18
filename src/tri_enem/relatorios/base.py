@@ -23,6 +23,7 @@ class QuestaoAnalise:
     param_c: float  # Acerto casual
     impacto: float  # Ganho se acertasse (erro) ou perda se errasse (acerto)
     co_item: Optional[int] = None
+    anulada: bool = False
 
 
 @dataclass
@@ -50,11 +51,28 @@ class AreaAnalise:
     
     @property
     def questoes_acertadas(self) -> List[QuestaoAnalise]:
-        return [q for q in self.questoes if q.acertou]
+        return [q for q in self.questoes if q.acertou and not q.anulada]
     
     @property
     def questoes_erradas(self) -> List[QuestaoAnalise]:
-        return [q for q in self.questoes if not q.acertou]
+        return [q for q in self.questoes if not q.acertou and not q.anulada]
+
+    @property
+    def questoes_anuladas(self) -> List[QuestaoAnalise]:
+        return [q for q in self.questoes if q.anulada]
+
+    @property
+    def total_anulados(self) -> int:
+        return len(self.questoes_anuladas)
+
+    def texto_anuladas_breve(self) -> str:
+        anuladas = self.questoes_anuladas
+        if not anuladas:
+            return ""
+        posicoes = ", ".join(f"Q{q.posicao}" for q in sorted(anuladas, key=lambda x: x.posicao))
+        if len(anuladas) == 1:
+            return f"1 anulada ({posicoes})"
+        return f"{len(anuladas)} anuladas ({posicoes})"
 
 
 @dataclass

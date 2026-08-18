@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Calculadora Nota TRI ENEM - Script de Simulação Local
@@ -63,8 +63,9 @@ from pathlib import Path
 from datetime import datetime
 
 sys.path.insert(0, str(Path(__file__).parent / 'src'))
-from tri_enem import CalculadorTRI
+from tri_enem import CalculadorTRI, MapeadorProvas
 from tri_enem.config import NOMES_AREAS
+from tri_enem.posicoes import normalizar_posicoes_resultados
 
 
 def validar_respostas(respostas, nome):
@@ -84,7 +85,6 @@ def calcular_e_analisar(calc, area, ano, respostas, lingua=None, co_prova=None, 
     try:
         # Resolver código se foi fornecida cor
         if co_prova is None and cor_prova:
-            from tri_enem import MapeadorProvas
             mapeador = MapeadorProvas()
             co_prova = mapeador.obter_codigo(ano, area, tipo_aplicacao, cor_prova)
         
@@ -108,7 +108,7 @@ def calcular_e_analisar(calc, area, ano, respostas, lingua=None, co_prova=None, 
         )
         precisao = verificar_precisao_prova(ano, area, co_prova)
         
-        return {
+        resultado = {
             'sigla': area,
             'nome': NOMES_AREAS.get(area, area),
             'ano': ano,
@@ -117,8 +117,11 @@ def calcular_e_analisar(calc, area, ano, respostas, lingua=None, co_prova=None, 
             'theta': analise['theta'],
             'acertos': analise['total_acertos'],
             'total_itens': analise['total_itens'],
+            'total_anulados': analise.get('total_anulados', 0),
             'questoes_acertadas': analise['acertos'],
             'questoes_erradas': analise['erros'],
+            'questoes_anuladas': analise.get('questoes_anuladas', []),
+            'anuladas': analise.get('anuladas', []),
             'lingua': lingua if area == 'LC' else None,
             'cor_prova': cor_prova,
             'aviso_precisao': precisao.get("aviso"),
@@ -132,6 +135,10 @@ def calcular_e_analisar(calc, area, ano, respostas, lingua=None, co_prova=None, 
             'n_acima_2': precisao.get("n_acima_2"),
             'resumo_validacao': formatar_resumo_validacao(precisao),
         }
+        return normalizar_posicoes_resultados(
+            [resultado],
+            MapeadorProvas().listar_ordem_provas(ano),
+        )[0]
     except Exception as e:
         print(f"Erro ao calcular {area}: {e}")
         return None
@@ -139,53 +146,22 @@ def calcular_e_analisar(calc, area, ano, respostas, lingua=None, co_prova=None, 
 
 def gerar_relatorio_pdf(resultados, ano, titulo, nome_arquivo=None, tipo_aplicacao='', cor_prova=''):
     try:
-        from tri_enem.relatorios import RelatorioPDF, DadosRelatorio
-        from tri_enem.relatorios.base import AreaAnalise, QuestaoAnalise
+        from tri_enem.relatorios import (
+            RelatorioPDF,
+            adaptar_resultados_para_relatorio,
+        )
     except ImportError:
         print("Instale reportlab: pip install reportlab")
         return None
     
-    # Formatar tipo de aplicação para exibição
-    tipos_extenso = {
-        '1a_aplicacao': '1ª Aplicação',
-        'digital': 'Digital',
-        'reaplicacao': 'Reaplicação',
-        'segunda_oportunidade': 'Segunda Oportunidade',
-    }
-    tipo_extenso = tipos_extenso.get(tipo_aplicacao, tipo_aplicacao)
-    
-    dados = DadosRelatorio(
-        titulo=titulo, 
-        ano_prova=ano,
-        tipo_aplicacao=tipo_extenso,
-        cor_prova=cor_prova.capitalize() if cor_prova else '',
-        origem_geracao="github.com/HenriqueLindemann/analise-enem"
+    dados = adaptar_resultados_para_relatorio(
+        resultados,
+        ano,
+        titulo=titulo,
+        tipo_aplicacao=tipo_aplicacao,
+        cor_prova=cor_prova,
+        origem_geracao="github.com/HenriqueLindemann/analise-enem",
     )
-    
-    for r in resultados:
-        questoes = []
-        for q in r['questoes_acertadas']:
-            questoes.append(QuestaoAnalise(
-                posicao=q['posicao'], gabarito=q['gabarito'],
-                resposta_dada=q['resposta_dada'], acertou=True,
-                param_a=q['param_a'], param_b=q['param_b'], param_c=q['param_c'],
-                impacto=q['perda_se_errasse'], co_item=q.get('co_item'),
-            ))
-        for q in r['questoes_erradas']:
-            questoes.append(QuestaoAnalise(
-                posicao=q['posicao'], gabarito=q['gabarito'],
-                resposta_dada=q['resposta_dada'], acertou=False,
-                param_a=q['param_a'], param_b=q['param_b'], param_c=q['param_c'],
-                impacto=q['ganho_se_acertasse'], co_item=q.get('co_item'),
-            ))
-        
-        area = AreaAnalise(
-            sigla=r['sigla'], nome=r['nome'], ano=r['ano'], co_prova=r['co_prova'],
-            nota=r['nota'], theta=r['theta'], acertos=r['acertos'],
-            total_itens=r['total_itens'], questoes=questoes, lingua=r.get('lingua'),
-            cor_prova=r.get('cor_prova'),
-        )
-        dados.areas.append(area)
     
     if not nome_arquivo:
         nome_arquivo = f"relatorios/resultado_enem_{ano}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
@@ -198,6 +174,19 @@ def gerar_relatorio_pdf(resultados, ano, titulo, nome_arquivo=None, tipo_aplicac
         import traceback
         traceback.print_exc()
         return None
+
+
+def formatar_contagem_resultado(resultado):
+    """Formata acertos e anuladas para a saída do CLI."""
+    total_anulados = resultado.get('total_anulados', 0)
+    if not total_anulados:
+        return f"{resultado['acertos']}/{resultado['total_itens']}"
+
+    label_anuladas = 'anulada' if total_anulados == 1 else 'anuladas'
+    return (
+        f"{resultado['acertos']}/{resultado['total_itens']} válidas + "
+        f"{total_anulados} {label_anuladas}"
+    )
 
 
 def main():
@@ -242,7 +231,10 @@ def main():
         if res:
             resultados.append(res)
             notas[sigla] = res['nota']
-            print(f"{nome:.<35} {res['nota']:>6.1f} pts ({res['acertos']}/{res['total_itens']})")
+            print(
+                f"{nome:.<35} {res['nota']:>6.1f} pts "
+                f"({formatar_contagem_resultado(res)})"
+            )
             if res.get("resumo_validacao"):
                 print(f"  {sigla}: {res['resumo_validacao']}")
             if res.get('aviso_precisao'):

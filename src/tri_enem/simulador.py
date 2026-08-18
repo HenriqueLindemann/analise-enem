@@ -26,15 +26,20 @@ Exemplo:
 """
 
 from pathlib import Path
-from typing import Dict, Optional, List
-from dataclasses import dataclass
+from typing import Dict, Optional, List, Union
+from dataclasses import dataclass, field
 
 from .calculador import CalculadorTRI
 
 
 @dataclass
 class ResultadoNota:
-    """Resultado do cálculo de nota."""
+    """Resultado resumido com posições de anuladas no caderno.
+
+    ``questoes_anuladas`` usa a numeração global impressa no caderno. A posição
+    bruta ``CO_POSICAO`` do arquivo de itens, quando necessária para auditoria,
+    fica separada em ``questoes_anuladas_brutas``.
+    """
     nota: float
     theta: float
     acertos: int
@@ -43,9 +48,24 @@ class ResultadoNota:
     ano: int
     co_prova: int
     lingua: Optional[str] = None
+    total_anulados: int = 0
+    questoes_anuladas: List[int] = field(default_factory=list)
+    questoes_anuladas_brutas: List[int] = field(default_factory=list)
+
+    @property
+    def questoes_anuladas_caderno(self) -> List[int]:
+        """Alias explícito para a lista canônica usada na exibição."""
+        return self.questoes_anuladas
     
     def __repr__(self):
         return f"ResultadoNota(nota={self.nota:.1f}, acertos={self.acertos}/{self.total_itens})"
+
+
+@dataclass
+class ResultadoErro:
+    """Falha de uma área ao calcular várias provas."""
+    area: str
+    erro: str
 
 
 class SimuladorNota:
@@ -178,6 +198,16 @@ class SimuladorNota:
             ano=ano,
             co_prova=co_prova,
             lingua=lingua if area == 'LC' else None,
+            total_anulados=resultado.get('total_anulados', 0),
+            questoes_anuladas=list(
+                resultado.get(
+                    'questoes_anuladas_caderno',
+                    resultado.get('questoes_anuladas', []),
+                )
+            ),
+            questoes_anuladas_brutas=list(
+                resultado.get('questoes_anuladas_brutas', [])
+            ),
         )
 
 
@@ -189,7 +219,7 @@ class SimuladorNota:
         co_provas: Optional[Dict[str, int]] = None,
         cores_prova: Optional[Dict[str, str]] = None,
         tipo_aplicacao: str = None,
-    ) -> Dict[str, ResultadoNota]:
+    ) -> Dict[str, Union[ResultadoNota, ResultadoErro]]:
         """
         Calcula nota de todas as áreas de uma vez.
         
@@ -222,6 +252,9 @@ class SimuladorNota:
                     tipo_aplicacao=tipo_aplicacao,
                 )
             except Exception as e:
-                resultados[area.upper()] = {'erro': str(e)}
+                resultados[area.upper()] = ResultadoErro(
+                    area=area.upper(),
+                    erro=str(e),
+                )
         
         return resultados

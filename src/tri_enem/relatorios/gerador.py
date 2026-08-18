@@ -25,6 +25,7 @@ from .estilos import criar_estilos, Cores
 from .graficos import grafico_barras_notas, grafico_impacto_questoes, grade_questoes
 from .tabelas import tabela_erros_completa
 from ..precisao import formatar_resumo_validacao, verificar_precisao_prova
+from ..mapeador_provas import MapeadorProvas
 
 TZ_BRASILIA = timezone(timedelta(hours=-3))
 
@@ -171,12 +172,16 @@ class RelatorioPDF:
         return elementos
 
     def _ordenar_areas_por_prova(self, areas: List[AreaAnalise]) -> List[AreaAnalise]:
-        """Ordena áreas conforme a numeração real das questões para corresponder à ordem da prova."""
-        def get_min_posicao(area):
-            posicoes = [q.posicao for q in area.questoes]
-            return min(posicoes) if posicoes else 999
-            
-        return sorted(areas, key=get_min_posicao)
+        """Ordena áreas conforme a sequência do caderno do ano."""
+        try:
+            ordem = MapeadorProvas().listar_ordem_provas(self._dados.ano_prova)
+        except Exception:
+            ordem = ['LC', 'CH', 'CN', 'MT']
+        indices = {sigla: indice for indice, sigla in enumerate(ordem)}
+        return sorted(
+            areas,
+            key=lambda area: indices.get(area.sigla.upper(), 99),
+        )
     
     def _secao_area(self, area: AreaAnalise) -> List:
         """Seção de uma área - design limpo e organizado."""
@@ -193,6 +198,8 @@ class RelatorioPDF:
         if area.cor_prova:
             info_prova += f" ({area.cor_prova.capitalize()})"
         info_prova += f"  ·  <b>{area.nota:.1f}</b> pontos  ·  {area.acertos}/{area.total_itens} acertos"
+        if area.total_anulados > 0:
+            info_prova += f"  ·  <b>{area.texto_anuladas_breve()}</b>"
         elementos.append(Paragraph(info_prova, self.styles['TextoNormal']))
         
         # Verificar precisão e adicionar aviso se necessário
@@ -216,7 +223,7 @@ class RelatorioPDF:
         elementos.append(grade)
         
         # Separar erros
-        erros = [q for q in area.questoes if not q.acertou]
+        erros = area.questoes_erradas
         
         elementos.append(Spacer(1, 6))
         

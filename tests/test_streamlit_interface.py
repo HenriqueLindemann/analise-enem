@@ -200,6 +200,26 @@ class TestFluxoCompleto:
         assert not at.exception, at.exception
         assert "resultados" not in at.session_state
 
+    def test_expander_formata_plural_de_questoes_anuladas(self):
+        from tri_enem import MapeadorProvas
+
+        info = next(
+            prova
+            for prova in MapeadorProvas().listar_todas_provas(2023)
+            if prova.codigo == 1211
+        )
+        at = _app_com_respostas({"MT": "A" * 45})
+        at.selectbox[0].set_value(2023)
+        at.session_state["cor_MT"] = info.cor
+        at.run()
+        next(
+            b for b in at.button
+            if "CALCULAR" in (b.label or "").upper()
+        ).click().run()
+
+        labels = [expander.label for expander in at.expander]
+        assert any("Q161, Q164 anuladas" in label for label in labels)
+
     def test_respostas_incompletas_nao_produzem_nota(self, caso_real):
         at = _app_com_respostas({"MT": caso_real["MT"]["respostas"][:30]})
         at.run()
@@ -470,4 +490,3 @@ class TestAvisoAcuracia:
         assert "Esta prova" in msg
         assert "#15803D" in msg
         assert kwargs.get("unsafe_allow_html") is True
-

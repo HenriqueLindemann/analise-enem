@@ -219,7 +219,7 @@ def render_botao_calcular(tem_respostas: bool) -> bool:
             "CALCULAR NOTA",
             type="primary",
             disabled=not tem_respostas,
-            use_container_width=True
+            width='stretch'
         )
 
 

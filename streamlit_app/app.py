@@ -42,6 +42,7 @@ from streamlit_app.config import (
     SEO,
     AREAS_ENEM,
 )
+from tri_enem import MapeadorProvas, normalizar_posicoes_resultados
 from streamlit_app.calculador import get_calculador
 from streamlit_app.components.inputs import input_respostas, validar_todas_respostas
 from streamlit_app.components.resultados import exibir_resumo_geral, exibir_resultado_area
@@ -161,10 +162,42 @@ def main():
         st.warning("Preencha pelo menos uma área para calcular.")
     
     # Exibir resultados salvos (persiste após reruns)
-    _exibir_resultados_salvos(ano, tipo_aplicacao)
+    _exibir_resultados_salvos(
+        ano,
+        tipo_aplicacao,
+        lingua,
+        cores,
+        respostas,
+    )
     
     # Footer
     render_footer()
+
+
+def _assinatura_resultado(ano, tipo_aplicacao, lingua, cores, respostas):
+    """Identifica a configuração e as respostas usadas em um resultado."""
+    areas = ('LC', 'CH', 'CN', 'MT')
+    return (
+        int(ano),
+        str(tipo_aplicacao),
+        str(lingua),
+        tuple((area, cores.get(area) or '') for area in areas),
+        tuple((area, respostas.get(area, '') or '') for area in areas),
+    )
+
+
+def _limpar_resultados_salvos():
+    """Remove resultado e PDF quando a configuração deixa de corresponder."""
+    for chave in (
+        'resultados',
+        'resultado_ano',
+        'resultado_tipo',
+        'resultado_assinatura',
+        'pdf_bytes',
+        'pdf_chave',
+        'pdf_ano',
+    ):
+        st.session_state.pop(chave, None)
 
 
 def _processar_calculo(calc, ano, tipo_aplicacao, lingua, cores, respostas):
@@ -193,9 +226,12 @@ def _processar_calculo(calc, ano, tipo_aplicacao, lingua, cores, respostas):
             st.session_state['resultados'] = resultados_ordenados
             st.session_state['resultado_ano'] = ano
             st.session_state['resultado_tipo'] = tipo_aplicacao
+            st.session_state['resultado_assinatura'] = _assinatura_resultado(
+                ano, tipo_aplicacao, lingua, cores, respostas
+            )
             # Limpar PDF antigo para gerar novo
-            if 'pdf_bytes' in st.session_state:
-                del st.session_state['pdf_bytes']
+            for chave in ('pdf_bytes', 'pdf_chave', 'pdf_ano'):
+                st.session_state.pop(chave, None)
         
         # Mostrar erros de cálculo
         for erro in erros_calculo:
@@ -209,14 +245,34 @@ def _processar_calculo(calc, ano, tipo_aplicacao, lingua, cores, respostas):
         st.error(f"Erro ao calcular: {e}")
 
 
-def _exibir_resultados_salvos(ano_atual, tipo_atual):
+def _exibir_resultados_salvos(
+    ano_atual,
+    tipo_atual,
+    lingua_atual,
+    cores_atuais,
+    respostas_atuais,
+):
     """Exibe resultados salvos na sessão."""
     if 'resultados' not in st.session_state or not st.session_state['resultados']:
         return
+
+    assinatura_atual = _assinatura_resultado(
+        ano_atual,
+        tipo_atual,
+        lingua_atual,
+        cores_atuais,
+        respostas_atuais,
+    )
+    if st.session_state.get('resultado_assinatura') != assinatura_atual:
+        _limpar_resultados_salvos()
+        return
     
-    resultados = st.session_state['resultados']
     ano_resultado = st.session_state.get('resultado_ano', ano_atual)
     tipo_resultado = st.session_state.get('resultado_tipo', tipo_atual)
+    resultados = normalizar_posicoes_resultados(
+        st.session_state['resultados'],
+        MapeadorProvas().listar_ordem_provas(ano_resultado),
+    )
     
     st.markdown("---")
     
@@ -236,8 +292,15 @@ def _exibir_resultados_salvos(ano_atual, tipo_atual):
         nota = resultado['nota']
         acertos = resultado['acertos']
         total = resultado['total_itens']
+        questoes_anuladas = resultado.get('questoes_anuladas') or [
+            q['posicao'] for q in resultado.get('anuladas', [])
+        ]
+        anuladas_txt = ""
+        if questoes_anuladas:
+            q_list = ", ".join(f"Q{q}" for q in sorted(questoes_anuladas))
+            anuladas_txt = f" · {q_list} anulada" if len(questoes_anuladas) == 1 else f" · {q_list} anuladas"
         
-        with st.expander(f"**{nome}** — {nota:.1f} pts ({acertos}/{total} acertos)", expanded=False):
+        with st.expander(f"**{nome}** — {nota:.1f} pts ({acertos}/{total} acertos{anuladas_txt})", expanded=False):
             exibir_resultado_area(resultado)
     
     # Download do relatório PDF

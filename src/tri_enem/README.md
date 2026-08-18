@@ -40,6 +40,27 @@ um caderno, omitir essas informações causa erro em vez de escolher uma prova
 arbitrariamente. Para LC, passe ainda `lingua='ingles'` ou
 `lingua='espanhol'`.
 
+`ResultadoNota.questoes_anuladas` sempre usa a numeração global impressa no
+caderno. A posição bruta do arquivo de itens, `CO_POSICAO`, fica em
+`ResultadoNota.questoes_anuladas_brutas`. Na API avançada,
+`analisar_todas_questoes()` mantém `q['posicao']` bruto para o pareamento e
+fornece `q['posicao_caderno']` para exibição. A ordem das áreas é
+`CH, CN, LC, MT` de 2009 a 2016 e `LC, CH, CN, MT` de 2017 em diante.
+
+Resultados detalhados podem ser convertidos sem efeito colateral com
+`normalizar_posicoes_resultados(resultados, ordem_provas)`, que devolve cópias
+novas e recalcula `questoes_anuladas` a partir dos detalhes.
+
+Para gerar um relatório a partir de qualquer desses resultados, use
+`tri_enem.relatorios.adaptar_resultados_para_relatorio(resultados, ano, ...)`.
+O adaptador normaliza a numeração e cria os objetos `DadosRelatorio`,
+`AreaAnalise` e `QuestaoAnalise`; os geradores do Streamlit e do script local
+compartilham esse caminho.
+
+`SimuladorNota.calcular_todas_areas()` retorna `ResultadoNota` para áreas
+calculadas e `ResultadoErro(area, erro)` para falhas individuais; erros não são
+mais representados por dicionários legados.
+
 ## Geração de PDF
 
 ```python

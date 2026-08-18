@@ -37,6 +37,7 @@ quanto a estrutura de download do INEP (`microdados_enem_YYYY/DADOS/RESULTADOS_Y
 | `test_calibracao.py` | Ajuste monotônico, amostragem estratificada e geração do relatório |
 | `test_e2e_usuario.py` | Coerência ponta a ponta das três interfaces em 2009-2025 |
 | `test_streamlit_interface.py` | App Streamlit, gráficos, entrada e PDF |
+| `test_questoes_anuladas.py` | Anulações, numeração canônica e adaptadores |
 | `test_itens_empacotados.py` | Integridade dos 17 CSVs incluídos no pacote |
 | `test_precisao.py` | Classificação de confiabilidade e invariantes dos avisos |
 | `test_mapeador_provas.py` | Testes unitários do mapeamento de códigos de prova |
@@ -68,6 +69,10 @@ Os microdados brutos do INEP estão disponíveis em
 
 Os arquivos commitados em `fixtures/` permitem rodar `pytest` e consultar o
 mapeamento de provas sem precisar dos microdados brutos do INEP.
+
+Os testes do núcleo de anulações rodam somente com as dependências CLI. Os
+testes de Streamlit, Plotly e PDF são marcados como opcionais e são pulados
+individualmente quando o respectivo extra não está instalado.
 
 ## Pipeline Completo
 

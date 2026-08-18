@@ -26,7 +26,7 @@ Interface avançada:
     nota = calc.calcular_nota(2023, 'MT', 1211, respostas)
 """
 
-from .simulador import SimuladorNota, ResultadoNota
+from .simulador import SimuladorNota, ResultadoNota, ResultadoErro
 from .calculador import CalculadorTRI, ItemTRI
 from .coeficientes import (
     aplicar_transformacao,
@@ -35,11 +35,13 @@ from .coeficientes import (
 from .tradutor import obter_config_lc, filtrar_itens_lc, ConfiguracaoLC
 from .mapeador_provas import MapeadorProvas, InfoProva
 from .precisao import formatar_resumo_validacao, verificar_precisao_prova
+from .posicoes import normalizar_posicoes_resultados, posicao_caderno
 
 __all__ = [
     # Interface simplificada (recomendada)
     'SimuladorNota',
     'ResultadoNota',
+    'ResultadoErro',
     # Interface avançada
     'CalculadorTRI',
     'ItemTRI',
@@ -56,5 +58,8 @@ __all__ = [
     # Verificação de precisão
     'verificar_precisao_prova',
     'formatar_resumo_validacao',
+    # Numeração de questões para exibição
+    'normalizar_posicoes_resultados',
+    'posicao_caderno',
 ]
 __version__ = '4.0.0'

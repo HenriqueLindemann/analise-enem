@@ -131,8 +131,12 @@ analise = calc.analisar_todas_questoes(2023, 'MT', co_prova, respostas)
 
 print("Erros que mais impactaram sua nota:")
 for erro in analise['erros'][:5]:
-    print(f"  Q{erro['posicao']}: +{erro['ganho_se_acertasse']:.1f} pts | Gabarito: {erro['gabarito']}")
+    numero = erro.get('posicao_caderno', erro['posicao'])
+    print(f"  Q{numero}: +{erro['ganho_se_acertasse']:.1f} pts | Gabarito: {erro['gabarito']}")
 ```
+
+Detalhes técnicos da API e da semântica das posições estão em
+[`src/tri_enem/README.md`](src/tri_enem/README.md).
 
 ## Relatório PDF
 

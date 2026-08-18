@@ -10,6 +10,7 @@ from pathlib import Path
 import tempfile
 import os
 import sys
+import hashlib
 
 # Adicionar path do src para imports
 _src_path = Path(__file__).parent.parent.parent / 'src'
@@ -20,72 +21,19 @@ if str(_src_path) not in sys.path:
 def _gerar_pdf(resultados: List[Dict], ano: int, tipo_aplicacao: str, cor_prova: str) -> Optional[bytes]:
     """Gera o PDF e retorna bytes."""
     try:
-        from tri_enem.relatorios import RelatorioPDF, DadosRelatorio
-        from tri_enem.relatorios.base import AreaAnalise, QuestaoAnalise
+        from tri_enem.relatorios import (
+            RelatorioPDF,
+            adaptar_resultados_para_relatorio,
+        )
     except ImportError:
         return None
-    
-    # Formatar tipo de aplicação
-    tipos_extenso = {
-        '1a_aplicacao': '1ª Aplicação',
-        'digital': 'Digital',
-        'reaplicacao': 'Reaplicação',
-        'segunda_oportunidade': 'Segunda Oportunidade',
-    }
-    tipo_extenso = tipos_extenso.get(tipo_aplicacao, tipo_aplicacao)
-    
-    # Criar dados do relatório
-    dados = DadosRelatorio(
-        titulo="Simulado - Calculadora Nota TRI ENEM", 
-        ano_prova=ano,
-        tipo_aplicacao=tipo_extenso,
-        cor_prova=cor_prova.capitalize() if cor_prova else ''
+    dados = adaptar_resultados_para_relatorio(
+        resultados,
+        ano,
+        titulo="Simulado - Calculadora Nota TRI ENEM",
+        tipo_aplicacao=tipo_aplicacao,
+        cor_prova=cor_prova,
     )
-    
-    # Converter resultados
-    for r in resultados:
-        questoes = []
-        
-        for q in r.get('questoes_acertadas', []):
-            questoes.append(QuestaoAnalise(
-                posicao=q['posicao'], 
-                gabarito=q['gabarito'],
-                resposta_dada=q['resposta_dada'], 
-                acertou=True,
-                param_a=q['param_a'], 
-                param_b=q['param_b'], 
-                param_c=q['param_c'],
-                impacto=q['perda_se_errasse'], 
-                co_item=q.get('co_item'),
-            ))
-        
-        for q in r.get('questoes_erradas', []):
-            questoes.append(QuestaoAnalise(
-                posicao=q['posicao'], 
-                gabarito=q['gabarito'],
-                resposta_dada=q['resposta_dada'], 
-                acertou=False,
-                param_a=q['param_a'], 
-                param_b=q['param_b'], 
-                param_c=q['param_c'],
-                impacto=q['ganho_se_acertasse'], 
-                co_item=q.get('co_item'),
-            ))
-        
-        area = AreaAnalise(
-            sigla=r['sigla'], 
-            nome=r.get('nome', r['sigla']), 
-            ano=r.get('ano', ano), 
-            co_prova=r.get('co_prova', 0),
-            nota=r['nota'], 
-            theta=r.get('theta', 0), 
-            acertos=r['acertos'],
-            total_itens=r['total_itens'], 
-            questoes=questoes, 
-            lingua=r.get('lingua'),
-            cor_prova=r.get('cor_prova'),
-        )
-        dados.areas.append(area)
     
     # Gerar PDF. Exceções são propagadas para que a interface mostre a causa.
     tmp_path = None
@@ -120,8 +68,14 @@ def exibir_download_pdf(resultados: List[Dict], ano: int, tipo_aplicacao: str = 
             cor_prova = r['cor_prova']
             break
     
+    cor_prova = cor_prova or ''
+    pdf_chave = hashlib.sha256(
+        repr((ano, tipo_aplicacao, cor_prova, resultados)).encode('utf-8')
+    ).hexdigest()
+
     # Gerar PDF apenas uma vez e salvar na session
-    if 'pdf_bytes' not in st.session_state or st.session_state.get('pdf_ano') != ano:
+    if st.session_state.get('pdf_chave') != pdf_chave:
+        st.session_state.pop('pdf_bytes', None)
         with st.spinner("Gerando PDF..."):
             try:
                 pdf_bytes = _gerar_pdf(
@@ -132,7 +86,7 @@ def exibir_download_pdf(resultados: List[Dict], ano: int, tipo_aplicacao: str = 
                 return
             if pdf_bytes:
                 st.session_state['pdf_bytes'] = pdf_bytes
-                st.session_state['pdf_ano'] = ano
+                st.session_state['pdf_chave'] = pdf_chave
     
     pdf_bytes = st.session_state.get('pdf_bytes')
     

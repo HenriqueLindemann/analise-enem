@@ -18,6 +18,7 @@ if str(_src_path) not in sys.path:
 
 from tri_enem import CalculadorTRI, MapeadorProvas
 from tri_enem.config import NOMES_AREAS
+from tri_enem.posicoes import normalizar_posicoes_resultados
 
 
 @st.cache_resource(show_spinner=False)
@@ -125,7 +126,7 @@ class CalculadorEnem:
             )
             precisao = verificar_precisao_prova(ano, area, co_prova)
             
-            return {
+            resultado = {
                 'sigla': area.upper(),
                 'nome': NOMES_AREAS.get(area.upper(), area),
                 'ano': ano,
@@ -134,8 +135,11 @@ class CalculadorEnem:
                 'theta': analise['theta'],
                 'acertos': analise['total_acertos'],
                 'total_itens': analise['total_itens'],
+                'total_anulados': analise.get('total_anulados', 0),
                 'questoes_acertadas': analise['acertos'],
                 'questoes_erradas': analise['erros'],
+                'questoes_anuladas': analise.get('questoes_anuladas', []),
+                'anuladas': analise.get('anuladas', []),
                 'lingua': lingua if area.upper() == 'LC' else None,
                 'cor_prova': cor,
                 'aviso_precisao': precisao.get('aviso'),
@@ -154,6 +158,10 @@ class CalculadorEnem:
                 'motivo': precisao.get('motivo'),
                 'resumo_validacao': formatar_resumo_validacao(precisao),
             }
+            return normalizar_posicoes_resultados(
+                [resultado],
+                self._mapeador.listar_ordem_provas(ano),
+            )[0]
             
         except Exception as e:
             return {
@@ -221,17 +229,6 @@ class CalculadorEnem:
             
         index_map = {sigla: idx for idx, sigla in enumerate(ordem)}
         resultados.sort(key=lambda r: index_map.get(r['sigla'], 99))
-        
-        # Renumerar a propriedade 'posicao' para alinhar a interface visual rigosamente 
-        # com o caderno oficial de prova contornando anomalias no INEP (como em 2016, 2017+)
-        for res in resultados:
-            area_idx_real = index_map.get(res['sigla'], 0)
-            offset = area_idx_real * 45
-            questoes_todas = res.get('questoes_acertadas', []) + res.get('questoes_erradas', [])
-            for q in questoes_todas:
-                # O backend agora entrega 'idx_area' (0 a 44) referente à ordem correta das respostas originais
-                if 'idx_area' in q:
-                    q['posicao'] = offset + q['idx_area'] + 1
         
         return resultados, erros
 

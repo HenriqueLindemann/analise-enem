@@ -12,6 +12,7 @@ Estrutura:
     - tabelas.py: Tabelas de erros e resumos
     - utils.py: Formatação da dificuldade dos itens
     - base.py: Classes de dados
+    - adaptador.py: Conversão única de resultados para relatórios
 
 Uso básico:
     from tri_enem.relatorios import RelatorioPDF, DadosRelatorio
@@ -23,13 +24,22 @@ Uso básico:
     relatorio.gerar(dados, './relatorios/resultado.pdf')
 """
 
-from .gerador import RelatorioPDF
 from .base import RelatorioBase, DadosRelatorio, AreaAnalise, QuestaoAnalise
+from .adaptador import adaptar_resultados_para_relatorio
+
+try:
+    from .gerador import RelatorioPDF
+except ImportError:
+    # Permite usar as estruturas e o adaptador sem a dependência opcional de PDF.
+    pass
 
 __all__ = [
-    'RelatorioPDF',
     'RelatorioBase',
     'DadosRelatorio',
     'AreaAnalise',
     'QuestaoAnalise',
+    'adaptar_resultados_para_relatorio',
 ]
+
+if 'RelatorioPDF' in globals():
+    __all__.insert(0, 'RelatorioPDF')
