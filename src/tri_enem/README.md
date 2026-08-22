@@ -7,9 +7,10 @@ parâmetros dos itens e o catálogo de transformação são incluídos no pacote
 
 | Arquivo | Descrição |
 |---------|-----------|
-| `simulador.py` | **SimuladorNota** - Interface simplificada (use este!) |
+| `simulador.py` | **SimuladorNota** - Interface simplificada (alto nível) |
 | `calculador.py` | **CalculadorTRI** - Motor de cálculo com ML3 + EAP |
 | `mapeador_provas.py` | Resolve ano, área, aplicação e cor para o código da prova |
+| `posicoes.py` | Normalização de posições no caderno e ordem das áreas |
 | `calibracao_modelos.py` | Ajuste, seleção e avaliação dos modelos de escala |
 | `coeficientes.py` | Carrega e aplica o catálogo `coeficientes_data.json` |
 | `coeficientes_data.json` | Modelos, métricas do holdout e status por prova |
@@ -35,31 +36,15 @@ resultado = sim.calcular(
 print(f"Nota: {resultado.nota:.1f}")
 ```
 
-Também é possível informar `co_prova=1211` diretamente. Quando houver mais de
-um caderno, omitir essas informações causa erro em vez de escolher uma prova
-arbitrariamente. Para LC, passe ainda `lingua='ingles'` ou
-`lingua='espanhol'`.
+> **Nota:** Também é possível informar `co_prova` diretamente. Para LC, informe `lingua='ingles'` ou `lingua='espanhol'`.
 
-`ResultadoNota.questoes_anuladas` sempre usa a numeração global impressa no
-caderno. A posição bruta do arquivo de itens, `CO_POSICAO`, fica em
-`ResultadoNota.questoes_anuladas_brutas`. Na API avançada,
-`analisar_todas_questoes()` mantém `q['posicao']` bruto para o pareamento e
-fornece `q['posicao_caderno']` para exibição. A ordem das áreas é
-`CH, CN, LC, MT` de 2009 a 2016 e `LC, CH, CN, MT` de 2017 em diante.
+## Regras de Numeração e Integração
 
-Resultados detalhados podem ser convertidos sem efeito colateral com
-`normalizar_posicoes_resultados(resultados, ordem_provas)`, que devolve cópias
-novas e recalcula `questoes_anuladas` a partir dos detalhes.
-
-Para gerar um relatório a partir de qualquer desses resultados, use
-`tri_enem.relatorios.adaptar_resultados_para_relatorio(resultados, ano, ...)`.
-O adaptador normaliza a numeração e cria os objetos `DadosRelatorio`,
-`AreaAnalise` e `QuestaoAnalise`; os geradores do Streamlit e do script local
-compartilham esse caminho.
-
-`SimuladorNota.calcular_todas_areas()` retorna `ResultadoNota` para áreas
-calculadas e `ResultadoErro(area, erro)` para falhas individuais; erros não são
-mais representados por dicionários legados.
+- **Numeração e Anulações**: `ResultadoNota.questoes_anuladas` usa a numeração global impressa no caderno. A posição relativa no arquivo de itens fica em `questoes_anuladas_brutas`. Na API detalhada (`analisar_todas_questoes`), `posicao` é a relativa e `posicao_caderno` é a do caderno.
+- **Ordem das Áreas**: `CH, CN, LC, MT` (2009 a 2016) e `LC, CH, CN, MT` (2017 em diante).
+- **Normalização**: Use `posicoes.normalizar_posicoes_resultados()` para converter posições relativas em posições de caderno sem mutação.
+- **Adaptador de Relatório**: `tri_enem.relatorios.adaptar_resultados_para_relatorio()` converte resultados em objetos estruturados (`DadosRelatorio`, `AreaAnalise`, `QuestaoAnalise`).
+- **Retornos da API**: `SimuladorNota.calcular_todas_areas()` retorna objetos tipados: `ResultadoNota` para áreas calculadas e `ResultadoErro` para eventuais falhas individuais.
 
 ## Geração de PDF
 
@@ -73,4 +58,4 @@ relatorio = RelatorioPDF()
 relatorio.gerar(dados, './relatorios/resultado.pdf')
 ```
 
-Veja mais exemplos em `examples/`.
+Consulte exemplos detalhados em [`examples/`](../../examples/README.md).

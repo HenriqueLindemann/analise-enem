@@ -12,23 +12,15 @@ Estime sua nota do ENEM direto no navegador, sem instalar nada.
 
 ## Rodando Localmente
 
-### 1. Instale as dependências
-
 ```bash
-# Na pasta raiz do projeto
-pip install -r requirements.txt
-pip install -r streamlit_app/requirements.txt
-```
+# Na raiz do repositório:
+pip install -e ".[web]"
+# ou: pip install -r requirements.txt -r streamlit_app/requirements.txt
 
-### 2. Execute o app
-
-```bash
 streamlit run streamlit_app/app.py
 ```
 
-### 3. Acesse no navegador
-
-O app abrirá automaticamente em `http://localhost:8501`
+O app abrirá automaticamente em `http://localhost:8501`.
 
 ## Estrutura Modular
 
@@ -38,7 +30,7 @@ streamlit_app/
 ├── config.py           # Configurações centralizadas (SEO, textos, constantes)
 ├── calculador.py       # Wrapper do módulo tri_enem
 ├── styles.css          # Estilos CSS externos
-├── requirements.txt    # Dependências específicas
+├── requirements.txt    # Dependências específicas da web
 ├── static/
 │   ├── robots.txt      # Instruções para crawlers
 │   └── sitemap.xml     # Mapa do site para SEO
@@ -53,45 +45,22 @@ streamlit_app/
 └── README.md
 ```
 
-## SEO 
+## SEO e Metadados
 
-O app inclui otimizações para ranqueamento no Google:
+O aplicativo inclui otimizações completas para motores de busca e compartilhamento social:
 
-### Meta Tags
-- Title otimizado com keywords (max 60 caracteres)
-- Meta description com limite de 160 caracteres
-- Meta keywords com termos relevantes
-- Canonical URL para evitar conteúdo duplicado
-
-### Open Graph (Redes Sociais)
-- Tags og:title, og:description, og:type, og:url
-- Suporte a Facebook, LinkedIn, WhatsApp
-
-### Twitter Card
-- Tags twitter:card, twitter:title, twitter:description
-
-### Schema.org JSON-LD
-- WebApplication schema para rich snippets
-- FAQPage schema com perguntas frequentes
-- Dados estruturados para Google
-
-### Arquivos Estáticos
-- robots.txt para instruir crawlers
-- sitemap.xml para indexação
+- **Metatags dinâmicas**: títulos e descrições otimizados com URLs canônicas.
+- **Open Graph & Twitter Cards**: suporte a prévias no WhatsApp, Facebook, Twitter e LinkedIn.
+- **Dados estruturados (JSON-LD)**: schemas `WebApplication` e `FAQPage` para rich snippets.
+- **Indexação**: `robots.txt` e `sitemap.xml` para rastreamento.
 
 ## Funcionalidades
 
-- Seleção de ano (2009-2025)
-- Seleção de tipo de aplicação (1ª, digital, reaplicação)
-- Seleção de cor por área
-- Entrada de 45 respostas por área
-- Estimativa TRI com validação informada por prova
-- Visualização de notas por área
-- Grade visual de acertos e erros
-- Gráfico de impacto das questões
-- Análise detalhada por área
-- Download de relatório PDF
+- Cobertura de todas as edições de **2009 a 2025** (todas as áreas e aplicações).
+- **Estimativa TRI instantânea** com status de validação transparente por prova.
+- **Grade visual de acertos/erros** e ranking de impacto das questões.
+- **Download de relatório PDF** com detalhamento vetorial completo.
 
 ## Licença
 
-PolyForm Noncommercial License 1.0.0 - Uso não comercial apenas.
+[PolyForm Noncommercial 1.0.0](../LICENSE) - Uso pessoal e educacional permitido.

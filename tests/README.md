@@ -37,6 +37,7 @@ quanto a estrutura de download do INEP (`microdados_enem_YYYY/DADOS/RESULTADOS_Y
 | `test_calibracao.py` | Ajuste monotônico, amostragem estratificada e geração do relatório |
 | `test_e2e_usuario.py` | Coerência ponta a ponta das três interfaces em 2009-2025 |
 | `test_streamlit_interface.py` | App Streamlit, gráficos, entrada e PDF |
+| `test_relatorios_casos.py` | Casos funcionais e estruturais do relatório PDF A4 |
 | `test_questoes_anuladas.py` | Anulações, numeração canônica e adaptadores |
 | `test_itens_empacotados.py` | Integridade dos 17 CSVs incluídos no pacote |
 | `test_precisao.py` | Classificação de confiabilidade e invariantes dos avisos |

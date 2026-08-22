@@ -13,37 +13,21 @@ Suporta provas de **2009 a 2025** com análise detalhada e relatórios completos
 
 ---
 
-## Instalação (apenas versão local)
+## Instalação (versão local)
 
-### Para quem nunca programou
+Requer [Python 3.9+](https://www.python.org/downloads/).
 
-**Este programa produz uma estimativa TRI e informa a validação da prova.** Você precisa:
-
-1. **Baixar este projeto** (botão verde "Code" → Download ZIP)
-2. **Instalar Python**: https://www.python.org/downloads/
-3. **Instalar as bibliotecas necessárias**: abra o terminal/prompt na pasta do projeto e digite:
+1. Clone ou baixe o repositório:
+   ```bash
+   git clone https://github.com/HenriqueLindemann/analise-enem.git
+   cd analise-enem
+   ```
+2. Instale as dependências:
    ```bash
    pip install -r requirements.txt
    ```
-4. **Abrir o arquivo `meu_simulado.py`** com Bloco de Notas
-5. **Trocar as alternativas** pelas suas respostas da prova
-6. **Executar o simulador** no terminal:
-   ```bash
-   python meu_simulado.py
-   ```
 
-**Pronto!** Sua nota aparece na tela e, com `GERAR_PDF = True`, um PDF é criado
-na pasta `relatorios/`.
-
-**Precisa de ajuda?** Pergunte para sua IA favorita como instalar e rodar um programa Python no seu sistema operacional.
-
-### Para desenvolvedores
-
-```bash
-git clone https://github.com/HenriqueLindemann/analise-enem.git
-cd analise-enem
-pip install -e ".[web,dev]"
-```
+> **Para desenvolvimento:** `pip install -e ".[web,dev]"`
 
 ---
 
@@ -140,18 +124,13 @@ Detalhes técnicos da API e da semântica das posições estão em
 
 ## Relatório PDF
 
-Defina `GERAR_PDF = True` em `meu_simulado.py` ou use o botão de download da
-interface web. O relatório A4 inclui:
+Disponível pelo botão de download na interface web ou com `GERAR_PDF = True` em `meu_simulado.py`. O relatório inclui:
 
-- visão geral das notas e orientações curtas de leitura;
-- uma página por área, com todas as questões válidas no gráfico de impacto;
-- erros detalhados e acertos em uma grade compacta com contribuição estimada;
-- precisão da estimativa apresentada em linguagem direta;
-- cor e sinais visuais redundantes para distinguir acertos, erros e anuladas.
+- **Visão geral**: notas estimadas, médias e indicadores de precisão.
+- **Gabarito visual**: grade com acertos, erros e questões anuladas.
+- **Análise de impacto**: ranking dos erros que mais custaram pontos e ganho estimado por questão.
 
-Gráficos, tabelas e textos são vetoriais e permanecem nítidos ao ampliar ou
-imprimir. Veja o [PDF de exemplo](relatorios/EXEMPLO_relatorio.pdf) e a
-[documentação do gerador](relatorios/README.md).
+Veja o [PDF de exemplo](relatorios/EXEMPLO_relatorio.pdf) e a [documentação do gerador](relatorios/README.md).
 
 ## Como Funciona
 
@@ -169,68 +148,32 @@ conforme o desempenho em um conjunto independente de validação.
 
 ## Precisão e Calibração
 
-A precisão varia conforme a prova. Cada transformação é ajustada sem usar o
-holdout final. Uma prova só recebe `ok` quando todos os casos desse holdout
-ficam a até 2 pontos da nota oficial e a cobertura mínima é satisfeita.
+Cada prova é validada contra casos reais de participantes dos microdados oficiais:
 
-Provas que não atingem o limite continuam disponíveis como estimativa e
-mostram MAE, erro máximo observado e quantidade de casos. Provas sem parâmetros
-de itens são explicitamente marcadas como incalculáveis.
+- **Confirmada (`ok`)**: erro máximo $\le 2$ pontos no conjunto de teste independente (*holdout*).
+- **Estimativa / Alerta**: erro baixo na maioria dos casos ou variações maiores; métricas de erro médio (MAE) e erro máximo são sempre exibidas.
+- **Incalculável**: provas sem parâmetros de itens publicados pelo INEP.
 
-Na interface, uma prova `ok` recebe uma confirmação verde. Quando o desempenho
-é consistente na maioria dos casos, mas poucas exceções impedem a garantia
-estrita, a mensagem intermediária comunica esse resultado sem tratar toda a
-calibração como ruim. Diferenças sistemáticas continuam recebendo alerta forte.
-Os critérios e números exatos permanecem no relatório técnico.
-
-Os números atuais são gerados automaticamente em
-[docs/VALIDATION_REPORT.md](docs/VALIDATION_REPORT.md); os critérios executáveis
-estão em [`src/tri_enem/precisao.py`](src/tri_enem/precisao.py).
+Consulte os números de cada prova no [Relatório de Validação](docs/VALIDATION_REPORT.md) e os critérios em [`src/tri_enem/precisao.py`](src/tri_enem/precisao.py).
 
 ## Desenvolvimento e Testes
-
-O projeto possui uma suíte de testes abrangente para garantir a precisão dos
-cálculos e a integridade do mapeamento de questões ao longo dos anos.
 
 ### Testes automatizados (offline)
 
 ```bash
-pip install -r requirements.txt -r requirements-dev.txt
 pytest
 python tests/validar_holdout.py
 ```
 
-Rodam também na integração contínua (`.github/workflows/testes.yml`), a cada
-push e pull request. Utilizam os dados versionados no repositório e cobrem:
+A suíte cobre regressão contra notas reais (*golden tests*), validação do *holdout* oficial, coerência entre interfaces (CLI, Web e API), propriedades matemáticas da TRI e tratamento de itens anulados.
 
-- **Regressão (golden)** — fixa nota e theta de 136 casos reais abrangendo
-  todo ano × área. Qualquer alteração no motor que modifique um resultado é
-  detectada. Regenerado por `tests/fixtures/gerar_golden_notas.py`.
-- **Holdout oficial estratificado** — cobre todas as provas calculáveis e faz
-  o CI falhar se uma prova `ok` tiver qualquer erro acima de 2 pontos.
-- **Percurso do usuário ponta a ponta** — as 45 letras digitadas produzem a
-  mesma nota nas três interfaces (web, `analisar_todas_questoes` e
-  `SimuladorNota`), e os casos elegíveis são comparados à nota oficial.
-- **Propriedades do modelo** — monotonicidade da curva ML3, limites do EAP e
-  ausência de efeito de itens anulados sobre a nota.
-- **Mensagens de precisão** — verifica a confirmação positiva das provas
-  `ok`, o aviso intermediário para exceções concentradas e o invariante de que
-  prova não confiável nunca é apresentada sem aviso.
-
-### Validação e publicação
-
-O pipeline que recalibra os modelos exige os microdados brutos do INEP. Ele
-separa calibração, seleção e holdout e publica os artefatos de forma atômica:
+### Validação completa (com microdados brutos)
 
 ```bash
-python tests/run_full_validation.py \
-  --microdados-dir /caminho/para/MICRODADOS_ENEM
+python tests/run_full_validation.py --microdados-dir /caminho/para/MICRODADOS_ENEM
 ```
 
-Os testes normais não dependem desses arquivos grandes: os parâmetros dos
-itens, casos de regressão e holdout já estão versionados. Veja
-[`tests/README.md`](tests/README.md) para a matriz de testes e
-[`tools/README.md`](tools/README.md) para o fluxo de recalibração.
+Consulte [`tests/README.md`](tests/README.md) para a matriz detalhada de testes e [`tools/README.md`](tools/README.md) para o fluxo de calibração.
 
 ## Estrutura do Projeto
 
@@ -264,23 +207,7 @@ analise-enem/
 └── relatorios/                   # PDFs gerados
 ```
 
-Os arquivos `ITENS_PROVA_<ano>.csv` têm uma única fonte versionada:
-`src/tri_enem/data/itens/<ano>/`. Eles são gerados por
-`tools/gerar_dados_itens.py`, que valida o esquema e grava
-`src/tri_enem/data/itens/manifest.json` com os hashes das fontes oficiais e dos
-arquivos normalizados. Eles são incluídos no wheel por `pyproject.toml` e
-carregados com `importlib.resources`.
-
-As decisões de implementação validadas contra os microdados ficam nos
-docstrings dos módulos correspondentes (`calculador.py`, `precisao.py`,
-`tradutor.py`). Documentação adicional em [docs/](docs/README.md).
-
-## Para Estudantes
-
-1. **Faça um simulado** com uma prova antiga
-2. **Anote suas 45 respostas** de cada área
-3. **Preencha `meu_simulado.py`** com ano, cor e respostas
-4. **Execute e analise** - foque nos erros de questões fáceis!
+Documentação técnica adicional sobre calibração, arquitetura e testes está em [`docs/`](docs/README.md).
 
 ## Contribuição
 
