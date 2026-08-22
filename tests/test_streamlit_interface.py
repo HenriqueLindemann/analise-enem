@@ -171,10 +171,14 @@ class TestFluxoCompleto:
         at = _app_com_respostas({a: e["respostas"] for a, e in caso_real.items()})
 
         at.selectbox[0].set_value(2023)          # Ano da prova
+        at.run()  # recarrega as cores disponíveis para o ano escolhido
         for area, e in caso_real.items():
             info = next(p for p in mapeador.listar_todas_provas(2023)
                         if p.codigo == int(e["co_prova"]))
-            at.session_state[f"cor_{area}"] = info.cor
+            # Via API do elemento: injeção direta em st.session_state não
+            # sobrevive ao rerun em todas as versões do Streamlit.
+            next(s for s in at.selectbox
+                 if s.key == f"cor_{area}").set_value(info.cor)
         lingua = "espanhol" if int(caso_real["LC"]["tp_lingua"]) == 1 else "ingles"
         next(s for s in at.selectbox
              if s.label == "Língua estrangeira").set_value(lingua)
@@ -213,7 +217,8 @@ class TestFluxoCompleto:
 
         at = _app_com_respostas({"MT": e["respostas"]})
         at.selectbox[0].set_value(ano)
-        at.session_state["cor_MT"] = info.cor
+        at.run()  # recarrega as cores de 2017 antes de selecionar
+        next(s for s in at.selectbox if s.key == "cor_MT").set_value(info.cor)
         at.run()
         next(b for b in at.button
              if "CALCULAR" in (b.label or "").upper()).click().run()

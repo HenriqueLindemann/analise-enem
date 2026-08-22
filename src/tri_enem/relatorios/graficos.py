@@ -229,7 +229,7 @@ def grafico_impacto_questoes(
         etiqueta.add(String(0, 0, str(questao.posicao), textAnchor="start",
                              fontName="Helvetica-Bold", fontSize=7.2,
                              fillColor=cor))
-        etiqueta.translate(x + bar_width / 2 + 1.5, rotulo_y)
+        etiqueta.translate(x + bar_width / 2 + 2.35, rotulo_y)
         etiqueta.rotate(90)
         drawing.add(etiqueta)
 
