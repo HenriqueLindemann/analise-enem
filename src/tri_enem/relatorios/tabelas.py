@@ -107,12 +107,12 @@ _NUMERO_ACERTO = ParagraphStyle(
 
 
 def _cabecalho_grupo(tipo: str) -> List:
-    impacto = "Ganho se<br/>acertasse" if tipo == "erros" else "Perda se<br/>errasse"
+    impacto = "Ganho se acertasse" if tipo == "erros" else "Perda se errasse"
     return [
         Paragraph("Questão", _CABECALHO),
-        Paragraph("Sua<br/>resposta", _CABECALHO),
+        Paragraph("Sua resposta", _CABECALHO),
         Paragraph("Gabarito", _CABECALHO),
-        Paragraph("Dificuldade<br/>(b)", _CABECALHO),
+        Paragraph("Dificuldade (b)", _CABECALHO),
         Paragraph(impacto, _CABECALHO),
     ]
 
@@ -291,14 +291,16 @@ def _tabela_erros_compacta(
 def _faixa_acertos(
     acertos: Sequence[QuestaoAnalise], largura: float,
 ) -> Table:
-    """Faixa secundária: somente os números, em ordem de posição."""
+    """Faixa secundária: maior contribuição primeiro."""
 
-    por_posicao = sorted(acertos, key=lambda q: q.posicao)
+    por_impacto = sorted(
+        acertos, key=lambda q: (-float(q.impacto), q.posicao)
+    )
     colunas = 10
     linhas = []
-    for inicio in range(0, len(por_posicao), colunas):
+    for inicio in range(0, len(por_impacto), colunas):
         linha = []
-        for questao in por_posicao[inicio:inicio + colunas]:
+        for questao in por_impacto[inicio:inicio + colunas]:
             impacto = formatar_numero(questao.impacto)
             linha.append(Paragraph(
                 f"{questao.posicao}<br/><font name='Helvetica' size='6.1' "

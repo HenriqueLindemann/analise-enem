@@ -25,6 +25,7 @@ from tri_enem.relatorios.graficos import (
     preparar_impacto,
 )
 from tri_enem.relatorios.tabelas import (
+    _faixa_acertos,
     preparar_diagnostico,
     tabela_diagnostico_questoes,
     tabela_resumo_areas,
@@ -126,6 +127,23 @@ def test_diagnostico_separa_validas_uma_unica_vez():
     assert set(posicoes) == set(range(1, 46)) - {2, 31}
     assert all(not q.acertou for q in preparado.erros)
     assert all(q.acertou for q in preparado.acertos)
+
+
+def test_grade_de_acertos_ordena_por_maior_impacto():
+    area = _criar_area_sintetica("MT", "Matemática", 0, total_itens=3)
+    area.questoes[0].impacto = 2.0
+    area.questoes[1].impacto = 9.0
+    area.questoes[2].impacto = 5.0
+
+    bloco = _faixa_acertos(area.questoes, Medidas.LARGURA_UTIL)
+    grade = bloco._cellvalues[1][0]
+    textos = [
+        celula.getPlainText()
+        for celula in grade._cellvalues[0]
+        if hasattr(celula, "getPlainText")
+    ]
+
+    assert [texto[0] for texto in textos] == ["2", "3", "1"]
 
 
 @pytest.mark.parametrize("erros", [0, 1, 22, 30, 35, 44, 45])

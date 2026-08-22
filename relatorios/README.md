@@ -23,7 +23,8 @@ O PDF contém:
   - Grade vetorial de acertos, erros e anuladas
   - Ranking de todas as questões válidas por impacto
   - Tabela única de erros com resposta, gabarito, dificuldade e ganho estimado
-  - Faixa compacta de acertos com questão e contribuição estimada em pontos
+  - Faixa compacta de acertos ordenada da maior para a menor contribuição
+    estimada em pontos
   - Parâmetro de dificuldade (`b`) dos itens que pedem revisão
 
 Relatórios com duas ou mais áreas usam uma página de visão geral e uma por
