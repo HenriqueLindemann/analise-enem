@@ -43,6 +43,7 @@ from streamlit_app.config import (
     AREAS_ENEM,
 )
 from tri_enem import MapeadorProvas, normalizar_posicoes_resultados
+from tri_enem.formatacao import formatar_numero
 from streamlit_app.calculador import get_calculador
 from streamlit_app.components.inputs import input_respostas, validar_todas_respostas
 from streamlit_app.components.resultados import exibir_resumo_geral, exibir_resultado_area
@@ -300,7 +301,8 @@ def _exibir_resultados_salvos(
             q_list = ", ".join(f"Q{q}" for q in sorted(questoes_anuladas))
             anuladas_txt = f" · {q_list} anulada" if len(questoes_anuladas) == 1 else f" · {q_list} anuladas"
         
-        with st.expander(f"**{nome}** — {nota:.1f} pts ({acertos}/{total} acertos{anuladas_txt})", expanded=False):
+        nota_texto = formatar_numero(nota)
+        with st.expander(f"**{nome}** — {nota_texto} pts ({acertos}/{total} acertos{anuladas_txt})", expanded=False):
             exibir_resultado_area(resultado)
     
     # Download do relatório PDF

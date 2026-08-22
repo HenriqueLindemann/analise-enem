@@ -3,6 +3,7 @@
 """Adapta resultados do motor para a estrutura dos relatórios."""
 
 from dataclasses import asdict, is_dataclass
+from datetime import datetime
 from typing import Any, Iterable, List, Mapping
 
 from ..config import NOMES_AREAS
@@ -23,10 +24,11 @@ def adaptar_resultados_para_relatorio(
     resultados: Iterable[Any],
     ano: int,
     *,
-    titulo: str = "Relatório de Simulado ENEM",
+    titulo: str = "Desempenho no Simulado ENEM",
     tipo_aplicacao: str = "",
     cor_prova: str = "",
     origem_geracao: str = "notatri.com",
+    data_geracao: datetime | None = None,
 ) -> DadosRelatorio:
     """Converte resultados resumidos ou detalhados em dados de relatório.
 
@@ -50,6 +52,7 @@ def adaptar_resultados_para_relatorio(
         ),
         cor_prova=str(cor_prova or "").capitalize(),
         origem_geracao=origem_geracao,
+        data_geracao=data_geracao or datetime.now().astimezone(),
         areas=[_adaptar_area(resultado, ano) for resultado in resultados_normalizados],
     )
 

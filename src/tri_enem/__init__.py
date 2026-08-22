@@ -34,7 +34,7 @@ from .coeficientes import (
 )
 from .tradutor import obter_config_lc, filtrar_itens_lc, ConfiguracaoLC
 from .mapeador_provas import MapeadorProvas, InfoProva
-from .precisao import formatar_resumo_validacao, verificar_precisao_prova
+from .precisao import formatar_aviso_curto, formatar_resumo_validacao, verificar_precisao_prova
 from .posicoes import normalizar_posicoes_resultados, posicao_caderno
 
 __all__ = [
@@ -58,6 +58,7 @@ __all__ = [
     # Verificação de precisão
     'verificar_precisao_prova',
     'formatar_resumo_validacao',
+    'formatar_aviso_curto',
     # Numeração de questões para exibição
     'normalizar_posicoes_resultados',
     'posicao_caderno',

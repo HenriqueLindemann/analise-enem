@@ -3,9 +3,35 @@
 """Utilitários de formatação para o relatório PDF."""
 
 
+import math
+
+from ..formatacao import formatar_numero
+
+
+_LINGUAS_APRESENTACAO = {
+    "ingles": "Inglês",
+    "inglês": "Inglês",
+    "english": "Inglês",
+    "espanhol": "Espanhol",
+    "spanish": "Espanhol",
+}
+
+
+def formatar_lingua(lingua: str | None) -> str:
+    """Converte o identificador interno de LC em texto para apresentação."""
+    if lingua is None:
+        return ""
+    texto = str(lingua).strip()
+    if not texto:
+        return ""
+    return _LINGUAS_APRESENTACAO.get(texto.casefold(), texto.capitalize())
+
+
 def formatar_dificuldade(param_b: float) -> str:
     """Formata o parâmetro b de dificuldade."""
-    if param_b < -1:
+    if param_b is None or math.isnan(param_b):
+        return "–"
+    elif param_b < -1:
         return f"{param_b:+.1f} (muito fácil)"
     elif param_b < 0:
         return f"{param_b:+.1f} (fácil)"

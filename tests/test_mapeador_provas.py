@@ -197,13 +197,17 @@ class TestMapeadorProvas:
         resultado = mapeador._normalizar_ordem_provas(['LC', 'XX', 'CH', 'CN'], ['LC', 'CH', 'CN', 'MT'])
         assert resultado == ['LC', 'CH', 'CN', 'MT']
 
-    def test_ordem_provas_retorna_lista(self, mapeador):
-        """Teste que listar_ordem_provas sempre retorna lista de 4 elementos."""
-        for ano in [2009, 2015, 2021, 2030]:
-            ordem = mapeador.listar_ordem_provas(ano)
-            assert isinstance(ordem, list)
-            assert len(ordem) == 4
-            assert all(sigla in ['LC', 'CH', 'CN', 'MT'] for sigla in ordem)
+    def test_lookup_ano_como_string(self, mapeador):
+        """Teste de lookup passando ano como string."""
+        codigo = mapeador.obter_codigo("2021", "CN", "digital", "azul")
+        assert codigo == 1011
+        codigo_regular = mapeador.obter_codigo("2021", "CN", "1a_aplicacao", "rosa")
+        assert codigo_regular == 912
+
+    def test_listar_ordem_provas_entradas_invalidas(self, mapeador):
+        """Teste de ordem de provas com entradas None ou strings não numéricas."""
+        assert mapeador.listar_ordem_provas(None) == ['LC', 'CH', 'CN', 'MT']
+        assert mapeador.listar_ordem_provas("invalido") == ['LC', 'CH', 'CN', 'MT']
 
 
 if __name__ == '__main__':

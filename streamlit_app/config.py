@@ -14,7 +14,7 @@ from typing import Dict, List
 #                         INFORMAÇÕES DO PROJETO
 # ============================================================================
 
-APP_VERSION = "18/08/2026"
+APP_VERSION = "22/08/2026"
 APP_AUTHOR = "Henrique Lindemann"
 APP_AUTHOR_URL = "https://www.linkedin.com/in/henriquelindemann/"
 APP_GITHUB_URL = "https://github.com/HenriqueLindemann/analise-enem"
@@ -120,7 +120,7 @@ verificada contra notas oficiais dos microdados do INEP.
 - Cada prova é conferida em holdout de participantes reais
 - A interface mostra erro médio e maior diferença observada
 
-[Consulte o relatório técnico completo, com métricas e erros por prova]({APP_VALIDATION_REPORT_URL})
+Consulte o [relatório técnico]({APP_VALIDATION_REPORT_URL}) completo, com métricas e erros por prova
 """
 
 TEXTO_FOOTER = f"""

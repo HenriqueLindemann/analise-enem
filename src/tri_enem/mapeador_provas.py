@@ -80,7 +80,7 @@ class MapeadorProvas:
             arquivo_mapeamento = Path(__file__).parent / 'mapeamento_provas.yaml'
         
         with open(arquivo_mapeamento, 'r', encoding='utf-8') as f:
-            self.dados = yaml.safe_load(f)
+            self.dados = yaml.safe_load(f) or {}
         
         self.metadata = self.dados.get('_metadata', {})
         self.aliases_tipo = self.metadata.get('aliases_tipo_aplicacao', {})
@@ -199,15 +199,14 @@ class MapeadorProvas:
 
         A ordem e definida em ordem_provas.yaml e pode usar intervalos de anos.
         """
-        # Garantir que ano seja int para comparação
-        try:
-            ano = int(ano)
-        except (ValueError, TypeError):
-            pass
-
         dados = self.ordem_provas or {}
         metadata = dados.get('_metadata', {})
         fallback = metadata.get('default', ['LC', 'CH', 'CN', 'MT'])
+
+        try:
+            ano_int = int(ano)
+        except (ValueError, TypeError):
+            return self._normalizar_ordem_provas(fallback, ['LC', 'CH', 'CN', 'MT'])
 
         for regra in dados.get('ordens', []):
             anos = regra.get('anos', {})
@@ -216,7 +215,7 @@ class MapeadorProvas:
             if ano_inicio is None or ano_fim is None:
                 continue
 
-            if ano_inicio <= int(ano) <= ano_fim:
+            if ano_inicio <= ano_int <= ano_fim:
                 return self._normalizar_ordem_provas(regra.get('ordem'), fallback)
 
         return self._normalizar_ordem_provas(fallback, ['LC', 'CH', 'CN', 'MT'])
@@ -274,7 +273,12 @@ class MapeadorProvas:
         cor_norm = self.normalizar_cor(cor)
         
         # Verificar se ano existe (pode estar como int ou str no YAML)
-        ano_key = ano if ano in self.dados else str(ano)
+        try:
+            ano_int = int(ano)
+            ano_key = ano_int if ano_int in self.dados else str(ano_int)
+        except (ValueError, TypeError):
+            ano_key = ano
+
         if ano_key not in self.dados:
             raise KeyError(
                 f"Ano {ano} não encontrado no mapeamento. "

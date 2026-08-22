@@ -21,97 +21,6 @@ PLACEHOLDERS = {
 }
 
 
-def input_configuracoes(mapeador) -> Tuple[int, str, str, Dict[str, str]]:
-    """
-    Renderiza os inputs de configuração (ano, tipo, língua, cores).
-    
-    Args:
-        mapeador: Instância do MapeadorProvas
-        
-    Returns:
-        Tupla (ano, tipo_aplicacao, lingua, cores_por_area)
-    """
-    anos = mapeador.listar_anos_disponiveis()
-    
-    # Ano
-    ano = st.selectbox(
-        "Ano da prova",
-        options=sorted(anos, reverse=True),
-        index=0,
-        help="Selecione o ano do ENEM"
-    )
-    
-    # Tipo de aplicação
-    tipos_possiveis = set()
-    for area in ['LC', 'CH', 'CN', 'MT']:
-        tipos = mapeador.listar_tipos_disponiveis(ano, area)
-        tipos_possiveis.update(tipos)
-    
-    tipos_formatados = {
-        '1a_aplicacao': '1ª Aplicação',
-        'digital': 'Digital',
-        'reaplicacao': 'Reaplicação',
-        'segunda_oportunidade': 'Segunda Oportunidade',
-    }
-    
-    tipos_ordenados = ['1a_aplicacao', 'digital', 'reaplicacao', 'segunda_oportunidade']
-    tipos_disponiveis = [t for t in tipos_ordenados if t in tipos_possiveis]
-    
-    tipo_aplicacao = st.selectbox(
-        "Tipo de aplicação",
-        options=tipos_disponiveis,
-        format_func=lambda x: tipos_formatados.get(x, x),
-        index=0,
-        help="Tipo de aplicação do exame"
-    )
-    
-    # Língua estrangeira
-    lingua = st.selectbox(
-        "Língua estrangeira",
-        options=['ingles', 'espanhol'],
-        format_func=lambda x: 'Inglês' if x == 'ingles' else 'Espanhol',
-        index=0,
-        help="Língua estrangeira para Linguagens"
-    )
-    
-    # Cores por área
-    with st.expander("Cores das provas", expanded=True):
-        st.caption("A cor da prova está na capa do caderno de questões.")
-        
-        # Ordem padrão das cores
-        ordem_cores = ['azul', 'amarela', 'rosa', 'cinza', 'branca', 'verde', 'laranja']
-        
-        cores_por_area = {}
-        areas_nomes = [
-            ('LC', 'Linguagens'),
-            ('CH', 'Humanas'),
-            ('CN', 'Natureza'),
-            ('MT', 'Matemática')
-        ]
-        
-        for sigla, nome in areas_nomes:
-            cores_disponiveis = mapeador.listar_cores_disponiveis(ano, sigla, tipo_aplicacao)
-            if cores_disponiveis:
-                # Ordenar cores de forma consistente
-                cores_ordenadas = sorted(
-                    cores_disponiveis,
-                    key=lambda c: ordem_cores.index(c) if c in ordem_cores else 99
-                )
-                cor = st.selectbox(
-                    nome,
-                    options=cores_ordenadas,
-                    format_func=lambda x: x.capitalize(),
-                    index=0,
-                    key=f"cor_{sigla}"
-                )
-                cores_por_area[sigla] = cor
-            else:
-                st.caption(f"{nome}: Não disponível")
-                cores_por_area[sigla] = None
-    
-    return ano, tipo_aplicacao, lingua, cores_por_area
-
-
 def input_respostas(ano: int, mapeador=None) -> Dict[str, str]:
     """
     Renderiza os inputs de respostas para cada área.
@@ -233,7 +142,7 @@ def _mostrar_contador(respostas: str, key: str):
         return
     
     # Validar caracteres
-    invalidos = [c for c in respostas if c not in 'ABCDE.']
+    invalidos = [c for c in respostas if c not in 'ABCDE.*']
     
     if invalidos:
         st.error(f"Caracteres inválidos: {set(invalidos)}")
@@ -283,7 +192,7 @@ def _formatar_char_html(c: str) -> str:
         return f'<span class="resp-char resp-char--empty">{safe}</span>'
     if c in "ABCDE":
         return f'<span class="resp-char">{safe}</span>'
-    if c == ".":
+    if c in ".*":
         return f'<span class="resp-char resp-char--dot">{safe}</span>'
     return f'<span class="resp-char resp-char--invalid">{safe}</span>'
 
@@ -304,7 +213,7 @@ def validar_todas_respostas(respostas: Dict[str, str]) -> Tuple[bool, List[str]]
         if len(resp) != TOTAL_RESPOSTAS:
             erros.append(f"{area}: Deve ter {TOTAL_RESPOSTAS} respostas (tem {len(resp)})")
         
-        invalidos = [c for c in resp if c not in 'ABCDE.']
+        invalidos = [c for c in resp if c not in 'ABCDE.*']
         if invalidos:
             erros.append(f"{area}: Caracteres inválidos: {set(invalidos)}")
     

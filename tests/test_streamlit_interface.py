@@ -173,22 +173,23 @@ class TestFluxoCompleto:
                      if r["sigla"] == "MT"][0]
         assert resultado["co_prova"] == co_prova
         resumo = resultado["resumo_validacao"]
-        assert "erro médio" in resumo
-        assert "maior diferença" in resumo
+        assert "Erro absoluto médio" in resumo
+        assert "Maior diferença" in resumo
         assert "MAE" not in resumo
         assert "p95" not in resumo
         assert "aviso_forte" not in resumo
         if tem_alerta:
             assert resultado["severidade_precisao"] == "alerta"
             assert any(
-                "variação relevante" in m.value.lower()
+                "confiabilidade" in m.value.lower()
+                and "limitada" in m.value.lower()
                 for m in at.markdown
             )
         else:
             assert "boa" in resultado["aviso_precisao"].lower()
             assert resultado["severidade_precisao"] == "sucesso"
             assert any(
-                "boa" in m.value.lower() and "calibração" in m.value.lower()
+                "alta confiabilidade" in m.value.lower()
                 for m in at.markdown
             )
 
@@ -321,28 +322,45 @@ class TestGraficos:
 class TestRelatorioPDF:
     """Geração do PDF, via src/tri_enem/relatorios/."""
 
-    @pytest.mark.parametrize(
-        ("severidade", "estilo"),
-        [
-            ("sucesso", "ValidacaoBoa"),
-            ("info", "ValidacaoMedia"),
-            ("atencao", "ValidacaoMedia"),
-            ("alerta", "ValidacaoBaixa"),
-            ("desconhecida", "ValidacaoBaixa"),
-        ],
-    )
-    def test_cor_da_validacao_reflete_a_severidade(self, severidade, estilo):
+    def test_horario_do_pdf_prioriza_fuso_do_navegador(self):
+        from datetime import datetime, timezone
+        from streamlit_app.components.impressao import (
+            _data_geracao_no_fuso_usuario,
+        )
+
+        agora_utc = datetime(2026, 8, 22, 16, 4, tzinfo=timezone.utc)
+        local = _data_geracao_no_fuso_usuario(
+            "Europe/Berlin", None, agora_utc
+        )
+        assert local.strftime("%d/%m/%Y às %H:%M") == "22/08/2026 às 18:04"
+
+    def test_horario_do_pdf_usa_offset_e_depois_brasilia(self):
+        from datetime import datetime, timezone
+        from streamlit_app.components.impressao import (
+            _data_geracao_no_fuso_usuario,
+        )
+
+        agora_utc = datetime(2026, 8, 22, 16, 4, tzinfo=timezone.utc)
+        por_offset = _data_geracao_no_fuso_usuario(None, -120, agora_utc)
+        fallback = _data_geracao_no_fuso_usuario(None, None, agora_utc)
+        assert por_offset.strftime("%H:%M") == "18:04"
+        assert fallback.strftime("%H:%M") == "13:04"
+
+    def test_download_comunica_o_valor_do_relatorio(self):
+        from streamlit_app.components.impressao import TEXTO_DOWNLOAD_PDF
+
+        assert "organizada" in TEXTO_DOWNLOAD_PDF
+        assert "acessível" in TEXTO_DOWNLOAD_PDF
+        assert "salvar, imprimir ou compartilhar" in TEXTO_DOWNLOAD_PDF
+
+    def test_estilos_minimalistas_de_calibracao_existem(self):
         from tri_enem.relatorios.estilos import Cores, criar_estilos
-        from tri_enem.relatorios.gerador import _estilo_validacao
 
         estilos = criar_estilos()
-        fundos = {
-            "ValidacaoBoa": Cores.ACERTO_CLARO,
-            "ValidacaoMedia": Cores.ATENCAO_CLARO,
-            "ValidacaoBaixa": Cores.ERRO_CLARO,
-        }
-        assert _estilo_validacao(severidade) == estilo
-        assert estilos[estilo].backColor == fundos[estilo]
+        assert "AvisoCalibracao" in estilos
+        assert "MetricasValidacao" in estilos
+        assert estilos["AvisoCalibracao"].textColor in {Cores.SECUNDARIA, Cores.TEXTO_ESCURO}
+        assert estilos["MetricasValidacao"].textColor == Cores.CINZA
 
     def test_pdf_e_gerado_e_valido(self, resultados_quatro_areas):
         from streamlit_app.components.impressao import _gerar_pdf
@@ -352,6 +370,27 @@ class TestRelatorioPDF:
         assert pdf.startswith(b"%PDF-"), "saída não é um PDF"
         assert pdf.rstrip().endswith(b"%%EOF"), "PDF truncado"
         assert len(pdf) > 10_000, f"PDF pequeno demais ({len(pdf)} bytes)"
+
+    def test_pdf_do_streamlit_exibe_horario_local_do_navegador(
+        self, resultados_quatro_areas, monkeypatch,
+    ):
+        from datetime import datetime, timedelta, timezone
+        from io import BytesIO
+        from pypdf import PdfReader
+        from streamlit_app.components import impressao
+
+        horario_navegador = datetime(
+            2026, 8, 22, 18, 4, tzinfo=timezone(timedelta(hours=2))
+        )
+        monkeypatch.setattr(
+            impressao, "_data_geracao_usuario", lambda: horario_navegador
+        )
+
+        pdf = impressao._gerar_pdf(
+            resultados_quatro_areas, 2023, "1a_aplicacao", "azul"
+        )
+        texto = PdfReader(BytesIO(pdf)).pages[0].extract_text() or ""
+        assert "Gerado em notatri.com em 22/08/2026 às 18:04" in texto
 
     def test_pdf_de_uma_unica_area(self, resultados_quatro_areas):
         from streamlit_app.components.impressao import _gerar_pdf
@@ -374,7 +413,7 @@ class TestAvisoAcuracia:
         [
             (
                 {"status_precisao": "ok", "severidade_precisao": "sucesso", "aviso_precisao": "x"},
-                "boa",
+                "alta confiabilidade",
                 "#15803D",
             ),
             (
@@ -383,7 +422,7 @@ class TestAvisoAcuracia:
                     "perfil_precisao": "calibracao_verificada",
                     "aviso_precisao": "x",
                 },
-                "boa",
+                "alta confiabilidade",
                 "#15803D",
             ),
             (
@@ -393,7 +432,7 @@ class TestAvisoAcuracia:
                     "severidade_precisao": "atencao",
                     "aviso_precisao": "x",
                 },
-                "moderada",
+                "confiável",
                 "#B45309",
             ),
             (
@@ -402,7 +441,7 @@ class TestAvisoAcuracia:
                     "severidade_precisao": "atencao",
                     "aviso_precisao": "x",
                 },
-                "ajuste médio",
+                "não verificada",
                 "#B45309",
             ),
             (
@@ -411,7 +450,7 @@ class TestAvisoAcuracia:
                     "severidade_precisao": "alerta",
                     "aviso_precisao": "x",
                 },
-                "não possui calibração",
+                "indisponível",
                 "#B91C1C",
             ),
             (
@@ -420,7 +459,7 @@ class TestAvisoAcuracia:
                     "severidade_precisao": "atencao",
                     "aviso_precisao": "x",
                 },
-                "não possui calibração verificada",
+                "ainda não verificada",
                 "#B45309",
             ),
             (
@@ -429,7 +468,7 @@ class TestAvisoAcuracia:
                     "severidade_precisao": "alerta",
                     "aviso_precisao": "x",
                 },
-                "ruim",
+                "limitada",
                 "#B91C1C",
             ),
             (
@@ -438,7 +477,7 @@ class TestAvisoAcuracia:
                     "severidade_precisao": "atencao",
                     "aviso_precisao": "x",
                 },
-                "estimada",
+                "maior variação",
                 "#B45309",
             ),
             (
@@ -446,7 +485,7 @@ class TestAvisoAcuracia:
                     "status_precisao": "desconhecido",
                     "aviso_precisao": "x",
                 },
-                "estimada",
+                "maior variação",
                 "#B45309",
             ),
         ],
@@ -456,7 +495,7 @@ class TestAvisoAcuracia:
 
         aviso_curto = formatar_aviso_curto(resultado_mock)
         assert aviso_curto
-        assert aviso_curto.startswith("Esta prova")
+        assert aviso_curto.startswith('<span style="color: var(--text-color);">')
         assert esperado_contem.lower() in aviso_curto.lower()
         assert cor_esperada.lower() in aviso_curto.lower()
         assert "font-weight: bold" in aviso_curto.lower()
@@ -487,6 +526,54 @@ class TestAvisoAcuracia:
         exibir_aviso_acuracia(resultado)
         assert len(markdown_calls) == 1
         msg, kwargs = markdown_calls[0]
-        assert "Esta prova" in msg
+        assert "Estimativa" in msg
         assert "#15803D" in msg
         assert kwargs.get("unsafe_allow_html") is True
+
+    def test_validacao_oficial_fica_dentro_dos_detalhes(self, monkeypatch):
+        import streamlit as st
+        from streamlit_app.components.resultados import exibir_aviso_acuracia
+
+        estado = {"no_expander": False}
+        legendas = []
+
+        class ExpanderFalso:
+            def __enter__(self):
+                estado["no_expander"] = True
+
+            def __exit__(self, *_):
+                estado["no_expander"] = False
+
+        class ColunaFalsa:
+            def metric(self, *_args, **_kwargs):
+                pass
+
+            def caption(self, texto):
+                legendas.append((texto, estado["no_expander"]))
+
+        def expander_falso(rotulo, *, expanded):
+            assert rotulo == "Mais detalhes sobre a precisão"
+            assert expanded is False
+            return ExpanderFalso()
+
+        monkeypatch.setattr(st, "markdown", lambda *_args, **_kwargs: None)
+        monkeypatch.setattr(st, "expander", expander_falso)
+        monkeypatch.setattr(st, "columns", lambda quantidade: [ColunaFalsa() for _ in range(quantidade)])
+        monkeypatch.setattr(
+            st,
+            "caption",
+            lambda texto: legendas.append((texto, estado["no_expander"])),
+        )
+
+        exibir_aviso_acuracia({
+            "status_precisao": "ok",
+            "severidade_precisao": "sucesso",
+            "aviso_precisao": "Estimativa verificada",
+            "n_validacao": 210,
+            "mae_validacao": 0.10,
+            "erro_p95": 0.43,
+            "erro_maximo": 0.91,
+        })
+
+        assert ("Validada em 210 resultados oficiais.", True) in legendas
+        assert all("participaram do ajuste" not in texto for texto, _ in legendas)

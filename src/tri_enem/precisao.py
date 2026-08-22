@@ -142,8 +142,9 @@ def _resultado_fechado(aviso: str | None = None) -> Dict[str, Any]:
 
 def formatar_resumo_validacao(
     precisao: Mapping[str, Any],
+    formato: str = "texto",
 ) -> str | None:
-    """Resume as métricas em linguagem curta, sem códigos internos."""
+    """Resume a evidência do holdout em linguagem direta e organizada."""
     n_validacao = precisao.get("n_validacao")
     if not n_validacao:
         return None
@@ -151,38 +152,119 @@ def formatar_resumo_validacao(
     def numero(valor: Any) -> str:
         return f"{float(valor):.2f}".replace(".", ",")
 
-    partes = [f"Validação: {int(n_validacao)} casos reais"]
+    def pontos(valor: Any) -> str:
+        unidade = "ponto" if abs(float(valor)) <= 1 else "pontos"
+        return f"{numero(valor)} {unidade}"
+
+    validacao = f"Validada em {int(n_validacao)} resultados oficiais."
+    metricas = []
     if precisao.get("mae") is not None:
-        partes.append(f"erro médio: {numero(precisao['mae'])}")
+        metricas.append(
+            f"Erro absoluto médio: {pontos(precisao['mae'])}"
+        )
     if precisao.get("erro_p95") is not None:
-        partes.append(
-            f"em 95% dos casos: até {numero(precisao['erro_p95'])}"
+        metricas.append(
+            f"95% das estimativas diferiram até {pontos(precisao['erro_p95'])}"
         )
     if precisao.get("erro_maximo") is not None:
-        partes.append(
-            f"maior diferença: {numero(precisao['erro_maximo'])}"
+        metricas.append(
+            f"Maior diferença observada: {pontos(precisao['erro_maximo'])}"
         )
+    if formato == "reportlab":
+        metricas_compactas = [f"{int(n_validacao)} resultados oficiais"]
+        if precisao.get("mae") is not None:
+            metricas_compactas.append(
+                f"erro absoluto médio: {pontos(precisao['mae'])}"
+            )
+        if precisao.get("erro_p95") is not None:
+            metricas_compactas.append(
+                f"95% das estimativas: diferença de até {pontos(precisao['erro_p95'])}"
+            )
+        if precisao.get("erro_maximo") is not None:
+            metricas_compactas.append(
+                f"maior diferença observada: {pontos(precisao['erro_maximo'])}"
+            )
+        return " · ".join(metricas_compactas)
+    if not metricas:
+        return validacao
+    return validacao + " · " + " · ".join(metricas)
 
-    n_excecoes = precisao.get("n_acima_2")
-    if n_excecoes is not None:
-        n_excecoes = int(n_excecoes)
-        if n_excecoes == 0:
-            partes.append("nenhuma exceção observada")
-        elif n_excecoes == 1:
-            partes.append("1 exceção")
-        else:
-            partes.append(f"{n_excecoes} exceções")
 
-    rotulos = {
-        PERFIL_CALIBRACAO_VERIFICADA: "boa calibração verificada",
-        PERFIL_BOA_COM_EXCECOES: "confiável na maioria",
-        PERFIL_ESTIMATIVA: "variação relevante",
-        PERFIL_SEM_VALIDACAO: "validação limitada",
-    }
-    perfil = precisao.get("perfil")
-    if perfil in rotulos:
-        partes.append(rotulos[perfil])
-    return " · ".join(partes)
+# Cores de calibração padrão (WCAG AA/AAA)
+COR_CALIBRACAO_BOA = "#15803D"        # Verde escuro
+COR_CALIBRACAO_MODERADA = "#B45309"   # Âmbar escuro
+COR_CALIBRACAO_RUIM = "#B91C1C"       # Vermelho escuro
+
+
+def formatar_aviso_curto(
+    precisao: Mapping[str, Any],
+    formato: str = "reportlab",
+) -> str:
+    """
+    Retorna uma conclusão curta sobre a confiabilidade da estimativa.
+
+    Formatos suportados:
+    - 'reportlab': <font color="..."><b>[X]</b></font> (para PDF)
+    - 'html': <span style="color: ...; font-weight: bold;">[X]</span> (para Streamlit)
+    - 'texto': [X] (sem tags)
+    """
+    if not precisao:
+        return ""
+
+    if (
+        not precisao.get("aviso")
+        and not precisao.get("severidade")
+        and not precisao.get("status")
+        and not precisao.get("status_precisao")
+    ):
+        return ""
+
+    status = precisao.get("status_precisao") or precisao.get("status")
+    perfil = precisao.get("perfil_precisao") or precisao.get("perfil")
+    severidade = precisao.get("severidade_precisao") or precisao.get("severidade")
+
+    def _destaque(termo: str, cor: str) -> str:
+        if formato == "reportlab":
+            return f'<font color="{cor}"><b>{termo}</b></font>'
+        elif formato == "html":
+            return f'<span style="color: {cor}; font-weight: bold;">{termo}</span>'
+        return termo
+
+    def _frase(conteudo: str) -> str:
+        if formato == "html":
+            return f'<span style="color: var(--text-color);">{conteudo}</span>'
+        return conteudo
+
+    if status == "ok" or perfil == PERFIL_CALIBRACAO_VERIFICADA or severidade == "sucesso":
+        x = _destaque("alta confiabilidade", COR_CALIBRACAO_BOA)
+        return _frase(f"Estimativa com {x} nesta prova.")
+
+    if perfil == PERFIL_BOA_COM_EXCECOES:
+        x = _destaque("confiável", COR_CALIBRACAO_MODERADA)
+        return _frase(f"Estimativa {x} na maioria dos casos desta prova.")
+
+    if status == "sem_participantes":
+        x = _destaque("não verificada", COR_CALIBRACAO_MODERADA)
+        return _frase(f"Confiabilidade {x} nesta prova (amostra oficial insuficiente).")
+
+    if status == "sem_itens":
+        x = _destaque("indisponível", COR_CALIBRACAO_RUIM)
+        return _frase(f"Estimativa {x} para esta prova (parâmetros ausentes nos dados públicos).")
+
+    if status == "nao_calibrado":
+        x = _destaque("ainda não verificada", COR_CALIBRACAO_MODERADA)
+        return _frase(f"Confiabilidade {x} nesta prova (amostra de validação insuficiente).")
+
+    if severidade == "alerta" or status == "erro_alto":
+        x = _destaque("limitada", COR_CALIBRACAO_RUIM)
+        return _frase(f"Estimativa com confiabilidade {x} nesta prova.")
+
+    if severidade == "atencao" or status in {"aviso_forte", "aviso_leve"}:
+        x = _destaque("maior variação", COR_CALIBRACAO_MODERADA)
+        return _frase(f"Estimativa sujeita a {x} nesta prova.")
+
+    x = _destaque("maior variação", COR_CALIBRACAO_MODERADA)
+    return _frase(f"Estimativa sujeita a {x} nesta prova.")
 
 
 @lru_cache(maxsize=8)

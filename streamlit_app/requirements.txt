@@ -25,4 +25,3 @@ watchdog>=3.0.0
 
 # Geração de relatórios PDF
 reportlab>=4.0.0
-matplotlib>=3.7.0

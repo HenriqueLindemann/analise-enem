@@ -140,11 +140,18 @@ Detalhes técnicos da API e da semântica das posições estão em
 
 ## Relatório PDF
 
-Defina `GERAR_PDF = True` em `meu_simulado.py` e um relatório será salvo em `relatorios/` com:
-- Notas de cada área
-- Erros ordenados por impacto
-- Parâmetros TRI de cada questão
-- **Mensagem de validação** positiva, intermediária ou de cautela por prova
+Defina `GERAR_PDF = True` em `meu_simulado.py` ou use o botão de download da
+interface web. O relatório A4 inclui:
+
+- visão geral das notas e orientações curtas de leitura;
+- uma página por área, com todas as questões válidas no gráfico de impacto;
+- erros detalhados e acertos em uma grade compacta com contribuição estimada;
+- precisão da estimativa apresentada em linguagem direta;
+- cor e sinais visuais redundantes para distinguir acertos, erros e anuladas.
+
+Gráficos, tabelas e textos são vetoriais e permanecem nítidos ao ampliar ou
+imprimir. Veja o [PDF de exemplo](relatorios/EXEMPLO_relatorio.pdf) e a
+[documentação do gerador](relatorios/README.md).
 
 ## Como Funciona
 

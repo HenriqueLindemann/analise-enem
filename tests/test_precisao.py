@@ -53,12 +53,47 @@ def test_resumo_para_usuario_e_curto_e_sem_codigos_internos():
     })
 
     assert resumo == (
-        "Validação: 300 casos reais · erro médio: 0,38 · "
-        "em 95% dos casos: até 1,82 · maior diferença: 6,51 · "
-        "6 exceções · confiável na maioria"
+        "Validada em 300 resultados oficiais. · "
+        "Erro absoluto médio: 0,38 ponto · "
+        "95% das estimativas diferiram até 1,82 pontos · "
+        "Maior diferença observada: 6,51 pontos"
     )
     assert "MAE" not in resumo
     assert "p95" not in resumo
+
+
+def test_resumo_para_pdf_cabe_em_uma_linha_e_mantem_as_metricas():
+    resumo = formatar_resumo_validacao({
+        "n_validacao": 300,
+        "mae": 0.38,
+        "erro_p95": 1.82,
+        "erro_maximo": 6.51,
+    }, formato="reportlab")
+
+    assert resumo == (
+        "300 resultados oficiais · "
+        "erro absoluto médio: 0,38 ponto · "
+        "95% das estimativas: diferença de até 1,82 pontos · "
+        "maior diferença observada: 6,51 pontos"
+    )
+    assert "<br" not in resumo
+
+
+def test_resumo_pdf_mais_longo_permanece_em_uma_linha_a4():
+    pytest.importorskip("reportlab")
+    from reportlab.pdfbase.pdfmetrics import stringWidth
+    from tri_enem.relatorios.estilos import Medidas
+
+    resumo = formatar_resumo_validacao({
+        "n_validacao": 210,
+        "mae": 38.09,
+        "erro_p95": 118.28,
+        "erro_maximo": 167.42,
+    }, formato="reportlab")
+
+    assert stringWidth(
+        resumo, "Helvetica-Oblique", 7.2
+    ) <= Medidas.LARGURA_UTIL
     assert "aviso_forte" not in resumo
 
 
@@ -253,3 +288,37 @@ class TestClassificacao:
                 "sem_itens",
             }, co_prova
             assert r["n_validacao"], co_prova
+
+
+class TestFormatarAvisoCurto:
+    """Testes para a função formatar_aviso_curto."""
+
+    def test_status_ok_reportlab(self):
+        from tri_enem.precisao import formatar_aviso_curto
+        res = formatar_aviso_curto({"status": "ok", "aviso": "qualquer", "severidade": "sucesso"}, formato="reportlab")
+        assert '<font color="#15803D"><b>alta confiabilidade</b></font>' in res
+
+    def test_status_ok_html(self):
+        from tri_enem.precisao import formatar_aviso_curto
+        res = formatar_aviso_curto({"status": "ok", "aviso": "qualquer", "severidade": "sucesso"}, formato="html")
+        assert '<span style="color: #15803D; font-weight: bold;">alta confiabilidade</span>' in res
+
+    def test_status_ok_texto(self):
+        from tri_enem.precisao import formatar_aviso_curto
+        res = formatar_aviso_curto({"status": "ok", "aviso": "qualquer", "severidade": "sucesso"}, formato="texto")
+        assert res == "Estimativa com alta confiabilidade nesta prova."
+
+    def test_boa_com_excecoes(self):
+        from tri_enem.precisao import formatar_aviso_curto
+        res = formatar_aviso_curto({"perfil": "boa_na_maioria_com_excecoes", "aviso": "qualquer", "severidade": "atencao"}, formato="texto")
+        assert "confiável na maioria dos casos" in res
+
+    def test_sem_itens(self):
+        from tri_enem.precisao import formatar_aviso_curto
+        res = formatar_aviso_curto({"status": "sem_itens", "aviso": "qualquer", "severidade": "alerta"}, formato="texto")
+        assert "indisponível" in res
+
+    def test_vazio(self):
+        from tri_enem.precisao import formatar_aviso_curto
+        assert formatar_aviso_curto({}) == ""
+        assert formatar_aviso_curto(None) == ""

@@ -62,3 +62,38 @@ def test_validador_reprova_relatorio_derivado_adulterado(tmp_path):
     falha = validar_relatorio_derivado(catalogo, MANIFESTO, adulterado)
 
     assert falha == "relatório derivado desatualizado"
+
+
+def test_validar_respostas_meu_simulado():
+    import meu_simulado
+
+    assert meu_simulado.validar_respostas(None, "LC") is True
+    assert meu_simulado.validar_respostas("", "LC") is True
+    assert meu_simulado.validar_respostas("." * 45, "LC") is True
+    assert meu_simulado.validar_respostas("ABCDE" * 9, "LC") is True
+    assert meu_simulado.validar_respostas("ABCD*" * 9, "LC") is True
+    assert meu_simulado.validar_respostas("ABCDE", "LC") is False  # Menor que 45
+    assert meu_simulado.validar_respostas("XYZ" * 15, "LC") is False  # Caracteres inválidos
+
+
+def test_validar_todas_respostas_streamlit():
+    pytest.importorskip("streamlit")
+    from streamlit_app.components.inputs import validar_todas_respostas
+
+    respostas_validas = {
+        "LC": "ABCDE" * 9,
+        "CH": "ABCD*" * 9,
+        "CN": "." * 45,
+        "MT": "",
+    }
+    valido, erros = validar_todas_respostas(respostas_validas)
+    assert valido is True
+    assert erros == []
+
+    respostas_invalidas = {
+        "LC": "ABCDE",  # tamanho incorreto
+        "CH": "ABCDE12345" + "A" * 35,  # caracteres inválidos
+    }
+    valido, erros = validar_todas_respostas(respostas_invalidas)
+    assert valido is False
+    assert len(erros) == 2

@@ -8,6 +8,7 @@ import streamlit as st
 from typing import Dict, List
 
 from tri_enem import MapeadorProvas, normalizar_posicoes_resultados
+from tri_enem.formatacao import formatar_numero
 
 from .graficos import (
     grafico_notas_barras, 
@@ -52,15 +53,15 @@ def exibir_resumo_geral(resultados: List[Dict]):
         with cols[i]:
             st.metric(
                 label=f"{r['sigla']}",
-                value=f"{r['nota']:.1f}",
+                value=formatar_numero(r['nota']),
                 delta=f"{r['acertos']}/{r['total_itens']} acertos",
                 delta_color="off"
             )
     
     with cols[-1]:
         st.metric(
-            label="MÉDIA",
-            value=f"{media:.1f}",
+            label="MÉDIA GERAL SIMPLES",
+            value=formatar_numero(media),
             delta=f"{total_acertos}/{total_questoes} total",
             delta_color="off"
         )
@@ -140,14 +141,17 @@ def exibir_resultado_area(resultado: Dict):
         )
     
     with col_pizza:
+        total_validos = max(0, resultado.get('total_itens', 0))
+        acertos_validos = max(0, resultado.get('acertos', 0))
+        erros_validos = max(0, total_validos - acertos_validos)
         st.plotly_chart(
-            grafico_pizza_acertos(resultado['acertos'], resultado['total_itens'] - resultado['acertos']),
+            grafico_pizza_acertos(acertos_validos, erros_validos),
             key=f"pizza_{sigla}",
             config={'displayModeBar': False}
         )
-        taxa_pct = (resultado['acertos'] / resultado['total_itens'] * 100) if resultado['total_itens'] > 0 else 0
+        taxa_pct = (acertos_validos / total_validos * 100) if total_validos > 0 else 0
         st.markdown(
-            f'<div class="taxa-pizza">Taxa: {taxa_pct:.0f}%</div>',
+            f'<div class="taxa-pizza">Taxa: {formatar_numero(taxa_pct, 0)}%</div>',
             unsafe_allow_html=True,
         )
     
@@ -191,8 +195,8 @@ def _exibir_tabela_erros(questoes: List[Dict]):
             'Q': q['posicao'],
             'Resp': q['resposta_dada'],
             'Gab': q['gabarito'],
-            'b': f"{q.get('param_b', 0):.2f}",
-            'Ganho': f"+{q.get('ganho_se_acertasse', 0):.1f}",
+            'b': formatar_numero(q.get('param_b', 0), 2, sinal=True),
+            'Ganho': formatar_numero(q.get('ganho_se_acertasse', 0), sinal=True),
         })
     
     df = pd.DataFrame(dados)
@@ -227,8 +231,8 @@ def _exibir_tabela_acertos(questoes: List[Dict]):
             'Q': q['posicao'],
             'Resp': q['resposta_dada'],
             'Gab': q['gabarito'],
-            'b': f"{q.get('param_b', 0):.2f}",
-            'Perda': f"-{q.get('perda_se_errasse', 0):.1f}",
+            'b': formatar_numero(q.get('param_b', 0), 2, sinal=True),
+            'Perda': f"-{formatar_numero(q.get('perda_se_errasse', 0))}",
         })
     
     df = pd.DataFrame(dados)
@@ -254,56 +258,22 @@ def _exibir_tabela_acertos(questoes: List[Dict]):
 
 
 # Cores legíveis de alto contraste para calibração em tema claro (WCAG AA/AAA)
-COR_CALIBRACAO_BOA = "#15803D"        # Verde escuro (boa calibração)
-COR_CALIBRACAO_MODERADA = "#B45309"   # Amarelo/Âmbar escuro legível (calibração moderada/estimada)
-COR_CALIBRACAO_RUIM = "#B91C1C"       # Vermelho escuro (calibração ruim/indisponível)
+from tri_enem.precisao import (
+    COR_CALIBRACAO_BOA,
+    COR_CALIBRACAO_MODERADA,
+    COR_CALIBRACAO_RUIM,
+    formatar_aviso_curto as _formatar_aviso_curto_tri,
+)
 
 
 def formatar_aviso_curto(resultado: Dict) -> str:
     """
-    Retorna uma frase no formato 'Esta prova tem uma calibração [X] (detalhes)'.
-    O termo [X] é formatado em negrito com cores legíveis de alto contraste:
-      - Verde (#15803D): boa
-      - Amarelo/Âmbar (#B45309): moderada / por ajuste médio / não verificada / estimada
-      - Vermelho (#B91C1C): ruim / indisponível
+    Retorna a mensagem breve de confiabilidade usada também no PDF.
+
+    Somente o estado da estimativa recebe cor e negrito; o restante permanece
+    neutro para preservar a hierarquia visual e a acessibilidade.
     """
-    if not resultado.get('aviso_precisao') and not resultado.get('severidade_precisao'):
-        return ""
-
-    status = resultado.get('status_precisao')
-    perfil = resultado.get('perfil_precisao')
-    severidade = resultado.get('severidade_precisao')
-
-    if status == 'ok' or perfil == 'calibracao_verificada' or severidade == 'sucesso':
-        x = f'<span style="color: {COR_CALIBRACAO_BOA}; font-weight: bold;">boa</span>'
-        return f"Esta prova tem uma calibração {x} (estimativa verificada em dados oficiais)."
-
-    if perfil == 'boa_na_maioria_com_excecoes':
-        x = f'<span style="color: {COR_CALIBRACAO_MODERADA}; font-weight: bold;">moderada</span>'
-        return f"Esta prova tem uma calibração {x} (confiável na maioria dos casos)."
-
-    if status == 'sem_participantes':
-        x = f'<span style="color: {COR_CALIBRACAO_MODERADA}; font-weight: bold;">por ajuste médio</span>'
-        return f"Esta prova tem uma calibração {x} (participantes insuficientes nos microdados)."
-
-    if status == 'sem_itens':
-        x = f'<span style="color: {COR_CALIBRACAO_RUIM}; font-weight: bold;">não possui calibração</span>'
-        return f"Esta prova {x} (parâmetros dos itens ausentes nos dados públicos)."
-
-    if status == 'nao_calibrado':
-        x = f'<span style="color: {COR_CALIBRACAO_MODERADA}; font-weight: bold;">não possui calibração verificada</span>'
-        return f"Esta prova {x} (amostra insuficiente para validação)."
-
-    if severidade == 'alerta' or status == 'erro_alto':
-        x = f'<span style="color: {COR_CALIBRACAO_RUIM}; font-weight: bold;">ruim</span>'
-        return f"Esta prova tem uma calibração {x} (estimativa com variação relevante)."
-
-    if severidade == 'atencao' or status in {'aviso_forte', 'aviso_leve'}:
-        x = f'<span style="color: {COR_CALIBRACAO_MODERADA}; font-weight: bold;">estimada</span>'
-        return f"Esta prova tem uma calibração {x} (sujeita a variações)."
-
-    x = f'<span style="color: {COR_CALIBRACAO_MODERADA}; font-weight: bold;">estimada</span>'
-    return f"Esta prova tem uma calibração {x}."
+    return _formatar_aviso_curto_tri(resultado, formato="html")
 
 
 def exibir_aviso_acuracia(resultado: Dict):
@@ -327,28 +297,29 @@ def exibir_aviso_acuracia(resultado: Dict):
     co_prova = resultado.get('co_prova')
     aviso = resultado.get('aviso_precisao')
 
-    with st.expander("Mais detalhes da calibração", expanded=False):
+    with st.expander("Mais detalhes sobre a precisão", expanded=False):
         if n_validacao:
+            st.caption(f"Validada em {n_validacao} resultados oficiais.")
             c1, c2, c3, c4 = st.columns(4)
-            c1.metric("Casos Reais", f"{n_validacao}")
-            c1.caption("participantes avaliados")
+            c1.metric("Resultados oficiais", f"{n_validacao}")
+            c1.caption("usados na validação")
 
-            mae_str = f"{mae:.2f} pts".replace('.', ',') if mae is not None else "—"
-            c2.metric("Erro Médio", mae_str)
+            mae_str = f"{formatar_numero(mae, 2)} pts" if mae is not None else "—"
+            c2.metric("Erro absoluto médio", mae_str)
             c2.caption("diferença média para nota oficial")
 
-            p95_str = f"até {erro_p95:.2f} pts".replace('.', ',') if erro_p95 is not None else "—"
-            c3.metric("95% dos Casos", p95_str)
-            c3.caption("erro da grande maioria")
+            p95_str = f"até {formatar_numero(erro_p95, 2)} pts" if erro_p95 is not None else "—"
+            c3.metric("95% das estimativas", p95_str)
+            c3.caption("diferença para a nota oficial")
 
-            max_str = f"{erro_maximo:.2f} pts".replace('.', ',') if erro_maximo is not None else "—"
-            c4.metric("Maior Erro", max_str)
-            c4.caption("pior caso observado")
+            max_str = f"{formatar_numero(erro_maximo, 2)} pts" if erro_maximo is not None else "—"
+            c4.metric("Maior diferença", max_str)
+            c4.caption("maior valor observado")
 
             info_items = []
             if percentual_ate_2 is not None:
                 casos_ok = n_validacao - (n_acima_2 or 0)
-                pct_str = f"{percentual_ate_2:.1f}%".replace('.', ',')
+                pct_str = f"{formatar_numero(percentual_ate_2)}%"
                 info_items.append(f"**{pct_str} dos casos** com erro ≤ 2,0 pts ({casos_ok}/{n_validacao})")
             if co_prova:
                 info_items.append(f"Prova {co_prova}")

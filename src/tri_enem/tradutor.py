@@ -219,7 +219,7 @@ def filtrar_respostas_lc(respostas_str: str, tp_lingua: int, config: Configuraca
                     "'99999' nas posições do idioma não escolhido"
                 )
             return respostas_str[:5] + respostas_str[10:]
-        else:
+        elif tp_lingua == 1:
             # Espanhol: pos 5-49 (espanhol + comuns)
             # Pula pos 0-4 que é inglês (99999)
             if respostas_str[:5] != "99999":
@@ -228,6 +228,11 @@ def filtrar_respostas_lc(respostas_str: str, tp_lingua: int, config: Configuraca
                     "'99999' nas posições do idioma não escolhido"
                 )
             return respostas_str[5:50]
+        else:
+            raise ValueError(
+                f"tp_lingua inválido para resposta LC de 50 caracteres: {tp_lingua}. "
+                "Use 0 (inglês) ou 1 (espanhol)."
+            )
     
     # Formato desconhecido: o chamador valida o comprimento e apresenta erro.
     return respostas_str

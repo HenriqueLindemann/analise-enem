@@ -43,11 +43,21 @@ class AreaAnalise:
     
     @property
     def erros(self) -> int:
-        return self.total_itens - self.acertos
+        if self.questoes:
+            return len(self.questoes_erradas)
+        return max(0, self.total_itens - self.acertos)
+
+    @property
+    def total_itens_validos(self) -> int:
+        """Total usado em percentuais, sempre sem questões anuladas."""
+        if self.questoes:
+            return sum(1 for q in self.questoes if not q.anulada)
+        return max(0, self.total_itens)
     
     @property
     def percentual_acertos(self) -> float:
-        return (self.acertos / self.total_itens * 100) if self.total_itens > 0 else 0
+        total = self.total_itens_validos
+        return (self.acertos / total * 100) if total > 0 else 0
     
     @property
     def questoes_acertadas(self) -> List[QuestaoAnalise]:
@@ -78,7 +88,7 @@ class AreaAnalise:
 @dataclass
 class DadosRelatorio:
     """Dados completos para geração do relatório."""
-    titulo: str = "Relatório de Simulado ENEM"
+    titulo: str = "Desempenho no Simulado ENEM"
     subtitulo: str = ""
     data_geracao: datetime = field(default_factory=datetime.now)
     ano_prova: int = 2024
@@ -100,7 +110,7 @@ class DadosRelatorio:
     
     @property
     def total_questoes(self) -> int:
-        return sum(a.total_itens for a in self.areas)
+        return sum(a.total_itens_validos for a in self.areas)
     
     def get_area(self, sigla: str) -> Optional[AreaAnalise]:
         for area in self.areas:

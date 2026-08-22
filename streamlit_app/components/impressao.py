@@ -11,6 +11,46 @@ import tempfile
 import os
 import sys
 import hashlib
+from datetime import datetime, timedelta, timezone
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
+
+
+TEXTO_DOWNLOAD_PDF = (
+    "Baixe uma versão acessível e organizada dos resultados para salvar, "
+    "imprimir ou compartilhar."
+)
+
+TZ_BRASILIA = timezone(timedelta(hours=-3))
+
+
+def _data_geracao_no_fuso_usuario(
+    nome_fuso: str | None,
+    deslocamento_minutos: int | None,
+    agora_utc: datetime | None = None,
+) -> datetime:
+    """Retorna o horário do navegador; usa Brasília quando ele não o informa."""
+
+    agora_utc = agora_utc or datetime.now(timezone.utc)
+    if nome_fuso:
+        try:
+            return agora_utc.astimezone(ZoneInfo(nome_fuso))
+        except (ZoneInfoNotFoundError, ValueError):
+            pass
+    if deslocamento_minutos is not None:
+        try:
+            fuso = timezone(-timedelta(minutes=int(deslocamento_minutos)))
+            return agora_utc.astimezone(fuso)
+        except (OverflowError, TypeError, ValueError):
+            pass
+    return agora_utc.astimezone(TZ_BRASILIA)
+
+
+def _data_geracao_usuario() -> datetime:
+    contexto = getattr(st, "context", None)
+    return _data_geracao_no_fuso_usuario(
+        getattr(contexto, "timezone", None),
+        getattr(contexto, "timezone_offset", None),
+    )
 
 # Adicionar path do src para imports
 _src_path = Path(__file__).parent.parent.parent / 'src'
@@ -20,6 +60,8 @@ if str(_src_path) not in sys.path:
 
 def _gerar_pdf(resultados: List[Dict], ano: int, tipo_aplicacao: str, cor_prova: str) -> Optional[bytes]:
     """Gera o PDF e retorna bytes."""
+    if not resultados:
+        return None
     try:
         from tri_enem.relatorios import (
             RelatorioPDF,
@@ -30,9 +72,10 @@ def _gerar_pdf(resultados: List[Dict], ano: int, tipo_aplicacao: str, cor_prova:
     dados = adaptar_resultados_para_relatorio(
         resultados,
         ano,
-        titulo="Simulado - Calculadora Nota TRI ENEM",
+        titulo="Desempenho no Simulado ENEM",
         tipo_aplicacao=tipo_aplicacao,
         cor_prova=cor_prova,
+        data_geracao=_data_geracao_usuario(),
     )
     
     # Gerar PDF. Exceções são propagadas para que a interface mostre a causa.
@@ -59,7 +102,7 @@ def exibir_download_pdf(resultados: List[Dict], ano: int, tipo_aplicacao: str = 
     Usa session_state para manter o PDF gerado entre reruns.
     """
     st.markdown("### Relatório PDF")
-    st.caption("Relatório completo com gráficos, tabelas e análise de cada questão")
+    st.caption(TEXTO_DOWNLOAD_PDF)
     
     # Obter cor predominante
     cor_prova = ""

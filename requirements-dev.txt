@@ -9,6 +9,7 @@
 
 # Testes
 pytest>=7.0.0
+pypdf>=4.0.0
 
 # Empacotamento (pip install -e .)
 setuptools>=64

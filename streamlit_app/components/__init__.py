@@ -12,7 +12,7 @@ Módulos disponíveis:
 - seo: Otimização para mecanismos de busca
 """
 
-from .inputs import input_respostas, input_configuracoes, validar_todas_respostas
+from .inputs import input_respostas, validar_todas_respostas
 from .resultados import exibir_resumo_geral, exibir_resultado_area
 from .impressao import exibir_download_pdf
 from .graficos import (
@@ -25,7 +25,6 @@ from .graficos import (
 __all__ = [
     # Inputs
     'input_respostas',
-    'input_configuracoes',
     'validar_todas_respostas',
     # Resultados
     'exibir_resumo_geral',

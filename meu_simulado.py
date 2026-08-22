@@ -52,7 +52,7 @@ RESPOSTAS_MT = 'DCCAEBABDDCABEACCBCCEEADDCEACDEAADCABBDBDEDCE'
 # OPÇÕES DE RELATÓRIO
 GERAR_PDF = True
 NOME_PDF = None  # None = nome automático
-TITULO_RELATORIO = 'Simulador nota ENEM'
+TITULO_RELATORIO = 'Desempenho no Simulado ENEM'
 
 # ============================================================================
 #                    NÃO MODIFIQUE ABAIXO DESTA LINHA
@@ -65,10 +65,13 @@ from datetime import datetime
 sys.path.insert(0, str(Path(__file__).parent / 'src'))
 from tri_enem import CalculadorTRI, MapeadorProvas
 from tri_enem.config import NOMES_AREAS
+from tri_enem.formatacao import formatar_numero
 from tri_enem.posicoes import normalizar_posicoes_resultados
 
 
 def validar_respostas(respostas, nome):
+    if not respostas or respostas == "." * 45:
+        return True
     if len(respostas) != 45:
         print(f"ERRO: {nome} deve ter 45 respostas, tem {len(respostas)}")
         return False
@@ -80,7 +83,7 @@ def validar_respostas(respostas, nome):
 
 
 def calcular_e_analisar(calc, area, ano, respostas, lingua=None, co_prova=None, cor_prova=None, tipo_aplicacao='1a_aplicacao'):
-    if respostas == "." * 45:
+    if not respostas or respostas == "." * 45:
         return None
     try:
         # Resolver código se foi fornecida cor
@@ -164,7 +167,8 @@ def gerar_relatorio_pdf(resultados, ano, titulo, nome_arquivo=None, tipo_aplicac
     )
     
     if not nome_arquivo:
-        nome_arquivo = f"relatorios/resultado_enem_{ano}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+        raiz = Path(__file__).parent
+        nome_arquivo = str(raiz / "relatorios" / f"resultado_enem_{ano}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf")
     
     try:
         relatorio = RelatorioPDF()
@@ -204,7 +208,7 @@ def main():
     ]
     
     for sigla, nome, resp, cor in areas:
-        if resp != "." * 45 and not validar_respostas(resp, nome):
+        if not validar_respostas(resp, nome):
             return
     
     print(f"\nAplicação: {TIPO_APLICACAO}")
@@ -220,7 +224,7 @@ def main():
     avisos = []
     
     for sigla, nome, resp, cor in areas:
-        if resp == "." * 45:
+        if not resp or resp == "." * 45:
             print(f"{nome:.<35} NÃO PREENCHIDO")
             continue
         
@@ -231,8 +235,9 @@ def main():
         if res:
             resultados.append(res)
             notas[sigla] = res['nota']
+            nota_texto = formatar_numero(res['nota'])
             print(
-                f"{nome:.<35} {res['nota']:>6.1f} pts "
+                f"{nome:.<35} {nota_texto:>6} pts "
                 f"({formatar_contagem_resultado(res)})"
             )
             if res.get("resumo_validacao"):
@@ -242,7 +247,8 @@ def main():
     
     if notas:
         print("-" * 60)
-        print(f"{'MÉDIA':.<35} {sum(notas.values())/len(notas):>6.1f} pts")
+        media_texto = formatar_numero(sum(notas.values()) / len(notas))
+        print(f"{'MÉDIA':.<35} {media_texto:>6} pts")
     
     # Mostrar mensagens de validação, inclusive a confirmação positiva das
     # provas com boa calibração.

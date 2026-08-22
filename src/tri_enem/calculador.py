@@ -594,6 +594,18 @@ class CalculadorTRI:
         erros = []
         anuladas = []
 
+        itens_validos_indices = [idx for idx, item in enumerate(itens) if not item.abandonado]
+        if itens_validos_indices:
+            matriz_mod = []
+            for idx in itens_validos_indices:
+                mod = list(respostas_bin)
+                mod[idx] = 1 - mod[idx]
+                matriz_mod.append(mod)
+            thetas_mod = self.estimar_theta_eap_batch(matriz_mod, itens)
+            mapa_thetas_mod = dict(zip(itens_validos_indices, thetas_mod))
+        else:
+            mapa_thetas_mod = {}
+
         for idx, (resp, item) in enumerate(zip(respostas_bin, itens)):
             resposta_dada = respostas_norm[idx] if idx < len(respostas_norm) else '?'
 
@@ -615,10 +627,8 @@ class CalculadorTRI:
                 anuladas.append(questao_anulada)
                 continue
 
-            # Simular o cenário oposto
-            respostas_mod = respostas_bin.copy()
-            respostas_mod[idx] = 1 - resp  # Inverter acerto/erro
-            theta_mod = self.estimar_theta_eap(respostas_mod, itens)
+            # Simular o cenário oposto (obtido via batch vetorizado)
+            theta_mod = float(mapa_thetas_mod[idx])
             nota_mod = self.transformar_escala(theta_mod, ano, area, co_prova)
             
             questao = {

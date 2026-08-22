@@ -8,6 +8,8 @@ import plotly.graph_objects as go
 from typing import List, Dict
 import numpy as np
 
+from tri_enem.formatacao import formatar_numero
+
 
 # Cores consistentes - Paleta minimalista
 COR_ACERTO = '#27AE60'        # Verde esmeralda
@@ -60,10 +62,11 @@ def grafico_notas_barras(resultados: List[Dict]) -> go.Figure:
         x=notas,
         orientation='h',
         marker_color=cores,
-        text=[f"{n:.1f} pts ({a})" for n, a in zip(notas, acertos)],
+        text=[f"{formatar_numero(n)} pts ({a})" for n, a in zip(notas, acertos)],
+        customdata=[formatar_numero(n) for n in notas],
         textposition='outside',
         textfont=dict(size=12, color='#2C3E50'),
-        hovertemplate="<b>%{y}</b><br>Nota: %{x:.1f} pontos<extra></extra>"
+        hovertemplate="<b>%{y}</b><br>Nota: %{customdata} pontos<extra></extra>"
     ))
     
     # Linhas de referência
@@ -74,7 +77,7 @@ def grafico_notas_barras(resultados: List[Dict]) -> go.Figure:
     media = sum(notas) / len(notas)
     fig.add_vline(x=media, line_dash="solid", line_color=COR_SECUNDARIA, 
                   line_width=2, opacity=0.8,
-                  annotation_text=f"Média: {media:.1f}",
+                  annotation_text=f"Média: {formatar_numero(media)}",
                   annotation_position="top")
     
     fig.update_layout(
@@ -136,9 +139,15 @@ def grafico_impacto(questoes: List[Dict], titulo: str = "") -> go.Figure:
     for q in questoes_ord:
         status = "Acerto" if q['acertou'] else "Erro"
         if q['acertou']:
-            hover_texts.append(f"Q{q['posicao']} ({status})<br>Perda se errasse: {q['impacto']:.1f} pts")
+            hover_texts.append(
+                f"Q{q['posicao']} ({status})<br>Perda se errasse: "
+                f"{formatar_numero(q['impacto'])} pts"
+            )
         else:
-            hover_texts.append(f"Q{q['posicao']} ({status})<br>Ganho se acertasse: {q['impacto']:.1f} pts")
+            hover_texts.append(
+                f"Q{q['posicao']} ({status})<br>Ganho se acertasse: "
+                f"{formatar_numero(q['impacto'])} pts"
+            )
     
     fig = go.Figure()
     

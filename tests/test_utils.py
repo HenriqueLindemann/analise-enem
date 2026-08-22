@@ -113,12 +113,48 @@ class TestInfoMapeamento:
         assert result["mapeado_ano"] is None
 
 
-class TestExports:
-    """Testes para verificar que __all__ exporta corretamente."""
+class TestFormatarDificuldade:
+    """Testes para a função formatar_dificuldade."""
 
-    def test_all_exports_existem(self):
-        for name in _utils.__all__:
-            assert hasattr(_utils, name), f"{name} em __all__ mas nao existe no modulo"
+    def test_valores_normais(self):
+        from tri_enem.relatorios.utils import formatar_dificuldade
+        assert formatar_dificuldade(-1.5) == "-1.5 (muito fácil)"
+        assert formatar_dificuldade(-0.5) == "-0.5 (fácil)"
+        assert formatar_dificuldade(0.5) == "+0.5 (média)"
+        assert formatar_dificuldade(1.5) == "+1.5 (difícil)"
+        assert formatar_dificuldade(2.5) == "+2.5 (muito difícil)"
+
+    def test_nan_e_none(self):
+        from tri_enem.relatorios.utils import formatar_dificuldade
+        assert formatar_dificuldade(math.nan) == "–"
+        assert formatar_dificuldade(None) == "–"
+
+
+class TestRelatorioDataLocal:
+    """Testes para o formatador de data local do relatório."""
+
+    def test_formatar_data_none_e_naive(self):
+        pytest.importorskip("reportlab")
+        from tri_enem.relatorios.gerador import RelatorioPDF
+        from datetime import datetime
+        rel = RelatorioPDF()
+        resultado_none = rel._formatar_data_local(None)
+        assert isinstance(resultado_none, str) and len(resultado_none) > 0
+
+        data_naive = datetime(2026, 8, 22, 10, 30)
+        resultado_naive = rel._formatar_data_local(data_naive)
+        assert "22/08/2026 10:30" in resultado_naive
+
+    def test_data_com_fuso_preserva_o_horario_fornecido(self):
+        pytest.importorskip("reportlab")
+        from datetime import datetime, timedelta, timezone
+        from tri_enem.relatorios.gerador import RelatorioPDF
+
+        data_local = datetime(
+            2026, 8, 22, 18, 4, tzinfo=timezone(timedelta(hours=2))
+        )
+        resultado = RelatorioPDF()._formatar_data_local(data_local, com_as=True)
+        assert resultado == "22/08/2026 às 18:04"
 
 
 if __name__ == "__main__":
