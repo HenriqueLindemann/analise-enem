@@ -115,6 +115,16 @@ def test_impacto_mostra_todas_as_questoes_validas_na_ordem():
     grafico = grafico_impacto_questoes(area.questoes)
     assert grafico.hAlign == "CENTER"
     assert grafico._margens_plot[0] == grafico._margens_plot[1]
+    rotulos_etiquetas = [
+        item.contents[0].text
+        for item in grafico.contents
+        if hasattr(item, "contents") and item.contents and hasattr(item.contents[0], "text")
+    ]
+    assert any(r.endswith("*") for r in rotulos_etiquetas)
+    textos_grafico = [
+        item.text for item in grafico.contents if hasattr(item, "text")
+    ]
+    assert "Erro (*)" in textos_grafico
 
 
 def test_diagnostico_separa_validas_uma_unica_vez():

@@ -265,7 +265,8 @@ class TestFluxoCompleto:
         )
         at = _app_com_respostas({"MT": "A" * 45})
         at.selectbox[0].set_value(2023)
-        at.session_state["cor_MT"] = info.cor
+        at.run()
+        next(s for s in at.selectbox if s.key == "cor_MT").set_value(info.cor)
         at.run()
         next(
             b for b in at.button
