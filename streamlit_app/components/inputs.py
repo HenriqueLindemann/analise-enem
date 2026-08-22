@@ -5,7 +5,10 @@ Componentes de entrada de dados para o Streamlit.
 """
 
 import streamlit as st
-from st_keyup import st_keyup
+try:
+    from st_keyup import st_keyup
+except ImportError:  # O campo nativo mantém o app funcional sem o extra.
+    st_keyup = None
 from typing import Dict, List, Tuple
 import html
 from ..config import AREAS_ENEM, ORDEM_AREAS
@@ -119,17 +122,34 @@ def _render_input_prova(respostas: Dict[str, str], area: str, ordem_idx: int) ->
     key = f"resp_{area.lower()}"
     valor_atual = st.session_state.get(key, '')
     
-    valor_digitado = st_keyup(
-        label,
-        value=valor_atual,
-        max_chars=TOTAL_RESPOSTAS,
-        key=key,
-        debounce=100
-    )
+    valor_digitado = _campo_respostas(label, valor_atual, key)
     respostas[area] = (valor_digitado or '').upper()
 
     _render_visualizacao_respostas(respostas.get(area, ''), area.lower(), offset_start=inicio)
     _mostrar_contador(respostas.get(area, ''), area.lower())
+
+
+def _campo_respostas(label: str, valor_atual: str, key: str) -> str:
+    """Usa digitação em tempo real e recua para o campo nativo se necessário."""
+
+    if st_keyup is not None:
+        try:
+            return st_keyup(
+                label,
+                value=valor_atual,
+                max_chars=TOTAL_RESPOSTAS,
+                key=key,
+                debounce=100,
+            )
+        except ValueError as exc:
+            if "is not registered" not in str(exc):
+                raise
+    return st.text_input(
+        label,
+        value=valor_atual,
+        max_chars=TOTAL_RESPOSTAS,
+        key=key,
+    )
 
 
 def _mostrar_contador(respostas: str, key: str):

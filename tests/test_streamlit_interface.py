@@ -77,6 +77,55 @@ def _app_com_respostas(respostas_por_area):
 class TestAppExecuta:
     """O app sobe e responde."""
 
+    def test_campo_nativo_assume_quando_keyup_nao_registra(self, monkeypatch):
+        from streamlit_app.components import inputs
+
+        chamadas = []
+
+        def keyup_indisponivel(*_args, **_kwargs):
+            raise ValueError("Component 'st_keyup' is not registered")
+
+        def campo_nativo(label, **kwargs):
+            chamadas.append((label, kwargs))
+            return "ABCDE"
+
+        monkeypatch.setattr(inputs, "st_keyup", keyup_indisponivel)
+        monkeypatch.setattr(inputs.st, "text_input", campo_nativo)
+
+        assert inputs._campo_respostas("Respostas MT", "", "resp_mt") == "ABCDE"
+        assert chamadas == [(
+            "Respostas MT",
+            {"value": "", "max_chars": 45, "key": "resp_mt"},
+        )]
+
+    def test_app_calcula_com_fallback_nativo(
+        self, caso_real, monkeypatch,
+    ):
+        from streamlit_app.components import inputs
+
+        def keyup_indisponivel(*_args, **_kwargs):
+            raise ValueError("Component 'st_keyup' is not registered")
+
+        monkeypatch.setattr(inputs, "st_keyup", keyup_indisponivel)
+        at = AppTest.from_file(APP, default_timeout=TIMEOUT)
+        at.run()
+
+        assert not at.exception, at.exception
+        assert {campo.key for campo in at.text_input} == {
+            "resp_lc", "resp_ch", "resp_cn", "resp_mt",
+        }
+        for campo in at.text_input:
+            area = campo.key.removeprefix("resp_").upper()
+            campo.set_value(caso_real[area]["respostas"])
+        at.run()
+        next(
+            botao for botao in at.button
+            if "CALCULAR" in (botao.label or "").upper()
+        ).click().run()
+
+        assert not at.exception, at.exception
+        assert len(at.session_state["resultados"]) == 4
+
     def test_app_roda_sem_excecao(self):
         at = AppTest.from_file(APP, default_timeout=TIMEOUT)
         at.run()
