@@ -220,13 +220,10 @@ def grafico_impacto_questoes(
         raio = min(0.8, altura_barra / 2)
         drawing.add(Rect(x, plot_y, bar_width, altura_barra,
                          rx=raio, ry=raio, fillColor=cor, strokeColor=None))
-        if not questao.acertou and bar_height > 4:
-            drawing.add(Line(x + 1, plot_y + bar_height - 4,
-                             x + bar_width - 1, plot_y + bar_height - 1,
-                             strokeColor=Cores.ERRO_CLARO, strokeWidth=0.55))
+        rotulo_texto = str(questao.posicao) if questao.acertou else f"{questao.posicao}*"
         rotulo_y = min(plot_y + bar_height + 3, height - 18)
         etiqueta = Group()
-        etiqueta.add(String(0, 0, str(questao.posicao), textAnchor="start",
+        etiqueta.add(String(0, 0, rotulo_texto, textAnchor="start",
                              fontName="Helvetica-Bold", fontSize=7.2,
                              fillColor=cor))
         etiqueta.translate(x + bar_width / 2 + 2.35, rotulo_y)
@@ -240,17 +237,14 @@ def grafico_impacto_questoes(
                        textAnchor="middle", fontName="Helvetica-Oblique",
                        fontSize=6.3, fillColor=Cores.CINZA))
 
-    legend_x = width - 68
-    for offset, texto, cor, erro in (
-        (0, "Acerto", Cores.ACERTO, False),
-        (12, "Erro", Cores.ERRO, True),
+    legend_x = width - 70
+    for offset, texto, cor in (
+        (0, "Acerto", Cores.ACERTO),
+        (12, "Erro (*)", Cores.ERRO),
     ):
         y = height - 25 - offset
         drawing.add(Rect(legend_x, y, 7, 7, rx=1.1, ry=1.1,
                          fillColor=cor, strokeColor=None))
-        if erro:
-            drawing.add(Line(legend_x + 1, y + 1, legend_x + 6, y + 6,
-                             strokeColor=Cores.ERRO_CLARO, strokeWidth=0.55))
         drawing.add(String(legend_x + 10, y + 0.6, texto,
                            fontName="Helvetica", fontSize=7.0,
                            fillColor=Cores.SECUNDARIA))

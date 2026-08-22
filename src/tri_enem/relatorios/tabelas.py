@@ -10,7 +10,7 @@ from typing import List, Optional, Sequence
 
 from reportlab.lib import colors
 from reportlab.lib.styles import ParagraphStyle
-from reportlab.platypus import Flowable, Paragraph, Table, TableStyle
+from reportlab.platypus import Flowable, Paragraph, Spacer, Table, TableStyle
 
 from .base import AreaAnalise, QuestaoAnalise
 from .estilos import Cores, Medidas
@@ -208,11 +208,13 @@ def tabela_diagnostico_questoes(
         conteudo.append(_tabela_erros_compacta(preparado.erros, largura))
         if apos_erros:
             conteudo.extend(apos_erros)
+        conteudo.append(Spacer(1, 2.5))
     else:
         conteudo.append(_titulo_faixa(
             "Sem erros, parabéns!",
             largura, Cores.ACERTO_CLARO, Cores.ACERTO, _TITULO_ACERTOS,
         ))
+        conteudo.append(Spacer(1, 2.5))
 
     if preparado.acertos:
         conteudo.append(_faixa_acertos(preparado.acertos, largura))
