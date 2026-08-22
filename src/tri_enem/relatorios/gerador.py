@@ -113,15 +113,7 @@ class RelatorioPDF:
         canvas.saveState()
         canvas.setStrokeColor(Cores.CINZA_CLARO)
         canvas.setLineWidth(0.35)
-        if self._pagina_unica and doc.page == 1:
-            canvas.setFont("Helvetica-Oblique", 5.2)
-            canvas.drawCentredString(
-                A4[0] / 2, 0.98 * cm,
-                "“Nós organizamos uma sociedade baseada em ciência e tecnologia.” — Carl Sagan",
-            )
-            y_linha, y_texto = 0.79 * cm, 0.45 * cm
-        else:
-            y_linha, y_texto = 0.92 * cm, 0.58 * cm
+        y_linha, y_texto = 0.92 * cm, 0.58 * cm
         canvas.line(Medidas.MARGEM_HORIZONTAL, y_linha,
                     A4[0] - Medidas.MARGEM_HORIZONTAL, y_linha)
         canvas.setFillColor(Cores.CINZA)
@@ -312,7 +304,6 @@ class RelatorioPDF:
             elementos.append(Paragraph(aviso, self.styles["AvisoCalibracao"]))
         if resumo:
             elementos.append(Paragraph(resumo, self.styles["MetricasValidacao"]))
-
         pagina_densa = incluir_identidade and len(area.questoes_erradas) >= 40
         espaco_antes_grade = 1 if pagina_densa else (5 if incluir_identidade else 10)
         espaco_depois_grade = 1 if pagina_densa else 6
@@ -320,14 +311,17 @@ class RelatorioPDF:
                       grade_questoes(area.questoes), Spacer(1, espaco_depois_grade)]
         elementos.append(Paragraph("Impacto por questão", self.styles["SubtituloSecao"]))
         elementos += [grafico_impacto_questoes(area.questoes), Spacer(1, 3)]
-        if incluir_explicacao_b:
-            elementos.append(Paragraph(
-                "<b>Dificuldade (b):</b> valor dos microdados do INEP que ordena as "
-                "questões das mais acessíveis às mais exigentes.",
-                self.styles["Legenda"],
-            ))
         if incluir_diagnostico:
-            elementos.append(tabela_diagnostico_questoes(area.questoes))
+            apos_erros = None
+            if incluir_explicacao_b:
+                apos_erros = [Spacer(1, 2), Paragraph(
+                    "<b>Dificuldade (b):</b> valor dos microdados do INEP que ordena as "
+                    "questões das mais acessíveis às mais exigentes.",
+                    self.styles["Legenda"],
+                ), Spacer(1, 2)]
+            elementos.append(tabela_diagnostico_questoes(
+                area.questoes, apos_erros=apos_erros,
+            ))
         if incluir_citacao:
             elementos += [Spacer(1, 5), self._citacao_sagan(compacta=True)]
         return elementos

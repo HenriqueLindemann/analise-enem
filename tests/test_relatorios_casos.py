@@ -157,8 +157,14 @@ def test_uma_area_cabe_em_uma_pagina_em_casos_extremos(erros, tmp_path):
     assert conteudo.startswith(b"%PDF-")
     assert conteudo.rstrip().endswith(b"%%EOF")
     assert len(reader.pages) == 1
+    texto = reader.pages[0].extract_text() or ""
+    assert "Carl Sagan" not in texto
     if erros == 0:
-        assert "Sem erros, parabéns!" in (reader.pages[0].extract_text() or "")
+        assert "Sem erros, parabéns!" in texto
+        assert "Dificuldade (b): valor" not in texto
+    else:
+        assert texto.index("Ganho se acertasse") < texto.index("Dificuldade (b): valor")
+        assert texto.index("Dificuldade (b): valor") < texto.index("Acertos (")
 
 
 @pytest.mark.parametrize("erros", [0, 22, 45])
@@ -171,6 +177,28 @@ def test_quatro_areas_geram_capa_e_uma_pagina_por_area(erros, tmp_path):
     ]
     _, reader = _gerar(tmp_path, areas, f"quatro-areas-{erros}.pdf")
     assert len(reader.pages) == 5
+
+
+@pytest.mark.parametrize("quantidade", [2, 3, 4])
+def test_multiplas_areas_geram_capa_citacao_e_pagina_por_area(
+    quantidade, tmp_path,
+):
+    definicoes = [
+        ("LC", "Linguagens, Códigos e suas Tecnologias"),
+        ("CH", "Ciências Humanas e suas Tecnologias"),
+        ("CN", "Ciências da Natureza e suas Tecnologias"),
+        ("MT", "Matemática e suas Tecnologias"),
+    ]
+    areas = [
+        _criar_area_sintetica(sigla, nome, 22)
+        for sigla, nome in definicoes[:quantidade]
+    ]
+    _, reader = _gerar(tmp_path, areas, f"{quantidade}-areas.pdf")
+
+    assert len(reader.pages) == quantidade + 1
+    textos = [pagina.extract_text() or "" for pagina in reader.pages]
+    assert "Carl Sagan" in textos[0]
+    assert all("Carl Sagan" not in texto for texto in textos[1:])
 
 
 def test_pdf_e_totalmente_vetorial_e_preserva_texto_importante(tmp_path):

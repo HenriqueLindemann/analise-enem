@@ -442,10 +442,14 @@ class TestRelatorioPDF:
         assert "Gerado em notatri.com em 22/08/2026 às 18:04" in texto
 
     def test_pdf_de_uma_unica_area(self, resultados_quatro_areas):
+        from io import BytesIO
+        from pypdf import PdfReader
         from streamlit_app.components.impressao import _gerar_pdf
 
         pdf = _gerar_pdf(resultados_quatro_areas[:1], 2023, "1a_aplicacao", "azul")
         assert pdf is not None and pdf.startswith(b"%PDF-")
+        texto = PdfReader(BytesIO(pdf)).pages[0].extract_text() or ""
+        assert "Carl Sagan" not in texto
 
     def test_pdf_sem_resultados_nao_estoura(self):
         from streamlit_app.components.impressao import _gerar_pdf

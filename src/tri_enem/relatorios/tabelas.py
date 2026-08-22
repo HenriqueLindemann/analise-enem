@@ -9,7 +9,7 @@ from typing import List, Optional, Sequence
 from reportlab.lib import colors
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.units import cm
-from reportlab.platypus import Paragraph, Table, TableStyle
+from reportlab.platypus import Flowable, Paragraph, Table, TableStyle
 
 from .base import AreaAnalise, QuestaoAnalise
 from .estilos import Cores, Medidas
@@ -192,6 +192,7 @@ def _bloco_grupo(
 
 def tabela_diagnostico_questoes(
     questoes: Sequence[QuestaoAnalise], largura: float | None = None,
+    apos_erros: Sequence[Flowable] | None = None,
 ) -> Table:
     """Prioriza erros detalhados e resume acertos apenas pelos números."""
 
@@ -204,6 +205,8 @@ def tabela_diagnostico_questoes(
             largura, Cores.ERRO_CLARO, Cores.ERRO, _TITULO_ERROS,
         ))
         conteudo.append(_tabela_erros_compacta(preparado.erros, largura))
+        if apos_erros:
+            conteudo.extend(apos_erros)
     else:
         conteudo.append(_titulo_faixa(
             "Sem erros, parabéns!",
