@@ -16,7 +16,7 @@ parâmetros dos itens e o catálogo de transformação são incluídos no pacote
 | `coeficientes_data.json` | Modelos, métricas do holdout e status por prova |
 | `precisao.py` | Converte o status e as métricas em mensagens para o usuário |
 | `tradutor.py` | Tratamento especial para LC (múltiplas línguas) |
-| `config.py` | Configurações de dificuldade e relatório |
+| `config.py` | Configurações compartilhadas e nomes das áreas |
 | `data/itens/` | Parâmetros oficiais de 2009-2025 e manifesto de integridade |
 | `relatorios/` | Gerador de relatórios PDF |
 

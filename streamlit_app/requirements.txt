@@ -14,9 +14,6 @@ plotly>=5.18.0
 numpy>=1.24.0
 pandas>=2.0.0
 
-# Cálculos científicos
-scipy>=1.10.0
-
 # Configuração
 pyyaml>=6.0
 

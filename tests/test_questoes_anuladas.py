@@ -230,16 +230,46 @@ def test_area_analise_formata_plural_de_anuladas():
     assert area.texto_anuladas_breve() == "2 anuladas (Q3, Q4)"
 
 
-def test_cli_formata_singular_e_plural_de_anuladas():
-    from meu_simulado import formatar_contagem_resultado
+def test_cli_linha_de_resultado_nao_menciona_anuladas(capsys, monkeypatch):
+    """O CLI mostra contagem simples; anuladas ficam detalhadas só no PDF."""
+    import meu_simulado
 
-    base = {'acertos': 10, 'total_itens': 44}
-    assert formatar_contagem_resultado({**base, 'total_anulados': 1}) == (
-        "10/44 válidas + 1 anulada"
-    )
-    assert formatar_contagem_resultado({**base, 'total_anulados': 2}) == (
-        "10/44 válidas + 2 anuladas"
-    )
+    # O exemplo embutido no módulo tem anuladas em LC, CN e MT: se a linha
+    # voltar a exibi-las, este teste detecta.
+    monkeypatch.setattr(meu_simulado, "GERAR_PDF", False)
+    meu_simulado.main()
+    saida = capsys.readouterr().out
+
+    assert "(35/43)" in saida  # LC: 35 acertos em 43 itens válidos (2 anuladas)
+    assert "(39/45)" in saida
+    assert "anulada" not in saida.lower()
+
+
+@pytest.mark.skipif(not HAS_WEB, reason="extra web não instalado")
+def test_grafico_impacto_inclui_impactos_negativos_no_eixo():
+    """Impacto negativo (item difícil acertado) não pode ser cortado do gráfico."""
+    questoes = [
+        {'posicao': 1, 'acertou': True, 'anulada': False, 'impacto': -3.5,
+         'gabarito': 'A', 'resposta_dada': 'A'},
+        {'posicao': 2, 'acertou': False, 'anulada': False, 'impacto': 2.0,
+         'gabarito': 'B', 'resposta_dada': 'C'},
+        {'posicao': 3, 'acertou': True, 'anulada': False, 'impacto': 20.0,
+         'gabarito': 'C', 'resposta_dada': 'C'},
+    ]
+    fig = st_grafico_impacto(questoes)
+    y_min, y_max = fig.layout.yaxis.range
+    assert y_min == pytest.approx(-3.5)
+    assert y_max > 20.0
+
+    # Com somente impactos positivos, o piso continua sendo zero.
+    questoes_positivas = [
+        {'posicao': q['posicao'], 'acertou': q['acertou'], 'anulada': False,
+         'impacto': abs(q['impacto']) + 0.5,
+         'gabarito': q['gabarito'], 'resposta_dada': q['resposta_dada']}
+        for q in questoes
+    ]
+    fig_pos = st_grafico_impacto(questoes_positivas)
+    assert fig_pos.layout.yaxis.range[0] == 0
 
 
 @pytest.mark.skipif(not HAS_PDF, reason="extra PDF não instalado")

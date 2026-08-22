@@ -2,6 +2,8 @@
 # Copyright (c) 2026 Henrique Lindemann
 """Adapta resultados do motor para a estrutura dos relatórios."""
 
+from __future__ import annotations
+
 from dataclasses import asdict, is_dataclass
 from datetime import datetime
 from typing import Any, Iterable, List, Mapping

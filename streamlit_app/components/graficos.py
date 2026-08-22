@@ -133,6 +133,9 @@ def grafico_impacto(questoes: List[Dict], titulo: str = "") -> go.Figure:
     valores = [q['impacto'] for q in questoes_ord]
     cores = [COR_ACERTO if q['acertou'] else COR_ERRO for q in questoes_ord]
     max_valor = max(max(valores), 1.0) if valores else 1.0
+    # Em itens muito difíceis acertados, o impacto pode ser levemente
+    # negativo; incluir esse piso no eixo em vez de cortar a barra.
+    min_valor = min(min(valores), 0.0)
     
     # Texto de hover
     hover_texts = []
@@ -175,7 +178,7 @@ def grafico_impacto(questoes: List[Dict], titulo: str = "") -> go.Figure:
             title="Pontos",
             gridcolor=COR_CINZA_CLARO,
             gridwidth=0.5,
-            range=[0, max_valor * 1.15],
+            range=[min_valor, max_valor * 1.15],
         ),
         height=280,
         margin=dict(l=50, r=20, t=60, b=50),

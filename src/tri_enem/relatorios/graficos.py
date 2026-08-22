@@ -2,6 +2,8 @@
 # Copyright (c) 2026 Henrique Lindemann
 """Componentes gráficos vetoriais do relatório PDF."""
 
+from __future__ import annotations
+
 from math import ceil
 from typing import List, Sequence
 
@@ -11,7 +13,7 @@ from reportlab.lib.units import cm, inch
 
 from .base import AreaAnalise, QuestaoAnalise
 from .estilos import Cores, Medidas
-from .utils import formatar_numero
+from ..formatacao import formatar_numero
 
 
 def _largura_em_pontos(largura: float | None) -> float:

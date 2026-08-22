@@ -36,23 +36,23 @@ Requer [Python 3.9+](https://www.python.org/downloads/).
 Edite o arquivo **`meu_simulado.py`** com suas respostas:
 
 ```python
-ANO = 2023
+ANO = 2021
 TIPO_APLICACAO = '1a_aplicacao'
 LINGUA = 'ingles'  # Para LC: ingles ou espanhol
 
 # DIA 1
-COR_LC = 'azul'
-RESPOSTAS_LC = 'ACABC...'  # 45 respostas
+COR_LC = 'rosa'
+RESPOSTAS_LC = 'ACABCD...'  # 45 respostas
 
-COR_CH = 'azul'
-RESPOSTAS_CH = 'BDCEA...'
+COR_CH = 'rosa'
+RESPOSTAS_CH = 'EDAAAA...'
 
 # DIA 2
-COR_CN = 'azul'
-RESPOSTAS_CN = 'ACDAE...'
+COR_CN = 'rosa'
+RESPOSTAS_CN = 'DABCED...'
 
-COR_MT = 'azul'
-RESPOSTAS_MT = 'CEAEA...'
+COR_MT = 'rosa'
+RESPOSTAS_MT = 'DCCAEA...'
 ```
 
 Execute:
@@ -65,7 +65,7 @@ Resultado:
 
 ```
 ============================================================
-       CALCULADORA NOTA TRI ENEM - PROVA 2023
+       CALCULADORA NOTA TRI ENEM - PROVA 2021
 ============================================================
 
 Aplicação: 1a_aplicacao
@@ -73,12 +73,12 @@ Aplicação: 1a_aplicacao
 ------------------------------------------------------------
 RESULTADOS
 ------------------------------------------------------------
-Linguagens..........................   654.2 pts (33/45)
-Ciências Humanas....................   712.4 pts (38/45)
-Ciências da Natureza................   695.1 pts (35/45)
-Matemática..........................   782.3 pts (40/45)
+Linguagens.........................  677,4 pts (35/43)
+Ciências Humanas...................  749,9 pts (39/45)
+Ciências da Natureza...............  753,3 pts (37/44)
+Matemática.........................  916,3 pts (41/44)
 ------------------------------------------------------------
-MÉDIA...............................   711.0 pts
+MÉDIA..............................  774,2 pts
 ```
 
 ## Funcionalidades

@@ -50,7 +50,9 @@ CONFIGURACOES_LC = {
         posicoes_lingua=[91, 92, 93, 94, 95],
     ) for ano in range(2010, 2016)},
     
-    # Anos com estrutura nova (posições 1-45/50) - 2016 em diante
+    # Anos com estrutura nova (posições 1-45/50) - 2016 em diante.
+    # Vai até o último ano com dados empacotados; anos futuros caem no
+    # fallback de obter_config_lc(), que devolve exatamente esta configuração.
     **{ano: ConfiguracaoLC(
         ano=ano,
         tem_tp_lingua_itens=True,
@@ -58,7 +60,7 @@ CONFIGURACOES_LC = {
         n_itens_arquivo=50,
         posicao_inicio=1,
         posicoes_lingua=[1, 2, 3, 4, 5],
-    ) for ano in range(2016, 2030)},
+    ) for ano in range(2016, 2026)},
 }
 
 

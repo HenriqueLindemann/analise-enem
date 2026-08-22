@@ -17,7 +17,6 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "tri-enem"
-version = "5.1.0"  # espelha src/tri_enem/__init__.py:__version__
 description = "Calculadora de nota TRI do ENEM (2009-2025) por Teoria de Resposta ao Item"
 readme = "README.md"
 requires-python = ">=3.9"
@@ -28,9 +27,12 @@ authors = [{ name = "Henrique Lindemann" }]
 # As dependencias sao lidas dos requirements.txt, que continuam sendo a fonte
 # de verdade (o deploy no Streamlit Cloud instala por eles, sem passar por este
 # arquivo). Declara-las aqui tambem exigiria manter duas listas em sincronia.
-dynamic = ["dependencies", "optional-dependencies"]
+# A versao vem de src/tri_enem/__init__.py:__version__, fonte unica tambem
+# usada pela interface web.
+dynamic = ["version", "dependencies", "optional-dependencies"]
 
 [tool.setuptools.dynamic]
+version = { attr = "tri_enem.__version__" }
 dependencies = { file = ["requirements.txt"] }
 optional-dependencies.web = { file = ["streamlit_app/requirements.txt"] }
 optional-dependencies.dev = { file = ["requirements-dev.txt"] }

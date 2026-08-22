@@ -4,17 +4,19 @@
 Configurações centralizadas do Streamlit App.
 
 Este módulo centraliza todas as constantes, URLs, textos e configurações
-do app para facilitar manutenção e SEO.
+do app para facilitar manutenção e SEO. A versão exibida vem de
+``tri_enem.__version__``, a mesma fonte usada pelo empacotamento.
 """
 
 from dataclasses import dataclass
 from typing import Dict, List
 
+from tri_enem import __version__ as APP_VERSION
+
 # ============================================================================
 #                         INFORMAÇÕES DO PROJETO
 # ============================================================================
 
-APP_VERSION = "22/08/2026"
 APP_AUTHOR = "Henrique Lindemann"
 APP_AUTHOR_URL = "https://www.linkedin.com/in/henriquelindemann/"
 APP_GITHUB_URL = "https://github.com/HenriqueLindemann/analise-enem"

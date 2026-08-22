@@ -125,7 +125,16 @@ class CalculadorTRI:
             self.base_path = Path(itens_path)
         self._cache_itens: Dict[str, List[ItemTRI]] = {}
         self._cache_df_itens: Dict[str, pd.DataFrame] = {}
+        self._mapeador: Optional[object] = None  # Criado sob demanda; ver _ordem_provas.
         self._pontos_quad, self._pesos_quad = self._calcular_quadratura()
+    
+    def _ordem_provas(self, ano: int) -> List[str]:
+        """Ordem das áreas no caderno, com um único mapeador por instância."""
+        if self._mapeador is None:
+            from .mapeador_provas import MapeadorProvas
+
+            self._mapeador = MapeadorProvas()
+        return self._mapeador.listar_ordem_provas(ano)
     
     def _calcular_quadratura(self) -> Tuple[np.ndarray, np.ndarray]:
         """Calcula pontos e pesos para quadratura Gauss-Hermite sobre N(0,1)"""
@@ -182,9 +191,12 @@ class CalculadorTRI:
         area = area.upper()
         co_prova = int(co_prova)
 
-        if area == "LC":
-            from .tradutor import obter_config_lc
+        from .tradutor import (
+            obter_config_lc, filtrar_itens_lc, deduplicar_itens_por_posicao,
+        )
 
+        config_lc = None
+        if area == "LC":
             config_lc = obter_config_lc(ano)
             if config_lc.tem_tp_lingua_itens and tp_lingua not in (0, 1):
                 raise ValueError(
@@ -216,16 +228,12 @@ class CalculadorTRI:
             if co_prova in TRADUCAO_BAM2:
                 co_prova_busca = TRADUCAO_BAM2[co_prova]
 
-        from .tradutor import (
-            obter_config_lc, filtrar_itens_lc, deduplicar_itens_por_posicao,
-        )
-
         df = self._carregar_df_itens(ano)
 
         if area == 'LC':
             # Filtro de idioma e dedup vivem em tradutor.py, um só lugar.
             df_prova = filtrar_itens_lc(
-                df, co_prova_busca, tp_lingua, obter_config_lc(ano)
+                df, co_prova_busca, tp_lingua, config_lc
             )
         else:
             df_prova = deduplicar_itens_por_posicao(
@@ -507,9 +515,8 @@ class CalculadorTRI:
         itens_validos = [i for i in itens if not i.abandonado]
         itens_anulados = [i for i in itens if i.abandonado]
         respostas_validas = [r for r, i in zip(respostas_bin, itens) if not i.abandonado]
-        from .mapeador_provas import MapeadorProvas
 
-        ordem_provas = MapeadorProvas().listar_ordem_provas(ano)
+        ordem_provas = self._ordem_provas(ano)
         questoes_anuladas_brutas = [i.posicao for i in itens_anulados]
         questoes_anuladas_caderno = [
             calcular_posicao_caderno(
@@ -586,9 +593,8 @@ class CalculadorTRI:
 
         theta_original = self.estimar_theta_eap(respostas_bin, itens)
         nota_original = self.transformar_escala(theta_original, ano, area, co_prova)
-        from .mapeador_provas import MapeadorProvas
 
-        ordem_provas = MapeadorProvas().listar_ordem_provas(ano)
+        ordem_provas = self._ordem_provas(ano)
 
         acertos = []
         erros = []

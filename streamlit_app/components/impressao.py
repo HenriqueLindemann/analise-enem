@@ -4,6 +4,8 @@
 Componente de geração de relatório PDF para o Streamlit.
 """
 
+from __future__ import annotations
+
 import streamlit as st
 from typing import List, Dict, Optional
 from pathlib import Path

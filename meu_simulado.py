@@ -69,15 +69,21 @@ from tri_enem.formatacao import formatar_numero
 from tri_enem.posicoes import normalizar_posicoes_resultados
 
 
-def validar_respostas(respostas, nome):
+def validar_respostas(respostas, nome, sigla=None):
     if not respostas or respostas == "." * 45:
         return True
-    if len(respostas) != 45:
-        print(f"ERRO: {nome} deve ter 45 respostas, tem {len(respostas)}")
+    # LC também aceita a linha de 50 posições dos microdados, cujo bloco do
+    # idioma não escolhido é preenchido com '9'; o motor valida o bloco e
+    # reduz para as 45 posições reais.
+    lc_50 = sigla == 'LC' and len(respostas) == 50
+    if len(respostas) != 45 and not lc_50:
+        esperado = "45 ou 50" if sigla == 'LC' else "45"
+        print(f"ERRO: {nome} deve ter {esperado} respostas, tem {len(respostas)}")
         return False
-    invalidas = [c for c in respostas.upper() if c not in 'ABCDE.*']
+    caracteres_validos = 'ABCDE.*9' if lc_50 else 'ABCDE.*'
+    invalidas = [c for c in respostas.upper() if c not in caracteres_validos]
     if invalidas:
-        print(f"ERRO: {nome} tem caracteres invalidos: {set(invalidas)}")
+        print(f"ERRO: {nome} tem caracteres invalidos: {sorted(set(invalidas))}")
         return False
     return True
 
@@ -180,19 +186,6 @@ def gerar_relatorio_pdf(resultados, ano, titulo, nome_arquivo=None, tipo_aplicac
         return None
 
 
-def formatar_contagem_resultado(resultado):
-    """Formata acertos e anuladas para a saída do CLI."""
-    total_anulados = resultado.get('total_anulados', 0)
-    if not total_anulados:
-        return f"{resultado['acertos']}/{resultado['total_itens']}"
-
-    label_anuladas = 'anulada' if total_anulados == 1 else 'anuladas'
-    return (
-        f"{resultado['acertos']}/{resultado['total_itens']} válidas + "
-        f"{total_anulados} {label_anuladas}"
-    )
-
-
 def main():
     print()
     print("=" * 60)
@@ -208,7 +201,7 @@ def main():
     ]
     
     for sigla, nome, resp, cor in areas:
-        if not validar_respostas(resp, nome):
+        if not validar_respostas(resp, nome, sigla):
             return
     
     print(f"\nAplicação: {TIPO_APLICACAO}")
@@ -222,6 +215,7 @@ def main():
     resultados = []
     notas = {}
     avisos = []
+    tem_alerta = False
     
     for sigla, nome, resp, cor in areas:
         if not resp or resp == "." * 45:
@@ -238,12 +232,14 @@ def main():
             nota_texto = formatar_numero(res['nota'])
             print(
                 f"{nome:.<35} {nota_texto:>6} pts "
-                f"({formatar_contagem_resultado(res)})"
+                f"({res['acertos']}/{res['total_itens']})"
             )
             if res.get("resumo_validacao"):
                 print(f"  {sigla}: {res['resumo_validacao']}")
             if res.get('aviso_precisao'):
                 avisos.append(f"  {sigla}: {res['aviso_precisao']}")
+                if res.get('status_precisao') != 'ok':
+                    tem_alerta = True
     
     if notas:
         print("-" * 60)
@@ -258,8 +254,9 @@ def main():
         print("-" * 60)
         for aviso in avisos:
             print(aviso)
-        print("\nNota: Provas não calibradas ou com erro alto podem ter\n"
-              "      diferença significativa em relação à nota oficial.")
+        if tem_alerta:
+            print("\nNota: Provas não calibradas ou com erro alto podem ter\n"
+                  "      diferença significativa em relação à nota oficial.")
     
     if GERAR_PDF and resultados:
         print("\n" + "-" * 60)

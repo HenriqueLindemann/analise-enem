@@ -67,13 +67,31 @@ def test_validador_reprova_relatorio_derivado_adulterado(tmp_path):
 def test_validar_respostas_meu_simulado():
     import meu_simulado
 
-    assert meu_simulado.validar_respostas(None, "LC") is True
-    assert meu_simulado.validar_respostas("", "LC") is True
-    assert meu_simulado.validar_respostas("." * 45, "LC") is True
-    assert meu_simulado.validar_respostas("ABCDE" * 9, "LC") is True
-    assert meu_simulado.validar_respostas("ABCD*" * 9, "LC") is True
-    assert meu_simulado.validar_respostas("ABCDE", "LC") is False  # Menor que 45
-    assert meu_simulado.validar_respostas("XYZ" * 15, "LC") is False  # Caracteres inválidos
+    v = meu_simulado.validar_respostas
+
+    # Entradas vazias continuam válidas (a área é simplesmente ignorada).
+    assert v(None, "Linguagens", "LC") is True
+    assert v("", "Matemática", "MT") is True
+    assert v("." * 45, "Ciências Humanas", "CH") is True
+
+    # 45 posições: letras (maiúsculas ou minúsculas), '.' e '*'.
+    assert v("ABCDE" * 9, "Linguagens", "LC") is True
+    assert v("abcde" * 9, "Matemática", "MT") is True
+    assert v("ABCD*" * 9, "Ciências da Natureza", "CN") is True
+
+    # LC aceita a linha de 50 posições dos microdados, com padding '9'.
+    assert v("AAAAA" + "99999" + "B" * 40, "Linguagens", "LC") is True
+    # Fora da LC, 50 posições são rejeitadas.
+    assert v("A" * 50, "Matemática", "MT") is False
+
+    # Comprimentos errados em qualquer área.
+    assert v("ABCDE", "Linguagens", "LC") is False
+    assert v("A" * 44, "Matemática", "MT") is False
+    assert v("A" * 49, "Linguagens", "LC") is False
+
+    # Caracteres inválidos; '9' só é aceito na LC de 50 posições.
+    assert v("XYZ" * 15, "Matemática", "MT") is False
+    assert v("A" * 44 + "9", "Linguagens", "LC") is False
 
 
 def test_validar_todas_respostas_streamlit():

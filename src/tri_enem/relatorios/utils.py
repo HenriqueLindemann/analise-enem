@@ -2,10 +2,9 @@
 # Copyright (c) 2026 Henrique Lindemann
 """Utilitários de formatação para o relatório PDF."""
 
+from __future__ import annotations
 
 import math
-
-from ..formatacao import formatar_numero
 
 
 _LINGUAS_APRESENTACAO = {
@@ -27,7 +26,7 @@ def formatar_lingua(lingua: str | None) -> str:
     return _LINGUAS_APRESENTACAO.get(texto.casefold(), texto.capitalize())
 
 
-def formatar_dificuldade(param_b: float) -> str:
+def formatar_dificuldade(param_b: float | None) -> str:
     """Formata o parâmetro b de dificuldade."""
     if param_b is None or math.isnan(param_b):
         return "–"

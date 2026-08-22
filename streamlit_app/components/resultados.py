@@ -9,22 +9,15 @@ from typing import Dict, List
 
 from tri_enem import MapeadorProvas, normalizar_posicoes_resultados
 from tri_enem.formatacao import formatar_numero
+from tri_enem.precisao import formatar_aviso_curto as _formatar_aviso_curto_tri
 
+from ..config import AREAS_ENEM
 from .graficos import (
     grafico_notas_barras, 
     grafico_impacto, 
     grade_questoes,
     grafico_pizza_acertos,
 )
-
-
-# Nomes completos das áreas
-NOMES_AREAS = {
-    'LC': 'Linguagens e Códigos',
-    'CH': 'Ciências Humanas',
-    'CN': 'Ciências da Natureza',
-    'MT': 'Matemática',
-}
 
 
 def exibir_resumo_geral(resultados: List[Dict]):
@@ -86,7 +79,7 @@ def exibir_resultado_area(resultado: Dict):
         MapeadorProvas().listar_ordem_provas(resultado.get('ano', 2024)),
     )[0]
     sigla = resultado['sigla']
-    nome = NOMES_AREAS.get(sigla, sigla)
+    nome = AREAS_ENEM.get(sigla, sigla)
 
     # Preparar dados das questões
     questoes_acertadas = resultado.get('questoes_acertadas', [])
@@ -255,15 +248,6 @@ def _exibir_tabela_acertos(questoes: List[Dict]):
             'Perda': st.column_config.TextColumn('Perda', width='small', help='Pontos que você perderia se errasse'),
         }
     )
-
-
-# Cores legíveis de alto contraste para calibração em tema claro (WCAG AA/AAA)
-from tri_enem.precisao import (
-    COR_CALIBRACAO_BOA,
-    COR_CALIBRACAO_MODERADA,
-    COR_CALIBRACAO_RUIM,
-    formatar_aviso_curto as _formatar_aviso_curto_tri,
-)
 
 
 def formatar_aviso_curto(resultado: Dict) -> str:

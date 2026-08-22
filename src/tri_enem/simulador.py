@@ -25,7 +25,6 @@ Exemplo:
     )
 """
 
-from pathlib import Path
 from typing import Dict, Optional, List, Union
 from dataclasses import dataclass, field
 
@@ -88,7 +87,6 @@ class SimuladorNota:
             itens_path: Caminho externo opcional para os itens. Quando
                 omitido, usa os CSVs incluídos no pacote.
         """
-        self.base_path = Path(itens_path) if itens_path else None
         self._calc = CalculadorTRI(itens_path)
 
     def listar_provas(self, ano: int, area: str = None) -> Dict[str, List[int]]:

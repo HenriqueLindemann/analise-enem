@@ -2,18 +2,19 @@
 # Copyright (c) 2026 Henrique Lindemann
 """Tabelas tipográficas e adaptativas do relatório PDF."""
 
+from __future__ import annotations
+
 from dataclasses import dataclass
 import math
 from typing import List, Optional, Sequence
 
 from reportlab.lib import colors
 from reportlab.lib.styles import ParagraphStyle
-from reportlab.lib.units import cm
 from reportlab.platypus import Flowable, Paragraph, Table, TableStyle
 
 from .base import AreaAnalise, QuestaoAnalise
 from .estilos import Cores, Medidas
-from .utils import formatar_numero
+from ..formatacao import formatar_numero
 
 
 MODO_EQUILIBRADO = "equilibrado"

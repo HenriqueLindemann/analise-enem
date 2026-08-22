@@ -2,6 +2,8 @@
 # Copyright (c) 2026 Henrique Lindemann
 """Composição determinística do relatório A4."""
 
+from __future__ import annotations
+
 from datetime import datetime, timedelta, timezone
 from html import escape
 from pathlib import Path
@@ -22,7 +24,8 @@ from .base import AreaAnalise, DadosRelatorio
 from .estilos import Cores, Medidas, criar_estilos
 from .graficos import grafico_barras_notas, grafico_impacto_questoes, grade_questoes
 from .tabelas import tabela_diagnostico_questoes, tabela_resumo_areas
-from .utils import formatar_lingua, formatar_numero
+from .utils import formatar_lingua
+from ..formatacao import formatar_numero
 from ..mapeador_provas import MapeadorProvas
 from ..precisao import formatar_aviso_curto, formatar_resumo_validacao, verificar_precisao_prova
 

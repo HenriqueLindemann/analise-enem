@@ -22,9 +22,32 @@ Exemplo de uso:
 from __future__ import annotations
 
 import yaml
+from functools import lru_cache
 from pathlib import Path
 from typing import Optional, Dict, List
 from dataclasses import dataclass
+
+
+@lru_cache(maxsize=8)
+def _carregar_yaml_cache(
+    caminho: str, mtime_ns: int, tamanho: int
+) -> Dict:
+    """Lê e parseia o YAML uma vez por versão do arquivo.
+
+    mtime/tamanho fazem parte da chave para invalidar o cache quando o
+    arquivo é substituído. Compartilhar o dicionário parseado torna criar
+    instâncias barato; todos os usos da classe são somente leitura.
+    """
+    del mtime_ns, tamanho
+    with open(caminho, 'r', encoding='utf-8') as f:
+        return yaml.safe_load(f) or {}
+
+
+def _carregar_yaml(caminho: Path) -> Dict:
+    stat = caminho.stat()
+    return _carregar_yaml_cache(
+        str(caminho.resolve()), stat.st_mtime_ns, stat.st_size
+    )
 
 
 @dataclass
@@ -79,8 +102,7 @@ class MapeadorProvas:
         if arquivo_mapeamento is None:
             arquivo_mapeamento = Path(__file__).parent / 'mapeamento_provas.yaml'
         
-        with open(arquivo_mapeamento, 'r', encoding='utf-8') as f:
-            self.dados = yaml.safe_load(f) or {}
+        self.dados = _carregar_yaml(arquivo_mapeamento)
         
         self.metadata = self.dados.get('_metadata', {})
         self.aliases_tipo = self.metadata.get('aliases_tipo_aplicacao', {})
@@ -188,8 +210,7 @@ class MapeadorProvas:
             return {}
 
         try:
-            with open(arquivo_ordem_provas, 'r', encoding='utf-8') as f:
-                return yaml.safe_load(f) or {}
+            return _carregar_yaml(arquivo_ordem_provas) or {}
         except Exception:
             return {}
 

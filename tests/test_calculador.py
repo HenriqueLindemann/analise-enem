@@ -376,3 +376,18 @@ class TestAnaliseDeQuestoes:
     def test_idx_area_dentro_do_intervalo(self, analise):
         for q in analise["acertos"] + analise["erros"]:
             assert 0 <= q["idx_area"] <= 44
+
+
+class TestConfiguracaoLC:
+    """A configuração LC de anos futuros vem do fallback e deve ser idêntica."""
+
+    def test_fallback_igual_ao_ultimo_ano_com_dados(self):
+        from tri_enem.tradutor import obter_config_lc
+
+        base = obter_config_lc(2025)
+        futuro = obter_config_lc(2026)
+        assert futuro.tem_tp_lingua_itens == base.tem_tp_lingua_itens
+        assert futuro.tem_tp_lingua_dados == base.tem_tp_lingua_dados
+        assert futuro.n_itens_arquivo == base.n_itens_arquivo
+        assert futuro.posicao_inicio == base.posicao_inicio
+        assert futuro.posicoes_lingua == base.posicoes_lingua
