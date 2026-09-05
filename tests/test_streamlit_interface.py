@@ -7,7 +7,7 @@ Interface web: app.py, componentes de gráfico e relatório em PDF.
 roda pelo AppTest do Streamlit.
 
 As respostas são escritas direto em `session_state` porque o campo de digitação
-é um componente de terceiros (`streamlit-keyup`) que o AppTest não aciona; a
+é um componente local que o AppTest não aciona; a
 chave é a mesma que ele escreve.
 """
 
@@ -138,6 +138,11 @@ class TestAppExecuta:
         assert "Ano da prova" in rotulos
         assert "Tipo de aplicação" in rotulos
         assert "Língua estrangeira" in rotulos
+        textos = " ".join(bloco.value for bloco in at.markdown)
+        assert "Carl Sagan" in textos
+        assert "Estimativa verificada" in textos
+        assert "Impacto de cada questão" in textos
+        assert "Análise completa" in textos
         # Uma seleção de cor por área
         assert {"cor_LC", "cor_CH", "cor_CN", "cor_MT"} <= {
             s.key for s in at.selectbox if s.key
@@ -247,12 +252,14 @@ class TestFluxoCompleto:
                 for m in at.markdown
             )
 
-    def test_calcular_sem_respostas_avisa_e_nao_quebra(self):
+    def test_sem_respostas_o_botao_fica_desabilitado_e_orienta(self):
         at = AppTest.from_file(APP, default_timeout=TIMEOUT)
         at.run()
-        botao = next(b for b in at.button if "CALCULAR" in (b.label or "").upper())
-        botao.click().run()
+
         assert not at.exception, at.exception
+        assert at.button(key="calcular").disabled
+        textos = " ".join(c.value for c in at.caption)
+        assert "Complete 45 respostas" in textos
         assert "resultados" not in at.session_state
 
     def test_expander_formata_plural_de_questoes_anuladas(self):
@@ -279,9 +286,9 @@ class TestFluxoCompleto:
     def test_respostas_incompletas_nao_produzem_nota(self, caso_real):
         at = _app_com_respostas({"MT": caso_real["MT"]["respostas"][:30]})
         at.run()
-        botao = next(b for b in at.button if "CALCULAR" in (b.label or "").upper())
-        botao.click().run()
+
         assert not at.exception, at.exception
+        assert at.button(key="calcular").disabled
         assert "resultados" not in at.session_state
 
 
@@ -343,16 +350,15 @@ class TestGraficos:
 
         questoes = _questoes_para_grafico(resultado)
         fig = grade_questoes(questoes)
-        assert len(fig.data) == len(questoes)
+        assert fig.count('role="listitem"') == len(questoes)
 
     def test_grade_marca_acerto_e_erro_conforme_o_resultado(self, resultado):
         from streamlit_app.components.graficos import grade_questoes
 
         questoes = _questoes_para_grafico(resultado)
         fig = grade_questoes(questoes)
-        rotulos = [t.hovertext or '' for t in fig.data]
-        texto = ' '.join(str(r) for r in rotulos)
-        assert texto.count('Acerto') == resultado['acertos']
+        assert fig.count(': Acerto.') == 2 * resultado['acertos']
+        assert fig.count(': Erro.') == 2 * len(resultado['questoes_erradas'])
 
     def test_pizza_soma_o_total_de_questoes(self, resultado):
         from streamlit_app.components.graficos import grafico_pizza_acertos
@@ -367,6 +373,14 @@ class TestGraficos:
         from streamlit_app.components.graficos import grafico_impacto
 
         assert grafico_impacto([], titulo="MT") is not None
+
+    def test_graficos_nao_capturam_gestos_para_zoom(self, resultado):
+        from streamlit_app.components.graficos import grafico_notas_barras, grafico_impacto
+
+        for fig in (grafico_notas_barras([resultado]), grafico_impacto(_questoes_para_grafico(resultado))):
+            assert fig.layout.dragmode is False
+            assert fig.layout.xaxis.fixedrange is True
+            assert fig.layout.yaxis.fixedrange is True
 
     def test_grafico_de_barras(self, resultado):
         from streamlit_app.components.graficos import grafico_notas_barras
@@ -636,3 +650,66 @@ class TestAvisoAcuracia:
 
         assert ("Validada em 210 resultados oficiais.", True) in legendas
         assert all("participaram do ajuste" not in texto for texto, _ in legendas)
+
+
+class TestEstadoDaInterface:
+    @pytest.mark.parametrize("chave,valor", [
+        ("ano_prova", 2009), ("tipo_prova", "reaplicacao"),
+        ("lingua_prova", "espanhol"), ("cor_MT", "amarela"),
+        ("resp_mt", "B" * 45),
+    ])
+    def test_edicao_invalida_resultado_e_pdf(self, chave, valor):
+        at = _app_com_respostas({"MT": "A" * 45})
+        at.selectbox(key="ano_prova").set_value(2023).run()
+        at.button(key="calcular").click().run()
+        assert len(at.session_state["resultados"]) == 1
+        assert at.session_state["pdf_bytes"].startswith(b"%PDF-")
+        if chave.startswith("resp_"):
+            at.session_state[chave] = valor
+            at.run()
+        else:
+            at.selectbox(key=chave).set_value(valor).run()
+        assert not at.exception
+        for key in ("resultados", "resultado_assinatura", "pdf_bytes", "pdf_chave"):
+            assert key not in at.session_state
+        assert at.session_state["resp_mt"] == (valor if chave == "resp_mt" else "A" * 45)
+
+    def test_respostas_acompanham_area_quando_ordem_muda(self):
+        respostas = {"LC": "A" * 45, "CH": "B" * 45, "CN": "C" * 45, "MT": "D" * 45}
+        at = _app_com_respostas(respostas)
+        at.selectbox(key="ano_prova").set_value(2009).run()
+        ordem_antiga = at.session_state["ordem_provas_atual"]
+        at.selectbox(key="ano_prova").set_value(2023).run()
+        assert ordem_antiga != at.session_state["ordem_provas_atual"]
+        assert at.session_state["respostas_por_area"] == respostas
+        assert not at.exception
+
+    @pytest.mark.parametrize("respostas,habilitado", [
+        ({}, False), ({"MT": "A" * 44}, False), ({"MT": "X" * 45}, False),
+        ({"MT": "." * 45}, False), ({"MT": "A" * 45}, True),
+        ({"MT": "A" * 45, "CN": "B"}, False),
+    ])
+    def test_botao_reflete_validacao(self, respostas, habilitado):
+        at = _app_com_respostas(respostas).run()
+        assert at.button(key="calcular").disabled is not habilitado
+        assert not at.exception
+
+    @pytest.mark.parametrize("falha", ["excecao", "vazio"])
+    def test_falha_na_repeticao_nao_mantem_resultado_antigo(self, monkeypatch, falha):
+        from streamlit_app.calculador import CalculadorEnem
+
+        at = _app_com_respostas({"MT": "A" * 45}).run()
+        at.button(key="calcular").click().run()
+        assert "resultados" in at.session_state
+
+        def falhar(*args, **kwargs):
+            if falha == "excecao":
+                raise RuntimeError("Falha simulada")
+            return [], ["Falha simulada"]
+
+        monkeypatch.setattr(CalculadorEnem, "calcular_todas_areas", falhar)
+        at.button(key="calcular").click().run()
+        assert not at.exception
+        assert at.error
+        assert "resultados" not in at.session_state
+        assert "pdf_bytes" not in at.session_state

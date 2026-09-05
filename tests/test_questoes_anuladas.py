@@ -383,7 +383,8 @@ def test_graficos_streamlit_com_anulada():
     ]
     fig_grade = st_grade_questoes(questoes_st)
     assert fig_grade is not None
-    assert len(fig_grade.data) == 3
+    assert fig_grade.count('role="listitem"') == 3
+    assert "Q124: Anulada pelo INEP" in fig_grade
 
     fig_impacto = st_grafico_impacto(questoes_st)
     assert fig_impacto is not None
@@ -392,15 +393,14 @@ def test_graficos_streamlit_com_anulada():
 
 
 @pytest.mark.skipif(not HAS_WEB, reason="extra web não instalado")
-def test_graficos_tratam_entrada_vazia_ou_colunas_invalidas():
+def test_graficos_tratam_entrada_vazia():
     from streamlit_app.components.graficos import grafico_pizza_acertos
 
     fig = grafico_pizza_acertos(0, 0)
     assert not fig.data
     assert fig.layout.annotations[0].text == "Sem dados"
 
-    with pytest.raises(ValueError, match="colunas"):
-        st_grade_questoes([], colunas=0)
+    assert 'role="listitem"' not in st_grade_questoes([])
 
 
 @pytest.mark.skipif(not HAS_WEB, reason="extra web não instalado")

@@ -144,6 +144,8 @@ def exibir_download_pdf(resultados: List[Dict], ano: int, tipo_aplicacao: str = 
             file_name=nome_arquivo,
             mime="application/pdf",
             type="secondary",
+            on_click="ignore",
+            width="stretch",
         )
     else:
         st.error("Não foi possível gerar o PDF.")

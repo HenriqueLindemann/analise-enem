@@ -38,7 +38,7 @@ def exibir_resumo_geral(resultados: List[Dict]):
     total_questoes = sum(r['total_itens'] for r in resultados)
     
     # Métricas principais
-    st.markdown("### Resumo Geral")
+    st.markdown("Resultados")
     
     cols = st.columns(len(resultados) + 1)
     
@@ -53,7 +53,7 @@ def exibir_resumo_geral(resultados: List[Dict]):
     
     with cols[-1]:
         st.metric(
-            label="MÉDIA GERAL SIMPLES",
+            label="Média simples",
             value=formatar_numero(media),
             delta=f"{total_acertos}/{total_questoes} total",
             delta_color="off"
@@ -63,7 +63,7 @@ def exibir_resumo_geral(resultados: List[Dict]):
     st.plotly_chart(
         grafico_notas_barras(resultados), 
         key="resumo_barras",
-        config={'displayModeBar': False}
+        config={'displayModeBar': False, 'scrollZoom': False, 'doubleClick': False}
     )
 
 
@@ -127,12 +127,12 @@ def exibir_resultado_area(resultado: Dict):
     col_grade, col_pizza = st.columns([3, 1])
     
     with col_grade:
-        st.plotly_chart(
-            grade_questoes(todas_questoes),
-            key=f"grade_{sigla}",
-            config={'displayModeBar': False}
+        st.markdown(
+            '<div class="grade-moldura">' + grade_questoes(todas_questoes) + '</div>',
+            unsafe_allow_html=True,
         )
-    
+        st.caption("Verde: acerto · Vermelho: erro · Cinza: anulada")
+
     with col_pizza:
         total_validos = max(0, resultado.get('total_itens', 0))
         acertos_validos = max(0, resultado.get('acertos', 0))
@@ -140,7 +140,7 @@ def exibir_resultado_area(resultado: Dict):
         st.plotly_chart(
             grafico_pizza_acertos(acertos_validos, erros_validos),
             key=f"pizza_{sigla}",
-            config={'displayModeBar': False}
+            config={'displayModeBar': False, 'scrollZoom': False, 'doubleClick': False}
         )
         taxa_pct = (acertos_validos / total_validos * 100) if total_validos > 0 else 0
         st.markdown(
@@ -151,12 +151,14 @@ def exibir_resultado_area(resultado: Dict):
     # Seção 2: Gráfico de impacto
     st.markdown("##### Impacto das Questões na Nota")
     st.caption("Ordenado do maior para o menor impacto | Verde = Acerto | Vermelho = Erro")
-    st.plotly_chart(
-        grafico_impacto(todas_questoes, ""),
-        key=f"impacto_{sigla}",
-        config={'displayModeBar': False}
-    )
-    
+    with st.container(key=f"impacto_scroll_{sigla}"):
+        with st.container(key=f"impacto_fig_{sigla}"):
+            st.plotly_chart(
+                grafico_impacto(todas_questoes, ""),
+                key=f"impacto_{sigla}",
+                config={'displayModeBar': False, 'scrollZoom': False, 'doubleClick': False},
+            )
+
     # Seção 3: Tabelas de erros e acertos
     col_erros, col_acertos = st.columns(2)
     

@@ -1,12 +1,14 @@
 # SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 # Copyright (c) 2026 Henrique Lindemann
 """
-Visualizações gráficas para o Streamlit usando Plotly.
+Visualizações para o Streamlit: gráficos em Plotly e a grade de
+questões em HTML/CSS (leve, responsiva e acessível sem canvas).
 """
 
 import plotly.graph_objects as go
 from typing import List, Dict
 import numpy as np
+import html
 
 from tri_enem.formatacao import formatar_numero
 
@@ -104,6 +106,9 @@ def grafico_notas_barras(resultados: List[Dict]) -> go.Figure:
         font=dict(family="Arial, sans-serif"),
     )
     
+    fig.update_layout(dragmode=False)
+    fig.update_xaxes(fixedrange=True)
+    fig.update_yaxes(fixedrange=True)
     return fig
 
 
@@ -187,104 +192,31 @@ def grafico_impacto(questoes: List[Dict], titulo: str = "") -> go.Figure:
         showlegend=False,
     )
     
+    fig.update_layout(dragmode=False)
+    fig.update_xaxes(fixedrange=True)
+    fig.update_yaxes(fixedrange=True)
     return fig
 
 
-def grade_questoes(questoes: List[Dict], colunas: int = 15) -> go.Figure:
-    """
-    Grade visual das questões (acertos/erros/anuladas).
-    
-    Args:
-        questoes: Lista de dicts com 'posicao', 'acertou', opcional 'anulada'
-        colunas: Número de colunas na grade
-        
-    Returns:
-        Figura Plotly
-    """
-    if colunas < 1:
-        raise ValueError("colunas deve ser maior que zero")
-
-    if not questoes:
-        fig = go.Figure()
-        fig.add_annotation(text="Sem dados", xref="paper", yref="paper",
-                           x=0.5, y=0.5, showarrow=False)
-        return fig
-    
-    # Ordenar por posição
-    questoes_ord = sorted(questoes, key=lambda q: q['posicao'])
-    n = len(questoes_ord)
-    linhas = (n + colunas - 1) // colunas
-    
-    # Calcular taxa de acertos para ajustar altura
-    validas = [q for q in questoes_ord if not q.get('anulada')]
-    acertos = sum(1 for q in validas if q.get('acertou'))
-    taxa_acertos = acertos / len(validas) if validas else 0.5
-    
-    fig = go.Figure()
-    
-    # Criar dados para heatmap-like visualization
-    for i, q in enumerate(questoes_ord):
-        col = i % colunas
-        linha = linhas - 1 - (i // colunas)
-        
+def grade_questoes(questoes: List[Dict]) -> str:
+    """Mesma grade colorida, com células que reorganizam as linhas via CSS."""
+    celulas = []
+    for q in sorted(questoes, key=lambda q: q['posicao']):
         if q.get('anulada'):
-            cor = COR_ANULADA
-            status = "Anulada"
-            hover = f"Q{q['posicao']}: Anulada pelo INEP<br>Desconsiderada no cálculo TRI"
-        elif q['acertou']:
-            cor = COR_ACERTO
-            status = "Acerto"
-            hover = f"Q{q['posicao']}: {status}<br>Gabarito: {q.get('gabarito', '?')}<br>Resposta: {q.get('resposta_dada', '?')}"
+            classe, estado = 'anulada', 'Anulada pelo INEP'
+            descricao = f"Q{q['posicao']}: {estado}. Desconsiderada no cálculo TRI."
         else:
-            cor = COR_ERRO
-            status = "Erro"
-            hover = f"Q{q['posicao']}: {status}<br>Gabarito: {q.get('gabarito', '?')}<br>Resposta: {q.get('resposta_dada', '?')}"
-        
-        fig.add_trace(go.Scatter(
-            x=[col + 0.5],
-            y=[linha + 0.5],
-            mode='markers+text',
-            marker=dict(
-                size=40,
-                color=cor,
-                symbol='square',
-                opacity=0.8,
-                line=dict(color='white', width=2)
-            ),
-            text=[str(q['posicao'])],
-            textposition='middle center',
-            textfont=dict(color='white', size=11, family="Arial", weight='bold'),
-            hovertext=hover,
-            hoverinfo='text',
-            showlegend=False,
-        ))
-    
-    # Ajustar altura baseada em linhas e taxa de acertos
-    # Mais acertos = gráfico mais alto proporcionalmente
-    altura_base = max(200, linhas * 60)
-    altura_ajustada = altura_base * (0.7 + 0.6 * taxa_acertos)
-    
-    fig.update_layout(
-        xaxis=dict(
-            range=[0, colunas],
-            showticklabels=False,
-            showgrid=False,
-            zeroline=False,
-        ),
-        yaxis=dict(
-            range=[0, linhas],
-            showticklabels=False,
-            showgrid=False,
-            zeroline=False,
-            scaleanchor='x',
-        ),
-        height=int(altura_ajustada),
-        margin=dict(l=10, r=10, t=10, b=10),
-        paper_bgcolor='white',
-        plot_bgcolor='white',
-    )
-    
-    return fig
+            classe, estado = ('acerto', 'Acerto') if q['acertou'] else ('erro', 'Erro')
+            descricao = (f"Q{q['posicao']}: {estado}. Gabarito: {q.get('gabarito', '?')}. "
+                         f"Resposta: {q.get('resposta_dada', '?')}.")
+        descricao = html.escape(descricao, quote=True)
+        numero = html.escape(str(q['posicao']))
+        celulas.append(
+            f'<div class="questao questao--{classe}" role="listitem" '
+            f'aria-label="{descricao}" title="{descricao}">{numero}</div>'
+        )
+    return ('<div class="grade-questoes" role="list" aria-label="Grade de questões">'
+            + ''.join(celulas) + '</div>')
 
 
 def grafico_pizza_acertos(acertos: int, erros: int) -> go.Figure:
@@ -341,4 +273,7 @@ def grafico_pizza_acertos(acertos: int, erros: int) -> go.Figure:
         )]
     )
     
+    fig.update_layout(dragmode=False)
+    fig.update_xaxes(fixedrange=True)
+    fig.update_yaxes(fixedrange=True)
     return fig

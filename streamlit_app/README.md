@@ -22,6 +22,24 @@ streamlit run streamlit_app/app.py
 
 O app abrirá automaticamente em `http://localhost:8501`.
 
+## Testes
+
+A suíte do pytest (`pytest -q`, também rodada no CI) cobre a interface via
+`AppTest`, sem navegador. Para validar digitação, layout e PDF num navegador
+real, em várias larguras de tela:
+
+```bash
+pip install playwright && playwright install chromium
+
+# num terminal:
+streamlit run streamlit_app/app.py
+# em outro:
+python tests/smoke_streamlit_browser.py
+```
+
+O script é opt-in e não é coletado pelo pytest; os artefatos (PDF, capturas
+de tela) vão para um diretório temporário.
+
 ## Estrutura Modular
 
 ```
@@ -38,10 +56,12 @@ streamlit_app/
 │   ├── __init__.py     # Exports do módulo
 │   ├── inputs.py       # Componentes de entrada (respostas, configs)
 │   ├── resultados.py   # Exibição de resultados
-│   ├── graficos.py     # Visualizações Plotly
+│   ├── graficos.py     # Gráficos Plotly e grade de questões em HTML/CSS
 │   ├── impressao.py    # Geração de PDF
-│   ├── layout.py       # Estrutura da página (header, sidebar, footer)
-│   └── seo.py          # Meta tags, Schema.org JSON-LD
+│   ├── layout.py       # Estrutura da página (header, configurações, footer)
+│   ├── seo.py          # Meta tags, Schema.org JSON-LD
+│   └── live_input/     # Componente local de digitação em tempo real
+│                        (adaptado do streamlit-keyup; ver live_input/README.md)
 └── README.md
 ```
 

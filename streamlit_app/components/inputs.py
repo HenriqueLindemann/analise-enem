@@ -5,61 +5,63 @@ Componentes de entrada de dados para o Streamlit.
 """
 
 import streamlit as st
-try:
-    from st_keyup import st_keyup
-except ImportError:  # O campo nativo mantém o app funcional sem o extra.
-    st_keyup = None
-from typing import Dict, List, Tuple
+from .live_input import st_keyup
+from typing import Dict, List, Optional, Tuple
 import html
-from ..config import AREAS_ENEM, ORDEM_AREAS
+from ..config import AREAS_ENEM, ORDEM_AREAS, ORDEM_CORES
 
 
 TOTAL_RESPOSTAS = 45
 TAMANHO_BLOCO = 5
-PLACEHOLDERS = {
-    'LC': "Ex: ACABCDCEACABCACCBEAB...",
-    'CH': "Ex: EDAAAADBCAABBABEECBB...",
-    'CN': "Ex: DABCEDEBEECBEABEBDCB...",
-    'MT': "Ex: DCCAEBABDDCABEACCBCC...",
-}
 
 
-def input_respostas(ano: int, mapeador=None) -> Dict[str, str]:
+def input_respostas(
+    ano: int, mapeador, tipo_aplicacao: str,
+) -> Tuple[Dict[str, str], Dict[str, Optional[str]]]:
     """
     Renderiza os inputs de respostas para cada área.
     
     Args:
         ano: Ano da prova selecionado
         mapeador: Instância do mapeador (ordem das provas por ano)
+        tipo_aplicacao: Aplicação selecionada para consultar as cores
     
     Returns:
-        Dict com sigla da área e string de respostas
+        Respostas e cores por área; cor None indica área indisponível
     """
     respostas = {}
+    cores = {}
     
     st.markdown("### Suas Respostas")
     st.caption("Digite suas 45 respostas para cada área usando as letras A, B, C, D, E. "
-               "Use ponto (.) para questões não respondidas.")
+               "Use ponto (.) para questões não respondidas. Você pode preencher só uma área.")
     
     ordem_provas = _obter_ordem_provas(ano, mapeador)
-    _sincronizar_respostas_por_area(ordem_provas)
     st.session_state['ordem_provas_atual'] = ordem_provas
     st.session_state['ano_respostas'] = ano
-    st.markdown("#### Provas")
     
-    num_rows = (len(ordem_provas) + 1) // 2
-    rows = [st.columns(2) for _ in range(num_rows)]
-    
-    for idx, area in enumerate(ordem_provas, start=1):
-        row_idx = (idx - 1) // 2
-        col_idx = (idx - 1) % 2
-        with rows[row_idx][col_idx]:
-            _render_input_prova(respostas, area, idx)
-    
+    for inicio in range(0, len(ordem_provas), 2):
+        for idx, (area, coluna) in enumerate(zip(ordem_provas[inicio:inicio + 2], st.columns(2)), start=inicio + 1):
+            with coluna, st.container(border=True, key=f"respostas_{area}"):
+                st.markdown(f"**{AREAS_ENEM[area]}**")
+                disponiveis = mapeador.listar_cores_disponiveis(ano, area, tipo_aplicacao)
+                if disponiveis:
+                    ordenadas = sorted(disponiveis, key=lambda c: (ORDEM_CORES.index(c) if c in ORDEM_CORES else 99, c))
+                    chave = f"cor_{area}"
+                    if st.session_state.get(chave) not in ordenadas:
+                        st.session_state[chave] = ordenadas[0]
+                    cores[area] = st.selectbox("Cor do caderno", ordenadas, key=chave,
+                                               format_func=str.capitalize,
+                                               help="Confira a cor na capa do caderno de questões.")
+                else:
+                    cores[area] = None
+                    st.caption("Área não disponível nesta aplicação.")
+                _render_input_prova(respostas, area, idx)
+
     st.session_state['respostas_por_area'] = {
         area: respostas.get(area, '') for area in ORDEM_AREAS
     }
-    return respostas
+    return respostas, cores
 
 
 def _obter_ordem_provas(ano: int, mapeador=None) -> List[str]:
@@ -93,30 +95,12 @@ def _normalizar_ordem_provas(ordem) -> List[str]:
     return normalizada
 
 
-def _sincronizar_respostas_por_area(ordem_provas_atual: List[str]) -> None:
-    """Reaplica respostas por area quando a ordem muda."""
-    ordem_anterior = st.session_state.get('ordem_provas_atual')
-    if not ordem_anterior or ordem_anterior == ordem_provas_atual:
-        return
-
-    respostas_area = st.session_state.get('respostas_por_area')
-    if not isinstance(respostas_area, dict):
-        return
-
-    for area in ORDEM_AREAS:
-        key = f"resp_{area.lower()}"
-        if area in respostas_area:
-            st.session_state[key] = respostas_area[area]
-
-
 def _render_input_prova(respostas: Dict[str, str], area: str, ordem_idx: int) -> None:
     """Renderiza o bloco de input para uma prova na ordem indicada."""
-    nome_area = AREAS_ENEM.get(area, area)
     inicio = (ordem_idx - 1) * TOTAL_RESPOSTAS + 1
     fim = ordem_idx * TOTAL_RESPOSTAS
 
-    st.markdown(f"**{nome_area}**")
-    st.caption(f"Prova {ordem_idx} (Questoes {inicio}-{fim}) · {area}")
+    st.caption(f"Prova {ordem_idx} (Questões {inicio}-{fim}) · {area}")
 
     label = f"Respostas {area}"
     key = f"resp_{area.lower()}"
@@ -126,24 +110,23 @@ def _render_input_prova(respostas: Dict[str, str], area: str, ordem_idx: int) ->
     respostas[area] = (valor_digitado or '').upper()
 
     _render_visualizacao_respostas(respostas.get(area, ''), area.lower(), offset_start=inicio)
-    _mostrar_contador(respostas.get(area, ''), area.lower())
+    _mostrar_contador(respostas.get(area, ''))
 
 
 def _campo_respostas(label: str, valor_atual: str, key: str) -> str:
     """Usa digitação em tempo real e recua para o campo nativo se necessário."""
 
-    if st_keyup is not None:
-        try:
-            return st_keyup(
-                label,
-                value=valor_atual,
-                max_chars=TOTAL_RESPOSTAS,
-                key=key,
-                debounce=100,
-            )
-        except ValueError as exc:
-            if "is not registered" not in str(exc):
-                raise
+    try:
+        return st_keyup(
+            label,
+            value=valor_atual,
+            max_chars=TOTAL_RESPOSTAS,
+            key=key,
+            debounce=100,
+        )
+    except ValueError as exc:
+        if "is not registered" not in str(exc):
+            raise
     return st.text_input(
         label,
         value=valor_atual,
@@ -152,7 +135,7 @@ def _campo_respostas(label: str, valor_atual: str, key: str) -> str:
     )
 
 
-def _mostrar_contador(respostas: str, key: str):
+def _mostrar_contador(respostas: str):
     """Mostra contador de caracteres e validação."""
     total = TOTAL_RESPOSTAS
     n = len(respostas)
@@ -165,11 +148,11 @@ def _mostrar_contador(respostas: str, key: str):
     invalidos = [c for c in respostas if c not in 'ABCDE.*']
     
     if invalidos:
-        st.error(f"Caracteres inválidos: {set(invalidos)}")
+        st.error(f"Caracteres inválidos: {', '.join(sorted(set(invalidos)))}")
     elif n < total:
-        st.warning(f"{n}/{total} respostas (faltam {total - n})")
+        st.caption(f"{n}/{total} respostas · faltam {total - n}")
     elif n == total:
-        st.success(f"{total}/{total} respostas")
+        st.caption(f"{total}/{total} respostas · completo")
     else:
         st.error(f"{n}/{total} respostas (excedeu)")
 
@@ -183,26 +166,17 @@ def _render_visualizacao_respostas(respostas: str, key: str, offset_start: int =
     if len(base) < total:
         base = base + ("_" * (total - len(base)))
 
-    ruler = " | ".join([str(offset_start + i).ljust(bloco) for i in range(0, total, bloco)])
-    blocks_html = _formatar_blocos_html(base, bloco)
-
-    empty_class = " resp-visual--empty" if not respostas else ""
-    html_block = f"""
-    <div class="resp-visual{empty_class}" data-key="{key}">
-        <div class="resp-visual__ruler">{html.escape(ruler)}</div>
-        <div class="resp-visual__blocks">{blocks_html}</div>
-    </div>
-    """
-    st.markdown(html_block, unsafe_allow_html=True)
-
-
-def _formatar_blocos_html(respostas: str, bloco: int) -> str:
-    """Formata as respostas em HTML, destacando vazios e invalidos."""
     grupos = []
-    for i in range(0, len(respostas), bloco):
-        trecho = respostas[i:i + bloco]
-        grupos.append("".join(_formatar_char_html(c) for c in trecho))
-    return " | ".join(grupos)
+    for i in range(0, total, bloco):
+        letras = "".join(_formatar_char_html(c) for c in base[i:i + bloco])
+        grupos.append(
+            f'<div class="resp-grupo"><div class="resp-visual__ruler">{offset_start + i}</div>'
+            f'<div class="resp-visual__blocks">{letras}</div></div>'
+        )
+    st.markdown(
+        f'<div class="resp-visual" data-key="{html.escape(key, quote=True)}">'
+        + "".join(grupos) + '</div>', unsafe_allow_html=True,
+    )
 
 
 def _formatar_char_html(c: str) -> str:
@@ -235,6 +209,6 @@ def validar_todas_respostas(respostas: Dict[str, str]) -> Tuple[bool, List[str]]
         
         invalidos = [c for c in resp if c not in 'ABCDE.*']
         if invalidos:
-            erros.append(f"{area}: Caracteres inválidos: {set(invalidos)}")
+            erros.append(f"{area}: Caracteres inválidos: {', '.join(sorted(set(invalidos)))}")
     
     return len(erros) == 0, erros

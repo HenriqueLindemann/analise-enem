@@ -30,6 +30,7 @@ dist/
 build/
 .eggs/
 *.egg
+uv.lock
 
 # Claude Code
 .claude/

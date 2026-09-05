@@ -1,0 +1,22 @@
+/* Adapted from streamlit-keyup 0.3.0; see LICENSE. Styles belong in the iframe. */
+:root {
+  --primary-color: #3498db;
+  --background-color: #fff;
+  --secondary-background-color: #f8f9fa;
+  --text-color: #2c3e50;
+  --font: sans-serif;
+}
+body { margin: 0; padding-bottom: 4px; color: var(--text-color); font-family: var(--font); }
+label { display: block; font-size: 14px; line-height: 1.5; margin-bottom: 6px; }
+input {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid #aab4c0;
+  border-radius: 6px;
+  padding: 10px 12px;
+  font: 16px/1.6 var(--font);
+  color: var(--text-color);
+  background: var(--secondary-background-color);
+}
+input:focus { outline: 2px solid var(--primary-color); outline-offset: -2px; }

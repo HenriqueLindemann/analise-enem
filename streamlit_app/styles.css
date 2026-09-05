@@ -1,247 +1,58 @@
-/* ============================================================================
-   Calculadora Nota TRI ENEM - Estilos do Streamlit App
-   Site: https://notatri.com
-   ============================================================================ */
-
-/* ----------------------------------------------------------------------------
-   LAYOUT GERAL
-   ---------------------------------------------------------------------------- */
-
-.main {
-    padding-top: 1rem;
-}
-
-/* ----------------------------------------------------------------------------
-   MÉTRICAS
-   ---------------------------------------------------------------------------- */
-
-[data-testid="stMetricValue"] {
-    font-size: 2rem;
-    font-weight: 700;
-}
-
-.taxa-pizza {
-    margin-top: -0.75rem;
-    color: #7f8c8d;
-    font-size: 0.8rem;
-    text-align: center;
-}
-
-/* ----------------------------------------------------------------------------
-   INPUTS
-   ---------------------------------------------------------------------------- */
-
-.stTextInput input,
-div[data-testid="stKeyUp"] input {
-    font-family: 'Courier New', monospace;
-    font-size: 14px;
-    letter-spacing: 2px;
-}
-
-/* Placeholder mais discreto (cinza bem claro) */
-.stTextInput input::placeholder,
-div[data-testid="stKeyUp"] input::placeholder {
-    color: #d0d5dc !important;
-    opacity: 0.5 !important;
-    font-weight: 300 !important;
-}
-
+/* App-owned styles; native Streamlit controls handle their own responsive layout. */
+.st-key-app_content { max-width: 1100px; margin-inline: auto; }
 .resp-visual {
-    margin-top: 0.35rem;
-    padding: 0.5rem 0.75rem;
-    border: 1px solid #e5e7eb;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem 0.5rem;
+    padding: 0.65rem;
+    background: var(--secondary-background-color, #f8f9fa);
     border-radius: 6px;
-    background: #fafafa;
-    overflow-x: auto;
 }
-
-.resp-visual--empty {
-    opacity: 0.65;
+.resp-grupo { font: 14px/1.6 monospace; }
+.resp-visual__ruler { color: var(--text-color, #2c3e50); font-size: 12px; }
+.resp-visual__blocks { white-space: nowrap; }
+.resp-char--empty, .resp-char--dot { color: #687587; }
+.resp-char--invalid { color: #b91c1c; font-weight: bold; text-decoration: underline; }
+/* Desktop: all 45 answers fit on one line; mobile wraps whole groups. */
+@media (min-width: 1024px) {
+    .resp-visual { display: grid; grid-template-columns: repeat(9, minmax(0, 1fr)); gap: 0.25rem; }
+    .resp-grupo { font-size: 13px; }
 }
+@media (min-width: 1200px) { .resp-grupo { font-size: 14px; } }
+.taxa-pizza { margin-top: 0; color: #7f8c8d; font-size: 0.8rem; text-align: center; }
+.footer { text-align: center; padding: 1.5rem 0 0.5rem; font-size: 0.9rem; }
 
-.resp-visual__label {
-    font-size: 0.75rem;
-    color: #6b7280;
-    margin-bottom: 0.25rem;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-}
-
-.resp-visual__ruler,
-.resp-visual__blocks {
-    font-family: 'Courier New', monospace;
-    font-size: 12px;
-    line-height: 1.4;
-    white-space: pre;
-}
-
-.resp-visual__ruler {
-    color: #6b7280;
-}
-
-.resp-visual__blocks {
-    color: #111827;
-}
-
-.resp-char--empty {
-    color: #cbd5e1;
-}
-
-.resp-char--dot {
-    color: #94a3b8;
-}
-
-.resp-char--invalid {
-    color: #b91c1c;
-    font-weight: 700;
-}
-
-/* ----------------------------------------------------------------------------
-   BOTÕES
-   ---------------------------------------------------------------------------- */
-
-.stButton>button[kind="primary"] {
+/* Question grid; larger cells on phones. */
+.st-key-app_content .grade-questoes {
+    display: grid;
     width: 100%;
-    font-size: 1.1rem;
-    padding: 0.75rem;
+    max-width: 620px;
+    margin: 0 auto;
+    grid-template-columns: repeat(15, minmax(0, 1fr));
+    gap: 2px;
+}
+.grade-questoes .questao {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 1;
+    min-width: 0;
+    color: white;
+    font: bold 11px Arial, sans-serif;
+}
+.questao--acerto { background: #27ae60; }
+.questao--erro { background: #e74c3c; }
+.questao--anulada { background: #94a3b8; }
+@media (max-width: 640px) {
+    .st-key-app_content .grade-questoes { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; }
+    .grade-questoes .questao { font-size: 14px; }
 }
 
-/* ----------------------------------------------------------------------------
-   FOOTER
-   ---------------------------------------------------------------------------- */
+/* Match the 200px Plotly donut height. */
+.grade-moldura { min-height: 200px; display: flex; align-items: center; }
+@media (max-width: 640px) { .grade-moldura { min-height: 0; } }
 
-.footer {
-    text-align: center;
-    padding: 2rem 0;
-    color: #666;
-    font-size: 0.9rem;
-}
-
-/* ----------------------------------------------------------------------------
-   ELEMENTOS STREAMLIT ESCONDIDOS
-   ---------------------------------------------------------------------------- */
-
-#MainMenu {
-    visibility: hidden;
-}
-
-footer {
-    visibility: hidden;
-}
-
-/* ----------------------------------------------------------------------------
-   RODAPÉ DE IMPRESSÃO (só aparece ao imprimir)
-   ---------------------------------------------------------------------------- */
-
-.print-footer {
-    display: none;
-}
-
-/* ============================================================================
-   ESTILOS PARA IMPRESSÃO 
-   ============================================================================ */
-
-@media print {
-
-    /* Esconder sidebar e elementos de navegação */
-    [data-testid="stSidebar"],
-    header,
-    .stDeployButton,
-    .stDecoration,
-    [data-testid="stToolbar"] {
-        display: none !important;
-    }
-
-    /* Esconder botões na impressão */
-    .stButton,
-    .no-print {
-        display: none !important;
-    }
-
-    /* Expandir todos os expanders */
-    details {
-        display: block !important;
-        border: none !important;
-    }
-
-    details>summary {
-        display: none !important;
-    }
-
-    details[open]>*:not(summary) {
-        display: block !important;
-    }
-
-    /* Ajustar largura para impressão */
-    .main {
-        max-width: 100% !important;
-        padding: 0 !important;
-    }
-
-    .block-container {
-        max-width: 100% !important;
-        padding: 0 1rem !important;
-    }
-
-    /* Mostrar rodapé de impressão */
-    .print-footer {
-        display: block !important;
-        text-align: center;
-        margin-top: 2rem;
-        padding-top: 1rem;
-        border-top: 2px solid #3498DB;
-        font-size: 0.9rem;
-        color: #666 !important;
-        page-break-inside: avoid;
-    }
-
-    .print-footer p {
-        color: #333 !important;
-    }
-
-    /* Evitar quebra de página em seções importantes */
-    [data-testid="stMetric"],
-    .js-plotly-plot {
-        page-break-inside: avoid;
-    }
-
-    /* IMPORTANTE: Preservar gráficos Plotly */
-    .js-plotly-plot,
-    .plotly,
-    .plot-container,
-    [data-testid="stPlotlyChart"] {
-        display: block !important;
-        visibility: visible !important;
-        width: 100% !important;
-        page-break-inside: avoid;
-    }
-
-    /* Preservar cores dos gráficos */
-    .js-plotly-plot .plot,
-    .js-plotly-plot .plotly,
-    .js-plotly-plot svg {
-        background: white !important;
-    }
-
-    /* NÃO aplicar preto/branco forçado (preserva cores dos gráficos) */
-    /* Apenas ajustar texto principal */
-    body,
-    .main,
-    p,
-    span,
-    h1,
-    h2,
-    h3,
-    h4,
-    h5,
-    h6 {
-        color: #000 !important;
-    }
-
-    /* Fundo branco para impressão */
-    body,
-    .main,
-    .stApp {
-        background: #fff !important;
-    }
+@media (max-width: 640px) {
+    [class*="st-key-impacto_scroll_"] { overflow-x: auto; min-width: 0; }
+    [class*="st-key-impacto_fig_"] { min-width: 680px; }
 }

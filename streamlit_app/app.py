@@ -53,7 +53,7 @@ from streamlit_app.components.layout import (
     carregar_css,
     render_header,
     render_instrucoes,
-    render_sidebar_config,
+    render_config,
     render_botao_calcular,
     render_footer,
 )
@@ -135,30 +135,30 @@ def main():
     # Instruções de uso
     render_instrucoes()
     
-    # Sidebar: configurações (ano, tipo, língua, cores)
+    # Configurações da prova na página principal
     calc = get_calculador()
-    ano, tipo_aplicacao, lingua, cores = render_sidebar_config(calc.mapeador)
+    ano, tipo_aplicacao, lingua = render_config(calc.mapeador)
     
     # Área principal: inputs de respostas
-    respostas = input_respostas(ano, calc.mapeador)
+    respostas, cores = input_respostas(ano, calc.mapeador, tipo_aplicacao)
     
     # Validação das respostas
-    todas_validas, erros_validacao = validar_todas_respostas(respostas)
+    todas_validas, _ = validar_todas_respostas(respostas)
     
-    # Verificar se há alguma resposta preenchida
-    tem_respostas = any(r and r != "." * 45 for r in respostas.values())
-    
-    # Botão de calcular
-    calcular = render_botao_calcular(tem_respostas)
-    
-    # Mostrar erros de validação
-    if erros_validacao and tem_respostas:
-        for erro in erros_validacao:
-            st.error(f"{erro}")
-    
+    tem_respostas = any(r and r != "." * 45 and cores.get(area)
+                        for area, r in respostas.items())
+    pode_calcular = bool(tem_respostas and todas_validas)
+    if not pode_calcular:
+        st.caption("Complete 45 respostas em pelo menos uma área disponível. "
+                   "Complete ou limpe as demais áreas preenchidas para calcular.")
+    calcular = render_botao_calcular(pode_calcular)
+
+    # Reservar a posição evita remontar os expanders após o cálculo.
+    status_calculo = st.empty()
     # Processar cálculo
-    if calcular and tem_respostas and todas_validas:
-        _processar_calculo(calc, ano, tipo_aplicacao, lingua, cores, respostas)
+    if calcular and pode_calcular:
+        with status_calculo.container():
+            _processar_calculo(calc, ano, tipo_aplicacao, lingua, cores, respostas)
     elif calcular and not tem_respostas:
         st.warning("Preencha pelo menos uma área para calcular.")
     
@@ -203,6 +203,7 @@ def _limpar_resultados_salvos():
 
 def _processar_calculo(calc, ano, tipo_aplicacao, lingua, cores, respostas):
     """Processa o cálculo das notas com progress bar."""
+    _limpar_resultados_salvos()
     progress_bar = st.progress(0, text="Iniciando cálculo...")
     
     try:
@@ -279,6 +280,7 @@ def _exibir_resultados_salvos(
     
     # Resumo geral com métricas
     exibir_resumo_geral(resultados)
+    exibir_download_pdf(resultados, ano_resultado, tipo_resultado)
     
     st.markdown("---")
     
@@ -305,9 +307,6 @@ def _exibir_resultados_salvos(
         with st.expander(f"**{nome}** — {nota_texto} pts ({acertos}/{total} acertos{anuladas_txt})", expanded=False):
             exibir_resultado_area(resultado)
     
-    # Download do relatório PDF
-    st.markdown("---")
-    exibir_download_pdf(resultados, ano_resultado, tipo_resultado)
 
 
 def _obter_ordem_provas(calc, ano):
@@ -332,4 +331,5 @@ def _ordenar_resultados_por_prova(resultados, ordem_provas):
 # ============================================================================
 
 if __name__ == "__main__":
-    main()
+    with st.container(key="app_content"):
+        main()

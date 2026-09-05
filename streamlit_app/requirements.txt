@@ -4,9 +4,6 @@
 # Framework Web
 streamlit>=1.49.0
 
-# Input interativo em tempo real
-streamlit-keyup>=0.2.0
-
 # Gráficos interativos
 plotly>=5.18.0
 
