@@ -161,35 +161,69 @@ def grafico_impacto(questoes: List[Dict], titulo: str = "") -> go.Figure:
                 f"{formatar_numero(q['impacto'])} pts"
             )
     
+    # Rótulo de questão vertical acima de cada barra (inspirado no relatório PDF)
+    rotulos = [str(q['posicao']) for q in questoes_ord]
+
     fig = go.Figure()
-    
+
     fig.add_trace(go.Bar(
         x=list(range(len(posicoes))),
         y=valores,
         marker_color=cores,
-        text=posicoes,
+        text=rotulos,
         textposition='outside',
-        textfont=dict(size=8),
+        textangle=-90,
+        textfont=dict(size=11, color=cores, family="Helvetica, Arial, sans-serif"),
         cliponaxis=False,
         hovertext=hover_texts,
         hoverinfo='text',
     ))
-    
+
+    margem_topo = 40 if titulo else 20
+    topo_y = max(max_valor * 1.15, 1.0)
+
+    annotations = [
+        dict(
+            text="<i><b>⬅ maior impacto</b></i>",
+            x=0.25,
+            xref="paper",
+            y=-0.12,
+            yref="paper",
+            showarrow=False,
+            font=dict(size=12, color='#7F8C8D', family="Helvetica, Arial, sans-serif"),
+            xanchor="center",
+        ),
+        dict(
+            text="<i><b>menor impacto ➡</b></i>",
+            x=0.75,
+            xref="paper",
+            y=-0.12,
+            yref="paper",
+            showarrow=False,
+            font=dict(size=12, color='#7F8C8D', family="Helvetica, Arial, sans-serif"),
+            xanchor="center",
+        ),
+    ]
+
     fig.update_layout(
-        title=dict(text=titulo, font=dict(size=14)),
+        title=dict(text=titulo, font=dict(size=14)) if titulo else dict(text="", font=dict(size=1)),
+        annotations=annotations,
         xaxis=dict(
-            title="← maior impacto                                  menor impacto →",
             showticklabels=False,
             showgrid=False,
         ),
         yaxis=dict(
-            title="Pontos",
-            gridcolor=COR_CINZA_CLARO,
+            title=dict(text="Pontos", font=dict(size=12, color='#2C3E50')),
+            tickfont=dict(size=11, color='#64748B'),
+            gridcolor='#E2E8F0',
             gridwidth=0.5,
-            range=[min_valor, max_valor * 1.15],
+            zeroline=True,
+            zerolinecolor='#CBD5E1',
+            zerolinewidth=0.8,
+            range=[min_valor, topo_y],
         ),
-        height=280,
-        margin=dict(l=50, r=20, t=60, b=50),
+        height=320,
+        margin=dict(l=45, r=45, t=margem_topo, b=45),
         paper_bgcolor='white',
         plot_bgcolor='white',
         showlegend=False,

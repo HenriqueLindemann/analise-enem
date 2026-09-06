@@ -38,8 +38,10 @@ footer {
 .legenda--acerto i, .grade-questoes .questao--acerto { background: #23845a; }
 .legenda--erro i, .grade-questoes .questao--erro { background: #c84b45; }
 .legenda--anulada i, .grade-questoes .questao--anulada { background: #7a8793; }
-.questao--erro::after, .legenda--erro i::after { content: ""; position: absolute; bottom: 3px; left: 3px; right: 3px; border-bottom: 1px solid #faecea; }
-.questao--anulada::after, .legenda--anulada i::after { content: ""; position: absolute; inset: 2px; border: 1px solid #eef1f4; border-radius: 2px; }
+.legenda--erro i::after { content: ""; position: absolute; bottom: 2px; left: 2px; right: 2px; border-bottom: 1.5px solid #faecea; }
+.questao--erro::after { content: ""; position: absolute; bottom: 4px; left: 6px; right: 6px; border-bottom: 2px solid rgba(255, 255, 255, 0.7); }
+.legenda--anulada i::after { content: ""; position: absolute; inset: 2px; border: 1px solid #eef1f4; border-radius: 2px; }
+.questao--anulada::after { content: ""; position: absolute; inset: 3px; border: 1.5px solid #eef1f4; border-radius: 3px; }
 .st-key-app_content .grade-questoes {
     display: grid;
     grid-template-columns: repeat(15, minmax(0, 1fr));
@@ -50,14 +52,15 @@ footer {
     align-items: center;
     justify-content: center;
     gap: 4px;
-    height: 34px;
+    height: 36px;
     min-width: 0;
     border-radius: 3px;
     position: relative;
     color: #ffffff;
-    font-size: 12px;
-    font-weight: 600;
+    font-size: 13px;
+    font-weight: 700;
     font-variant-numeric: tabular-nums;
+    letter-spacing: -0.3px;
 }
 
 /* Semantic tables: predictable order, readable on phones, no spreadsheet toolbar. */
@@ -135,11 +138,29 @@ footer {
     .diagnostico-grupo { padding: 12px; }
     .resposta-seta { margin-inline: 3px; }
     .diagnostico { grid-template-columns: minmax(0, 1fr); gap: 24px; }
-    .st-key-app_content .grade-questoes { grid-template-columns: repeat(9, minmax(0, 1fr)); gap: 4px; }
-    .grade-questoes .questao { height: 32px; flex-direction: column; gap: 0; font-size: 12px; line-height: 1.2; }
+    .st-key-app_content .grade-questoes {
+        grid-template-columns: repeat(9, minmax(0, 1fr));
+        gap: 4px;
+    }
+    .grade-questoes .questao {
+        height: 34px;
+        font-size: 13px;
+        letter-spacing: -0.3px;
+    }
+    .questao--erro::after {
+        bottom: 3px;
+        left: 4px;
+        right: 4px;
+    }
 }
 
 @media (max-width: 640px) {
-    [class*="st-key-impacto_scroll_"] { overflow-x: auto; min-width: 0; }
-    [class*="st-key-impacto_fig_"] { min-width: 680px; }
+    [class*="st-key-impacto_scroll_"] {
+        overflow-x: auto;
+        min-width: 0;
+        -webkit-overflow-scrolling: touch;
+    }
+    [class*="st-key-impacto_fig_"] {
+        min-width: 860px;
+    }
 }
