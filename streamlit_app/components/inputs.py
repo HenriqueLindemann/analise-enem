@@ -34,7 +34,7 @@ def input_respostas(
     
     st.markdown("### Suas Respostas")
     st.caption("Digite suas 45 respostas para cada área usando as letras A, B, C, D, E. "
-               "Use ponto (.) para questões não respondidas. Você pode preencher só uma área.")
+               "Use ponto (.) para questões não respondidas. Você pode preencher só as provas que desejar.")
     
     ordem_provas = _obter_ordem_provas(ano, mapeador)
     st.session_state['ordem_provas_atual'] = ordem_provas

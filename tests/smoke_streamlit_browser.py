@@ -28,6 +28,60 @@ def check_layout(page):
         })"""), "Desktop answers must stay on one line"
 
 
+def check_year_changes(browser, url, *, delayed_html=False):
+    """All four real inputs survive reordered cards and slow document parsing."""
+    page = browser.new_page(viewport={"width": 1440, "height": 1200})
+    errors = []
+    page.on("pageerror", lambda error: errors.append(str(error)))
+    if delayed_html:
+        # Pause parsing before the body, as a slow/chunked response can do.
+        # Previously main.js announced readiness from <head>; the first render
+        # accessed missing DOM nodes and left the iframe at zero height.
+        def delay_document(route):
+            response = route.fetch()
+            route.fulfill(response=response, body=response.text().replace(
+                '<body id="root">',
+                '<script src="./test-parser-delay.js"></script><body id="root">',
+            ))
+
+        def release_parser(route):
+            page.wait_for_timeout(1000)
+            route.fulfill(body="", content_type="application/javascript")
+
+        page.route("**/component/**/index.html?*", delay_document)
+        page.route("**/test-parser-delay.js", release_parser)
+
+    answers = {"CH": "A" * 45, "CN": "B" * 45, "LC": "C" * 45, "MT": "D" * 45}
+    page.goto(url)
+    for step, year in enumerate((2023, 2011, 2023, 2011)):
+        year_input = page.locator(".st-key-ano_prova").get_by_role("combobox")
+        year_input.scroll_into_view_if_needed()
+        year_input.fill(str(year))
+        page.get_by_role("option", name=str(year), exact=True).click()
+        first_area = "CH" if year == 2011 else "LC"
+        expect(page.get_by_text(f"Prova 1 (Questões 1-45) · {first_area}", exact=True)).to_be_visible()
+        for area, answer in answers.items():
+            card = page.locator(f".st-key-respostas_{area}")
+            field = card.frame_locator("iframe").get_by_label(f"Respostas {area}", exact=True)
+            expect(field).to_be_visible()
+            assert field.evaluate(
+                "el => el.getBoundingClientRect().bottom <= window.innerHeight - 4"
+            ), f"{year} {area}: input clipped by iframe"
+            if step == 0:
+                field.fill(answer)
+            else:
+                expect(field).to_have_value(answer)
+                # Check that the restored input still sends edits to Python.
+                field.fill(answer[:-1])
+                expect(card.get_by_text("44/45 respostas · faltam 1", exact=True)).to_be_visible()
+                field.fill(answer)
+            expect(card.get_by_text("45/45 respostas · completo", exact=True)).to_be_visible()
+            assert "".join(card.locator(".resp-char").all_text_contents()) == answer
+    assert not errors, errors
+    page.close()
+    print(f"PASS year changes: visibility, retained answers, editing (delayed HTML={delayed_html})", flush=True)
+
+
 def run(url, executable, output):
     from streamlit_app.calculador import CalculadorEnem
     from tri_enem.formatacao import formatar_numero
@@ -40,6 +94,8 @@ def run(url, executable, output):
     output.mkdir(parents=True, exist_ok=True)
     with sync_playwright() as pw:
         browser = pw.chromium.launch(**({"executable_path": executable} if executable else {}))
+        check_year_changes(browser, url)
+        check_year_changes(browser, url, delayed_html=True)
         for width in (360, 390, 768, 1024, 1440):
             page = browser.new_page(viewport={"width": width, "height": 900},
                                     has_touch=width < 768, is_mobile=width < 768)
