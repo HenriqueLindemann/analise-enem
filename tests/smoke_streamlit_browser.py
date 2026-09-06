@@ -17,7 +17,7 @@ sys.path[:0] = [str(ROOT), str(ROOT / "src")]
 
 def check_layout(page):
     # Streamlit scrolls inside stMain, so checking body alone misses overflow.
-    for selector in ("body", '[data-testid="stMain"]', ".st-key-app_content", ".resp-visual"):
+    for selector in ("body", '[data-testid="stMain"]', ".st-key-app_content", ".resp-visual", ".grade-painel", ".diagnostico-grupo"):
         assert page.locator(selector).evaluate_all(
             "els => els.every(el => el.scrollWidth <= el.clientWidth + 1)"
         ), f"Horizontal overflow: {selector}"
@@ -160,14 +160,6 @@ def run(url, executable, output):
             }""")
             check_layout(page)
             expect(page.locator('[data-testid="stSidebar"]')).to_have_count(0)
-            if width >= 768:
-                assert page.locator(".grade-moldura").evaluate("""frame => {
-                    const pie = [...document.querySelectorAll('.js-plotly-plot')]
-                        .find(plot => plot.data?.[0]?.type === 'pie');
-                    const grid = frame.getBoundingClientRect();
-                    const chart = pie.getBoundingClientRect();
-                    return Math.abs(grid.top + grid.height / 2 - chart.top - chart.height / 2) < 3;
-                }"""), "Grid and donut must align vertically"
             assert cells.evaluate_all("""els => {
                 const cells = els.map(el => el.getBoundingClientRect());
                 return cells.every((a, i) => cells.slice(i + 1).every(b =>
@@ -177,8 +169,25 @@ def run(url, executable, output):
             columns = page.locator(".grade-questoes").evaluate(
                 "el => getComputedStyle(el).gridTemplateColumns.split(' ').length"
             )
-            assert columns == (5 if width <= 640 else 15)
-            tables = page.locator('[data-testid="stDataFrame"]')
+            assert columns == (9 if width < 768 else 15)
+            if width < 768:
+                assert page.locator(".grade-painel").bounding_box()["height"] < 310
+            tables = page.locator(".diagnostico-grupo")
+            expect(page.locator('[data-testid="stDataFrame"]')).to_have_count(0)
+            for group in tables.all():
+                count = int(group.locator(".diagnostico-contagem").inner_text())
+                expect(group.locator("tbody tr")).to_have_count(count)
+                scroll = group.locator(".questoes-scroll")
+                if count:
+                    scroll.scroll_into_view_if_needed()
+                    scroll.evaluate("el => el.scrollTop = el.scrollHeight")
+                    expect(group.locator("tbody tr").last).to_be_in_viewport()
+                    scroll.evaluate("el => el.scrollTop = 0")
+            assert page.locator(".grade-painel").evaluate("""el => {
+                const box = el.getBoundingClientRect();
+                const parent = el.parentElement.getBoundingClientRect();
+                return Math.abs(box.left + box.width / 2 - parent.left - parent.width / 2) < 2;
+            }"""), "Question overview must be centered"
             first, second = tables.nth(0).bounding_box(), tables.nth(1).bounding_box()
             if width >= 768:
                 assert second["x"] > first["x"] + first["width"] - 1

@@ -199,7 +199,7 @@ def grafico_impacto(questoes: List[Dict], titulo: str = "") -> go.Figure:
 
 
 def grade_questoes(questoes: List[Dict]) -> str:
-    """Mesma grade colorida, com células que reorganizam as linhas via CSS."""
+    """Grade compacta com cores e padrões do PDF, além da descrição acessível."""
     celulas = []
     for q in sorted(questoes, key=lambda q: q['posicao']):
         if q.get('anulada'):

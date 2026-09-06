@@ -140,7 +140,6 @@ class TestAppExecuta:
         assert "Língua estrangeira" in rotulos
         textos = " ".join(bloco.value for bloco in at.markdown)
         assert "Carl Sagan" in textos
-        assert "Estimativa verificada" in textos
         assert "Impacto de cada questão" in textos
         assert "Análise completa" in textos
         # Uma seleção de cor por área
@@ -386,6 +385,23 @@ class TestGraficos:
         from streamlit_app.components.graficos import grafico_notas_barras
 
         assert grafico_notas_barras([resultado]) is not None
+
+    def test_tabela_questoes_renderiza_acertos_e_erros(self, resultado):
+        from streamlit_app.components.resultados import _tabela_questoes
+
+        html_erros = _tabela_questoes(resultado['questoes_erradas'], acertou=False)
+        assert "diagnostico--erros" in html_erros
+        assert str(len(resultado['questoes_erradas'])) in html_erros
+
+        html_acertos = _tabela_questoes(resultado['questoes_acertadas'], acertou=True)
+        assert "diagnostico--acertos" in html_acertos
+        assert str(resultado['acertos']) in html_acertos
+
+    def test_tabela_questoes_vazia(self):
+        from streamlit_app.components.resultados import _tabela_questoes
+
+        assert "Nenhum erro" in _tabela_questoes([], acertou=False)
+        assert "Nenhum acerto" in _tabela_questoes([], acertou=True)
 
 
 class TestRelatorioPDF:

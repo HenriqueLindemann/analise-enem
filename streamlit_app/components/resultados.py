@@ -4,6 +4,8 @@
 Componentes de exibição de resultados para o Streamlit.
 """
 
+from html import escape
+
 import streamlit as st
 from typing import Dict, List
 
@@ -16,7 +18,6 @@ from .graficos import (
     grafico_notas_barras, 
     grafico_impacto, 
     grade_questoes,
-    grafico_pizza_acertos,
 )
 
 
@@ -122,32 +123,25 @@ def exibir_resultado_area(resultado: Dict):
             'param_b': q.get('param_b', 0),
         })
 
-    # Seção 1: Grade de questões + Pizza
+    # Resumo compacto: a taxa e a legenda acompanham a grade em qualquer tela.
     st.markdown("##### Grade de Questões")
-    col_grade, col_pizza = st.columns([3, 1])
-    
-    with col_grade:
-        st.markdown(
-            '<div class="grade-moldura">' + grade_questoes(todas_questoes) + '</div>',
-            unsafe_allow_html=True,
-        )
-        st.caption("Verde: acerto · Vermelho: erro · Cinza: anulada")
+    acertos = len(questoes_acertadas)
+    erros = len(questoes_erradas)
+    validas = acertos + erros
+    taxa = f"{formatar_numero(100 * acertos / validas, 0)}% de acertos" if validas else "Sem questões válidas"
+    st.markdown(
+        '<div class="grade-painel">'
+        f'<div class="grade-resumo"><strong>{taxa}</strong>'
+        '<div class="grade-legenda">'
+        f'<span class="legenda--acerto"><i aria-hidden="true"></i>{acertos} acertos</span>'
+        f'<span class="legenda--erro"><i aria-hidden="true"></i>{erros} erros</span>'
+        f'<span class="legenda--anulada"><i aria-hidden="true"></i>{len(questoes_anuladas)} anuladas</span>'
+        '</div></div>'
+        + grade_questoes(todas_questoes)
+        + '</div>',
+        unsafe_allow_html=True,
+    )
 
-    with col_pizza:
-        total_validos = max(0, resultado.get('total_itens', 0))
-        acertos_validos = max(0, resultado.get('acertos', 0))
-        erros_validos = max(0, total_validos - acertos_validos)
-        st.plotly_chart(
-            grafico_pizza_acertos(acertos_validos, erros_validos),
-            key=f"pizza_{sigla}",
-            config={'displayModeBar': False, 'scrollZoom': False, 'doubleClick': False}
-        )
-        taxa_pct = (acertos_validos / total_validos * 100) if total_validos > 0 else 0
-        st.markdown(
-            f'<div class="taxa-pizza">Taxa: {formatar_numero(taxa_pct, 0)}%</div>',
-            unsafe_allow_html=True,
-        )
-    
     # Seção 2: Gráfico de impacto
     st.markdown("##### Impacto das Questões na Nota")
     st.caption("Ordenado do maior para o menor impacto | Verde = Acerto | Vermelho = Erro")
@@ -159,96 +153,76 @@ def exibir_resultado_area(resultado: Dict):
                 config={'displayModeBar': False, 'scrollZoom': False, 'doubleClick': False},
             )
 
-    # Seção 3: Tabelas de erros e acertos
-    col_erros, col_acertos = st.columns(2)
-    
-    with col_erros:
-        st.markdown(f"##### Erros ({len(questoes_erradas)})")
-        if questoes_erradas:
-            _exibir_tabela_erros(questoes_erradas)
-        else:
-            st.success("Nenhum erro!")
-    
-    with col_acertos:
-        st.markdown(f"##### Acertos ({len(questoes_acertadas)})")
-        if questoes_acertadas:
-            _exibir_tabela_acertos(questoes_acertadas)
-        else:
-            st.info("Nenhum acerto.")
+    # HTML sem controles de planilha; a ordem é estável e explícita.
+    st.markdown("##### Questões em detalhe")
+    st.markdown(
+        '<div class="diagnostico">'
+        + _tabela_questoes(questoes_erradas, acertou=False)
+        + _tabela_questoes(questoes_acertadas, acertou=True)
+        + '</div>',
+        unsafe_allow_html=True,
+    )
+    st.caption(
+        "Maior impacto primeiro. Os pontos estimam a mudança na nota ao alterar "
+        "somente aquela resposta; não devem ser somados. "
+        "Dificuldade (b): quanto maior o valor, mais difícil o item."
+    )
 
     # Aviso de calibração discreto (sem fundo colorido) com detalhes explicativos
     exibir_aviso_acuracia(resultado)
 
 
-def _exibir_tabela_erros(questoes: List[Dict]):
-    """Exibe tabela de erros no estilo do relatório PDF."""
-    import pandas as pd
-    
-    dados = []
-    for q in questoes:
-        dados.append({
-            'Q': q['posicao'],
-            'Resp': q['resposta_dada'],
-            'Gab': q['gabarito'],
-            'b': formatar_numero(q.get('param_b', 0), 2, sinal=True),
-            'Ganho': formatar_numero(q.get('ganho_se_acertasse', 0), sinal=True),
-        })
-    
-    df = pd.DataFrame(dados)
-    
-    # Aplicar estilo com fundo vermelho claro
-    def estilo_erro(row):
-        return ['background-color: #ffe6e6'] * len(row)
-    
-    df_styled = df.style.apply(estilo_erro, axis=1)
-    
-    st.dataframe(
-        df_styled,
-        width='stretch',
-        hide_index=True,
-        column_config={
-            'Q': st.column_config.NumberColumn('Q', width='small', help='Número da questão'),
-            'Resp': st.column_config.TextColumn('Resp', width='small', help='Sua resposta'),
-            'Gab': st.column_config.TextColumn('Gab', width='small', help='Gabarito correto'),
-            'b': st.column_config.TextColumn('b', width='small', help='Dificuldade (quanto maior, mais difícil)'),
-            'Ganho': st.column_config.TextColumn('Ganho', width='small', help='Pontos que você ganharia se acertasse'),
-        }
+def _tabela_questoes(questoes: List[Dict], *, acertou: bool) -> str:
+    """Tabela completa, com ordem fixa e rolagem vertical acessível."""
+    titulo = "Acertos" if acertou else "Erros"
+    classe = "acertos" if acertou else "erros"
+    impacto = "Perda se errasse" if acertou else "Ganho se acertasse"
+    chave = "perda_se_errasse" if acertou else "ganho_se_acertasse"
+    ordenadas = sorted(questoes, key=lambda q: (-q.get(chave, 0), q['posicao']))
+
+    def resposta(valor):
+        return "Em branco" if valor in (None, "", ".") else escape(str(valor))
+
+    def tabela(itens):
+        linhas = []
+        for q in itens:
+            dificuldade = q.get('param_b')
+            b = formatar_numero(dificuldade, 2, sinal=True) if dificuldade is not None else "—"
+            alternativas = f'<strong>{resposta(q.get("gabarito"))}</strong>'
+            if not acertou:
+                alternativas = (
+                    f'<span>{resposta(q.get("resposta_dada"))}</span>'
+                    '<span class="resposta-seta" aria-hidden="true"> → </span>'
+                    '<span class="sr-only">; gabarito: </span>'
+                    + alternativas
+                )
+            linhas.append(
+                '<tr><th scope="row">'
+                f'Q{escape(str(q["posicao"]))}<small>b: {b}</small></th>'
+                f'<td>{alternativas}</td>'
+                f'<td class="questao-impacto">{formatar_numero(q.get(chave, 0))}'
+                ' <span>pts</span></td></tr>'
+            )
+        return (
+            f'<table class="questoes-tabela"><caption class="sr-only">{titulo}: {impacto.lower()}</caption>'
+            '<thead><tr><th scope="col">Questão</th>'
+            f'<th scope="col">{"Gabarito" if acertou else "Sua resposta<br><span>→ Gabarito</span>"}</th>'
+            f'<th scope="col">{"Perda" if acertou else "Ganho"}<br><span>em pontos</span></th></tr></thead>'
+            '<tbody>' + ''.join(linhas) + '</tbody></table>'
+        )
+
+    conteudo = (
+        f'<div class="questoes-scroll" role="region" aria-label="Todas as questões: {titulo.lower()}" tabindex="0">'
+        + tabela(ordenadas) + '</div>'
+    ) if ordenadas else (
+        '<p class="diagnostico-vazio">' + ("Nenhum acerto." if acertou else "Nenhum erro! Parabéns!") + '</p>'
     )
-
-
-def _exibir_tabela_acertos(questoes: List[Dict]):
-    """Exibe tabela de acertos no estilo do relatório PDF."""
-    import pandas as pd
-    
-    dados = []
-    for q in questoes:
-        dados.append({
-            'Q': q['posicao'],
-            'Resp': q['resposta_dada'],
-            'Gab': q['gabarito'],
-            'b': formatar_numero(q.get('param_b', 0), 2, sinal=True),
-            'Perda': f"-{formatar_numero(q.get('perda_se_errasse', 0))}",
-        })
-    
-    df = pd.DataFrame(dados)
-    
-    # Aplicar estilo com fundo verde claro
-    def estilo_acerto(row):
-        return ['background-color: #e6ffe6'] * len(row)
-    
-    df_styled = df.style.apply(estilo_acerto, axis=1)
-    
-    st.dataframe(
-        df_styled,
-        width='stretch',
-        hide_index=True,
-        column_config={
-            'Q': st.column_config.NumberColumn('Q', width='small', help='Número da questão'),
-            'Resp': st.column_config.TextColumn('Resp', width='small', help='Sua resposta (correta!)'),
-            'Gab': st.column_config.TextColumn('Gab', width='small', help='Gabarito correto'),
-            'b': st.column_config.TextColumn('b', width='small', help='Dificuldade (quanto maior, mais difícil)'),
-            'Perda': st.column_config.TextColumn('Perda', width='small', help='Pontos que você perderia se errasse'),
-        }
+    return (
+        f'<section class="diagnostico-grupo diagnostico--{classe}" aria-label="{titulo}">'
+        f'<div class="diagnostico-titulo" role="heading" aria-level="6">{titulo} '
+        f'<span class="diagnostico-contagem">{len(ordenadas)}</span></div>'
+        f'<p class="diagnostico-descricao">{"Quanto a nota cairia se você errasse." if acertou else "Quanto a nota subiria se você acertasse."}</p>'
+        + conteudo + '</section>'
     )
 
 

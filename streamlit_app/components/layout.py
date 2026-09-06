@@ -45,9 +45,8 @@ def render_header() -> None:
     # Destaques (SEO-friendly com keywords)
     st.markdown("""
 <div class="highlights" style="margin: 1rem 0;">
-    <p><strong>Estimativa verificada</strong> — Cada prova informa sua precisão medida em participantes reais</p>
-    <p><strong>Impacto de cada questão</strong> — Veja quanto cada acerto ou erro afetou sua nota final</p>
-    <p><strong>Análise completa</strong> — Gráficos e relatório PDF das 4 áreas de conhecimento</p>
+    <p><strong>Impacto de cada questão</strong> · Veja quanto cada acerto ou erro afetou sua nota final</p>
+    <p><strong>Análise completa</strong> · Gráficos e relatório PDF das 4 áreas de conhecimento</p>
 </div>
     """, unsafe_allow_html=True)
 

@@ -19,38 +19,118 @@
     .resp-grupo { font-size: 13px; }
 }
 @media (min-width: 1200px) { .resp-grupo { font-size: 14px; } }
-.taxa-pizza { margin-top: 0; color: #7f8c8d; font-size: 0.8rem; text-align: center; }
 .footer { text-align: center; padding: 1.5rem 0 0.5rem; font-size: 0.9rem; }
 
-/* Question grid; larger cells on phones. */
+/* Compact report-like overview, independent of Streamlit column breakpoints. */
+.grade-painel { padding: 8px 0 16px; max-width: 800px; margin-inline: auto; }
+.grade-resumo { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 20px; margin-bottom: 14px; }
+.grade-resumo strong { font-size: 0.95rem; }
+.grade-legenda { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 0.75rem; }
+.grade-legenda > span { display: inline-flex; align-items: center; gap: 6px; color: #435467; }
+.grade-legenda i { position: relative; display: inline-block; width: 12px; height: 12px; border-radius: 2px; }
+.legenda--acerto i, .grade-questoes .questao--acerto { background: #23845a; }
+.legenda--erro i, .grade-questoes .questao--erro { background: #c84b45; }
+.legenda--anulada i, .grade-questoes .questao--anulada { background: #7a8793; }
+.questao--erro::after, .legenda--erro i::after { content: ""; position: absolute; bottom: 3px; left: 3px; right: 3px; border-bottom: 1px solid #faecea; }
+.questao--anulada::after, .legenda--anulada i::after { content: ""; position: absolute; inset: 2px; border: 1px solid #eef1f4; border-radius: 2px; }
 .st-key-app_content .grade-questoes {
     display: grid;
-    width: 100%;
-    max-width: 620px;
-    margin: 0 auto;
     grid-template-columns: repeat(15, minmax(0, 1fr));
-    gap: 2px;
+    gap: 5px;
 }
 .grade-questoes .questao {
     display: flex;
     align-items: center;
     justify-content: center;
-    aspect-ratio: 1;
+    gap: 4px;
+    height: 34px;
     min-width: 0;
-    color: white;
-    font: bold 11px Arial, sans-serif;
-}
-.questao--acerto { background: #27ae60; }
-.questao--erro { background: #e74c3c; }
-.questao--anulada { background: #94a3b8; }
-@media (max-width: 640px) {
-    .st-key-app_content .grade-questoes { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; }
-    .grade-questoes .questao { font-size: 14px; }
+    border-radius: 3px;
+    position: relative;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
 }
 
-/* Match the 200px Plotly donut height. */
-.grade-moldura { min-height: 200px; display: flex; align-items: center; }
-@media (max-width: 640px) { .grade-moldura { min-height: 0; } }
+/* Semantic tables: predictable order, readable on phones, no spreadsheet toolbar. */
+.diagnostico { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; align-items: start; }
+.diagnostico-grupo {
+    min-width: 0;
+    border: 1px solid #d6dbe1;
+    border-radius: 8px;
+    padding: 16px;
+    color: var(--text-color, #2c3e50);
+    --accent: #23734b;
+    --diagnostico-fundo: #f3f9f5;
+    background: var(--diagnostico-fundo);
+}
+.diagnostico--erros { --accent: #ab3c36; --diagnostico-fundo: #fdf5f4; }
+.diagnostico-grupo .diagnostico-titulo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 1.5;
+}
+.diagnostico-grupo .diagnostico-contagem {
+    padding: 1px 7px;
+    border-radius: 4px;
+    background: var(--secondary-background-color, #f8f9fa);
+    color: var(--accent);
+    font-size: 13px;
+    font-weight: 600;
+}
+.diagnostico-grupo .diagnostico-descricao {
+    margin: 4px 0 16px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #596777;
+}
+.diagnostico .questoes-tabela {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+    font-size: 15px;
+    margin: 0;
+}
+.diagnostico .questoes-tabela th, .diagnostico .questoes-tabela td {
+    border: 0;
+    border-bottom: 1px solid #e8ebef;
+    padding: 9px 4px;
+    vertical-align: middle;
+    text-align: left;
+}
+.diagnostico .questoes-tabela thead th {
+    font-size: 13px;
+    font-weight: 500;
+    color: #596777;
+    border-bottom: 1px solid #cdd5de;
+    line-height: 1.5;
+    padding-top: 0;
+}
+.diagnostico .questoes-tabela th:first-child { width: 27%; }
+.diagnostico .questoes-tabela th:last-child, .diagnostico .questoes-tabela td:last-child { width: 29%; text-align: right; }
+.diagnostico .questoes-tabela tbody th { font-weight: 600; }
+.questoes-tabela small { display: block; font-size: 12px; font-weight: 400; color: #596777; }
+.questoes-tabela td { font-variant-numeric: tabular-nums; }
+.resposta-seta { display: inline-block; margin-inline: 5px; }
+.questoes-tabela .questao-impacto { font-weight: 600; white-space: nowrap; }
+.questao-impacto span, .resposta-seta { font-weight: 400; color: #596777; }
+.questoes-scroll { max-height: 440px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #aeb9c5 transparent; scrollbar-gutter: stable; }
+.questoes-scroll:focus-visible { outline: 2px solid var(--primary-color, #3498db); outline-offset: 3px; border-radius: 3px; }
+.diagnostico .questoes-tabela thead th { position: sticky; top: 0; z-index: 1; background: var(--diagnostico-fundo); box-shadow: inset 0 -1px #cdd5de; padding-top: 8px; }
+.diagnostico-vazio { font-size: 14px; margin: 0; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+@media (max-width: 767px) {
+    .diagnostico-grupo { padding: 12px; }
+    .resposta-seta { margin-inline: 3px; }
+    .diagnostico { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+    .st-key-app_content .grade-questoes { grid-template-columns: repeat(9, minmax(0, 1fr)); gap: 4px; }
+    .grade-questoes .questao { height: 32px; flex-direction: column; gap: 0; font-size: 12px; line-height: 1.2; }
+}
 
 @media (max-width: 640px) {
     [class*="st-key-impacto_scroll_"] { overflow-x: auto; min-width: 0; }
