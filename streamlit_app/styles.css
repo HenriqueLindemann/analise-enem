@@ -1,5 +1,12 @@
 /* App-owned styles; native Streamlit controls handle their own responsive layout. */
 .st-key-app_content { max-width: 1100px; margin-inline: auto; }
+.stMainBlockContainer,
+.block-container {
+    padding-bottom: 2rem;
+}
+footer {
+    display: none;
+}
 .resp-visual {
     display: flex;
     flex-wrap: wrap;
@@ -119,7 +126,7 @@
 .resposta-seta { display: inline-block; margin-inline: 5px; }
 .questoes-tabela .questao-impacto { font-weight: 600; white-space: nowrap; }
 .questao-impacto span, .resposta-seta { font-weight: 400; color: #596777; }
-.questoes-scroll { max-height: 440px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #aeb9c5 transparent; scrollbar-gutter: stable; }
+.questoes-scroll { position: relative; max-height: 440px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #aeb9c5 transparent; scrollbar-gutter: stable; }
 .questoes-scroll:focus-visible { outline: 2px solid var(--primary-color, #3498db); outline-offset: 3px; border-radius: 3px; }
 .diagnostico .questoes-tabela thead th { position: sticky; top: 0; z-index: 1; background: var(--diagnostico-fundo); box-shadow: inset 0 -1px #cdd5de; padding-top: 8px; }
 .diagnostico-vazio { font-size: 14px; margin: 0; }
