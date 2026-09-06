@@ -215,7 +215,7 @@ def _tabela_questoes(questoes: List[Dict], *, acertou: bool) -> str:
         f'<div class="questoes-scroll" role="region" aria-label="Todas as questões: {titulo.lower()}" tabindex="0">'
         + tabela(ordenadas) + '</div>'
     ) if ordenadas else (
-        '<p class="diagnostico-vazio">' + ("Nenhum acerto." if acertou else "Nenhum erro! Parabéns!") + '</p>'
+        '<p class="diagnostico-vazio">' + ("Nenhum acerto." if acertou else "Nenhum erro. Parabéns!") + '</p>'
     )
     return (
         f'<section class="diagnostico-grupo diagnostico--{classe}" aria-label="{titulo}">'

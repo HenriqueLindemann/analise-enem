@@ -1,0 +1,259 @@
+<?xml version='1.0' encoding='utf-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 650" width="1100" height="650" role="img" aria-labelledby="titulo descricao">
+  <title id="titulo">Respostas → nota → impacto por questão</title>
+  <desc id="descricao">Matemática, ENEM 2021. Nota estimada: 916,3. Q167: ganho de 27,8 pontos se acertasse. Q150: ganho de 4,4 pontos se acertasse. Q163: ganho de 4,1 pontos se acertasse.</desc>
+  <style>.texto { fill: #253746; }
+.secundario { fill: #596873; }
+.resposta { fill: #405562; }
+.acerto { fill: #20805f; }
+.erro { fill: #bb503e; }
+.grade { stroke: #dce3e7; }
+.seta { stroke: #8a979f; }</style>
+  <g font-family="Arial, Helvetica, sans-serif">
+    <text x="36" y="35" font-size="15" class="secundario">ENEM 2021 · Matemática · Rosa</text>
+    <text x="36" y="88" font-size="23" class="texto" font-weight="bold">Respostas</text>
+    <text x="728" y="88" font-size="23" class="texto" font-weight="bold">Nota</text>
+    <text x="36" y="136" font-size="20" class="resposta" font-family="monospace">D</text>
+    <text x="63" y="136" font-size="20" class="resposta" font-family="monospace">C</text>
+    <text x="90" y="136" font-size="20" class="resposta" font-family="monospace">C</text>
+    <text x="117" y="136" font-size="20" class="resposta" font-family="monospace">A</text>
+    <text x="144" y="136" font-size="20" class="resposta" font-family="monospace">E</text>
+    <text x="171" y="136" font-size="20" class="resposta" font-family="monospace">B</text>
+    <text x="198" y="136" font-size="20" class="resposta" font-family="monospace">A</text>
+    <text x="225" y="136" font-size="20" class="resposta" font-family="monospace">B</text>
+    <text x="252" y="136" font-size="20" class="resposta" font-family="monospace">D</text>
+    <text x="279" y="136" font-size="20" class="resposta" font-family="monospace">D</text>
+    <text x="306" y="136" font-size="20" class="resposta" font-family="monospace">C</text>
+    <text x="333" y="136" font-size="20" class="resposta" font-family="monospace">A</text>
+    <text x="360" y="136" font-size="20" class="resposta" font-family="monospace">B</text>
+    <text x="387" y="136" font-size="20" class="resposta" font-family="monospace">E</text>
+    <text x="414" y="136" font-size="20" class="resposta" font-family="monospace">A</text>
+    <text x="36" y="168" font-size="20" class="resposta" font-family="monospace">C</text>
+    <text x="63" y="168" font-size="20" class="resposta" font-family="monospace">C</text>
+    <text x="90" y="168" font-size="20" class="resposta" font-family="monospace">B</text>
+    <text x="117" y="168" font-size="20" class="resposta" font-family="monospace">C</text>
+    <text x="144" y="168" font-size="20" class="resposta" font-family="monospace">C</text>
+    <text x="171" y="168" font-size="20" class="resposta" font-family="monospace">E</text>
+    <text x="198" y="168" font-size="20" class="resposta" font-family="monospace">E</text>
+    <text x="225" y="168" font-size="20" class="resposta" font-family="monospace">A</text>
+    <text x="252" y="168" font-size="20" class="resposta" font-family="monospace">D</text>
+    <text x="279" y="168" font-size="20" class="resposta" font-family="monospace">D</text>
+    <text x="306" y="168" font-size="20" class="resposta" font-family="monospace">C</text>
+    <text x="333" y="168" font-size="20" class="resposta" font-family="monospace">E</text>
+    <text x="360" y="168" font-size="20" class="resposta" font-family="monospace">A</text>
+    <text x="387" y="168" font-size="20" class="resposta" font-family="monospace">C</text>
+    <text x="414" y="168" font-size="20" class="resposta" font-family="monospace">D</text>
+    <text x="36" y="200" font-size="20" class="resposta" font-family="monospace">E</text>
+    <text x="63" y="200" font-size="20" class="resposta" font-family="monospace">A</text>
+    <text x="90" y="200" font-size="20" class="resposta" font-family="monospace">A</text>
+    <text x="117" y="200" font-size="20" class="resposta" font-family="monospace">D</text>
+    <text x="144" y="200" font-size="20" class="resposta" font-family="monospace">C</text>
+    <text x="171" y="200" font-size="20" class="resposta" font-family="monospace">A</text>
+    <text x="198" y="200" font-size="20" class="resposta" font-family="monospace">B</text>
+    <text x="225" y="200" font-size="20" class="resposta" font-family="monospace">B</text>
+    <text x="252" y="200" font-size="20" class="resposta" font-family="monospace">D</text>
+    <text x="279" y="200" font-size="20" class="resposta" font-family="monospace">B</text>
+    <text x="306" y="200" font-size="20" class="resposta" font-family="monospace">D</text>
+    <text x="333" y="200" font-size="20" class="resposta" font-family="monospace">E</text>
+    <text x="360" y="200" font-size="20" class="resposta" font-family="monospace">D</text>
+    <text x="387" y="200" font-size="20" class="resposta" font-family="monospace">C</text>
+    <text x="414" y="200" font-size="20" class="resposta" font-family="monospace">E</text>
+    <path d="M 529 156 H 645 M 637 148 L 645 156 L 637 164" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="seta" />
+    <text x="728" y="166" font-size="64" class="texto" font-weight="bold">916,3</text>
+    <text x="732" y="201" font-size="17" class="secundario">41/44 acertos válidos</text>
+    <text x="36" y="317" font-size="23" class="texto" font-weight="bold">Impacto por questão</text>
+    <rect x="769" y="284" width="11" height="11" rx="2" class="acerto" />
+    <text x="790" y="296" font-size="16" class="secundario">Acerto · perda se errasse</text>
+    <rect x="769" y="312" width="11" height="11" rx="2" class="erro" />
+    <text x="790" y="324" font-size="16" class="secundario">Erro (*) · ganho se acertasse</text>
+    <text x="36" y="367" font-size="13" class="secundario">pts</text>
+    <line x1="66" y1="593.0" x2="1064" y2="593.0" stroke-width="1" class="grade" />
+    <text x="52" y="597.0" font-size="13" class="secundario" text-anchor="end">0</text>
+    <line x1="66" y1="541.0" x2="1064" y2="541.0" stroke-width="1" class="grade" />
+    <text x="52" y="545.0" font-size="13" class="secundario" text-anchor="end">10</text>
+    <line x1="66" y1="489.0" x2="1064" y2="489.0" stroke-width="1" class="grade" />
+    <text x="52" y="493.0" font-size="13" class="secundario" text-anchor="end">20</text>
+    <line x1="66" y1="437.0" x2="1064" y2="437.0" stroke-width="1" class="grade" />
+    <text x="52" y="441.0" font-size="13" class="secundario" text-anchor="end">30</text>
+    <line x1="66" y1="385.0" x2="1064" y2="385.0" stroke-width="1" class="grade" />
+    <text x="52" y="389.0" font-size="13" class="secundario" text-anchor="end">40</text>
+    <rect x="69.00" y="401.55" width="16.68" height="191.45" rx="2" class="acerto">
+      <title>Q160: 36,8 pontos</title>
+    </rect>
+    <text x="81.34" y="392.55" font-size="13" class="acerto" transform="rotate(-90 81.34 392.55)">160</text>
+    <rect x="91.68" y="403.54" width="16.68" height="189.46" rx="2" class="acerto">
+      <title>Q146: 36,4 pontos</title>
+    </rect>
+    <text x="104.02" y="394.54" font-size="13" class="acerto" transform="rotate(-90 104.02 394.54)">146</text>
+    <rect x="114.36" y="407.38" width="16.68" height="185.62" rx="2" class="acerto">
+      <title>Q143: 35,7 pontos</title>
+    </rect>
+    <text x="126.70" y="398.38" font-size="13" class="acerto" transform="rotate(-90 126.70 398.38)">143</text>
+    <rect x="137.05" y="407.76" width="16.68" height="185.24" rx="2" class="acerto">
+      <title>Q162: 35,6 pontos</title>
+    </rect>
+    <text x="149.39" y="398.76" font-size="13" class="acerto" transform="rotate(-90 149.39 398.76)">162</text>
+    <rect x="159.73" y="427.54" width="16.68" height="165.46" rx="2" class="acerto">
+      <title>Q169: 31,8 pontos</title>
+    </rect>
+    <text x="172.07" y="418.54" font-size="13" class="acerto" transform="rotate(-90 172.07 418.54)">169</text>
+    <rect x="182.41" y="432.62" width="16.68" height="160.38" rx="2" class="acerto">
+      <title>Q147: 30,8 pontos</title>
+    </rect>
+    <text x="194.75" y="423.62" font-size="13" class="acerto" transform="rotate(-90 194.75 423.62)">147</text>
+    <rect x="205.09" y="434.25" width="16.68" height="158.75" rx="2" class="acerto">
+      <title>Q174: 30,5 pontos</title>
+    </rect>
+    <text x="217.43" y="425.25" font-size="13" class="acerto" transform="rotate(-90 217.43 425.25)">174</text>
+    <rect x="227.77" y="437.62" width="16.68" height="155.38" rx="2" class="acerto">
+      <title>Q156: 29,9 pontos</title>
+    </rect>
+    <text x="240.11" y="428.62" font-size="13" class="acerto" transform="rotate(-90 240.11 428.62)">156</text>
+    <rect x="250.45" y="446.65" width="16.68" height="146.35" rx="2" class="acerto">
+      <title>Q145: 28,1 pontos</title>
+    </rect>
+    <text x="262.80" y="437.65" font-size="13" class="acerto" transform="rotate(-90 262.80 437.65)">145</text>
+    <rect x="273.14" y="448.68" width="16.68" height="144.32" rx="2" class="erro">
+      <title>Q167: 27,8 pontos</title>
+    </rect>
+    <text x="285.48" y="439.68" font-size="13" class="erro" transform="rotate(-90 285.48 439.68)">167*</text>
+    <rect x="295.82" y="449.20" width="16.68" height="143.80" rx="2" class="acerto">
+      <title>Q141: 27,7 pontos</title>
+    </rect>
+    <text x="308.16" y="440.20" font-size="13" class="acerto" transform="rotate(-90 308.16 440.20)">141</text>
+    <rect x="318.50" y="450.91" width="16.68" height="142.09" rx="2" class="acerto">
+      <title>Q172: 27,3 pontos</title>
+    </rect>
+    <text x="330.84" y="441.91" font-size="13" class="acerto" transform="rotate(-90 330.84 441.91)">172</text>
+    <rect x="341.18" y="453.23" width="16.68" height="139.77" rx="2" class="acerto">
+      <title>Q175: 26,9 pontos</title>
+    </rect>
+    <text x="353.52" y="444.23" font-size="13" class="acerto" transform="rotate(-90 353.52 444.23)">175</text>
+    <rect x="363.86" y="455.25" width="16.68" height="137.75" rx="2" class="acerto">
+      <title>Q154: 26,5 pontos</title>
+    </rect>
+    <text x="376.20" y="446.25" font-size="13" class="acerto" transform="rotate(-90 376.20 446.25)">154</text>
+    <rect x="386.55" y="457.39" width="16.68" height="135.61" rx="2" class="acerto">
+      <title>Q168: 26,1 pontos</title>
+    </rect>
+    <text x="398.89" y="448.39" font-size="13" class="acerto" transform="rotate(-90 398.89 448.39)">168</text>
+    <rect x="409.23" y="458.53" width="16.68" height="134.47" rx="2" class="acerto">
+      <title>Q158: 25,9 pontos</title>
+    </rect>
+    <text x="421.57" y="449.53" font-size="13" class="acerto" transform="rotate(-90 421.57 449.53)">158</text>
+    <rect x="431.91" y="458.91" width="16.68" height="134.09" rx="2" class="acerto">
+      <title>Q180: 25,8 pontos</title>
+    </rect>
+    <text x="444.25" y="449.91" font-size="13" class="acerto" transform="rotate(-90 444.25 449.91)">180</text>
+    <rect x="454.59" y="461.28" width="16.68" height="131.72" rx="2" class="acerto">
+      <title>Q170: 25,3 pontos</title>
+    </rect>
+    <text x="466.93" y="452.28" font-size="13" class="acerto" transform="rotate(-90 466.93 452.28)">170</text>
+    <rect x="477.27" y="465.45" width="16.68" height="127.55" rx="2" class="acerto">
+      <title>Q164: 24,5 pontos</title>
+    </rect>
+    <text x="489.61" y="456.45" font-size="13" class="acerto" transform="rotate(-90 489.61 456.45)">164</text>
+    <rect x="499.95" y="466.26" width="16.68" height="126.74" rx="2" class="acerto">
+      <title>Q176: 24,4 pontos</title>
+    </rect>
+    <text x="512.30" y="457.26" font-size="13" class="acerto" transform="rotate(-90 512.30 457.26)">176</text>
+    <rect x="522.64" y="467.44" width="16.68" height="125.56" rx="2" class="acerto">
+      <title>Q142: 24,1 pontos</title>
+    </rect>
+    <text x="534.98" y="458.44" font-size="13" class="acerto" transform="rotate(-90 534.98 458.44)">142</text>
+    <rect x="545.32" y="473.99" width="16.68" height="119.01" rx="2" class="acerto">
+      <title>Q166: 22,9 pontos</title>
+    </rect>
+    <text x="557.66" y="464.99" font-size="13" class="acerto" transform="rotate(-90 557.66 464.99)">166</text>
+    <rect x="568.00" y="477.76" width="16.68" height="115.24" rx="2" class="acerto">
+      <title>Q153: 22,2 pontos</title>
+    </rect>
+    <text x="580.34" y="468.76" font-size="13" class="acerto" transform="rotate(-90 580.34 468.76)">153</text>
+    <rect x="590.68" y="480.85" width="16.68" height="112.15" rx="2" class="acerto">
+      <title>Q151: 21,6 pontos</title>
+    </rect>
+    <text x="603.02" y="471.85" font-size="13" class="acerto" transform="rotate(-90 603.02 471.85)">151</text>
+    <rect x="613.36" y="484.43" width="16.68" height="108.57" rx="2" class="acerto">
+      <title>Q165: 20,9 pontos</title>
+    </rect>
+    <text x="625.70" y="475.43" font-size="13" class="acerto" transform="rotate(-90 625.70 475.43)">165</text>
+    <rect x="636.05" y="486.26" width="16.68" height="106.74" rx="2" class="acerto">
+      <title>Q148: 20,5 pontos</title>
+    </rect>
+    <text x="648.39" y="477.26" font-size="13" class="acerto" transform="rotate(-90 648.39 477.26)">148</text>
+    <rect x="658.73" y="489.80" width="16.68" height="103.20" rx="2" class="acerto">
+      <title>Q136: 19,8 pontos</title>
+    </rect>
+    <text x="671.07" y="480.80" font-size="13" class="acerto" transform="rotate(-90 671.07 480.80)">136</text>
+    <rect x="681.41" y="491.07" width="16.68" height="101.93" rx="2" class="acerto">
+      <title>Q159: 19,6 pontos</title>
+    </rect>
+    <text x="693.75" y="482.07" font-size="13" class="acerto" transform="rotate(-90 693.75 482.07)">159</text>
+    <rect x="704.09" y="491.25" width="16.68" height="101.75" rx="2" class="acerto">
+      <title>Q144: 19,6 pontos</title>
+    </rect>
+    <text x="716.43" y="482.25" font-size="13" class="acerto" transform="rotate(-90 716.43 482.25)">144</text>
+    <rect x="726.77" y="492.84" width="16.68" height="100.16" rx="2" class="acerto">
+      <title>Q171: 19,3 pontos</title>
+    </rect>
+    <text x="739.11" y="483.84" font-size="13" class="acerto" transform="rotate(-90 739.11 483.84)">171</text>
+    <rect x="749.45" y="495.14" width="16.68" height="97.86" rx="2" class="acerto">
+      <title>Q152: 18,8 pontos</title>
+    </rect>
+    <text x="761.80" y="486.14" font-size="13" class="acerto" transform="rotate(-90 761.80 486.14)">152</text>
+    <rect x="772.14" y="501.34" width="16.68" height="91.66" rx="2" class="acerto">
+      <title>Q140: 17,6 pontos</title>
+    </rect>
+    <text x="784.48" y="492.34" font-size="13" class="acerto" transform="rotate(-90 784.48 492.34)">140</text>
+    <rect x="794.82" y="501.83" width="16.68" height="91.17" rx="2" class="acerto">
+      <title>Q155: 17,5 pontos</title>
+    </rect>
+    <text x="807.16" y="492.83" font-size="13" class="acerto" transform="rotate(-90 807.16 492.83)">155</text>
+    <rect x="817.50" y="502.83" width="16.68" height="90.17" rx="2" class="acerto">
+      <title>Q177: 17,3 pontos</title>
+    </rect>
+    <text x="829.84" y="493.83" font-size="13" class="acerto" transform="rotate(-90 829.84 493.83)">177</text>
+    <rect x="840.18" y="503.79" width="16.68" height="89.21" rx="2" class="acerto">
+      <title>Q139: 17,2 pontos</title>
+    </rect>
+    <text x="852.52" y="494.79" font-size="13" class="acerto" transform="rotate(-90 852.52 494.79)">139</text>
+    <rect x="862.86" y="503.93" width="16.68" height="89.07" rx="2" class="acerto">
+      <title>Q178: 17,1 pontos</title>
+    </rect>
+    <text x="875.20" y="494.93" font-size="13" class="acerto" transform="rotate(-90 875.20 494.93)">178</text>
+    <rect x="885.55" y="505.45" width="16.68" height="87.55" rx="2" class="acerto">
+      <title>Q137: 16,8 pontos</title>
+    </rect>
+    <text x="897.89" y="496.45" font-size="13" class="acerto" transform="rotate(-90 897.89 496.45)">137</text>
+    <rect x="908.23" y="509.21" width="16.68" height="83.79" rx="2" class="acerto">
+      <title>Q179: 16,1 pontos</title>
+    </rect>
+    <text x="920.57" y="500.21" font-size="13" class="acerto" transform="rotate(-90 920.57 500.21)">179</text>
+    <rect x="930.91" y="509.43" width="16.68" height="83.57" rx="2" class="acerto">
+      <title>Q149: 16,1 pontos</title>
+    </rect>
+    <text x="943.25" y="500.43" font-size="13" class="acerto" transform="rotate(-90 943.25 500.43)">149</text>
+    <rect x="953.59" y="511.51" width="16.68" height="81.49" rx="2" class="acerto">
+      <title>Q138: 15,7 pontos</title>
+    </rect>
+    <text x="965.93" y="502.51" font-size="13" class="acerto" transform="rotate(-90 965.93 502.51)">138</text>
+    <rect x="976.27" y="514.34" width="16.68" height="78.66" rx="2" class="acerto">
+      <title>Q161: 15,1 pontos</title>
+    </rect>
+    <text x="988.61" y="505.34" font-size="13" class="acerto" transform="rotate(-90 988.61 505.34)">161</text>
+    <rect x="998.95" y="529.90" width="16.68" height="63.10" rx="2" class="acerto">
+      <title>Q173: 12,1 pontos</title>
+    </rect>
+    <text x="1011.30" y="520.90" font-size="13" class="acerto" transform="rotate(-90 1011.30 520.90)">173</text>
+    <rect x="1021.64" y="570.31" width="16.68" height="22.69" rx="2" class="erro">
+      <title>Q150: 4,4 pontos</title>
+    </rect>
+    <text x="1033.98" y="561.31" font-size="13" class="erro" transform="rotate(-90 1033.98 561.31)">150*</text>
+    <rect x="1044.32" y="571.75" width="16.68" height="21.25" rx="2" class="erro">
+      <title>Q163: 4,1 pontos</title>
+    </rect>
+    <text x="1056.66" y="562.75" font-size="13" class="erro" transform="rotate(-90 1056.66 562.75)">163*</text>
+    <text x="66" y="628" font-size="14" class="secundario">Maior impacto</text>
+    <text x="1064" y="628" font-size="14" class="secundario" text-anchor="end">Menor impacto</text>
+  </g>
+</svg>
