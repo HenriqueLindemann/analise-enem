@@ -26,6 +26,10 @@ COR_CINZA = '#7F8C8D'
 COR_CINZA_CLARO = '#BDC3C7'
 COR_FUNDO = '#FAFAFA'
 
+# Cores da Grade de Questões (alinhadas ao CSS e relatório PDF)
+COR_GRADE_ACERTO = '#23845a'
+COR_GRADE_ERRO = '#c84b45'
+
 
 def grafico_notas_barras(resultados: List[Dict]) -> go.Figure:
     """
@@ -136,7 +140,7 @@ def grafico_impacto(questoes: List[Dict], titulo: str = "") -> go.Figure:
     
     posicoes = [str(q['posicao']) for q in questoes_ord]
     valores = [q['impacto'] for q in questoes_ord]
-    cores = [COR_ACERTO if q['acertou'] else COR_ERRO for q in questoes_ord]
+    cores = [COR_GRADE_ACERTO if q['acertou'] else COR_GRADE_ERRO for q in questoes_ord]
     max_valor = max(max(valores), 1.0) if valores else 1.0
     # Em itens muito difíceis acertados, o impacto pode ser levemente
     # negativo; incluir esse piso no eixo em vez de cortar a barra.
@@ -163,7 +167,6 @@ def grafico_impacto(questoes: List[Dict], titulo: str = "") -> go.Figure:
         x=list(range(len(posicoes))),
         y=valores,
         marker_color=cores,
-        marker_opacity=0.85,
         text=posicoes,
         textposition='outside',
         textfont=dict(size=8),

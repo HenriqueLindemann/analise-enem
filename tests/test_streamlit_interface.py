@@ -373,6 +373,19 @@ class TestGraficos:
 
         assert grafico_impacto([], titulo="MT") is not None
 
+    def test_grafico_de_impacto_usa_cores_da_grade(self):
+        from streamlit_app.components.graficos import (
+            grafico_impacto, COR_GRADE_ACERTO, COR_GRADE_ERRO,
+        )
+        questoes = [
+            {'posicao': 1, 'impacto': 10.0, 'acertou': True},
+            {'posicao': 2, 'impacto': 5.0, 'acertou': False},
+        ]
+        fig = grafico_impacto(questoes)
+        assert fig.data[0].marker.color == (COR_GRADE_ACERTO, COR_GRADE_ERRO)
+        assert COR_GRADE_ACERTO == '#23845a'
+        assert COR_GRADE_ERRO == '#c84b45'
+
     def test_graficos_nao_capturam_gestos_para_zoom(self, resultado):
         from streamlit_app.components.graficos import grafico_notas_barras, grafico_impacto
 
