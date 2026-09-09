@@ -151,6 +151,9 @@ class TestAppExecuta:
             "Agora com mais precisão!" in bloco.value
             for bloco in at.markdown
         )
+        textos_popover = " ".join(bloco.value for bloco in at.markdown)
+        assert "Computers & Security" in textos_popover
+        assert "https://doi.org/10.1016/j.cose.2026.105080" in textos_popover
 
     @pytest.mark.parametrize("ano", [2009, 2015, 2020, 2023, 2025])
     def test_troca_de_ano_nao_quebra(self, ano):

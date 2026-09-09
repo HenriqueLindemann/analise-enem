@@ -8,7 +8,8 @@ import streamlit as st
 
 from ..config import (
     APP_VERSION, APP_GITHUB_URL, APP_ISSUES_URL,
-    TEXTO_SOBRE, TEXTO_FOOTER, TEXTO_ABOUT_MENU, TIPOS_APLICACAO, ORDEM_TIPOS, SEO,
+    TEXTO_SOBRE, TEXTO_PRIVACIDADE, TEXTO_FOOTER, TEXTO_ABOUT_MENU,
+    TIPOS_APLICACAO, ORDEM_TIPOS, SEO,
 )
 
 
@@ -92,7 +93,10 @@ def render_botao_calcular(pode_calcular: bool) -> bool:
 
 def render_footer() -> None:
     st.markdown("---")
-    with st.popover("Sobre o cálculo"):
-        st.markdown(TEXTO_SOBRE)
-        st.caption(f"v{APP_VERSION}")
+    with st.container(horizontal=True, horizontal_alignment="left", gap="small"):
+        with st.popover("Sobre o cálculo"):
+            st.markdown(TEXTO_SOBRE)
+            st.caption(f"v{APP_VERSION}")
+        with st.popover("Microdados ENEM e privacidade"):
+            st.markdown(TEXTO_PRIVACIDADE)
     st.markdown(TEXTO_FOOTER, unsafe_allow_html=True)

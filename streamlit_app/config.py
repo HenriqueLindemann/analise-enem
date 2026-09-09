@@ -24,6 +24,7 @@ APP_ISSUES_URL = f"{APP_GITHUB_URL}/issues"
 APP_VALIDATION_REPORT_URL = (
     f"{APP_GITHUB_URL}/blob/master/docs/VALIDATION_REPORT.md"
 )
+APP_PRIVACY_ARTICLE_URL = "https://doi.org/10.1016/j.cose.2026.105080"
 APP_CANONICAL_URL = "https://notatri.com"
 
 # ============================================================================
@@ -123,6 +124,22 @@ verificada contra notas oficiais dos microdados do INEP.
 - A interface mostra erro médio e maior diferença observada
 
 Consulte o [relatório técnico]({APP_VALIDATION_REPORT_URL}) completo, com métricas e erros por prova
+"""
+
+TEXTO_PRIVACIDADE = f"""
+Esta calculadora foi desenvolvida com **privacidade desde a concepção**: não
+solicita dados que identifiquem você nem mantém uma base com suas respostas ou
+resultados.
+
+Em uma pesquisa relacionada, eu e meus coautores mostramos que combinações de
+notas permitiram **identificar pessoas nos microdados desidentificados do ENEM**
+por meio do cruzamento com outras fontes públicas. Com isso, informações sobre
+**renda familiar, condições de moradia e bens domésticos** puderam ser associadas
+a essas pessoas; em alguns casos, o código de um caderno adaptado também podia
+indicar uma deficiência. No cruzamento SISU–ENEM (2010–2023), estimamos **14,7
+milhões de pessoas distintas** com registros vinculados.
+
+Veja o [estudo publicado na revista *Computers & Security*]({APP_PRIVACY_ARTICLE_URL})
 """
 
 TEXTO_FOOTER = f"""
