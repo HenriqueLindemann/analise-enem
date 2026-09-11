@@ -133,11 +133,13 @@ resultados.
 
 Em uma pesquisa relacionada, eu e meus coautores mostramos que combinações de
 notas permitiram **identificar pessoas nos microdados desidentificados do ENEM**
-por meio do cruzamento com outras fontes públicas. Com isso, informações sobre
+por meio do cruzamento com outras fontes públicas. No cruzamento entre Relatórios SISU
+e microdados do ENEM (2010–2023), constatamos a associação entre identidades e
+registros de **cerca de 14,7 milhões de
+pessoas distintas**. Com isso, informações sobre
 **renda familiar, condições de moradia e bens domésticos** puderam ser associadas
 a essas pessoas; em alguns casos, o código de um caderno adaptado também podia
-indicar uma deficiência. No cruzamento SISU–ENEM (2010–2023), estimamos **14,7
-milhões de pessoas distintas** com registros vinculados.
+indicar uma deficiência.
 
 Veja o [estudo publicado na revista *Computers & Security*]({APP_PRIVACY_ARTICLE_URL})
 """
