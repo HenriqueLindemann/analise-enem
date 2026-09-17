@@ -4,7 +4,7 @@ Relatório gerado automaticamente a partir do holdout estratificado de participa
 
 - Provas catalogadas: **762**
 - Casos no holdout: **101552**
-- Geração: `2026-07-29T13:43:00+00:00`
+- Geração: `2026-09-17T18:39:58+00:00`
 
 ## Como interpretar este relatório
 
@@ -47,7 +47,7 @@ As mensagens da interface usam esses perfis em linguagem simples. As seções se
 | 2022 | 56 | 34 | 11 | 9 | 2 | 0 | 0 | 0 | 7926 | 99.48% | 0.092 |
 | 2023 | 52 | 33 | 8 | 3 | 4 | 4 | 0 | 0 | 7712 | 99.34% | 0.086 |
 | 2024 | 66 | 23 | 4 | 3 | 2 | 8 | 26 | 0 | 5574 | 99.43% | 0.131 |
-| 2025 | 76 | 35 | 11 | 14 | 4 | 10 | 2 | 0 | 9619 | 98.97% | 0.122 |
+| 2025 | 76 | 35 | 11 | 14 | 4 | 10 | 2 | 0 | 9619 | 99.28% | 0.116 |
 
 ## Estatísticas por área
 
@@ -55,14 +55,14 @@ As mensagens da interface usam esses perfis em linguagem simples. As seções se
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | CH | 191 | 116 | 18 | 14 | 12 | 7 | 21 | 3 | 21665 | 95.38% | 0.091 |
 | CN | 189 | 88 | 29 | 13 | 26 | 8 | 22 | 3 | 20697 | 88.05% | 0.134 |
-| LC | 192 | 97 | 30 | 18 | 11 | 5 | 28 | 3 | 34228 | 98.25% | 0.103 |
+| LC | 192 | 97 | 30 | 18 | 11 | 5 | 28 | 3 | 34228 | 98.34% | 0.099 |
 | MT | 190 | 71 | 21 | 33 | 27 | 6 | 29 | 3 | 24962 | 88.71% | 0.107 |
 
 ## Métricas agregadas
 
 - MAE mediano por prova: **0.11 pontos**
 - Maior erro observado: **231.87 pontos**
-- Casos com erro absoluto de até 2 pontos: **94660/101552 (93.21%)**
+- Casos com erro absoluto de até 2 pontos: **94690/101552 (93.24%)**
 
 Uma prova só recebe `ok` quando todos os casos do holdout ficam em até 2 pontos da nota oficial e a cobertura mínima é satisfeita.
 
@@ -961,7 +961,7 @@ O status permanece estrito e auditável. O perfil serve apenas para evitar que p
 | ENEM 2025 · Ciências da Natureza · 1ª aplicação · Azul (prova `1483`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | 180 | 0.082 | 0.373 | 0.634 | 0 | 6/6 |
 | ENEM 2025 · Ciências da Natureza · 1ª aplicação · Amarela (prova `1484`) | `aviso_forte` | Estimativa confiável na maioria dos casos, com exceções | `erro_maximo_ate_15` | `monotonica_linear` | 180 | 0.247 | 0.382 | 6.300 | 5 | 6/6 |
 | ENEM 2025 · Ciências da Natureza · 1ª aplicação · Verde (prova `1485`) | `aviso_forte` | Estimativa confiável na maioria dos casos, com exceções | `erro_maximo_ate_15` | `monotonica_linear` | 180 | 0.149 | 0.370 | 6.300 | 2 | 6/6 |
-| ENEM 2025 · Ciências da Natureza · 1ª aplicação · Cinza (prova `1486`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | 180 | 0.081 | 0.295 | 0.876 | 0 | 6/6 |
+| ENEM 2025 · Ciências da Natureza · 1ª aplicação · Cinza (prova `1486`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | 180 | 0.080 | 0.295 | 0.876 | 0 | 6/6 |
 | ENEM 2025 · Ciências da Natureza · Especiais · Laranja ampliada (prova `1487`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | 124 | 0.115 | 0.488 | 0.725 | 0 | 5/5 |
 | ENEM 2025 · Ciências da Natureza · Especiais · Laranja superampliada (prova `1488`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | 89 | 0.080 | 0.399 | 0.592 | 0 | 4/4 |
 | ENEM 2025 · Ciências da Natureza · Especiais · Laranja adaptada ledor (prova `1490`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | 46 | 0.041 | 0.153 | 0.169 | 0 | 4/4 |
@@ -986,10 +986,10 @@ O status permanece estrito e auditável. O perfil serve apenas para evitar que p
 | ENEM 2025 · Linguagens · Especiais · Laranja adaptada ledor (prova `1466`) | `aviso_leve` | Estimativa confiável na maioria dos casos, com exceções | `erro_maximo_ate_5` | `monotonica_linear` | 54 | 0.347 | 1.296 | 2.479 | 1 | 5/5 |
 | ENEM 2025 · Linguagens · Especiais · Roxa videoprova libras (prova `1467`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | 171 | 0.168 | 0.912 | 1.958 | 0 | 5/5 |
 | ENEM 2025 · Linguagens · Especiais · Laranja atendimento especializado (prova `1496`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | 243 | 0.163 | 0.612 | 1.195 | 0 | 5/5 |
-| ENEM 2025 · Linguagens · Reaplicação · Azul (prova `1549`) | `nao_calibrado` | Sem validação suficiente | `holdout_insuficiente` | `monotonica_linear` | 27 | 5.064 | 22.886 | 44.763 | 11 | 5/5 |
+| ENEM 2025 · Linguagens · Reaplicação · Azul (prova `1549`) | `nao_calibrado` | Sem validação suficiente | `holdout_insuficiente` | `monotonica_linear` | 27 | 0.084 | 0.255 | 0.301 | 0 | 5/5 |
 | ENEM 2025 · Linguagens · Reaplicação · Amarela (prova `1550`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | — | — | — | — | — | — |
-| ENEM 2025 · Linguagens · Reaplicação · Verde (prova `1551`) | `nao_calibrado` | Sem validação suficiente | `holdout_insuficiente` | `monotonica_linear` | 27 | 5.790 | 27.645 | 61.091 | 10 | 5/5 |
-| ENEM 2025 · Linguagens · Reaplicação · Branca (prova `1552`) | `nao_calibrado` | Sem validação suficiente | `holdout_insuficiente` | `monotonica_linear` | 27 | 4.072 | 15.983 | 39.273 | 9 | 4/4 |
+| ENEM 2025 · Linguagens · Reaplicação · Verde (prova `1551`) | `nao_calibrado` | Sem validação suficiente | `holdout_insuficiente` | `monotonica_linear` | 27 | 0.085 | 0.236 | 0.273 | 0 | 5/5 |
+| ENEM 2025 · Linguagens · Reaplicação · Branca (prova `1552`) | `nao_calibrado` | Sem validação suficiente | `holdout_insuficiente` | `monotonica_linear` | 27 | 0.092 | 0.302 | 0.319 | 0 | 4/4 |
 | ENEM 2025 · Linguagens · Segunda oportunidade · Azul (prova `1595`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | 246 | 0.189 | 0.520 | 1.917 | 0 | 5/5 |
 | ENEM 2025 · Linguagens · Segunda oportunidade · Amarela (prova `1596`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | 246 | 0.105 | 0.330 | 0.523 | 0 | 5/5 |
 | ENEM 2025 · Linguagens · Segunda oportunidade · Verde (prova `1597`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | 245 | 0.053 | 0.145 | 0.348 | 0 | 5/5 |

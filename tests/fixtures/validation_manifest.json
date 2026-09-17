@@ -1,8 +1,8 @@
 {
   "schema_version": 3,
   "algorithm_version": "stratified-v3.1",
-  "generated_at": "2026-07-29T13:43:00+00:00",
-  "git_commit": "ff66bc1665c59a0208e0925df794906ad8a854ce",
+  "generated_at": "2026-09-17T18:39:58+00:00",
+  "git_commit": "5d4970e59c2b536f6fd96837cb9bed9a8f821f86",
   "hash_key": "enem-tri-v3",
   "seed": "enem-tri-v3",
   "score_bands": [
@@ -15,7 +15,7 @@
     "900_1000",
     "acima_1000"
   ],
-  "item_data_manifest_sha256": "4cca00cd19032fbf2ed420c62e44c4358fe11df305f254e0af3c0caaab6eccf4",
+  "item_data_manifest_sha256": "88eb21188b4a7e747ce52cf760b3996cec4f49cf69fb8099d5a62ddf62a10fb1",
   "sampling": {
     "cap_per_proof_language_band": 160,
     "target_split": {

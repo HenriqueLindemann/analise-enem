@@ -27,6 +27,15 @@ COLUNAS_OBRIGATORIAS = {
     "CO_PROVA",
 }
 
+# Erratas conhecidas de itens dos microdados oficiais do INEP.
+# Chave: (ano, co_item), Valor: dict com colunas a sobrescrever.
+ERRATAS_OFICIAIS: dict[tuple[int, int], dict[str, Any]] = {
+    # Item 158737 (ENEM 2025, LC 2ª aplicação/reaplicação):
+    # No ITENS_PROVA_2025.csv bruto consta 'B', mas no Gabarito Oficial em PDF
+    # e no campo TX_GABARITO_LC de RESULTADOS_2025.csv o gabarito oficial é 'D'.
+    (2025, 158737): {"TX_GABARITO": "D"},
+}
+
 
 def sha256(caminho: Path) -> str:
     digest = hashlib.sha256()
@@ -86,6 +95,12 @@ def gerar_dados_itens(
         for ano in ANOS:
             origem = localizar_item_oficial(microdados_dir, ano)
             df = pd.read_csv(origem, encoding="latin1", sep=";", low_memory=False)
+            for (err_ano, co_item), correcoes in ERRATAS_OFICIAIS.items():
+                if err_ano == ano and "CO_ITEM" in df.columns:
+                    mascara = df["CO_ITEM"] == co_item
+                    if mascara.any():
+                        for col, val in correcoes.items():
+                            df.loc[mascara, col] = val
             metadados = validar_frame(df, ano, origem)
             saida = temp / str(ano) / f"ITENS_PROVA_{ano}.csv"
             saida.parent.mkdir(parents=True, exist_ok=True)
