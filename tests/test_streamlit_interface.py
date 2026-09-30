@@ -155,6 +155,26 @@ class TestAppExecuta:
         assert "Computers & Security" in textos_popover
         assert "https://doi.org/10.1016/j.cose.2026.105080" in textos_popover
 
+    def test_video_abre_pelo_botao(self):
+        at = AppTest.from_file(APP, default_timeout=TIMEOUT)
+        at.run()
+        assert not at.get("video")
+        at.button(key="abrir_video").click().run()
+        assert not at.exception, at.exception
+        assert len(at.get("video")) == 1
+
+    def test_video_abre_pela_url_compartilhada(self):
+        from streamlit_app.components.layout import VIDEO_PATH
+        from streamlit_app.config import APP_VIDEO_SHARE_URL
+
+        assert VIDEO_PATH.stat().st_size < 10_000_000
+        at = AppTest.from_file(APP, default_timeout=TIMEOUT)
+        at.query_params["video"] = "1"
+        at.run()
+        assert not at.exception, at.exception
+        assert len(at.get("video")) == 1
+        assert APP_VIDEO_SHARE_URL in [c.value for c in at.code]
+
     @pytest.mark.parametrize("ano", [2009, 2015, 2020, 2023, 2025])
     def test_troca_de_ano_nao_quebra(self, ano):
         at = AppTest.from_file(APP, default_timeout=TIMEOUT)

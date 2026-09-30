@@ -26,6 +26,10 @@ APP_VALIDATION_REPORT_URL = (
 )
 APP_PRIVACY_ARTICLE_URL = "https://doi.org/10.1016/j.cose.2026.105080"
 APP_CANONICAL_URL = "https://notatri.com"
+APP_VIDEO_SHARE_URL = f"{APP_CANONICAL_URL}/?video=1"
+APP_VIDEO_FILE_URL = (
+    f"{APP_GITHUB_URL}/raw/master/streamlit_app/assets/video-nota-tri.mp4"
+)
 
 # ============================================================================
 #                         SEO - META TAGS

@@ -50,5 +50,7 @@ Thumbs.db
 .ipynb_checkpoints/
 *.ipynb
 
+video/
+
 # Logs
 *.log

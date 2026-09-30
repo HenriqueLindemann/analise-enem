@@ -28,6 +28,14 @@ nota e baixar o PDF. Para Linguagens, escolha também inglês ou espanhol.
 
 Consulte as <a href="docs/VALIDATION_REPORT.md" target="_blank" rel="noopener noreferrer">provas disponíveis e sua validação</a>.
 
+<p align="center">
+<a href="streamlit_app/assets/video-nota-tri.mp4" target="_blank" rel="noopener noreferrer">
+  <img src="docs/imagens/video-preview.jpg" alt="Vídeo de 2 minutos: como a nota TRI do ENEM é calculada, com as curvas das questões de Matemática do ENEM 2024." width="720">
+</a>
+<br>
+<sub>Como a nota TRI é calculada, em 2 minutos · <a href="https://notatri.com/?video=1" target="_blank" rel="noopener noreferrer">assistir no site</a></sub>
+</p>
+
 ## Executar localmente
 
 Requer **Python 3.9 ou superior**. Os dados necessários ao cálculo já estão

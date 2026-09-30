@@ -4,13 +4,17 @@
 
 from pathlib import Path
 from typing import Tuple
+from urllib.parse import quote
 import streamlit as st
 
 from ..config import (
     APP_VERSION, APP_GITHUB_URL, APP_ISSUES_URL,
+    APP_VIDEO_SHARE_URL, APP_VIDEO_FILE_URL,
     TEXTO_SOBRE, TEXTO_PRIVACIDADE, TEXTO_FOOTER, TEXTO_ABOUT_MENU,
     TIPOS_APLICACAO, ORDEM_TIPOS, SEO,
 )
+
+VIDEO_PATH = Path(__file__).parent.parent / "assets" / "video-nota-tri.mp4"
 
 
 def configurar_pagina() -> None:
@@ -50,6 +54,32 @@ def render_header() -> None:
     <p><strong>Análise completa</strong> · Gráficos e relatório PDF das 4 áreas de conhecimento</p>
 </div>
     """, unsafe_allow_html=True)
+
+    render_botao_video()
+
+
+@st.dialog("Como a nota TRI é calculada", width="large")
+def _dialog_video(autoplay: bool = False) -> None:
+    st.video(str(VIDEO_PATH), autoplay=autoplay)
+    st.caption("2 min · Matemática, ENEM 2024 · parâmetros reais publicados pelo INEP")
+    texto = f"Entenda em 2 minutos como a nota TRI do ENEM é calculada: {APP_VIDEO_SHARE_URL}"
+    with st.container(horizontal=True, gap="small"):
+        st.link_button("WhatsApp", f"https://wa.me/?text={quote(texto)}",
+                       icon=":material/share:")
+        st.link_button("Baixar vídeo", APP_VIDEO_FILE_URL, icon=":material/download:")
+    st.code(APP_VIDEO_SHARE_URL, language=None)
+
+
+def render_botao_video() -> None:
+    """Abre o vídeo pelo botão ou uma vez por sessão com ``?video=1`` na URL.
+
+    Só o clique conta como gesto do usuário, que libera autoplay com som.
+    """
+    if st.button("Entenda o cálculo em 2 min", icon=":material/play_circle:", key="abrir_video"):
+        _dialog_video(autoplay=True)
+    elif st.query_params.get("video") and not st.session_state.get("video_aberto"):
+        st.session_state["video_aberto"] = True
+        _dialog_video()
 
 
 def render_instrucoes() -> None:
