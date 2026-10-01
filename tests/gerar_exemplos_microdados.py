@@ -20,7 +20,7 @@ import json
 import math
 import re
 from pathlib import Path
-from typing import Dict, List, Optional, Set
+from typing import Dict, List, Set
 
 import _utils
 
@@ -32,7 +32,7 @@ from tri_enem import CalculadorTRI, MapeadorProvas
 N_MAX_POR_PROVA = 10
 
 
-def _is_valid(value: Optional[str]) -> bool:
+def _is_valid(value: str | None) -> bool:
     if value is None:
         return False
     value = value.strip()
@@ -50,7 +50,7 @@ def _cor_por_codigo(
     ano: int,
     area: str,
     codigo: str,
-) -> Optional[str]:
+) -> str | None:
     if not codigo:
         return None
     try:
@@ -72,7 +72,7 @@ def _cor_por_codigo(
         return None
 
 
-def _extrair_ano_do_nome(nome: str) -> Optional[int]:
+def _extrair_ano_do_nome(nome: str) -> int | None:
     """Extrai o ano de nomes como '2024', 'microdados_enem_2024', etc."""
     if nome.isdigit():
         return int(nome)
@@ -80,7 +80,7 @@ def _extrair_ano_do_nome(nome: str) -> Optional[int]:
     return int(m.group(1)) if m else None
 
 
-def _arquivo_por_ano(ano_dir: Path, ano: int) -> Optional[Path]:
+def _arquivo_por_ano(ano_dir: Path, ano: int) -> Path | None:
     """
     Localiza o arquivo de microdados em diferentes estruturas de diretório.
 

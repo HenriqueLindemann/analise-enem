@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import math
-from typing import List, Optional, Sequence
+from typing import List, Sequence
 
 from reportlab.lib import colors
 from reportlab.lib.styles import ParagraphStyle
@@ -340,7 +340,7 @@ def _faixa_acertos(
     return bloco
 
 
-def tabela_erros_completa(erros: Sequence[QuestaoAnalise]) -> Optional[Table]:
+def tabela_erros_completa(erros: Sequence[QuestaoAnalise]) -> Table | None:
     """Compatibilidade: tabela isolada de erros, agora com layout responsivo."""
 
     if not erros:

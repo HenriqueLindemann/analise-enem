@@ -7,7 +7,7 @@ Este módulo define a estrutura de dados e interface base para relatórios.
 """
 
 from dataclasses import dataclass, field
-from typing import List, Dict, Optional, Any
+from typing import List, Dict, Any
 from datetime import datetime
 
 
@@ -22,7 +22,7 @@ class QuestaoAnalise:
     param_b: float  # Dificuldade
     param_c: float  # Acerto casual
     impacto: float  # Ganho se acertasse (erro) ou perda se errasse (acerto)
-    co_item: Optional[int] = None
+    co_item: int | None = None
     anulada: bool = False
 
 
@@ -38,8 +38,8 @@ class AreaAnalise:
     acertos: int
     total_itens: int
     questoes: List[QuestaoAnalise] = field(default_factory=list)
-    lingua: Optional[str] = None  # Para LC
-    cor_prova: Optional[str] = None  # Ex: "Rosa", "Azul"
+    lingua: str | None = None  # Para LC
+    cor_prova: str | None = None  # Ex: "Rosa", "Azul"
     
     @property
     def erros(self) -> int:
@@ -112,7 +112,7 @@ class DadosRelatorio:
     def total_questoes(self) -> int:
         return sum(a.total_itens_validos for a in self.areas)
     
-    def get_area(self, sigla: str) -> Optional[AreaAnalise]:
+    def get_area(self, sigla: str) -> AreaAnalise | None:
         for area in self.areas:
             if area.sigla == sigla:
                 return area

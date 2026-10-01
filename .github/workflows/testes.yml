@@ -17,9 +17,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # 3.9 é o piso declarado no pyproject; manter na matriz pega
-        # incompatibilidades de sintaxe/API antes de publicar.
-        python-version: ['3.9', '3.12']
+        # Piso declarado no pyproject e a versão estável mais nova.
+        python-version: ['3.10', '3.13']
 
     steps:
       - uses: actions/checkout@v4

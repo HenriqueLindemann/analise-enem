@@ -4,7 +4,7 @@ Obrigado pelo interesse em contribuir!
 
 ## Ambiente de desenvolvimento
 
-O projeto requer Python 3.9 ou superior. A partir da raiz do repositório:
+O projeto requer Python 3.10 ou superior. A partir da raiz do repositório:
 
 ```bash
 python -m venv .venv

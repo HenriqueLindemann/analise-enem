@@ -6,7 +6,7 @@ Componentes de entrada de dados para o Streamlit.
 
 import streamlit as st
 from .live_input import st_keyup
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Tuple
 import html
 from ..config import AREAS_ENEM, ORDEM_AREAS, ORDEM_CORES
 
@@ -17,7 +17,7 @@ TAMANHO_BLOCO = 5
 
 def input_respostas(
     ano: int, mapeador, tipo_aplicacao: str,
-) -> Tuple[Dict[str, str], Dict[str, Optional[str]]]:
+) -> Tuple[Dict[str, str], Dict[str, str | None]]:
     """
     Renderiza os inputs de respostas para cada área.
     

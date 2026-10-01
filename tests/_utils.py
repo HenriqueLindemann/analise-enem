@@ -16,7 +16,7 @@ from __future__ import annotations
 import logging
 import sys
 from pathlib import Path
-from typing import Any, Dict, Optional, Set, Tuple
+from typing import Any, Dict, Set, Tuple
 
 import yaml
 
@@ -54,7 +54,7 @@ def add_src_to_path() -> None:
         sys.path.insert(0, src_str)
 
 
-def lingua_por_tp(tp_lingua: Optional[Any]) -> str:
+def lingua_por_tp(tp_lingua: Any | None) -> str:
     """Converte TP_LINGUA dos microdados para nome do idioma.
 
     Args:

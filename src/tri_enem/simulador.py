@@ -25,7 +25,7 @@ Exemplo:
     )
 """
 
-from typing import Dict, Optional, List, Union
+from typing import Dict, List
 from dataclasses import dataclass, field
 
 from .calculador import CalculadorTRI
@@ -46,7 +46,7 @@ class ResultadoNota:
     area: str
     ano: int
     co_prova: int
-    lingua: Optional[str] = None
+    lingua: str | None = None
     total_anulados: int = 0
     questoes_anuladas: List[int] = field(default_factory=list)
     questoes_anuladas_brutas: List[int] = field(default_factory=list)
@@ -214,10 +214,10 @@ class SimuladorNota:
         ano: int,
         respostas_dict: Dict[str, str],
         lingua_lc: str = 'ingles',
-        co_provas: Optional[Dict[str, int]] = None,
-        cores_prova: Optional[Dict[str, str]] = None,
+        co_provas: Dict[str, int] | None = None,
+        cores_prova: Dict[str, str] | None = None,
         tipo_aplicacao: str = None,
-    ) -> Dict[str, Union[ResultadoNota, ResultadoErro]]:
+    ) -> Dict[str, ResultadoNota | ResultadoErro]:
         """
         Calcula nota de todas as áreas de uma vez.
         

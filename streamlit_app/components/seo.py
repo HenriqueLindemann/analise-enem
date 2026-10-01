@@ -13,7 +13,6 @@ Este módulo gera:
 
 import json
 from datetime import datetime
-from typing import Optional
 
 
 def gerar_meta_tags(
@@ -22,13 +21,13 @@ def gerar_meta_tags(
     keywords: str,
     canonical_url: str,
     author: str,
-    og_title: Optional[str] = None,
-    og_description: Optional[str] = None,
+    og_title: str | None = None,
+    og_description: str | None = None,
     og_type: str = "website",
-    og_image: Optional[str] = None,
+    og_image: str | None = None,
     twitter_card: str = "summary",
-    twitter_title: Optional[str] = None,
-    twitter_description: Optional[str] = None,
+    twitter_title: str | None = None,
+    twitter_description: str | None = None,
 ) -> str:
     """
     Gera HTML com meta tags para SEO.

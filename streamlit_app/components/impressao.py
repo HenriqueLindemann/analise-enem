@@ -7,7 +7,7 @@ Componente de geração de relatório PDF para o Streamlit.
 from __future__ import annotations
 
 import streamlit as st
-from typing import List, Dict, Optional
+from typing import List, Dict
 from pathlib import Path
 import tempfile
 import os
@@ -60,7 +60,7 @@ if str(_src_path) not in sys.path:
     sys.path.insert(0, str(_src_path))
 
 
-def _gerar_pdf(resultados: List[Dict], ano: int, tipo_aplicacao: str, cor_prova: str) -> Optional[bytes]:
+def _gerar_pdf(resultados: List[Dict], ano: int, tipo_aplicacao: str, cor_prova: str) -> bytes | None:
     """Gera o PDF e retorna bytes."""
     if not resultados:
         return None

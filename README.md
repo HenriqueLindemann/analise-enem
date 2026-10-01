@@ -37,7 +37,7 @@ Consulte as <a href="docs/VALIDATION_REPORT.md" target="_blank" rel="noopener no
 
 ## Executar localmente
 
-Requer **Python 3.9 ou superior**. Os dados necessários ao cálculo já estão
+Requer **Python 3.10 ou superior**. Os dados necessários ao cálculo já estão
 incluídos no projeto; não é preciso baixar os microdados brutos do ENEM.
 
 ```bash

@@ -24,7 +24,7 @@ from __future__ import annotations
 import yaml
 from functools import lru_cache
 from pathlib import Path
-from typing import Optional, Dict, List
+from typing import Dict, List
 from dataclasses import dataclass
 
 
@@ -59,7 +59,7 @@ class InfoProva:
     tipo_aplicacao: str
     cor: str
     eh_especial: bool = False
-    descricao_especial: Optional[str] = None
+    descricao_especial: str | None = None
 
 
 class MapeadorProvas:
@@ -89,8 +89,8 @@ class MapeadorProvas:
     
     def __init__(
         self,
-        arquivo_mapeamento: Optional[Path] = None,
-        arquivo_ordem_provas: Optional[Path] = None
+        arquivo_mapeamento: Path | None = None,
+        arquivo_ordem_provas: Path | None = None
     ):
         """
         Inicializa o mapeador.
@@ -432,7 +432,7 @@ class MapeadorProvas:
         codigo: int,
         ano: int | None = None,
         area: str | None = None,
-    ) -> Optional[InfoProva]:
+    ) -> InfoProva | None:
         """
         Busca reversa: descobre informações da prova pelo código.
         

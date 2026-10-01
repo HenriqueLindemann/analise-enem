@@ -158,12 +158,8 @@ class TestAppExecuta:
         assert not at.exception, at.exception
         assert len(at.get("video")) == 1
         # Autoplay só pelo script, que toca o vídeo apenas no diálogo aberto.
-        # Streamlit < 1.52 não executa o JS; ali o vídeo abre sem autoplay.
-        from streamlit_app.components.layout import _HTML_EXECUTA_JS
-
         assert not at.get("video")[0].proto.autoplay
-        tem_script = any("video.play()" in h.proto.body for h in at.get("html"))
-        assert tem_script == _HTML_EXECUTA_JS
+        assert any("video.play()" in h.proto.body for h in at.get("html"))
 
     def test_video_abre_pela_url_compartilhada(self):
         from streamlit_app.components.layout import VIDEO_PATH

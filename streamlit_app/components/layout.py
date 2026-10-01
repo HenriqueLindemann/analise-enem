@@ -2,7 +2,6 @@
 # Copyright (c) 2026 Henrique Lindemann
 """Estrutura da página, com controles nativos do Streamlit."""
 
-import inspect
 from pathlib import Path
 from typing import Tuple
 from urllib.parse import quote
@@ -37,7 +36,6 @@ _JS_AUTOPLAY = """<script>
   }, 100);
 })();
 </script>"""
-_HTML_EXECUTA_JS = "unsafe_allow_javascript" in inspect.signature(st.html).parameters
 
 
 def configurar_pagina() -> None:
@@ -64,7 +62,7 @@ def render_header() -> None:
 @st.dialog("Como a nota TRI é calculada", width="large")
 def _dialog_video(autoplay: bool = False) -> None:
     st.video(str(VIDEO_PATH))
-    if autoplay and _HTML_EXECUTA_JS:
+    if autoplay:
         st.html(_JS_AUTOPLAY, unsafe_allow_javascript=True)
     st.caption("2 min · Matemática, ENEM 2024 · parâmetros reais publicados pelo INEP")
     texto = f"Entenda em 2 minutos como a nota TRI do ENEM é calculada: {APP_VIDEO_SHARE_URL}"

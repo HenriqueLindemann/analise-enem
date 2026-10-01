@@ -67,7 +67,7 @@ import numpy as np
 import pandas as pd
 from importlib.resources import files
 from pathlib import Path
-from typing import Iterable, Tuple, List, Dict, Optional
+from typing import Iterable, Tuple, List, Dict
 from dataclasses import dataclass
 
 from .coeficientes import aplicar_transformacao, obter_transformacao
@@ -84,7 +84,7 @@ class ItemTRI:
     param_c: float  # Acerto casual (probabilidade)
     co_item: int
     abandonado: bool = False
-    tp_lingua: Optional[float] = None  # 0=inglês, 1=espanhol, NaN=comum
+    tp_lingua: float | None = None  # 0=inglês, 1=espanhol, NaN=comum
 
 
 class CalculadorTRI:
@@ -125,7 +125,7 @@ class CalculadorTRI:
             self.base_path = Path(itens_path)
         self._cache_itens: Dict[str, List[ItemTRI]] = {}
         self._cache_df_itens: Dict[str, pd.DataFrame] = {}
-        self._mapeador: Optional[object] = None  # Criado sob demanda; ver _ordem_provas.
+        self._mapeador: object | None = None  # Criado sob demanda; ver _ordem_provas.
         self._pontos_quad, self._pesos_quad = self._calcular_quadratura()
     
     def _ordem_provas(self, ano: int) -> List[str]:
@@ -176,7 +176,7 @@ class CalculadorTRI:
             return resultado
     
     def carregar_itens(self, ano: int, area: str, co_prova: int, 
-                       tp_lingua: Optional[int] = None) -> List[ItemTRI]:
+                       tp_lingua: int | None = None) -> List[ItemTRI]:
         """
         Carrega os itens de uma prova específica.
         
@@ -412,7 +412,7 @@ class CalculadorTRI:
         return respostas
     
     def normalizar_respostas(self, respostas_str: str, area: str, ano: int,
-                             tp_lingua: Optional[int] = None) -> str:
+                             tp_lingua: int | None = None) -> str:
         """
         Reduz a string de respostas às 45 posições canônicas.
 
@@ -437,7 +437,7 @@ class CalculadorTRI:
         return respostas_str
 
     def _preparar_calculo(self, ano: int, area: str, co_prova: int,
-                          respostas_str: str, tp_lingua: Optional[int] = None):
+                          respostas_str: str, tp_lingua: int | None = None):
         """
         Ponto único de entrada: carrega itens, normaliza respostas e pareia.
 
@@ -471,7 +471,7 @@ class CalculadorTRI:
         area: str,
         co_prova: int,
         respostas: Iterable[str],
-        tp_lingua: Optional[int] = None,
+        tp_lingua: int | None = None,
     ) -> Tuple[List[ItemTRI], np.ndarray]:
         """Normaliza e converte um lote de respostas da mesma prova/idioma."""
         itens = self.carregar_itens(ano, area, co_prova, tp_lingua)
@@ -494,7 +494,7 @@ class CalculadorTRI:
         return aplicar_transformacao(theta, transformacao)
     
     def calcular_nota(self, ano: int, area: str, co_prova: int, 
-                     respostas_str: str, tp_lingua: Optional[int] = None) -> Dict:
+                     respostas_str: str, tp_lingua: int | None = None) -> Dict:
         """
         Calcula a nota TRI completa.
         
@@ -549,7 +549,7 @@ class CalculadorTRI:
         }
     
     def analisar_impacto_erros(self, ano: int, area: str, co_prova: int,
-                               respostas_str: str, tp_lingua: Optional[int] = None) -> List[Dict]:
+                               respostas_str: str, tp_lingua: int | None = None) -> List[Dict]:
         """
         Analisa o impacto de cada erro na nota final.
         Retorna lista ordenada por ganho potencial (maior primeiro).
@@ -574,7 +574,7 @@ class CalculadorTRI:
         ]
 
     def analisar_todas_questoes(self, ano: int, area: str, co_prova: int,
-                                 respostas_str: str, tp_lingua: Optional[int] = None) -> Dict:
+                                 respostas_str: str, tp_lingua: int | None = None) -> Dict:
         """
         Analisa TODAS as questões da prova (acertos e erros).
 

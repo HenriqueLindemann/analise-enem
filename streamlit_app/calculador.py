@@ -8,7 +8,7 @@ Facilita o uso do calculador TRI no contexto do Streamlit.
 
 import sys
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Tuple
 import streamlit as st
 
 # Adicionar path do src
@@ -71,7 +71,7 @@ class CalculadorEnem:
         cor: str,
         tipo_aplicacao: str = '1a_aplicacao',
         lingua: str = 'ingles'
-    ) -> Optional[Dict]:
+    ) -> Dict | None:
         """
         Calcula nota TRI para uma área específica.
         
