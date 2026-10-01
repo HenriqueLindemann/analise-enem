@@ -39,8 +39,8 @@ APP_VIDEO_FILE_URL = (
 class SEOConfig:
     """Configuração de SEO para meta tags e Schema.org."""
     
-    # Título da página (máx 60 caracteres para Google)
-    page_title: str = "Calculadora Nota TRI ENEM - Estime sua Nota Online Grátis"
+    # O Streamlit Cloud remove o " - " ao gerar o og:title
+    page_title: str = "Calculadora Nota TRI ENEM"
         
     # Descrição (máx 160 caracteres para Google)
     meta_description: str = (
@@ -58,7 +58,7 @@ class SEOConfig:
     )
     
     # Open Graph (Facebook, LinkedIn, WhatsApp)
-    og_title: str = "Calculadora Nota TRI ENEM - Estime sua Nota Online Grátis"
+    og_title: str = "Calculadora Nota TRI ENEM"
     og_description: str = (
         "Estime sua nota do ENEM usando TRI, com validação informada por prova. "
         "Gabaritos de 2009 a 2025. Gratuito."
@@ -68,7 +68,7 @@ class SEOConfig:
     
     # Twitter Card
     twitter_card: str = "summary_large_image"
-    twitter_title: str = "Calculadora Nota TRI ENEM - Estimativa Online"
+    twitter_title: str = "Calculadora Nota TRI ENEM"
     twitter_description: str = (
         "Estime sua nota do ENEM usando TRI. "
         "Ferramenta gratuita com provas de 2009 a 2025."

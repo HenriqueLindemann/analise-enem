@@ -140,17 +140,12 @@ class TestAppExecuta:
         assert "Língua estrangeira" in rotulos
         textos = " ".join(bloco.value for bloco in at.markdown)
         assert "Carl Sagan" in textos
-        assert "Impacto de cada questão" in textos
-        assert "Análise completa" in textos
+        assert "precisão conferida em microdados do INEP" in textos
         # Uma seleção de cor por área
         assert {"cor_LC", "cor_CH", "cor_CN", "cor_MT"} <= {
             s.key for s in at.selectbox if s.key
         }
         assert any("CALCULAR" in (b.label or "").upper() for b in at.button)
-        assert any(
-            "Agora com mais precisão!" in bloco.value
-            for bloco in at.markdown
-        )
         textos_popover = " ".join(bloco.value for bloco in at.markdown)
         assert "Computers & Security" in textos_popover
         assert "https://doi.org/10.1016/j.cose.2026.105080" in textos_popover

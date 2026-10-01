@@ -52,7 +52,6 @@ from streamlit_app.components.layout import (
     configurar_pagina,
     carregar_css,
     render_header,
-    render_instrucoes,
     render_config,
     render_botao_calcular,
     render_footer,
@@ -131,9 +130,6 @@ def main():
     
     # Header com título e descrição (SEO-friendly)
     render_header()
-    
-    # Instruções de uso
-    render_instrucoes()
     
     # Configurações da prova na página principal
     calc = get_calculador()

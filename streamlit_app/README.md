@@ -49,9 +49,6 @@ streamlit_app/
 ├── calculador.py       # Wrapper do módulo tri_enem
 ├── styles.css          # Estilos CSS externos
 ├── requirements.txt    # Dependências específicas da web
-├── static/
-│   ├── robots.txt      # Instruções para crawlers
-│   └── sitemap.xml     # Mapa do site para SEO
 ├── components/
 │   ├── __init__.py     # Exports do módulo
 │   ├── inputs.py       # Componentes de entrada (respostas, configs)
@@ -72,7 +69,6 @@ O aplicativo inclui otimizações completas para motores de busca e compartilham
 - **Metatags dinâmicas**: títulos e descrições otimizados com URLs canônicas.
 - **Open Graph & Twitter Cards**: suporte a prévias no WhatsApp, Facebook, Twitter e LinkedIn.
 - **Dados estruturados (JSON-LD)**: schemas `WebApplication` e `FAQPage` para rich snippets.
-- **Indexação**: `robots.txt` e `sitemap.xml` para rastreamento.
 
 ## Funcionalidades
 

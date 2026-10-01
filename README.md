@@ -1,7 +1,6 @@
 # Calculadora Nota TRI ENEM
 
-Estime sua nota nas provas do **ENEM de 2009 a 2025** pela Teoria de Resposta
-ao Item (TRI), a partir das suas respostas.
+Estime sua nota nas provas do ENEM de 2009 a 2025 pela Teoria de Resposta ao Item (TRI), a partir das suas respostas.
 
 - **Impacto por questão:** veja quanto a nota mudaria ao acertar uma questão que errou.
 - **Relatório PDF:** notas por área, gabarito visual e análise de acertos e erros.

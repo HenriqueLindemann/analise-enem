@@ -31,30 +31,10 @@ def carregar_css() -> None:
 
 
 def render_header() -> None:
-    """
-    Renderiza o header da página com título e descrição SEO-friendly.
-    
-    """
-    # H1 - Título principal (único por página)
-    st.markdown(
-        '<h1 style="margin-bottom: 0.5rem;">Calculadora Nota TRI ENEM</h1>',
-        unsafe_allow_html=True
-    )
-
-    st.markdown(
-        'Estime sua nota do ENEM com TRI e validação em microdados oficiais do '
-        'INEP. **Agora com mais precisão!**',
-        unsafe_allow_html=True
-    )
-    
-    # Destaques (SEO-friendly com keywords)
-    st.markdown("""
-<div class="highlights" style="margin: 1rem 0;">
-    <p><strong>Impacto de cada questão</strong> · Veja quanto cada acerto ou erro afetou sua nota final</p>
-    <p><strong>Análise completa</strong> · Gráficos e relatório PDF das 4 áreas de conhecimento</p>
-</div>
-    """, unsafe_allow_html=True)
-
+    st.markdown('<h1 style="margin-bottom: 0.5rem;">Calculadora Nota TRI ENEM</h1>',
+                unsafe_allow_html=True)
+    st.markdown("Estime sua nota por TRI, com precisão conferida em microdados do INEP.")
+    st.caption("Peso de cada questão · gráficos · relatório PDF")
     render_botao_video()
 
 
@@ -80,19 +60,6 @@ def render_botao_video() -> None:
     elif st.query_params.get("video") and not st.session_state.get("video_aberto"):
         st.session_state["video_aberto"] = True
         _dialog_video()
-
-
-def render_instrucoes() -> None:
-    """Renderiza as instruções de uso."""
-    st.markdown("""
----
-
-### Complete as informações da prova abaixo
-
-**Passo 1:** Selecione o **ano**, **tipo de aplicação** e **cores** dos cadernos  
-**Passo 2:** Digite suas **respostas** nas caixas abaixo  
-**Passo 3:** Clique em **CALCULAR NOTA** e veja seus resultados!
-    """)
 
 
 def render_config(mapeador) -> Tuple[int, str, str]:
