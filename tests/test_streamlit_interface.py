@@ -157,6 +157,9 @@ class TestAppExecuta:
         at.button(key="abrir_video").click().run()
         assert not at.exception, at.exception
         assert len(at.get("video")) == 1
+        # Autoplay só pelo script, que toca o vídeo apenas no diálogo aberto.
+        assert not at.get("video")[0].proto.autoplay
+        assert any("video.play()" in h.proto.body for h in at.get("html"))
 
     def test_video_abre_pela_url_compartilhada(self):
         from streamlit_app.components.layout import VIDEO_PATH
@@ -168,6 +171,7 @@ class TestAppExecuta:
         at.run()
         assert not at.exception, at.exception
         assert len(at.get("video")) == 1
+        assert not any("video.play()" in h.proto.body for h in at.get("html"))
         assert APP_VIDEO_SHARE_URL in [c.value for c in at.code]
 
     @pytest.mark.parametrize("ano", [2009, 2015, 2020, 2023, 2025])

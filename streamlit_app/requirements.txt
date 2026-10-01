@@ -2,7 +2,9 @@
 # pip install -r streamlit_app/requirements.txt
 
 # Framework Web
-streamlit>=1.49.0
+# 1.52+ executa o JS do autoplay do vídeo; no 3.9 o vídeo abre sem autoplay
+streamlit>=1.52.0; python_version >= "3.10"
+streamlit>=1.49.0; python_version < "3.10"
 
 # Gráficos interativos
 plotly>=5.18.0

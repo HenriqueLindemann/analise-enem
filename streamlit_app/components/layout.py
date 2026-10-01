@@ -2,6 +2,7 @@
 # Copyright (c) 2026 Henrique Lindemann
 """Estrutura da página, com controles nativos do Streamlit."""
 
+import inspect
 from pathlib import Path
 from typing import Tuple
 from urllib.parse import quote
@@ -15,6 +16,28 @@ from ..config import (
 )
 
 VIDEO_PATH = Path(__file__).parent.parent / "assets" / "video-nota-tri.mp4"
+
+# Toca só o vídeo do diálogo aberto e pausa o que sair da página, evitando
+# áudio sem janela. O ``autoplay`` do st.video não dá essa garantia.
+_JS_AUTOPLAY = """<script>
+(() => {
+  const inicio = Date.now();
+  const busca = setInterval(() => {
+    const video = document.querySelector('[data-testid="stDialog"] video');
+    if (!video) {
+      if (Date.now() - inicio > 5000) clearInterval(busca);
+      return;
+    }
+    clearInterval(busca);
+    video.addEventListener("play", () => { if (!video.isConnected) video.pause(); });
+    const vigia = setInterval(() => {
+      if (!video.isConnected) { video.pause(); clearInterval(vigia); }
+    }, 250);
+    video.play().catch(() => {});
+  }, 100);
+})();
+</script>"""
+_HTML_EXECUTA_JS = "unsafe_allow_javascript" in inspect.signature(st.html).parameters
 
 
 def configurar_pagina() -> None:
@@ -40,7 +63,9 @@ def render_header() -> None:
 
 @st.dialog("Como a nota TRI é calculada", width="large")
 def _dialog_video(autoplay: bool = False) -> None:
-    st.video(str(VIDEO_PATH), autoplay=autoplay)
+    st.video(str(VIDEO_PATH))
+    if autoplay and _HTML_EXECUTA_JS:
+        st.html(_JS_AUTOPLAY, unsafe_allow_javascript=True)
     st.caption("2 min · Matemática, ENEM 2024 · parâmetros reais publicados pelo INEP")
     texto = f"Entenda em 2 minutos como a nota TRI do ENEM é calculada: {APP_VIDEO_SHARE_URL}"
     with st.container(horizontal=True, gap="small"):
