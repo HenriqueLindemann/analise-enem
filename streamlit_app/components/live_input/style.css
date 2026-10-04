@@ -4,19 +4,69 @@
   --background-color: #fff;
   --secondary-background-color: #f8f9fa;
   --text-color: #2c3e50;
-  --font: sans-serif;
+  --sans: "Source Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --mono: "Source Code Pro", ui-monospace, Menlo, Consolas, "Roboto Mono", monospace;
+  --muted: #687587;
+  --primaria-clara: rgba(52, 152, 219, 0.16);
+  --ok: #23845a;
+  --erro: #b91c1c;
 }
-body { margin: 0; padding-bottom: 4px; color: var(--text-color); font-family: var(--font); }
-label { display: block; font-size: 14px; line-height: 1.5; margin-bottom: 6px; }
-input {
-  box-sizing: border-box;
-  width: 100%;
-  min-height: 44px;
-  border: 1px solid #aab4c0;
-  border-radius: 6px;
-  padding: 10px 12px;
-  font: 16px/1.6 var(--font);
+html, body { overflow: hidden; }
+body { margin: 0; padding: 2px 2px 4px; color: var(--text-color); font-family: var(--sans); }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+/* Mesma linguagem do campo anterior: fundo secundário, borda discreta, foco na cor primária. */
+.caixa { box-sizing: border-box; padding: 4px 10px; border: 1px solid #aab4c0; border-radius: 6px;
+         background: var(--secondary-background-color); cursor: text; }
+.caixa:focus-within { border-color: var(--primary-color); box-shadow: 0 0 0 1px var(--primary-color); }
+
+/* clip: nem o cursor no fim do texto pode rolar a folha e desalinhar as células. */
+.folha { position: relative; margin-inline: auto; overflow: hidden; overflow: clip; }
+.camada { position: absolute; inset: 0; pointer-events: none; }
+.faixa { position: absolute; border-radius: 4px; }
+.faixa--par { background: rgba(44, 62, 80, 0.045); }
+.num { position: absolute; font: 400 10px/14px var(--sans); color: #8592a0; text-align: center;
+       font-variant-numeric: tabular-nums; white-space: nowrap; }
+.num--bloco { color: #4f5d6b; font-weight: 600; }
+.num--hover { color: var(--text-color); }
+.num--ativo { color: var(--primary-color); font-weight: 700; }
+.cel { position: absolute; border-radius: 4px; }
+.cel--vazia::after { content: ""; position: absolute; left: 30%; right: 30%; bottom: 6px; border-bottom: 1.5px solid #c3cbd5; }
+.cel--invalida { background: #fde8e8; box-shadow: inset 0 -2px var(--erro); }
+.caixa:focus-within .cel--proxima { box-shadow: inset 0 -2px var(--primary-color); }
+.caixa:focus-within .cel--proxima::after { border-color: transparent; }
+.caixa:focus-within .cel--troca { background: var(--primaria-clara); box-shadow: inset 0 0 0 1.5px var(--primary-color); }
+.cel--sel { background: var(--primaria-clara); }
+.cel--colada { animation: colada .6s ease-out; }
+@keyframes colada { from { background: rgba(52, 152, 219, 0.32); } }
+@media (prefers-reduced-motion: reduce) { .cel--colada { animation: none; } }
+
+textarea {
+  position: relative;
+  display: block;
+  box-sizing: content-box;
+  margin: 0;
+  border: 0;
+  padding-right: 0;
+  padding-bottom: 0;
+  resize: none;
+  overflow: hidden;
+  background: transparent;
   color: var(--text-color);
-  background: var(--secondary-background-color);
+  caret-color: var(--primary-color);
+  font: 500 16px var(--mono);
+  text-transform: uppercase;
+  white-space: pre-wrap;
+  word-break: break-all;
+  overflow-wrap: anywhere;
+  outline: none;
 }
-input:focus { outline: 2px solid var(--primary-color); outline-offset: -2px; }
+textarea::selection { background: transparent; }
+/* Questão vazia escolhida: o cursor nativo fica no fim, então some. */
+body.virtual textarea { caret-color: transparent; }
+
+.status { display: flex; justify-content: space-between; gap: 12px; margin-top: 6px;
+          font-size: 14px; line-height: 1.4; color: var(--muted); }
+#contador.completo { color: var(--ok); }
+#contador.invalido, #posicao.aviso { color: var(--erro); }
+#posicao { color: var(--primary-color); font-variant-numeric: tabular-nums; text-align: right; }

@@ -14,57 +14,38 @@ from tri_enem.formatacao import formatar_numero
 from tri_enem.precisao import formatar_aviso_curto as _formatar_aviso_curto_tri
 
 from ..config import AREAS_ENEM
-from .graficos import (
-    grafico_notas_barras, 
-    grafico_impacto, 
-    grade_questoes,
-)
+from .graficos import grafico_impacto, grade_questoes
 
 
 def exibir_resumo_geral(resultados: List[Dict]):
-    """
-    Exibe o resumo geral com todas as notas e média.
-
-    Args:
-        resultados: Lista de resultados por área
-    """
+    """Média em destaque e uma barra por área, na escala de 0 a 1000."""
     if not resultados:
         st.warning("Nenhum resultado para exibir.")
         return
-    
-    # Calcular média
-    notas = [r['nota'] for r in resultados]
-    media = sum(notas) / len(notas)
+
+    media = sum(r['nota'] for r in resultados) / len(resultados)
     total_acertos = sum(r['acertos'] for r in resultados)
     total_questoes = sum(r['total_itens'] for r in resultados)
-    
-    # Métricas principais
-    st.markdown("Resultados")
-    
-    cols = st.columns(len(resultados) + 1)
-    
-    for i, r in enumerate(resultados):
-        with cols[i]:
-            st.metric(
-                label=f"{r['sigla']}",
-                value=formatar_numero(r['nota']),
-                delta=f"{r['acertos']}/{r['total_itens']} acertos",
-                delta_color="off"
-            )
-    
-    with cols[-1]:
-        st.metric(
-            label="Média simples",
-            value=formatar_numero(media),
-            delta=f"{total_acertos}/{total_questoes} total",
-            delta_color="off"
+
+    linhas = []
+    for r in resultados:
+        nome = escape(AREAS_ENEM.get(r['sigla'], r['sigla']))
+        nota = formatar_numero(r['nota'])
+        largura = max(0.0, min(100.0, r['nota'] / 10))
+        linhas.append(
+            '<li class="resumo-area">'
+            f'<span class="resumo-nome">{nome}<small>{r["acertos"]}/{r["total_itens"]} acertos</small></span>'
+            f'<span class="resumo-barra" aria-hidden="true"><i style="width:{largura:.1f}%"></i></span>'
+            f'<strong class="resumo-nota">{nota}</strong></li>'
         )
-    
-    # Gráfico de barras
-    st.plotly_chart(
-        grafico_notas_barras(resultados), 
-        key="resumo_barras",
-        config={'displayModeBar': False, 'scrollZoom': False, 'doubleClick': False}
+    st.markdown(
+        '<div class="resumo">'
+        '<p class="resumo-media"><span>Média simples</span>'
+        f'<strong>{formatar_numero(media)}</strong>'
+        f'<span>{total_acertos}/{total_questoes} acertos</span></p>'
+        '<ul class="resumo-areas" aria-label="Nota por área (0 a 1000)">' + ''.join(linhas) + '</ul>'
+        '</div>',
+        unsafe_allow_html=True,
     )
 
 

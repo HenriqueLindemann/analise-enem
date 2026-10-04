@@ -87,12 +87,14 @@ class TestAppExecuta:
 
         def campo_nativo(label, **kwargs):
             chamadas.append((label, kwargs))
-            return "ABCDE"
+            return "abcde"
 
         monkeypatch.setattr(inputs, "st_keyup", keyup_indisponivel)
         monkeypatch.setattr(inputs.st, "text_input", campo_nativo)
 
-        assert inputs._campo_respostas("Respostas MT", "", "resp_mt") == "ABCDE"
+        respostas = {}
+        inputs._render_input_prova(respostas, "MT", 4)
+        assert respostas == {"MT": "ABCDE"}
         assert chamadas == [(
             "Respostas MT",
             {"value": "", "max_chars": 45, "key": "resp_mt"},
@@ -322,6 +324,7 @@ class TestValidacaoDaEntrada:
             ("ABCDE" * 9, True),
             ("A" * 44 + ".", True),        # ponto = não respondida
             ("A" * 44, False),             # curta
+            ("A" * 44 + "_", False),       # questão pulada
             ("A" * 46, False),             # longa
             ("X" * 45, False),             # letra fora de A-E
         ],
@@ -331,6 +334,14 @@ class TestValidacaoDaEntrada:
 
         ok, erros = validar_todas_respostas({"MT": entrada})
         assert ok is valida, erros
+
+    def test_nome_do_caderno(self):
+        from streamlit_app.components.inputs import _nome_caderno
+
+        assert _nome_caderno("amarela") == "Caderno amarelo"
+        assert _nome_caderno("laranja_atendimento_especializado") == (
+            "Caderno laranja atendimento especializado"
+        )
 
 
 @pytest.fixture(scope="module")
@@ -409,17 +420,28 @@ class TestGraficos:
         assert COR_GRADE_ERRO == '#c84b45'
 
     def test_graficos_nao_capturam_gestos_para_zoom(self, resultado):
-        from streamlit_app.components.graficos import grafico_notas_barras, grafico_impacto
+        from streamlit_app.components.graficos import grafico_impacto
 
-        for fig in (grafico_notas_barras([resultado]), grafico_impacto(_questoes_para_grafico(resultado))):
-            assert fig.layout.dragmode is False
-            assert fig.layout.xaxis.fixedrange is True
-            assert fig.layout.yaxis.fixedrange is True
+        fig = grafico_impacto(_questoes_para_grafico(resultado))
+        assert fig.layout.dragmode is False
+        assert fig.layout.xaxis.fixedrange is True
+        assert fig.layout.yaxis.fixedrange is True
 
-    def test_grafico_de_barras(self, resultado):
-        from streamlit_app.components.graficos import grafico_notas_barras
+    def test_resumo_limita_a_barra_quando_a_nota_passa_de_1000(self, monkeypatch):
+        """Algumas provas de MT passam de 1000; a barra para em 100%."""
+        from streamlit_app.components import resultados
 
-        assert grafico_notas_barras([resultado]) is not None
+        blocos = []
+        monkeypatch.setattr(resultados.st, "markdown", lambda texto, **_: blocos.append(texto))
+        resultados.exibir_resumo_geral([
+            {"sigla": "MT", "nota": 1176.0, "acertos": 45, "total_itens": 45},
+            {"sigla": "LC", "nota": 450.0, "acertos": 10, "total_itens": 45},
+        ])
+
+        html = blocos[0]
+        assert 'style="width:100.0%"' in html and 'style="width:45.0%"' in html
+        assert "1176,0" in html and "813,0" in html
+        assert "55/90 acertos" in html
 
     def test_tabela_questoes_renderiza_acertos_e_erros(self, resultado):
         from streamlit_app.components.resultados import _tabela_questoes
@@ -744,6 +766,30 @@ class TestEstadoDaInterface:
         at = _app_com_respostas(respostas).run()
         assert at.button(key="calcular").disabled is not habilitado
         assert not at.exception
+
+    @pytest.mark.parametrize("respostas,orientacao", [
+        ({"MT": "A" * 44}, "Falta 1 resposta em Matemática."),
+        ({"MT": "AB" + "_" * 40 + "CDE"}, "Faltam 40 respostas em Matemática."),
+        ({"MT": "X" * 45}, "Corrija os caracteres inválidos em Matemática."),
+        ({"MT": "A" * 45, "CN": "B"}, "Faltam 44 respostas em Ciências da Natureza."),
+        ({"MT": "A" * 40, "CN": "B"}, "Complete ou apague: Ciências da Natureza (1/45), Matemática (40/45)."),
+    ])
+    def test_orientacao_diz_o_que_falta(self, respostas, orientacao):
+        at = _app_com_respostas(respostas).run()
+        assert at.button(key="calcular").disabled
+        assert any(orientacao in c.value for c in at.caption), [c.value for c in at.caption]
+
+    def test_area_indisponivel_nao_bloqueia_calculo(self):
+        """2014/reaplicação não tem CH: o que foi digitado lá fica, mas não conta."""
+        at = _app_com_respostas({"CH": "ABC", "MT": "A" * 45})
+        at.selectbox(key="ano_prova").set_value(2014).run()
+        at.selectbox(key="tipo_prova").set_value("reaplicacao").run()
+        assert not at.button(key="calcular").disabled
+        at.button(key="calcular").click().run()
+        assert not at.exception
+        assert not at.warning
+        assert [r["sigla"] for r in at.session_state["resultados"]] == ["MT"]
+        assert at.session_state["resp_ch"] == "ABC"
 
     @pytest.mark.parametrize("falha", ["excecao", "vazio"])
     def test_falha_na_repeticao_nao_mantem_resultado_antigo(self, monkeypatch, falha):

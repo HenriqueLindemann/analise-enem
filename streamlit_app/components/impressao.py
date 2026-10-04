@@ -103,9 +103,6 @@ def exibir_download_pdf(resultados: List[Dict], ano: int, tipo_aplicacao: str = 
     
     Usa session_state para manter o PDF gerado entre reruns.
     """
-    st.markdown("### Relatório PDF")
-    st.caption(TEXTO_DOWNLOAD_PDF)
-    
     # Obter cor predominante
     cor_prova = ""
     for r in resultados:
@@ -139,13 +136,14 @@ def exibir_download_pdf(resultados: List[Dict], ano: int, tipo_aplicacao: str = 
         nome_arquivo = f"resultado_enem_{ano}.pdf"
         
         st.download_button(
-            label="Baixar Relatório PDF",
+            label="Baixar relatório PDF",
+            icon=":material/download:",
+            help=TEXTO_DOWNLOAD_PDF,
             data=pdf_bytes,
             file_name=nome_arquivo,
             mime="application/pdf",
             type="secondary",
             on_click="ignore",
-            width="stretch",
         )
     else:
         st.error("Não foi possível gerar o PDF.")

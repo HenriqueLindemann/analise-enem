@@ -7,7 +7,6 @@ questões em HTML/CSS (leve, responsiva e acessível sem canvas).
 
 import plotly.graph_objects as go
 from typing import List, Dict
-import numpy as np
 import html
 
 from tri_enem.formatacao import formatar_numero
@@ -29,91 +28,6 @@ COR_FUNDO = '#FAFAFA'
 # Cores da Grade de Questões (alinhadas ao CSS e relatório PDF)
 COR_GRADE_ACERTO = '#23845a'
 COR_GRADE_ERRO = '#c84b45'
-
-
-def grafico_notas_barras(resultados: List[Dict]) -> go.Figure:
-    """
-    Gráfico de barras horizontais mostrando nota de cada área.
-    
-    Args:
-        resultados: Lista de dicts com 'sigla', 'nome', 'nota', 'acertos', 'total_itens'
-        
-    Returns:
-        Figura Plotly
-    """
-    if not resultados:
-        return go.Figure()
-    
-    siglas = [r['sigla'] for r in resultados]
-    notas = [r['nota'] for r in resultados]
-    limite_superior = max(
-        1000, int(np.ceil((max(notas) * 1.10) / 100.0) * 100)
-    )
-    acertos = [f"{r['acertos']}/{r['total_itens']}" for r in resultados]
-    
-    # Cores baseadas na nota
-    cores = []
-    for n in notas:
-        if n >= 700:
-            cores.append(COR_ACERTO)
-        elif n >= 500:
-            cores.append(COR_PRIMARIA)
-        else:
-            cores.append(COR_ERRO)
-    
-    fig = go.Figure()
-    
-    fig.add_trace(go.Bar(
-        y=siglas,
-        x=notas,
-        orientation='h',
-        marker_color=cores,
-        text=[f"{formatar_numero(n)} pts ({a})" for n, a in zip(notas, acertos)],
-        customdata=[formatar_numero(n) for n in notas],
-        textposition='outside',
-        textfont=dict(size=12, color='#2C3E50'),
-        hovertemplate="<b>%{y}</b><br>Nota: %{customdata} pontos<extra></extra>"
-    ))
-    
-    # Linhas de referência
-    fig.add_vline(x=500, line_dash="dash", line_color=COR_CINZA_CLARO, opacity=0.5)
-    fig.add_vline(x=700, line_dash="dash", line_color=COR_CINZA_CLARO, opacity=0.5)
-    
-    # Média
-    media = sum(notas) / len(notas)
-    fig.add_vline(x=media, line_dash="solid", line_color=COR_SECUNDARIA, 
-                  line_width=2, opacity=0.8,
-                  annotation_text=f"Média: {formatar_numero(media)}",
-                  annotation_position="top")
-    
-    fig.update_layout(
-        title=dict(
-            text="",
-            font=dict(size=1)
-        ),
-        xaxis=dict(
-            title="Nota",
-            range=[0, limite_superior],
-            tickvals=sorted({0, 500, 700, 1000, limite_superior}),
-            gridcolor=COR_CINZA_CLARO,
-            gridwidth=0.5,
-        ),
-        yaxis=dict(
-            title=None,
-            categoryorder='array',
-            categoryarray=list(reversed(siglas))
-        ),
-        height=200,
-        margin=dict(l=40, r=80, t=20, b=40),
-        paper_bgcolor='white',
-        plot_bgcolor='white',
-        font=dict(family="Arial, sans-serif"),
-    )
-    
-    fig.update_layout(dragmode=False)
-    fig.update_xaxes(fixedrange=True)
-    fig.update_yaxes(fixedrange=True)
-    return fig
 
 
 def grafico_impacto(questoes: List[Dict], titulo: str = "") -> go.Figure:

@@ -11,12 +11,18 @@
     <link rel="stylesheet" href="./style.css" />
   </head>
   <body id="root">
-    <div>
-      <label id="label" for="input_box">Respostas</label>
-      <div class="input">
-        <input type="text" name="text_input" id="input_box" autocomplete="off"
-               autocorrect="off" autocapitalize="characters" spellcheck="false" />
+    <label id="label" class="sr-only" for="input_box">Respostas</label>
+    <div class="caixa" id="caixa">
+      <div class="folha" id="folha">
+        <div class="camada" id="camada" aria-hidden="true"></div>
+        <textarea id="input_box" rows="1" autocomplete="off" autocorrect="off"
+                  autocapitalize="characters" spellcheck="false" enterkeyhint="done"
+                  aria-describedby="status"></textarea>
       </div>
+    </div>
+    <div class="status" id="status">
+      <span id="contador"></span>
+      <span id="posicao" aria-live="polite"></span>
     </div>
   </body>
 </html>

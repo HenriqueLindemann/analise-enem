@@ -13,11 +13,17 @@ from ..config import AREAS_ENEM, ORDEM_AREAS, ORDEM_CORES
 
 TOTAL_RESPOSTAS = 45
 TAMANHO_BLOCO = 5
+# Os dados usam o feminino (prova amarela); o rótulo diz "caderno".
+MASCULINO = {"amarela": "amarelo", "branca": "branco", "adaptada": "adaptado", "ampliada": "ampliado"}
+TEXTO_AJUDA = (
+    "Digite as letras de A a E, com ponto nas questões em branco. "
+    "Preencha só as provas que quiser e, para trocar uma resposta, toque nela."
+)
 
 
 def input_respostas(
     ano: int, mapeador, tipo_aplicacao: str,
-) -> Tuple[Dict[str, str], Dict[str, str | None]]:
+) -> Tuple[Dict[str, str], Dict[str, str | None], str]:
     """
     Renderiza os inputs de respostas para cada área.
     
@@ -27,41 +33,67 @@ def input_respostas(
         tipo_aplicacao: Aplicação selecionada para consultar as cores
     
     Returns:
-        Respostas e cores por área; cor None indica área indisponível
+        Respostas, cores por área (None indica área indisponível) e língua
     """
     respostas = {}
     cores = {}
     
-    st.markdown("### Suas Respostas")
-    st.caption("Digite suas 45 respostas para cada área usando as letras A, B, C, D, E. "
-               "Use ponto (.) para questões não respondidas. Você pode preencher só as provas que desejar.")
-    
+    st.markdown("### Suas respostas")
+    st.caption(TEXTO_AJUDA)
+
     ordem_provas = _obter_ordem_provas(ano, mapeador)
     st.session_state['ordem_provas_atual'] = ordem_provas
     st.session_state['ano_respostas'] = ano
-    
-    for inicio in range(0, len(ordem_provas), 2):
-        for idx, (area, coluna) in enumerate(zip(ordem_provas[inicio:inicio + 2], st.columns(2)), start=inicio + 1):
-            with coluna, st.container(border=True, key=f"respostas_{area}"):
-                st.markdown(f"**{AREAS_ENEM[area]}**")
-                disponiveis = mapeador.listar_cores_disponiveis(ano, area, tipo_aplicacao)
-                if disponiveis:
-                    ordenadas = sorted(disponiveis, key=lambda c: (ORDEM_CORES.index(c) if c in ORDEM_CORES else 99, c))
-                    chave = f"cor_{area}"
-                    if st.session_state.get(chave) not in ordenadas:
-                        st.session_state[chave] = ordenadas[0]
-                    cores[area] = st.selectbox("Cor do caderno", ordenadas, key=chave,
-                                               format_func=str.capitalize,
-                                               help="Confira a cor na capa do caderno de questões.")
-                else:
-                    cores[area] = None
-                    st.caption("Área não disponível nesta aplicação.")
-                _render_input_prova(respostas, area, idx)
+
+    lingua = "ingles"
+    largura_cor = _largura_cor(ano, mapeador, tipo_aplicacao)
+    for idx, area in enumerate(ordem_provas, start=1):
+        with st.container(border=True, key=f"respostas_{area}"):
+            with st.container(horizontal=True, vertical_alignment="center", gap="small"):
+                st.markdown(f"**{AREAS_ENEM[area]}**", width="content")
+                st.space("stretch")
+                # Os seletores quebram linha juntos; no celular ocupam a largura (styles.css).
+                with st.container(horizontal=True, gap="xsmall", width="content", key=f"opcoes_{area}"):
+                    if area == "LC":
+                        lingua = st.selectbox("Língua estrangeira", ["ingles", "espanhol"],
+                                              key="lingua_prova", label_visibility="collapsed", width=120,
+                                              format_func=lambda l: "Inglês" if l == "ingles" else "Espanhol")
+                    cores[area] = _selecionar_cor(ano, area, mapeador, tipo_aplicacao, largura_cor)
+            _render_input_prova(respostas, area, idx)
 
     st.session_state['respostas_por_area'] = {
         area: respostas.get(area, '') for area in ORDEM_AREAS
     }
-    return respostas, cores
+    return respostas, cores, lingua
+
+
+def _selecionar_cor(ano: int, area: str, mapeador, tipo_aplicacao: str, largura: int = 160) -> str | None:
+    """Cor do caderno; None quando a área não existe nesta aplicação."""
+    disponiveis = mapeador.listar_cores_disponiveis(ano, area, tipo_aplicacao)
+    if not disponiveis:
+        st.caption("Área não disponível nesta aplicação.", width="content")
+        return None
+    ordenadas = sorted(disponiveis, key=lambda c: (ORDEM_CORES.index(c) if c in ORDEM_CORES else 99, c))
+    chave = f"cor_{area}"
+    if st.session_state.get(chave) not in ordenadas:
+        st.session_state[chave] = ordenadas[0]
+    return st.selectbox("Cor do caderno", ordenadas, key=chave, width=largura,
+                        label_visibility="collapsed",
+                        format_func=_nome_caderno)
+
+
+def _largura_cor(ano: int, mapeador, tipo_aplicacao: str) -> int:
+    """Largura comum aos seletores, com o nome de caderno mais longo da aplicação."""
+    nomes = [_nome_caderno(cor) for area in ORDEM_AREAS
+             for cor in mapeador.listar_cores_disponiveis(ano, area, tipo_aplicacao)]
+    # ~6,4 px por caractere na fonte do seletor, mais preenchimento e seta.
+    # No mínimo, 160 + 120 da língua cabem lado a lado num celular de 360 px.
+    return min(320, max(160, round(6.4 * max(map(len, nomes), default=0) + 60)))
+
+
+def _nome_caderno(cor: str) -> str:
+    """'cinza_adaptada' -> 'Caderno cinza adaptado'."""
+    return "Caderno " + " ".join(MASCULINO.get(p, p) for p in cor.split("_"))
 
 
 def _obter_ordem_provas(ano: int, mapeador=None) -> List[str]:
@@ -96,56 +128,40 @@ def _normalizar_ordem_provas(ordem) -> List[str]:
 
 
 def _render_input_prova(respostas: Dict[str, str], area: str, ordem_idx: int) -> None:
-    """Renderiza o bloco de input para uma prova na ordem indicada."""
+    """Renderiza o campo de uma prova, numerado pela posição no caderno."""
     inicio = (ordem_idx - 1) * TOTAL_RESPOSTAS + 1
-    fim = ordem_idx * TOTAL_RESPOSTAS
-
-    st.caption(f"Prova {ordem_idx} (Questões {inicio}-{fim}) · {area}")
-
-    label = f"Respostas {area}"
     key = f"resp_{area.lower()}"
     valor_atual = st.session_state.get(key, '')
-    
-    valor_digitado = _campo_respostas(label, valor_atual, key)
-    respostas[area] = (valor_digitado or '').upper()
-
-    _render_visualizacao_respostas(respostas.get(area, ''), area.lower(), offset_start=inicio)
-    _mostrar_contador(respostas.get(area, ''))
-
-
-def _campo_respostas(label: str, valor_atual: str, key: str) -> str:
-    """Usa digitação em tempo real e recua para o campo nativo se necessário."""
 
     try:
-        return st_keyup(
-            label,
-            value=valor_atual,
-            max_chars=TOTAL_RESPOSTAS,
-            key=key,
-            debounce=100,
-        )
+        # O componente mostra numeração, contagem e posição do cursor.
+        valor = st_keyup(f"Respostas {area}", value=valor_atual, max_chars=TOTAL_RESPOSTAS,
+                         key=key, debounce=100, inicio=inicio)
+        respostas[area] = (valor or '').upper()
+        return
     except ValueError as exc:
         if "is not registered" not in str(exc):
             raise
-    return st.text_input(
-        label,
-        value=valor_atual,
-        max_chars=TOTAL_RESPOSTAS,
-        key=key,
-    )
+
+    fim = ordem_idx * TOTAL_RESPOSTAS
+    st.caption(f"Prova {ordem_idx} (Questões {inicio}-{fim}) · {area}")
+    valor = st.text_input(f"Respostas {area}", value=valor_atual, max_chars=TOTAL_RESPOSTAS, key=key)
+    respostas[area] = (valor or '').upper()
+    _render_visualizacao_respostas(respostas[area], area.lower(), offset_start=inicio)
+    _mostrar_contador(respostas[area])
 
 
 def _mostrar_contador(respostas: str):
     """Mostra contador de caracteres e validação."""
     total = TOTAL_RESPOSTAS
-    n = len(respostas)
+    n = len(respostas) - respostas.count('_')
     
     if n == 0:
         st.caption(f"0/{total} respostas")
         return
     
-    # Validar caracteres
-    invalidos = [c for c in respostas if c not in 'ABCDE.*']
+    # Validar caracteres ("_" é questão pulada)
+    invalidos = [c for c in respostas if c not in 'ABCDE.*_']
     
     if invalidos:
         st.error(f"Caracteres inválidos: {', '.join(sorted(set(invalidos)))}")
@@ -204,10 +220,12 @@ def validar_todas_respostas(respostas: Dict[str, str]) -> Tuple[bool, List[str]]
         if not resp or resp == "." * TOTAL_RESPOSTAS:
             continue
             
-        if len(resp) != TOTAL_RESPOSTAS:
-            erros.append(f"{area}: Deve ter {TOTAL_RESPOSTAS} respostas (tem {len(resp)})")
-        
-        invalidos = [c for c in resp if c not in 'ABCDE.*']
+        # "_" marca questão pulada, ainda sem resposta.
+        feitas = len(resp) - resp.count('_')
+        if feitas != TOTAL_RESPOSTAS or len(resp) != TOTAL_RESPOSTAS:
+            erros.append(f"{area}: Deve ter {TOTAL_RESPOSTAS} respostas (tem {feitas})")
+
+        invalidos = [c for c in resp if c not in 'ABCDE.*_']
         if invalidos:
             erros.append(f"{area}: Caracteres inválidos: {', '.join(sorted(set(invalidos)))}")
     

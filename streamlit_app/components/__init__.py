@@ -16,7 +16,6 @@ from .inputs import input_respostas, validar_todas_respostas
 from .resultados import exibir_resumo_geral, exibir_resultado_area
 from .impressao import exibir_download_pdf
 from .graficos import (
-    grafico_notas_barras,
     grafico_impacto,
     grade_questoes,
     grafico_pizza_acertos,
@@ -32,7 +31,6 @@ __all__ = [
     # Impressão
     'exibir_download_pdf',
     # Gráficos
-    'grafico_notas_barras',
     'grafico_impacto',
     'grade_questoes',
     'grafico_pizza_acertos',

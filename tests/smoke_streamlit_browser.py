@@ -14,18 +14,26 @@ from playwright.sync_api import expect, sync_playwright
 ROOT = Path(__file__).resolve().parent.parent
 sys.path[:0] = [str(ROOT), str(ROOT / "src")]
 
+from streamlit_app.config import AREAS_ENEM  # noqa: E402
+
 
 def check_layout(page):
     # Streamlit scrolls inside stMain, so checking body alone misses overflow.
-    for selector in ("body", '[data-testid="stMain"]', ".st-key-app_content", ".resp-visual", ".grade-painel", ".diagnostico-grupo"):
+    for selector in ("body", '[data-testid="stMain"]', ".st-key-app_content", ".resumo", ".grade-painel", ".diagnostico-grupo"):
         assert page.locator(selector).evaluate_all(
             "els => els.every(el => el.scrollWidth <= el.clientWidth + 1)"
         ), f"Horizontal overflow: {selector}"
-    if page.viewport_size["width"] >= 1024:
-        assert page.locator(".resp-visual").evaluate_all("""els => els.every(el => {
-            const tops = [...el.children].map(group => group.getBoundingClientRect().top);
-            return Math.max(...tops) - Math.min(...tops) < 1;
-        })"""), "Desktop answers must stay on one line"
+    # The bar scale stops at 1000; some MT tests go beyond it.
+    assert page.locator(".resumo-barra").evaluate_all(
+        "els => els.every(el => el.firstElementChild.getBoundingClientRect().width <= el.getBoundingClientRect().width + 0.5)"
+    ), "Score bar wider than its track"
+
+
+def check_frame(frame, label):
+    """The iframe shows the whole field and status line, without inner scroll."""
+    assert frame.locator("#status").evaluate(
+        "el => el.getBoundingClientRect().bottom <= window.innerHeight"
+    ), f"{label}: field clipped by iframe"
 
 
 def check_year_changes(browser, url, *, delayed_html=False):
@@ -56,30 +64,68 @@ def check_year_changes(browser, url, *, delayed_html=False):
     for step, year in enumerate((2023, 2011, 2023, 2011)):
         year_input = page.locator(".st-key-ano_prova").get_by_role("combobox")
         year_input.scroll_into_view_if_needed()
+        year_input.click()        # the filtered list only opens after a click
         year_input.fill(str(year))
         page.get_by_role("option", name=str(year), exact=True).click()
         first_area = "CH" if year == 2011 else "LC"
-        expect(page.get_by_text(f"Prova 1 (Questões 1-45) · {first_area}", exact=True)).to_be_visible()
+        first = page.locator(f".st-key-respostas_{first_area}").frame_locator("iframe")
+        expect(first.locator(".num").first).to_have_text("1")
         for area, answer in answers.items():
-            card = page.locator(f".st-key-respostas_{area}")
-            field = card.frame_locator("iframe").get_by_label(f"Respostas {area}", exact=True)
+            frame = page.locator(f".st-key-respostas_{area}").frame_locator("iframe")
+            field = frame.get_by_label(f"Respostas {area}", exact=True)
             expect(field).to_be_visible()
-            assert field.evaluate(
-                "el => el.getBoundingClientRect().bottom <= window.innerHeight - 4"
-            ), f"{year} {area}: input clipped by iframe"
+            check_frame(frame, f"{year} {area}")
             if step == 0:
                 field.fill(answer)
             else:
                 expect(field).to_have_value(answer)
                 # Check that the restored input still sends edits to Python.
                 field.fill(answer[:-1])
-                expect(card.get_by_text("44/45 respostas · faltam 1", exact=True)).to_be_visible()
+                expect(page.get_by_text(f"Falta 1 resposta em {AREAS_ENEM[area]}.", exact=False)).to_be_visible()
                 field.fill(answer)
-            expect(card.get_by_text("45/45 respostas · completo", exact=True)).to_be_visible()
-            assert "".join(card.locator(".resp-char").all_text_contents()) == answer
+            expect(frame.locator("#contador")).to_have_text("45/45 respostas · completo")
+        expect(page.get_by_role("button", name="Calcular nota", exact=True)).to_be_enabled()
     assert not errors, errors
     page.close()
     print(f"PASS year changes: visibility, retained answers, editing (delayed HTML={delayed_html})", flush=True)
+
+
+def check_composition(browser, url):
+    """Android keyboards type through IME composition, not plain insertText."""
+    page = browser.new_page(viewport={"width": 390, "height": 844}, has_touch=True, is_mobile=True)
+    errors = []
+    page.on("pageerror", lambda error: errors.append(str(error)))
+    page.goto(url)
+    frame = page.locator(".st-key-respostas_MT").frame_locator("iframe")
+    field = frame.get_by_label("Respostas MT", exact=True)
+    field.scroll_into_view_if_needed()
+    cdp = page.context.new_cdp_session(page)
+
+    def compose(text):
+        for k in range(1, len(text) + 1):
+            cdp.send("Input.imeSetComposition", {"text": text[:k], "selectionStart": k, "selectionEnd": k})
+        cdp.send("Input.insertText", {"text": text})
+
+    def tap(index):
+        box = frame.locator(".cel").nth(index).bounding_box()
+        page.touchscreen.tap(box["x"] + box["width"] / 2, box["y"] + box["height"] / 2)
+
+    tap(0)
+    compose("abfc")
+    expect(field).to_have_value("ABC")
+    expect(frame.locator("#posicao")).to_have_text("“f” não é alternativa · use A a E ou ponto")
+    tap(7)                        # an empty question ahead
+    compose("d")
+    expect(field).to_have_value("ABC\u00a0\u00a0\u00a0\u00a0D")
+    tap(1)                        # replace, then keep replacing
+    compose("e")
+    compose("e")
+    expect(field).to_have_value("AEE\u00a0\u00a0\u00a0\u00a0D")
+    field.blur()
+    expect(page.get_by_text("Faltam 41 respostas em Matemática.", exact=False)).to_be_visible()
+    assert not errors, errors
+    page.close()
+    print("PASS composition: skipped question, replace, invalid letter", flush=True)
 
 
 def run(url, executable, output):
@@ -96,6 +142,7 @@ def run(url, executable, output):
         browser = pw.chromium.launch(**({"executable_path": executable} if executable else {}))
         check_year_changes(browser, url)
         check_year_changes(browser, url, delayed_html=True)
+        check_composition(browser, url)
         for width in (360, 390, 768, 1024, 1440):
             page = browser.new_page(viewport={"width": width, "height": 900},
                                     has_touch=width < 768, is_mobile=width < 768)
@@ -107,39 +154,40 @@ def run(url, executable, output):
             ano.scroll_into_view_if_needed()
             ano.click()
             page.get_by_role("option", name="2023", exact=True).click()
-            card = page.locator(".st-key-respostas_MT")
-            field = card.frame_locator("iframe").get_by_label("Respostas MT", exact=True)
+            frame = page.locator(".st-key-respostas_MT").frame_locator("iframe")
+            field = frame.get_by_label("Respostas MT", exact=True)
+            counter = frame.locator("#contador")
             expect(field).to_be_visible()
-            assert field.evaluate("el => el.getBoundingClientRect().bottom <= window.innerHeight - 4"), "Input clipped by iframe"
+            check_frame(frame, f"{width}px")
             calculate = page.get_by_role("button", name="Calcular nota", exact=True)
             expect(calculate).to_be_disabled()
 
             field.press_sequentially("ABCDE", delay=130)
-            expect(card.get_by_text("5/45 respostas · faltam 40", exact=True)).to_be_visible()
+            expect(counter).to_have_text("5/45 respostas · faltam 40")
             expect(field).to_be_focused()
             field.press("Backspace")
-            expect(card.get_by_text("4/45 respostas · faltam 41", exact=True)).to_be_visible()
+            expect(counter).to_have_text("4/45 respostas · faltam 41")
             expect(field).to_be_focused()
             # Simulate a paste/autofill value change with no keyboard events.
             field.fill("ABCDE" * 9)
             expect(calculate).to_be_enabled()
-            expect(card.get_by_text("45/45 respostas · completo", exact=True)).to_be_visible()
-            field.press("Home")
+            expect(counter).to_have_text("45/45 respostas · completo")
+            field.press("Control+Home")  # Home alone stops at the start of the visual row
             field.press("ArrowRight")
             field.press("Delete")
             field.press_sequentially("B")
-            expect(card.get_by_text("45/45 respostas · completo", exact=True)).to_be_visible()
+            expect(counter).to_have_text("45/45 respostas · completo")
             expect(field).to_be_focused()
             assert field.evaluate("el => el.selectionStart") == 2
 
             # Same-length edit: blur flush while the debounce may still be pending.
             field.fill(final_answer)
             calculate.click()
-            expect(page.locator('[data-testid="stMetricValue"]').first).to_have_text(
+            expect(page.locator(".resumo-media strong")).to_have_text(
                 formatar_numero(expected["nota"]), timeout=30000,
             )
-            assert "".join(card.locator(".resp-char").all_text_contents()) == final_answer
-            download = page.get_by_role("button", name="Baixar Relatório PDF", exact=True)
+            expect(field).to_have_value(final_answer)
+            download = page.get_by_role("button", name="Baixar relatório PDF")
             expect(download).to_be_visible()
             with page.expect_download() as event:
                 download.click()
@@ -218,7 +266,7 @@ def run(url, executable, output):
             field.fill("A")
             expect(download).to_have_count(0)
             expect(calculate).to_be_disabled()
-            page.get_by_test_id("stPopover").get_by_role("button").click()
+            page.get_by_test_id("stPopover").filter(has_text="Sobre o cálculo").get_by_role("button").click()
             expect(page.get_by_text("Modelo Logístico de 3 Parâmetros (ML3)", exact=True)).to_be_visible()
             page.keyboard.press("Escape")
             assert not errors, errors

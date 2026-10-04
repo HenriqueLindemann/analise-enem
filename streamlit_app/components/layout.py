@@ -85,9 +85,9 @@ def render_botao_video() -> None:
         _dialog_video()
 
 
-def render_config(mapeador) -> Tuple[int, str, str]:
+def render_config(mapeador) -> Tuple[int, str]:
     st.subheader("Sua prova")
-    col_ano, col_tipo, col_lingua = st.columns(3)
+    col_ano, col_tipo = st.columns(2)
     with col_ano:
         ano = st.selectbox("Ano da prova", sorted(mapeador.listar_anos_disponiveis(), reverse=True), key="ano_prova")
     tipos = set()
@@ -99,11 +99,7 @@ def render_config(mapeador) -> Tuple[int, str, str]:
     with col_tipo:
         tipo = st.selectbox("Tipo de aplicação", disponiveis, key="tipo_prova",
                             format_func=lambda t: TIPOS_APLICACAO.get(t, t))
-    with col_lingua:
-        lingua = st.selectbox("Língua estrangeira", ["ingles", "espanhol"],
-                               key="lingua_prova", help="Para a prova de Linguagens",
-                               format_func=lambda l: "Inglês" if l == "ingles" else "Espanhol")
-    return ano, tipo, lingua
+    return ano, tipo
 
 
 def render_botao_calcular(pode_calcular: bool) -> bool:

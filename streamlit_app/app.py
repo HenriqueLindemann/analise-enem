@@ -133,10 +133,12 @@ def main():
     
     # Configurações da prova na página principal
     calc = get_calculador()
-    ano, tipo_aplicacao, lingua = render_config(calc.mapeador)
+    ano, tipo_aplicacao = render_config(calc.mapeador)
     
     # Área principal: inputs de respostas
-    respostas, cores = input_respostas(ano, calc.mapeador, tipo_aplicacao)
+    respostas, cores, lingua = input_respostas(ano, calc.mapeador, tipo_aplicacao)
+    # Área indisponível nesta aplicação guarda o que foi digitado, mas não conta.
+    respostas = {area: r for area, r in respostas.items() if cores.get(area)}
     
     # Validação das respostas
     todas_validas, _ = validar_todas_respostas(respostas)
@@ -145,8 +147,7 @@ def main():
                         for area, r in respostas.items())
     pode_calcular = bool(tem_respostas and todas_validas)
     if not pode_calcular:
-        st.caption("Complete 45 respostas em pelo menos uma área disponível. "
-                   "Complete ou limpe as demais áreas preenchidas para calcular.")
+        st.caption(_orientacao_calculo(respostas, cores))
     calcular = render_botao_calcular(pode_calcular)
 
     # Reservar a posição evita remontar os expanders após o cálculo.
@@ -169,6 +170,29 @@ def main():
     
     # Footer
     render_footer()
+
+
+def _orientacao_calculo(respostas, cores):
+    """Diz o que falta para liberar o cálculo."""
+    pendentes = [
+        (AREAS_ENEM[area], r) for area, r in respostas.items()
+        if r and r != "." * 45 and cores.get(area)
+    ]
+    invalidas = [nome for nome, r in pendentes if any(c not in "ABCDE.*_" for c in r)]
+    if invalidas:
+        return f"Corrija os caracteres inválidos em {', '.join(invalidas)}."
+    # "_" é questão pulada: conta como resposta faltando.
+    feitas = {nome: len(r) - r.count("_") for nome, r in pendentes}
+    incompletas = [(nome, n) for nome, n in feitas.items() if n != 45]
+    if not incompletas:
+        return "Complete 45 respostas em pelo menos uma área para calcular."
+    if len(incompletas) == 1:
+        nome, n = incompletas[0]
+        falta = 45 - n
+        return (f"Falta{'m' if falta > 1 else ''} {falta} resposta{'s' if falta > 1 else ''} "
+                f"em {nome}. Complete ou apague para calcular.")
+    lista = ", ".join(f"{nome} ({n}/45)" for nome, n in incompletas)
+    return f"Complete ou apague: {lista}."
 
 
 def _assinatura_resultado(ano, tipo_aplicacao, lingua, cores, respostas):
@@ -273,16 +297,15 @@ def _exibir_resultados_salvos(
     )
     
     st.markdown("---")
-    
-    # Resumo geral com métricas
+    with st.container(horizontal=True, vertical_alignment="center"):
+        st.markdown("### Seu resultado", width="content")
+        st.space("stretch")
+        exibir_download_pdf(resultados, ano_resultado, tipo_resultado)
     exibir_resumo_geral(resultados)
-    exibir_download_pdf(resultados, ano_resultado, tipo_resultado)
     
     st.markdown("---")
     
-    # Seção de análise detalhada (H2 para SEO)
-    st.markdown("## Análise Detalhada por Área")
-    st.caption("Clique em uma área para ver a análise completa")
+    st.markdown("### Análise detalhada por área")
     
     # Detalhes por área em expanders
     for resultado in resultados:
@@ -300,7 +323,7 @@ def _exibir_resultados_salvos(
             anuladas_txt = f" · {q_list} anulada" if len(questoes_anuladas) == 1 else f" · {q_list} anuladas"
         
         nota_texto = formatar_numero(nota)
-        with st.expander(f"**{nome}** — {nota_texto} pts ({acertos}/{total} acertos{anuladas_txt})", expanded=False):
+        with st.expander(f"**{nome}** · {nota_texto} pts ({acertos}/{total} acertos{anuladas_txt})", expanded=False):
             exibir_resultado_area(resultado)
     
 
