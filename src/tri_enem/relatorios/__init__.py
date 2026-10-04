@@ -10,6 +10,7 @@ Estrutura:
     - estilos.py: Cores e estilos de texto
     - graficos.py: Visualizações (barras, grade, impacto)
     - tabelas.py: Tabelas de erros e resumos
+    - marcacao.py: Estrutura para leitores de tela (Tagged PDF)
     - utils.py: Formatação da dificuldade dos itens
     - base.py: Classes de dados
     - adaptador.py: Conversão única de resultados para relatórios

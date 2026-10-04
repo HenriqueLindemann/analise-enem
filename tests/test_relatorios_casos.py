@@ -7,6 +7,7 @@ from pathlib import Path
 import pytest
 
 pypdf = pytest.importorskip("pypdf")
+pikepdf = pytest.importorskip("pikepdf")
 pytest.importorskip("reportlab")
 from reportlab.graphics.shapes import Drawing
 
@@ -19,6 +20,7 @@ from tri_enem.formatacao import formatar_numero
 from tri_enem.relatorios.estilos import Medidas
 from tri_enem.relatorios.gerador import RelatorioPDF
 from tri_enem.relatorios.graficos import (
+    descrever_grade,
     grafico_barras_notas,
     grafico_impacto_questoes,
     grade_questoes,
@@ -282,3 +284,132 @@ def test_idioma_formatado_para_apresentacao(entrada, esperado):
 def test_relatorio_sem_areas_e_rejeitado(tmp_path):
     with pytest.raises(ValueError, match="ao menos uma área"):
         RelatorioPDF().gerar(_dados([]), str(tmp_path / "vazio.pdf"))
+
+
+_OPERADORES_DE_PINTURA = {
+    "Tj", "TJ", "'", '"', "S", "s", "f", "F", "f*", "B", "B*", "b", "b*", "sh", "Do",
+}
+
+
+def _area_sem_validas() -> AreaAnalise:
+    area = _criar_area_sintetica("CN", "Ciências da Natureza", 0, total_itens=3)
+    for questao in area.questoes:
+        questao.anulada = True
+    area.acertos = 0
+    return area
+
+
+def _elementos_estrutura(pdf) -> list:
+    elementos = []
+
+    def visitar(no):
+        elementos.append(no)
+        filhos = no.get("/K")
+        if not isinstance(filhos, pikepdf.Array):
+            filhos = [] if filhos is None else [filhos]
+        for filho in filhos:
+            if isinstance(filho, pikepdf.Dictionary) and filho.get("/Type") == "/StructElem":
+                visitar(filho)
+
+    visitar(pdf.Root.StructTreeRoot.K)
+    return elementos
+
+
+def _arvore_de_pais(pdf) -> dict:
+    nums = pdf.Root.StructTreeRoot.ParentTree.Nums
+    return {int(nums[i]): nums[i + 1] for i in range(0, len(nums), 2)}
+
+
+@pytest.mark.parametrize("caso", ["uma_sem_erros", "uma_so_erros", "quatro", "sem_validas"])
+def test_todo_conteudo_desenhado_e_marcado_ou_artefato(caso, tmp_path):
+    areas = {
+        "uma_sem_erros": lambda: [_criar_area_sintetica("MT", "Matemática", 0)],
+        "uma_so_erros": lambda: [_criar_area_sintetica("MT", "Matemática", 45)],
+        "quatro": lambda: [
+            _criar_area_sintetica(sigla, sigla, 22) for sigla in ("LC", "CH", "CN", "MT")
+        ],
+        "sem_validas": lambda: [_area_sem_validas()],
+    }[caso]()
+    caminho, _ = _gerar(tmp_path, areas, f"{caso}.pdf")
+
+    with pikepdf.open(caminho) as pdf:
+        pais = _arvore_de_pais(pdf)
+        for numero, pagina in enumerate(pdf.pages, start=1):
+            elementos = pais[int(pagina.obj.StructParents)]
+            pilha, mcids = [], set()
+            for operandos, operador in pikepdf.parse_content_stream(pagina):
+                operador = str(operador)
+                if operador in ("BMC", "BDC"):
+                    assert not pilha, f"sequência aninhada na página {numero}"
+                    propriedades = operandos[1] if operador == "BDC" else None
+                    mcid = None
+                    if isinstance(propriedades, pikepdf.Dictionary) and "/MCID" in propriedades:
+                        mcid = int(propriedades.MCID)
+                        mcids.add(mcid)
+                    pilha.append((str(operandos[0]), mcid))
+                elif operador == "EMC":
+                    pilha.pop()
+                elif operador in _OPERADORES_DE_PINTURA:
+                    assert pilha, f"{operador} sem marcação na página {numero}"
+                    tag, mcid = pilha[-1]
+                    assert tag == "/Artifact" or mcid is not None
+            assert not pilha
+            assert mcids == set(range(len(elementos)))
+
+
+def test_estrutura_logica_para_leitores_de_tela(tmp_path):
+    lc = _criar_area_sintetica("LC", "Linguagens, Códigos e suas Tecnologias", 6)
+    lc.questoes[3].anulada = True
+    lc.acertos = len(lc.questoes_acertadas)
+    mt = _criar_area_sintetica("MT", "Matemática e suas Tecnologias", 30)
+    caminho, _ = _gerar(tmp_path, [lc, mt])
+
+    with pikepdf.open(caminho) as pdf:
+        assert pdf.Root.MarkInfo.Marked
+        assert str(pdf.Root.Lang) == "pt-BR"
+        assert pdf.Root.ViewerPreferences.DisplayDocTitle
+        with pdf.open_metadata() as meta:
+            assert meta["dc:title"] == "Desempenho no Simulado ENEM 2023"
+
+        elementos = _elementos_estrutura(pdf)
+        titulos = [int(str(e.S)[2]) for e in elementos if str(e.S) in ("/H1", "/H2", "/H3")]
+        assert titulos.count(1) == 1 and titulos[0] == 1
+        assert all(atual <= anterior + 1 for anterior, atual in zip(titulos, titulos[1:]))
+
+        figuras = [e for e in elementos if e.S == "/Figure"]
+        assert len(figuras) == 1 + 2 * len([lc, mt])
+        assert all(str(figura.Alt) and "/BBox" in figura.A for figura in figuras)
+        assert f"LC: {formatar_numero(lc.nota)}" in str(figuras[0].Alt)
+        assert "Anuladas (1): 4." in str(figuras[1].Alt)
+
+        tabelas = [e for e in elementos if e.S == "/Table"]
+        assert len(tabelas) == 3
+        for tabela in tabelas:
+            linhas = list(tabela.K)
+            assert len({len(linha.K) for linha in linhas}) == 1
+            assert all(c.S == "/TH" and c.A.Scope == "/Column" for c in linhas[0].K)
+            assert all(linha.K[0].S == "/TH" and linha.K[0].A.Scope == "/Row"
+                       for linha in linhas[1:])
+
+        pais = _arvore_de_pais(pdf)
+        for pagina in pdf.pages:
+            assert pagina.obj.Tabs == "/S"
+            for anotacao in pagina.obj.Annots:
+                assert str(anotacao.Contents)
+                assert pais[int(anotacao.StructParent)].S == "/Link"
+
+        marcadores = [item.title for item in pdf.open_outline().root]
+        assert marcadores == ["Desempenho no Simulado ENEM"]
+        assert [item.title for item in pdf.open_outline().root[0].children][-2:] == [
+            "LC — Linguagens, Códigos e suas Tecnologias (Inglês)",
+            "MT — Matemática e suas Tecnologias",
+        ]
+
+
+def test_descricao_da_grade_lista_cada_resultado():
+    area = _criar_area_sintetica("MT", "Matemática", 2, total_itens=5)
+    area.questoes[4].anulada = True
+    assert descrever_grade(area.questoes) == (
+        "Grade das 5 questões por resultado. "
+        "Acertos (2): 3, 4; Erros (2): 1, 2; Anuladas (1): 5."
+    )

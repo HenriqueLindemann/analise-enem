@@ -38,6 +38,11 @@ Acertos, erros e anuladas usam cor e sinais gráficos redundantes, preservando a
 distinção quando as cores não são percebidas ou o documento é impresso em cinza.
 O rodapé identifica o desenvolvedor e inclui links discretos para o projeto e
 o perfil profissional.
+
+O PDF é marcado para leitores de tela (Tagged PDF): títulos hierárquicos,
+tabelas com cabeçalhos de linha e coluna, listas, ordem de leitura, idioma
+`pt-BR`, descrição textual de cada gráfico, links descritos e marcadores de
+navegação. Linhas, fundos e numeração de página ficam fora da leitura.
 Na interface web, a data de geração usa o fuso informado pelo navegador; no
 CLI, usa o horário local do computador. Se o fuso não estiver disponível, o
 gerador usa o horário de Brasília (UTC−03:00).

@@ -249,3 +249,49 @@ def grafico_impacto_questoes(
                            fontName="Helvetica", fontSize=7.0,
                            fillColor=Cores.SECUNDARIA))
     return drawing
+
+
+def descrever_barras_notas(areas: Sequence[AreaAnalise]) -> str:
+    """Texto alternativo de ``grafico_barras_notas``."""
+
+    if not areas:
+        return "Sem resultados de áreas."
+    notas = "; ".join(
+        f"{area.sigla.upper()}: {formatar_numero(area.nota)}" for area in areas
+    )
+    return f"Gráfico de barras das notas por área, na escala de 0 a 1000. {notas}."
+
+
+def descrever_grade(questoes: Sequence[QuestaoAnalise]) -> str:
+    """Texto alternativo de ``grade_questoes``."""
+
+    if not questoes:
+        return "Dados de questões não disponíveis."
+    ordenadas = sorted(questoes, key=lambda q: q.posicao)
+    grupos = (
+        ("Acertos", [q for q in ordenadas if q.acertou and not q.anulada]),
+        ("Erros", [q for q in ordenadas if not q.acertou and not q.anulada]),
+        ("Anuladas", [q for q in ordenadas if q.anulada]),
+    )
+    partes = [
+        f"{rotulo} ({len(lista)}): {', '.join(str(q.posicao) for q in lista)}"
+        for rotulo, lista in grupos if lista
+    ]
+    return f"Grade das {len(ordenadas)} questões por resultado. {'; '.join(partes)}."
+
+
+def descrever_impacto(questoes: Sequence[QuestaoAnalise]) -> str:
+    """Texto alternativo de ``grafico_impacto_questoes``."""
+
+    validas = preparar_impacto(questoes)
+    if not validas:
+        return "Sem questões válidas para calcular impacto."
+    maiores = "; ".join(
+        f"questão {q.posicao}, {'acerto' if q.acertou else 'erro'}, "
+        f"{formatar_numero(q.impacto)} pontos"
+        for q in validas[:3]
+    )
+    return (
+        f"Gráfico de barras do impacto estimado das {len(validas)} questões "
+        f"válidas, do maior para o menor. Maiores impactos: {maiores}."
+    )

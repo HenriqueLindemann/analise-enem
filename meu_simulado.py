@@ -160,7 +160,7 @@ def gerar_relatorio_pdf(resultados, ano, titulo, nome_arquivo=None, tipo_aplicac
             adaptar_resultados_para_relatorio,
         )
     except ImportError:
-        print("Instale reportlab: pip install reportlab")
+        print("Instale as dependências: pip install -r requirements.txt")
         return None
     
     dados = adaptar_resultados_para_relatorio(

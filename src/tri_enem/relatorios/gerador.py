@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
 from html import escape
+from io import BytesIO
 from pathlib import Path
 from typing import List, Sequence
 
@@ -22,7 +23,14 @@ except ImportError:
 
 from .base import AreaAnalise, DadosRelatorio
 from .estilos import Cores, Medidas, criar_estilos
-from .graficos import grafico_barras_notas, grafico_impacto_questoes, grade_questoes
+from .graficos import (
+    descrever_barras_notas, descrever_grade, descrever_impacto,
+    grafico_barras_notas, grafico_impacto_questoes, grade_questoes,
+)
+from .marcacao import (
+    ARTEFATO_PAGINACAO, Elemento, Marcacao, artefato, conteudo, estrutura_de,
+    link, marcado, tabela_layout,
+)
 from .tabelas import tabela_diagnostico_questoes, tabela_resumo_areas
 from .utils import formatar_lingua
 from ..formatacao import formatar_numero
@@ -54,8 +62,9 @@ class RelatorioPDF:
         caminho.parent.mkdir(parents=True, exist_ok=True)
         self._dados = dados
 
+        saida_reportlab = BytesIO()
         doc = BaseDocTemplate(
-            str(caminho), pagesize=A4,
+            saida_reportlab, pagesize=A4,
             leftMargin=Medidas.MARGEM_HORIZONTAL,
             rightMargin=Medidas.MARGEM_HORIZONTAL,
             topMargin=Medidas.MARGEM_SUPERIOR,
@@ -98,7 +107,17 @@ class RelatorioPDF:
             if indice < len(paginas) - 1:
                 story.append(PageBreak())
 
-        doc.build(story)
+        # Ordem de leitura: conteúdo de cada página seguido do seu rodapé.
+        documento = Elemento("Document")
+        self._rodapes = []
+        for pagina in paginas:
+            rodape = Elemento("P")
+            documento.filhos += [Elemento("Sect", estrutura_de(pagina)), rodape]
+            self._rodapes.append(rodape)
+
+        marcacao = Marcacao()
+        doc.build(story, canvasmaker=marcacao.criar_canvas)
+        marcacao.gravar(saida_reportlab.getvalue(), documento, str(caminho))
         return str(caminho.absolute())
 
     def _desenhar_pagina(self, canvas, doc):
@@ -117,33 +136,38 @@ class RelatorioPDF:
         canvas.setStrokeColor(Cores.CINZA_CLARO)
         canvas.setLineWidth(0.35)
         y_linha, y_texto = 0.92 * cm, 0.58 * cm
-        canvas.line(Medidas.MARGEM_HORIZONTAL, y_linha,
-                    A4[0] - Medidas.MARGEM_HORIZONTAL, y_linha)
+        with artefato(canvas):
+            canvas.line(Medidas.MARGEM_HORIZONTAL, y_linha,
+                        A4[0] - Medidas.MARGEM_HORIZONTAL, y_linha)
         canvas.setFillColor(Cores.CINZA)
         x = Medidas.MARGEM_HORIZONTAL
+        perfil = "Perfil de Henrique Lindemann no LinkedIn"
         partes_rodape = (
-            ("notatri.com", URL_SITE, "Helvetica-Bold"),
-            (" · Desenvolvido por ", None, "Helvetica"),
-            ("Henrique Lindemann", URL_LINKEDIN, "Helvetica-Bold"),
-            (" · ", None, "Helvetica"),
-            ("GitHub", URL_GITHUB, "Helvetica-BoldOblique"),
-            (" · ", None, "Helvetica"),
-            ("LinkedIn", URL_LINKEDIN, "Helvetica-BoldOblique"),
-            (" · PolyForm Noncommercial 1.0.0", None, "Helvetica"),
+            ("notatri.com", URL_SITE, "Helvetica-Bold", "Site notatri.com"),
+            (" · Desenvolvido por ", None, "Helvetica", None),
+            ("Henrique Lindemann", URL_LINKEDIN, "Helvetica-Bold", perfil),
+            (" · ", None, "Helvetica", None),
+            ("GitHub", URL_GITHUB, "Helvetica-BoldOblique",
+             "Código-fonte do projeto no GitHub"),
+            (" · ", None, "Helvetica", None),
+            ("LinkedIn", URL_LINKEDIN, "Helvetica-BoldOblique", perfil),
+            (" · PolyForm Noncommercial 1.0.0", None, "Helvetica", None),
         )
-        for texto, url, fonte in partes_rodape:
+        rodape = self._rodapes[doc.page - 1]
+        for texto, url, fonte, descricao in partes_rodape:
             canvas.setFont(fonte, 5.8)
             largura = canvas.stringWidth(texto, fonte, 5.8)
-            canvas.drawString(x, y_texto, texto)
+            elemento = rodape.novo("Link") if url else rodape
+            with conteudo(canvas, elemento):
+                canvas.drawString(x, y_texto, texto)
             if url:
-                canvas.linkURL(
-                    url, (x, y_texto - 1, x + largura, y_texto + 6),
-                    relative=0, thickness=0,
-                )
+                link(canvas, url, (x, y_texto - 1, x + largura, y_texto + 6),
+                     elemento, descricao)
             x += largura
         canvas.setFont("Helvetica", 5.8)
-        canvas.drawRightString(A4[0] - Medidas.MARGEM_HORIZONTAL, y_texto,
-                               f"Página {doc.page}")
+        with artefato(canvas, ARTEFATO_PAGINACAO):
+            canvas.drawRightString(A4[0] - Medidas.MARGEM_HORIZONTAL, y_texto,
+                                   f"Página {doc.page}")
         canvas.restoreState()
 
     def _formatar_data_local(self, data: datetime | None, com_as: bool = False) -> str:
@@ -168,12 +192,12 @@ class RelatorioPDF:
             partes.append(escape(str(dados.cor_prova).capitalize()))
         data = self._formatar_data_local(dados.data_geracao, com_as=True)
         return [
-            Paragraph(escape(str(dados.titulo)), titulo_style),
-            Paragraph(" · ".join(partes), subtitulo_style),
-            Paragraph(
+            marcado(Paragraph(escape(str(dados.titulo)), titulo_style), "H1"),
+            marcado(Paragraph(" · ".join(partes), subtitulo_style), "P"),
+            marcado(Paragraph(
                 f"Gerado em <b>{escape(str(dados.origem_geracao))}</b> em {data}",
                 meta_style,
-            ),
+            ), "P"),
             Spacer(1, 0 if compacta else 10),
         ]
 
@@ -186,15 +210,20 @@ class RelatorioPDF:
         aproveitamento = 100 * total_acertos / total_validos if total_validos else 0.0
         media = sum(a.nota for a in areas) / len(areas)
 
-        def metrica(valor: str, rotulo: str):
-            return [Paragraph(valor, self.styles["ValorMetrica"]),
-                    Paragraph(rotulo, self.styles["RotuloMetrica"])]
+        metricas = Elemento("Div")
 
-        faixa = Table([[
+        def metrica(valor: str, rotulo: str):
+            valor = marcado(Paragraph(valor, self.styles["ValorMetrica"]), "P")
+            rotulo = marcado(Paragraph(rotulo, self.styles["RotuloMetrica"]), "P")
+            # Lido como "rótulo: valor", embora o valor apareça acima.
+            metricas.filhos += [rotulo.estrutura, valor.estrutura]
+            return [valor, rotulo]
+
+        faixa = tabela_layout([[
             metrica(formatar_numero(media), "Média simples das áreas"),
             metrica(f"{total_acertos}/{total_validos}", "Acertos em itens válidos"),
             metrica(f"{aproveitamento:.0f}%", "Aproveitamento geral"),
-        ]], colWidths=[Medidas.LARGURA_UTIL / 3] * 3)
+        ]], metricas, colWidths=[Medidas.LARGURA_UTIL / 3] * 3)
         faixa.setStyle(TableStyle([
             ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
             ("ALIGN", (0, 0), (-1, -1), "CENTER"),
@@ -205,8 +234,14 @@ class RelatorioPDF:
         espaco_metricas = Spacer(1, 12)
         elementos += [faixa, espaco_metricas]
         espacos_distribuidos.append(espaco_metricas)
-        grafico_notas = grafico_barras_notas(areas, largura=14.5 * cm)
-        grafico_centralizado = Table([[grafico_notas]], colWidths=[Medidas.LARGURA_UTIL])
+        grafico_notas = marcado(
+            grafico_barras_notas(areas, largura=14.5 * cm), "Figure",
+            alt=descrever_barras_notas(areas),
+        )
+        grafico_centralizado = tabela_layout(
+            [[grafico_notas]], grafico_notas.estrutura,
+            colWidths=[Medidas.LARGURA_UTIL],
+        )
         grafico_centralizado.setStyle(TableStyle([
             ("ALIGN", (0, 0), (-1, -1), "CENTER"),
             ("LEFTPADDING", (0, 0), (-1, -1), 0),
@@ -215,16 +250,16 @@ class RelatorioPDF:
             ("BOTTOMPADDING", (0, 0), (-1, -1), 0),
         ]))
         espaco_grafico = Spacer(1, 10)
-        elementos += [Paragraph("Notas por área", self.styles["SubtituloSecao"]),
+        elementos += [marcado(Paragraph("Notas por área", self.styles["SubtituloSecao"]), "H2"),
                       grafico_centralizado, espaco_grafico]
         espacos_distribuidos.append(espaco_grafico)
-        elementos += [Paragraph("Visão geral", self.styles["SubtituloSecao"]),
+        elementos += [marcado(Paragraph("Visão geral", self.styles["SubtituloSecao"]), "H2"),
                       tabela_resumo_areas(areas)]
         if dados.observacoes:
-            elementos.append(Paragraph(
+            elementos.append(marcado(Paragraph(
                 f"<b>Observação:</b> {escape(str(dados.observacoes))}",
                 self.styles["Legenda"],
-            ))
+            ), "P"))
         espaco_tabela = Spacer(1, 10)
         elementos += [espaco_tabela, self._bloco_como_ler()]
         espacos_distribuidos.append(espaco_tabela)
@@ -250,14 +285,18 @@ class RelatorioPDF:
         ]
         celulas = []
         for titulo, texto in definicoes:
-            celulas.append(Paragraph(
+            celulas.append(marcado(Paragraph(
                 f"<b>{titulo}</b><br/><font color='#607080'>{texto}</font>",
                 self.styles["TextoNormal"],
-            ))
-        tabela = Table([
-            [Paragraph("Como ler este relatório", self.styles["SubtituloSecao"]), "", ""],
+            ), "P"))
+        cabecalho = marcado(
+            Paragraph("Como ler este relatório", self.styles["SubtituloSecao"]), "H2",
+        )
+        tabela = tabela_layout([
+            [cabecalho, "", ""],
             celulas,
-        ], colWidths=[Medidas.LARGURA_UTIL / 3] * 3, hAlign="LEFT")
+        ], Elemento("Div", estrutura_de([cabecalho, *celulas])),
+            colWidths=[Medidas.LARGURA_UTIL / 3] * 3, hAlign="LEFT")
         tabela.setStyle(TableStyle([
             ("SPAN", (0, 0), (-1, 0)),
             ("VALIGN", (0, 0), (-1, -1), "TOP"),
@@ -285,7 +324,7 @@ class RelatorioPDF:
         lingua = formatar_lingua(area.lingua) if area.sigla.upper() == "LC" else ""
         if lingua:
             titulo += f" ({lingua})"
-        elementos.append(Paragraph(escape(titulo), self.styles["TituloArea"]))
+        elementos.append(marcado(Paragraph(escape(titulo), self.styles["TituloArea"]), "H2"))
 
         prova = f"Prova {area.co_prova}" if area.co_prova else "Prova não informada"
         if area.cor_prova:
@@ -297,31 +336,37 @@ class RelatorioPDF:
         )
         if area.total_anulados:
             info += f"  ·  <b>{escape(area.texto_anuladas_breve())}</b>"
-        elementos.append(Paragraph(info, self.styles["TextoNormal"]))
+        elementos.append(marcado(Paragraph(info, self.styles["TextoNormal"]), "P"))
         elementos.append(Spacer(1, 3 if incluir_identidade else 6))
 
         precisao = verificar_precisao_prova(area.ano, area.sigla, area.co_prova)
         aviso = formatar_aviso_curto(precisao, formato="reportlab")
         resumo = formatar_resumo_validacao(precisao, formato="reportlab")
         if aviso:
-            elementos.append(Paragraph(aviso, self.styles["AvisoCalibracao"]))
+            elementos.append(marcado(Paragraph(aviso, self.styles["AvisoCalibracao"]), "P"))
         if resumo:
-            elementos.append(Paragraph(resumo, self.styles["MetricasValidacao"]))
+            elementos.append(marcado(Paragraph(resumo, self.styles["MetricasValidacao"]), "P"))
         pagina_densa = incluir_identidade and len(area.questoes_erradas) >= 40
         espaco_antes_grade = 1 if pagina_densa else (5 if incluir_identidade else 10)
         espaco_depois_grade = 1 if pagina_densa else 6
-        elementos += [Spacer(1, espaco_antes_grade),
-                      grade_questoes(area.questoes), Spacer(1, espaco_depois_grade)]
-        elementos.append(Paragraph("Impacto por questão", self.styles["SubtituloSecao"]))
-        elementos += [grafico_impacto_questoes(area.questoes), Spacer(1, 3)]
+        grade = marcado(grade_questoes(area.questoes), "Figure",
+                        alt=descrever_grade(area.questoes))
+        elementos += [Spacer(1, espaco_antes_grade), grade,
+                      Spacer(1, espaco_depois_grade)]
+        elementos.append(marcado(
+            Paragraph("Impacto por questão", self.styles["SubtituloSecao"]), "H3",
+        ))
+        impacto = marcado(grafico_impacto_questoes(area.questoes), "Figure",
+                          alt=descrever_impacto(area.questoes))
+        elementos += [impacto, Spacer(1, 3)]
         if incluir_diagnostico:
             apos_erros = None
             if incluir_explicacao_b:
-                apos_erros = [Spacer(1, 2), Paragraph(
+                apos_erros = [Spacer(1, 2), marcado(Paragraph(
                     "<b>Dificuldade (b):</b> valor dos microdados do INEP que ordena as "
                     "questões das mais acessíveis às mais exigentes.",
                     self.styles["Legenda"],
-                ), Spacer(1, 2)]
+                ), "P"), Spacer(1, 2)]
             elementos.append(tabela_diagnostico_questoes(
                 area.questoes, apos_erros=apos_erros,
             ))
@@ -343,8 +388,9 @@ class RelatorioPDF:
                 "no comando da ciência e tecnologia em uma democracia se as pessoas não sabem nada "
                 "sobre isso?”<br/><b>— Carl Sagan</b>"
             )
-        tabela = Table([[Paragraph(f"<i>{texto}</i>", self.styles["Disclaimer"])]],
-                       colWidths=[Medidas.LARGURA_UTIL])
+        paragrafo = marcado(Paragraph(f"<i>{texto}</i>", self.styles["Disclaimer"]), "P")
+        tabela = tabela_layout([[paragrafo]], Elemento("BlockQuote", [paragrafo.estrutura]),
+                               colWidths=[Medidas.LARGURA_UTIL])
         tabela.setStyle(TableStyle([
             ("TOPPADDING", (0, 0), (-1, -1), 10 if not compacta else 3),
             ("BOTTOMPADDING", (0, 0), (-1, -1), 8 if not compacta else 0),

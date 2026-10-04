@@ -20,3 +20,5 @@ watchdog>=3.0.0
 
 # Geração de relatórios PDF
 reportlab>=4.0.0
+# Marcação de acessibilidade do PDF (Tagged PDF)
+pikepdf>=8.0.0

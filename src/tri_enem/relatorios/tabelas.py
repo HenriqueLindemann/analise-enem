@@ -14,6 +14,7 @@ from reportlab.platypus import Flowable, Paragraph, Spacer, Table, TableStyle
 
 from .base import AreaAnalise, QuestaoAnalise
 from .estilos import Cores, Medidas
+from .marcacao import Elemento, estrutura_de, marcado, tabela_dados, tabela_layout
 from ..formatacao import formatar_numero
 
 
@@ -224,10 +225,13 @@ def tabela_diagnostico_questoes(
             Cores.ACERTO, _TITULO_ACERTOS,
         ))
     if not preparado.erros and not preparado.acertos:
-        conteudo = [Paragraph(
+        conteudo = [marcado(Paragraph(
             "Não há questões válidas para diagnosticar.", _MENSAGEM,
-        )]
-    tabela = Table([[conteudo]], colWidths=[largura], hAlign="LEFT")
+        ), "P")]
+    tabela = tabela_layout(
+        [[conteudo]], Elemento("Div", estrutura_de(conteudo)),
+        colWidths=[largura], hAlign="LEFT",
+    )
 
     tabela.modo_diagnostico = preparado.modo
     tabela.total_erros = len(preparado.erros)
@@ -245,7 +249,8 @@ def tabela_diagnostico_questoes(
 def _titulo_faixa(
     texto: str, largura: float, fundo, linha, estilo: ParagraphStyle,
 ) -> Table:
-    faixa = Table([[Paragraph(texto, estilo)]], colWidths=[largura])
+    titulo = marcado(Paragraph(texto, estilo), "H3")
+    faixa = tabela_layout([[titulo]], titulo.estrutura, colWidths=[largura])
     faixa.setStyle(TableStyle([
         ("BACKGROUND", (0, 0), (-1, -1), fundo),
         ("LINEBEFORE", (0, 0), (0, -1), 2.2, linha),
@@ -270,7 +275,7 @@ def _tabela_erros_compacta(
     else:
         fonte, leading, padding = 7.3, 8.4, 1.25
     proporcoes = (0.15, 0.19, 0.17, 0.22, 0.27)
-    tabela = Table(
+    tabela = tabela_dados(
         [_cabecalho_grupo("erros")] + [_linha_questao(q) for q in erros],
         colWidths=[largura * p for p in proporcoes], hAlign="LEFT",
     )
@@ -304,8 +309,10 @@ def _faixa_acertos(
     )
     colunas = 10
     linhas = []
+    lista = Elemento("L")
+    itens = []
     for inicio in range(0, len(por_impacto), colunas):
-        linha = []
+        linha, itens_linha = [], []
         for questao in por_impacto[inicio:inicio + colunas]:
             impacto = formatar_numero(questao.impacto)
             linha.append(Paragraph(
@@ -313,9 +320,14 @@ def _faixa_acertos(
                 f"color='#607080'>{impacto} pts</font>",
                 _NUMERO_ACERTO,
             ))
+            itens_linha.append(lista.novo("LI").novo("LBody"))
         linha.extend([""] * (colunas - len(linha)))
+        itens_linha.extend([None] * (colunas - len(itens_linha)))
         linhas.append(linha)
-    grade = Table(linhas, colWidths=[largura / colunas] * colunas)
+        itens.append(itens_linha)
+    grade = tabela_layout(
+        linhas, lista, celulas=itens, colWidths=[largura / colunas] * colunas,
+    )
     grade.setStyle(TableStyle([
         ("BACKGROUND", (0, 0), (-1, -1), Cores.ACERTO_CLARO),
         ("ALIGN", (0, 0), (-1, -1), "CENTER"),
@@ -329,7 +341,10 @@ def _faixa_acertos(
         f"Acertos ({len(acertos)})", largura, Cores.ACERTO_CLARO,
         Cores.ACERTO, _TITULO_ACERTOS,
     )
-    bloco = Table([[titulo], [grade]], colWidths=[largura])
+    bloco = tabela_layout(
+        [[titulo], [grade]], Elemento("Div", [titulo.estrutura, lista]),
+        colWidths=[largura],
+    )
     bloco.setStyle(TableStyle([
         ("VALIGN", (0, 0), (-1, -1), "TOP"),
         ("LEFTPADDING", (0, 0), (-1, -1), 0),
@@ -379,8 +394,8 @@ def tabela_resumo_areas(
     ])
 
     proporcoes = (0.33, 0.18, 0.12, 0.17, 0.10, 0.10)
-    tabela = Table(dados, colWidths=[largura * p for p in proporcoes],
-                   repeatRows=1, hAlign="LEFT")
+    tabela = tabela_dados(dados, colWidths=[largura * p for p in proporcoes],
+                          repeatRows=1, hAlign="LEFT")
     tabela.setStyle(TableStyle([
         ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
         ("FONTNAME", (0, 1), (-1, -2), "Helvetica"),
