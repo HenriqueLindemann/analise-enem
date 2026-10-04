@@ -7,6 +7,9 @@
 footer {
     display: none;
 }
+/* Cartões de respostas mais justos; o iframe em bloco não deixa vão de linha embaixo. */
+.stVerticalBlock[class*="st-key-respostas_"] { padding: calc(0.75rem - 1px); }
+[class*="st-key-respostas_"] iframe { display: block; }
 .resp-visual {
     display: flex;
     flex-wrap: wrap;

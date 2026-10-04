@@ -48,8 +48,8 @@ def input_respostas(
     lingua = "ingles"
     largura_cor = _largura_cor(ano, mapeador, tipo_aplicacao)
     for idx, area in enumerate(ordem_provas, start=1):
-        with st.container(border=True, key=f"respostas_{area}"):
-            with st.container(horizontal=True, vertical_alignment="center", gap="small"):
+        with st.container(border=True, key=f"respostas_{area}", gap="xsmall"):
+            with st.container(horizontal=True, vertical_alignment="center", gap="xsmall"):
                 st.markdown(f"**{AREAS_ENEM[area]}**", width="content")
                 st.space("stretch")
                 # Os seletores quebram linha juntos; no celular ocupam a largura (styles.css).

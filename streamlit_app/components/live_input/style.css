@@ -12,7 +12,7 @@
   --erro: #b91c1c;
 }
 html, body { overflow: hidden; }
-body { margin: 0; padding: 2px 2px 4px; color: var(--text-color); font-family: var(--sans); }
+body { margin: 0; padding: 2px 2px 0; color: var(--text-color); font-family: var(--sans); }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
 /* Mesma linguagem do campo anterior: fundo secundário, borda discreta, foco na cor primária. */
