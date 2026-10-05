@@ -30,16 +30,18 @@ body { margin: 0; padding: 2px 2px 0; color: var(--text-color); font-family: var
 .num--bloco { color: #4f5d6b; font-weight: 600; }
 .num--hover { color: var(--text-color); }
 .num--ativo { color: var(--primary-color); font-weight: 700; }
-.cel { position: absolute; border-radius: 4px; }
+.cel { position: absolute; display: flex; align-items: center; justify-content: center; border-radius: 4px;
+       font: 500 16px var(--mono); color: var(--text-color); }
+.cel--branco { color: var(--muted); }
 .cel--vazia::after { content: ""; position: absolute; left: 30%; right: 30%; bottom: 6px; border-bottom: 1.5px solid #c3cbd5; }
-.cel--invalida { background: #fde8e8; box-shadow: inset 0 -2px var(--erro); }
-.caixa:focus-within .cel--proxima { box-shadow: inset 0 -2px var(--primary-color); }
-.caixa:focus-within .cel--proxima::after { border-color: transparent; }
-.caixa:focus-within .cel--troca { background: var(--primaria-clara); box-shadow: inset 0 0 0 1.5px var(--primary-color); }
+/* Questão do cursor: o que for digitado entra aqui. */
+.cel--atual { background: var(--primaria-clara); box-shadow: inset 0 0 0 1.5px var(--primary-color); }
+.cel--atual.cel--vazia::after { border-bottom: 2px solid var(--primary-color); animation: piscar 1.1s steps(1) infinite; }
+@keyframes piscar { 50% { opacity: 0; } }
 .cel--sel { background: var(--primaria-clara); }
 .cel--colada { animation: colada .6s ease-out; }
 @keyframes colada { from { background: rgba(52, 152, 219, 0.32); } }
-@media (prefers-reduced-motion: reduce) { .cel--colada { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .cel--colada, .cel--atual.cel--vazia::after { animation: none; } }
 
 textarea {
   position: relative;
@@ -52,21 +54,24 @@ textarea {
   resize: none;
   overflow: hidden;
   background: transparent;
-  color: var(--text-color);
-  caret-color: var(--primary-color);
+  /* As letras e o cursor são desenhados nas células da camada. */
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  caret-color: transparent;
+  forced-color-adjust: none;
   font: 500 16px var(--mono);
-  text-transform: uppercase;
   white-space: pre-wrap;
+  /* Quebra em qualquer caractere, inclusive ponto, para alinhar às células. */
   word-break: break-all;
   overflow-wrap: anywhere;
+  line-break: anywhere;
   outline: none;
+  -webkit-tap-highlight-color: transparent;
 }
-textarea::selection { background: transparent; }
-/* Questão vazia escolhida: o cursor nativo fica no fim, então some. */
-body.virtual textarea { caret-color: transparent; }
+textarea::selection { background: transparent; color: transparent; }
 
 .status { display: flex; justify-content: space-between; gap: 12px; margin-top: 6px;
           font-size: 14px; line-height: 1.4; color: var(--muted); }
 #contador.completo { color: var(--ok); }
-#contador.invalido, #posicao.aviso { color: var(--erro); }
+#posicao.aviso { color: var(--erro); }
 #posicao { color: var(--primary-color); font-variant-numeric: tabular-nums; text-align: right; }

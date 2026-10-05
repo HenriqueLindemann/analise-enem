@@ -17,7 +17,8 @@ TAMANHO_BLOCO = 5
 MASCULINO = {"amarela": "amarelo", "branca": "branco", "adaptada": "adaptado", "ampliada": "ampliado"}
 TEXTO_AJUDA = (
     "Digite as letras de A a E, com ponto nas questões em branco. "
-    "Preencha só as provas que quiser e, para trocar uma resposta, toque nela."
+    "Toque numa questão para ir até ela: o que digitar entra ali, sem mover as outras. "
+    "Preencha só as provas que quiser."
 )
 
 

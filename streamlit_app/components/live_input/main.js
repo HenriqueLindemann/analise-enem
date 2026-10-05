@@ -1,34 +1,52 @@
 // Adapted from streamlit-keyup 0.3.0 (Zachary Blackwood); see LICENSE.
-// A native textarea keeps caret, copy/paste, undo and mobile keyboards. Every
-// glyph gets the same width, so a layer behind it numbers each answer.
-const TOTAL = 45, BLOCO = 5, VALIDAS = "ABCDE.*";
-// Questão pulada (ainda sem resposta): invisível e com a largura de uma letra.
-// Fora do campo vira "_", que o Python conta como resposta faltando.
-const FALTA = "\u00a0";
-const paraFora = v => v.replaceAll(FALTA, "_");
-const paraDentro = v => v.toUpperCase().replaceAll("_", FALTA);
+// Folha de respostas: a textarea guarda sempre um caractere por questão
+// ("_" = sem resposta) e recebe teclado, colar e desfazer; a camada atrás
+// desenha números, letras e cursor. Toda edição sobrescreve questões, nunca
+// desloca as seguintes.
+const TOTAL = 45, BLOCO = 5, LETRAS = "ABCDE.*", VAZIA = "_";
+const VAZIO = VAZIA.repeat(TOTAL);
 const NUM = 15, LIN = 28, ENTRE = 8;   // px: números, letras, entre linhas
 const PASSO = NUM + LIN + ENTRE;
 const MARGEM = 2;                      // px: folga das faixas na primeira e na última linha
 const CELULA_MAX = 30;
+const TOQUE = matchMedia("(pointer: coarse)").matches;
+const DESCRICAO = {[VAZIA]: "sem resposta", ".": "em branco", "*": "dupla marcação"};
 let initialized = false;
 let timer;
 let lastSent;
 let frameHeight = 0;
 let inicio = 1;
 let geo = {};
-let sobrescrever = false; // após selecionar uma resposta, digitar troca em vez de inserir
-let vazia = null;         // questão vazia escolhida além da última resposta
+let modelo = VAZIO;        // valor aceito; a textarea só diverge dele numa edição nativa
+let previa = null;         // {valor, cursor} durante a composição do teclado (Android)
+let composicao = null;     // seleção no início da composição
+let antes = {ini: 0, fim: 0};  // última seleção com a textarea igual ao modelo
+let digitou = false;       // Backspace logo após digitar apaga a anterior
 let focadoAntes = false;
+let ponteiro = false;      // o foco veio de um toque ou clique no campo
+let retomar = true;        // saiu do campo (não só da janela): o foco volta de onde parou
+let alvo = null;           // questão escolhida pelo clique ou toque em andamento
+let toque = null;          // questão e hora do último toque, para o toque longo
 let hover = null;
 let colada = new Set();
-let composicao = null;    // campo antes da composição do teclado (Android)
 let aviso = "", avisoTimer;
 let flush = () => {};
 let agendar = () => {};
 
 const $ = id => document.getElementById(id);
 const ta = () => $("input_box");
+const paraDentro = v => [...String(v || "").toUpperCase()].slice(0, TOTAL)
+  .map(c => LETRAS.includes(c) ? c : VAZIA).join("").padEnd(TOTAL, VAZIA);
+const paraFora = v => v.replace(/_+$/, "");
+const respondidas = v => [...v].filter(c => c !== VAZIA).length;
+
+// Retoma depois da última resposta; com a Q45 respondida, na primeira vazia.
+function continuar(v = modelo) {
+  const fim = paraFora(v).length;
+  if (fim < TOTAL) return fim;
+  const vazia = v.indexOf(VAZIA);
+  return vazia < 0 ? TOTAL : vazia;
+}
 
 function resizeFrame() {
   const height = Math.ceil(document.body.getBoundingClientRect().height) + 4;
@@ -75,20 +93,22 @@ function construir() {
 }
 
 // Linhas com blocos inteiros: 45, 25+20, 15×3 ou 10×4+5, o que couber.
+// No toque, células de pelo menos 28 px para acertar a questão com o dedo.
 function layout(forcar = false) {
   const area = ta(), folha = $("folha");
   const disponivel = $("caixa").clientWidth - 20;  // padding da caixa
   if (!forcar && disponivel === geo.disponivel) return;
   const ch = larguraCaractere(area);
-  const minimo = Math.max(ch + 7, 20);
+  const minimo = Math.max(ch + 7, TOQUE ? 28 : 20);
   const porLinha = [45, 25, 15, 10].find(n => disponivel / n >= minimo) || 10;
   const cel = Math.min(disponivel / porLinha, CELULA_MAX);
   const linhas = Math.ceil(TOTAL / porLinha);
   const espaco = cel - ch;
   geo = {cel, porLinha, disponivel};
+  // O texto da textarea fica invisível, mas alinhado às células: assim as
+  // alças de seleção e a janela do teclado aparecem na questão certa.
   Object.assign(area.style, {
     letterSpacing: `${espaco}px`, lineHeight: `${PASSO}px`,
-    // Centro da linha de texto = centro da linha das letras.
     paddingLeft: `${espaco / 2}px`, paddingTop: `${MARGEM + NUM + LIN / 2 - PASSO / 2}px`,
     width: `${porLinha * cel + cel / 2}px`, height: `${linhas * PASSO}px`,
   });
@@ -128,31 +148,22 @@ function avisar(texto) {
 
 function pintar() {
   const area = ta();
-  const valor = area.value;
-  const n = valor.length;
   const foco = document.activeElement === area;
-  const [ini, fim] = [area.selectionStart, area.selectionEnd];
-  let troca = null, proxima = null, insercao = null;
-  if (foco && vazia !== null) troca = vazia;
-  else if (foco && fim - ini === 1) troca = ini;
-  else if (foco && ini === fim && ini < n && (n === TOTAL || sobrescrever)) troca = ini;
-  else if (foco && ini === fim && ini === n && n < TOTAL) proxima = ini;
-  else if (foco && ini === fim && ini < n) insercao = ini;
-  const ativo = troca ?? proxima ?? insercao;
-  document.body.classList.toggle("virtual", foco && vazia !== null);
-  let invalidos = 0, feitas = 0;
+  const v = previa ? previa.valor : modelo;
+  let [ini, fim] = previa ? [previa.cursor, previa.cursor] : [area.selectionStart, area.selectionEnd];
+  if (!composicao && area.value === modelo) antes = {ini, fim};
+  // Clique em andamento: mostra a questão escolhida, não o cursor nativo.
+  if (alvo !== null && ini === fim) ini = fim = alvo;
+  const atual = foco && ini === fim && ini < TOTAL ? ini : null;
+  const sel = foco && fim > ini;
   $("camada").querySelectorAll(".cel").forEach((el, i) => {
-    const c = valor[i];
-    const falta = c === undefined || c === FALTA;
-    const invalida = !falta && !VALIDAS.includes(c);
-    invalidos += invalida;
-    feitas += !falta;
+    const c = v[i];
+    const texto = c === VAZIA ? "" : c;
+    if (el.textContent !== texto) el.textContent = texto;
     el.className = "cel"
-      + (falta ? " cel--vazia" : "")
-      + (invalida ? " cel--invalida" : "")
-      + (i === troca ? " cel--troca" : "")
-      + (i === proxima ? " cel--proxima" : "")
-      + (foco && fim - ini > 1 && i >= ini && i < fim ? " cel--sel" : "")
+      + (c === VAZIA ? " cel--vazia" : c === "." ? " cel--branco" : "")
+      + (i === atual ? " cel--atual" : "")
+      + (sel && i >= ini && i < fim ? " cel--sel" : "")
       + (colada.has(i) ? " cel--colada" : "");
   });
   $("camada").querySelectorAll(".num").forEach((el, i) => {
@@ -161,237 +172,291 @@ function pintar() {
     el.className = "num"
       + (i % BLOCO === 0 ? " num--bloco" : "")
       + (i === hover ? " num--hover" : "")
-      + (i === ativo ? " num--ativo" : "");
+      + (i === atual || (sel && i >= ini && i < fim) ? " num--ativo" : "");
   });
+  const feitas = respondidas(v);
   const contador = $("contador");
-  contador.className = invalidos ? "invalido" : feitas === TOTAL ? "completo" : "";
-  contador.textContent = invalidos
-    ? `${invalidos} ${invalidos > 1 ? "caracteres inválidos" : "caractere inválido"}`
-    : feitas === 0 ? `0/${TOTAL} respostas`
+  contador.className = feitas === TOTAL ? "completo" : "";
+  contador.textContent = feitas === 0 ? `0/${TOTAL} respostas`
     : feitas === TOTAL ? `${TOTAL}/${TOTAL} respostas · completo`
     : `${feitas}/${TOTAL} respostas · faltam ${TOTAL - feitas}`;
   const posicao = $("posicao");
   posicao.className = aviso ? "aviso" : "";
   posicao.textContent = aviso
-    || (troca !== null && troca < n && valor[troca] !== FALTA ? `Questão ${inicio + troca} · substituir`
-      : ativo !== null ? `Questão ${inicio + ativo}`
-      : foco && fim - ini > 1 ? `Questões ${inicio + ini}–${inicio + fim - 1}`
+    || (atual !== null ? `Questão ${inicio + atual}`
+      : sel && fim - ini > 1 ? `Questões ${inicio + ini}–${inicio + fim - 1}`
+      : sel ? `Questão ${inicio + ini}`
+      : foco && ini >= TOTAL ? "Fim da prova"
       : "");
+  // Leitor de tela: a questão e o que está marcado nela.
+  const fala = aviso || (atual !== null ? `Questão ${inicio + atual}, ${DESCRICAO[v[atual]] || `resposta ${v[atual]}`}` : "");
+  if ($("anuncio").textContent !== fala) $("anuncio").textContent = fala;
 }
 
-// Troca [s, f) por texto; execCommand preserva o desfazer nativo.
-function editar(s, f, texto) {
-  const area = ta();
-  area.setSelectionRange(s, f);
-  let ok = false;
-  try { ok = document.execCommand("insertText", false, texto); } catch (e) { ok = false; }
-  if (!ok) area.setRangeText(texto, s, f, "end");
+// Grava o valor numa edição só; execCommand mantém o desfazer nativo.
+function escrever(novo, cursor) {
+  const area = ta(), v = area.value;
+  modelo = novo;
+  previa = null;
+  if (v !== novo) {
+    let ok = false;
+    if (v.length === TOTAL) {
+      let p = 0, q = TOTAL;
+      while (v[p] === novo[p]) p++;
+      while (v[q - 1] === novo[q - 1]) q--;
+      area.setSelectionRange(p, q);
+      try { ok = document.execCommand("insertText", false, novo.slice(p, q)); } catch (e) { ok = false; }
+    }
+    if (!ok || area.value !== novo) area.value = novo;
+  }
+  area.setSelectionRange(cursor, cursor);
   if (aviso) avisar("");
   pintar();
   agendar();
 }
 
-// Intervalo a substituir por k letras: selecionar ou completar a área faz trocar.
-function intervalo(k) {
-  const area = ta(), n = area.value.length;
-  let [s, f] = [area.selectionStart, area.selectionEnd];
-  if (f - s <= 1 && s < n && (f - s === 1 || n === TOTAL || sobrescrever)) f = Math.min(s + k, n);
-  return [s, f];
+function irPara(ini, fim = ini) {
+  ta().setSelectionRange(ini, fim);
+  digitou = false;
+  if (aviso) avisar(""); else pintar();
 }
 
-function destacar(de, ate) {
-  colada = new Set(Array.from({length: Math.max(0, ate - de)}, (_, k) => de + k));
+function destacar(indices) {
+  colada = new Set(indices);
   setTimeout(() => { colada = new Set(); pintar(); }, 650);
 }
 
-// Questões puladas até a vazia escolhida ficam sem resposta, não em branco.
-function saltar() {
-  const n = ta().value.length;
-  const salto = vazia === null ? "" : FALTA.repeat(vazia - n);
-  vazia = null;
-  return salto;
+const recusar = letras => avisar(`“${[...new Set(letras)].join("")}” não é alternativa · use A a E ou ponto`);
+
+// Grava letras a partir da questão ini, por cima do que houver.
+function gravar(letras, ini) {
+  if (ini >= TOTAL) {
+    avisar(respondidas(modelo) === TOTAL ? "Prova completa · toque numa questão para trocar"
+      : "Fim da prova · toque numa questão para continuar");
+    return 0;
+  }
+  const v = [...modelo];
+  const entra = letras.slice(0, TOTAL - ini);
+  entra.forEach((c, k) => { v[ini + k] = c; });
+  escrever(v.join(""), ini + entra.length);
+  return entra.length;
 }
 
-// Digitar: minúscula vira maiúscula e espaço vira ponto (em branco).
+// Digitar: minúscula vira maiúscula e espaço vira ponto (em branco). Com
+// várias questões selecionadas, escreve na primeira e mantém as outras.
 function digitar(dado) {
-  const area = ta();
-  const letras = dado.toUpperCase().replace(/ /g, ".");
-  if ([...letras].some(c => !VALIDAS.includes(c))) {
-    avisar(`“${dado}” não é alternativa · use A a E ou ponto`);
-    return;
+  const letras = [...dado.toUpperCase().replace(/\s/g, ".")];
+  const validas = letras.filter(c => LETRAS.includes(c));
+  const recusadas = letras.filter(c => !LETRAS.includes(c));
+  if (validas.length) {
+    const entrou = gravar(validas, ta().selectionStart);
+    if (!entrou) return;
+    digitou = true;
+    if (!recusadas.length && entrou < validas.length) avisar(`Só ${entrou} de ${validas.length} letras cabiam`);
   }
-  const n = area.value.length;
-  if (vazia !== null) {
-    const salto = saltar();
-    editar(n, n, (salto + letras).slice(0, TOTAL - n));
-    return;
+  if (recusadas.length) recusar(recusadas);
+}
+
+// Backspace logo após digitar apaga a questão anterior; numa questão escolhida
+// com resposta, apaga a própria. Delete apaga a questão do cursor. Com várias
+// selecionadas, apaga todas. Nada se desloca.
+function apagar(paraTras) {
+  const area = ta(), v = [...modelo];
+  const [ini, fim] = [area.selectionStart, area.selectionEnd];
+  let de = ini, ate = fim;
+  if (fim === ini) {
+    if (!paraTras || (!digitou && ini < TOTAL && v[ini] !== VAZIA)) ate = ini + 1;
+    else if (ini > 0) de = ini - 1;
   }
-  const [s, f] = intervalo(letras.length);
-  const cabe = TOTAL - (n - (f - s));
-  if (cabe <= 0) { avisar("Área completa · selecione uma questão para trocar"); return; }
-  editar(s, f, letras.slice(0, cabe));
-  if (area.selectionStart >= area.value.length) sobrescrever = false;
+  ate = Math.min(ate, TOTAL);
+  for (let k = de; k < ate; k++) v[k] = VAZIA;
+  escrever(v.join(""), de);
+  digitou = false;
 }
 
 // Colar: aceita 45 letras seguidas, com espaços, ou numeradas ("46-A, 47-B").
 function colar(texto) {
-  const area = ta(), v = area.value;
+  const area = ta();
   const pares = [...texto.matchAll(/(\d{1,3})\s*[-–—.:)=]?\s*([A-Ea-e*])(?![A-Za-z])/g)];
   if (pares.length >= 3) {
-    const lista = v.split("");
-    let usados = 0;
+    const v = [...modelo];
+    const usadas = new Set();
     for (const [, numero, letra] of pares) {
       const q = Number(numero);
       const i = q >= inicio && q < inicio + TOTAL ? q - inicio : q >= 1 && q <= TOTAL ? q - 1 : -1;
       if (i < 0) continue;
-      while (lista.length < i) lista.push(FALTA);
-      lista[i] = letra.toUpperCase();
-      usados += 1;
+      v[i] = letra.toUpperCase();
+      usadas.add(i);
     }
-    if (usados) {
-      vazia = null;
-      editar(0, v.length, lista.join("").slice(0, TOTAL));
-      destacar(0, area.value.length);
-      avisar(`${usados} respostas coladas pelo número da questão`);
+    if (usadas.size) {
+      destacar(usadas);
+      escrever(v.join(""), continuar(v.join("")));
+      digitou = true;
+      avisar(`${usadas.size} respostas coladas pelo número da questão`);
       return;
     }
   }
-  const limpo = texto.replaceAll(FALTA, "_").toUpperCase().replace(/[\s,;|]+/g, "");
-  const ignorados = [...new Set([...limpo].filter(c => !VALIDAS.includes(c) && c !== "_"))];
-  const letras = paraDentro([...limpo].filter(c => VALIDAS.includes(c) || c === "_").join(""));
-  if (!letras) { avisar("Nada para colar · use letras de A a E"); return; }
-  const n = v.length;
-  let [s, f] = letras.length >= TOTAL ? [0, n] : intervalo(letras.length);
-  const salto = letras.length >= TOTAL ? (vazia = null, "") : saltar();
-  if (salto) [s, f] = [n, n];
-  const cabe = TOTAL - (n - (f - s)) - salto.length;
-  const entra = letras.slice(0, Math.max(0, cabe));
-  editar(s, f, salto + entra);
-  destacar(s + salto.length, s + salto.length + entra.length);
-  if (ignorados.length) avisar(`Ignorado ao colar: ${ignorados.join(" ")}`);
-  else if (entra.length < letras.length) avisar(`Só ${entra.length} de ${letras.length} letras cabiam`);
+  const limpo = [...texto.toUpperCase().replace(/[\s,;|]+/g, "")];
+  const letras = limpo.filter(c => LETRAS.includes(c) || c === VAZIA);
+  const ignorados = limpo.filter(c => !LETRAS.includes(c) && c !== VAZIA);
+  if (!letras.length) { avisar("Nada para colar · use letras de A a E"); return; }
+  // Uma folha inteira vai desde a primeira questão; menos, a partir do cursor.
+  const ini = letras.length >= TOTAL ? 0 : area.selectionStart;
+  const entrou = gravar(letras, ini);
+  if (!entrou) return;
+  digitou = true;
+  destacar(Array.from({length: entrou}, (_, k) => ini + k));
+  pintar();
+  if (ignorados.length) avisar(`Ignorado ao colar: ${[...new Set(ignorados)].join(" ")}`);
+  else if (entrou < letras.length) avisar(`Só ${entrou} de ${letras.length} letras cabiam`);
 }
 
-// Texto que chegou direto ao campo: maiúsculas, espaço vira ponto e, se
-// passar de 45, as letras seguintes são trocadas.
-function normalizar() {
-  const area = ta();
-  let v = area.value.toUpperCase().replace(/[^\S\u00a0]/g, ".").replace(/\u00a0+$/, "");
-  let [s, f] = [area.selectionStart, area.selectionEnd];
-  if (v.length > TOTAL) {
-    const sobra = v.length - TOTAL;
-    v = s < v.length ? v.slice(0, s) + v.slice(s + sobra) : v.slice(0, TOTAL);
-    s = f = Math.min(s, TOTAL);
-  }
-  if (v === area.value) return;
-  area.value = v;
-  area.setSelectionRange(s, f);
-}
-
-// Na composição o teclado escreve direto no campo, sem passar por digitar().
-// Ao fim dela, o trecho novo é refeito como digitação: troca a resposta
-// escolhida, preenche a questão vazia escolhida e recusa letras inválidas.
-function reconciliar() {
-  const antes = composicao, area = ta(), depois = area.value;
-  composicao = null;
-  if (!antes || depois === antes.valor) { normalizar(); return; }
-  const v = antes.valor;
+// Edição que o navegador já aplicou (composição, teclado sem beforeinput
+// cancelável): acha o trecho trocado, ancorado no cursor de antes, e o refaz
+// sobrescrevendo. Devolve o valor e o cursor resultantes.
+function reconciliar(depois, ini) {
+  const v = modelo, max = Math.min(v.length, depois.length);
   let p = 0, s = 0;
-  while (p < v.length && p < depois.length && v[p] === depois[p]) p++;
-  while (s < v.length - p && s < depois.length - p && v[v.length - 1 - s] === depois[depois.length - 1 - s]) s++;
-  const removido = v.slice(p, v.length - s), novo = depois.slice(p, depois.length - s);
-  // Fora de inserir no cursor ou trocar a seleção (ex.: apagar), só normaliza.
-  if (!novo || (removido && removido !== v.slice(antes.ini, antes.fim))) { normalizar(); return; }
-  area.value = v;
-  area.setSelectionRange(antes.ini, antes.fim);
-  ({vazia, sobrescrever} = antes);
-  const letras = [...novo.toUpperCase().replace(/[^\S\u00a0]/g, ".")];
-  const validas = letras.filter(c => VALIDAS.includes(c)).join("");
-  if (validas) digitar(validas);
-  const recusadas = [...novo].filter(c => !/\s/.test(c) && !VALIDAS.includes(c.toUpperCase())).join("");
-  if (recusadas) avisar(`“${recusadas}” não é alternativa · use A a E ou ponto`);
+  while (p < max && p < ini && v[p] === depois[p]) p++;
+  while (s < max - p && v[v.length - 1 - s] === depois[depois.length - 1 - s]) s++;
+  const novo = [...depois.slice(p, depois.length - s).toUpperCase().replace(/\s/g, ".")];
+  const letras = novo.filter(c => LETRAS.includes(c) || c === VAZIA);
+  const resultado = [...v];
+  for (let k = p; k < v.length - s; k++) resultado[k] = VAZIA;
+  letras.slice(0, TOTAL - p).forEach((c, k) => { resultado[p + k] = c; });
+  return {
+    valor: resultado.join(""),
+    cursor: Math.min(p + letras.length, TOTAL),
+    recusadas: novo.filter(c => !LETRAS.includes(c) && c !== VAZIA),
+    digitou: letras.length > 0,
+  };
+}
+
+function aceitarNativo(ini) {
+  const area = ta(), r = reconciliar(area.value, ini);
+  area.value = r.valor;
+  modelo = r.valor;
+  previa = null;
+  area.setSelectionRange(r.cursor, r.cursor);
+  digitou = r.digitou;
+  if (r.recusadas.length) recusar(r.recusadas);
+  pintar();
+  agendar();
 }
 
 function iniciar(args) {
   const {label, value, debounce} = args;
   const area = ta();
   $("label").textContent = label;
-  area.value = paraDentro(value || "").slice(0, TOTAL).replace(/\u00a0+$/, "");
-  lastSent = paraFora(area.value);
+  modelo = paraDentro(value);
+  area.value = modelo;
+  area.setSelectionRange(0, 0);
+  lastSent = paraFora(modelo);
   herdarFontes();
   construir();
   flush = () => {
     clearTimeout(timer);
-    if (paraFora(area.value) !== lastSent) {
-      lastSent = paraFora(area.value);
-      Streamlit.setComponentValue(lastSent);
+    const valor = paraFora(previa ? previa.valor : modelo);
+    if (valor !== lastSent) {
+      lastSent = valor;
+      Streamlit.setComponentValue(valor);
     }
   };
   agendar = () => { clearTimeout(timer); timer = setTimeout(flush, debounce); };
 
   area.addEventListener("beforeinput", event => {
-    if (event.isComposing || event.inputType === "insertCompositionText") return;
-    if (event.inputType === "insertText" && event.data) {
-      event.preventDefault();
-      digitar(event.data);
-    } else if (event.inputType === "insertLineBreak" || event.inputType === "insertParagraph") {
-      event.preventDefault();
-      flush();
-    } else if (event.inputType.startsWith("delete")) {
-      if (vazia !== null) {  // só desfaz a escolha da questão vazia
-        event.preventDefault();
-        vazia = null;
-        pintar();
+    const tipo = event.inputType;
+    if (event.isComposing || tipo === "insertCompositionText") return;
+    if (tipo === "historyUndo" || tipo === "historyRedo") return;  // edições do mesmo tamanho
+    antes = {ini: area.selectionStart, fim: area.selectionEnd};
+    if (!event.cancelable) return;  // o evento input reconcilia
+    event.preventDefault();
+    const dado = event.data ?? event.dataTransfer?.getData("text/plain") ?? "";
+    if (tipo === "insertFromPaste" || tipo === "insertFromDrop") colar(dado);
+    else if (tipo.startsWith("insert") && dado) digitar(dado);
+    else if (tipo === "insertLineBreak" || tipo === "insertParagraph") area.blur();
+    else if (tipo.startsWith("delete") && tipo !== "deleteByDrag") apagar(!tipo.includes("Forward"));
+  });
+  area.addEventListener("input", event => {
+    if (composicao) {
+      const r = reconciliar(area.value, composicao.ini);
+      previa = {valor: r.valor, cursor: r.cursor};
+    } else if (area.value !== modelo) {
+      const tipo = event.inputType || "";
+      const valido = area.value.length === TOTAL && paraDentro(area.value) === area.value;
+      if (tipo.startsWith("history") && valido) {
+        modelo = area.value;
+        area.setSelectionRange(area.selectionStart, area.selectionStart);
+      } else {
+        aceitarNativo(antes.ini);
         return;
       }
-      // Apagar desloca as respostas seguintes; a próxima letra volta a inserir.
-      sobrescrever = false;
     }
+    pintar();
+    agendar();
   });
-  // Copiar leva "_" no lugar das questões puladas.
-  for (const tipo of ["copy", "cut"]) area.addEventListener(tipo, event => {
+  area.addEventListener("compositionstart", () => {
+    composicao = {ini: area.selectionStart};
+  });
+  area.addEventListener("compositionend", () => {
+    const {ini} = composicao;
+    composicao = null;
+    if (area.value !== modelo) aceitarNativo(ini);
+    else { previa = null; pintar(); }
+  });
+  area.addEventListener("cut", event => {
     const [s, f] = [area.selectionStart, area.selectionEnd];
-    if (s === f || !event.clipboardData) return;
     event.preventDefault();
-    event.clipboardData.setData("text/plain", paraFora(area.value.slice(s, f)));
-    if (tipo === "cut") editar(s, f, "");
+    if (s === f) return;
+    event.clipboardData?.setData("text/plain", modelo.slice(s, f));
+    apagar(true);
   });
   area.addEventListener("paste", event => {
     event.preventDefault();
     colar(event.clipboardData ? event.clipboardData.getData("text") : "");
   });
-  area.addEventListener("input", event => {
-    if (!event.isComposing) normalizar();
+  for (const tipo of ["dragstart", "drop"]) area.addEventListener(tipo, event => event.preventDefault());
+
+  // Tocar ou clicar escolhe a questão; o primeiro toque num campo vazio
+  // começa pela primeira. A escolha vale desde o pointerdown, para o
+  // destaque não passar pelo cursor nativo. Arrastar seleciona várias.
+  const destino = event => {
+    const i = celulaEm(event);
+    return i === null || (!focadoAntes && modelo === VAZIO) ? continuar() : i;
+  };
+  area.addEventListener("pointerdown", event => {
+    focadoAntes = document.activeElement === area;
+    ponteiro = true;
+    alvo = destino(event);
+    toque = event.pointerType === "touch" ? {i: alvo, t: performance.now()} : null;
     pintar();
-    agendar();
   });
-  area.addEventListener("compositionstart", () => {
-    composicao = {valor: area.value, ini: area.selectionStart, fim: area.selectionEnd, vazia, sobrescrever};
-  });
-  area.addEventListener("compositionend", () => { reconciliar(); pintar(); agendar(); });
-  area.addEventListener("pointerdown", () => { focadoAntes = document.activeElement === area; });
-  // Selecionar uma resposta permite trocá-la; uma questão vazia adiante
-  // também pode ser escolhida, menos no primeiro toque num campo vazio.
+  area.addEventListener("pointercancel", () => { alvo = null; pintar(); });
   area.addEventListener("click", event => {
-    if (area.selectionStart !== area.selectionEnd) return;
-    const i = celulaEm(event), n = area.value.length;
-    vazia = null;
-    if (i !== null && i < n) {
-      area.setSelectionRange(i, i + 1);
-      sobrescrever = true;
-    } else {
-      area.setSelectionRange(n, n);
-      sobrescrever = false;
-      if (i !== null && i > n && (n > 0 || focadoAntes)) vazia = i;
-    }
-    if (aviso) avisar("");
-    pintar();
+    const i = event.detail > 1 ? destino(event) : alvo ?? destino(event);
+    ponteiro = false;
+    toque = null;
+    alvo = null;
+    if (event.detail === 1 && area.selectionStart !== area.selectionEnd) { pintar(); return; }
+    irPara(i);
   });
   $("caixa").addEventListener("mousedown", event => {
     if (event.target !== $("caixa")) return;
     event.preventDefault();
     area.focus();
-    area.setSelectionRange(area.value.length, area.value.length);
+    irPara(continuar());
+  });
+  // Foco pelo teclado (Tab) retoma de onde parou.
+  area.addEventListener("focus", () => {
+    if (!ponteiro && retomar) irPara(continuar());
+    ponteiro = false;
+    pintar();
+  });
+  area.addEventListener("blur", () => {
+    retomar = document.activeElement !== area;  // trocar de janela mantém o cursor
+    flush();
+    toque = null;
+    alvo = null;
     pintar();
   });
   if (matchMedia("(hover: hover)").matches) {
@@ -401,14 +466,43 @@ function iniciar(args) {
     });
     area.addEventListener("pointerleave", () => { hover = null; pintar(); });
   }
-  area.addEventListener("blur", () => { flush(); sobrescrever = false; vazia = null; pintar(); });
-  area.addEventListener("focus", pintar);
+
+  // Setas andam por questão e por linha da grade, sem depender de como o
+  // navegador quebra o texto. Com Shift, a seleção nativa estende.
   area.addEventListener("keydown", event => {
-    if (event.key === "Escape") area.blur();
-    if (event.key.startsWith("Arrow") || event.key === "Home" || event.key === "End") vazia = null;
+    alvo = null;
+    if (event.isComposing || event.keyCode === 229) return;
+    const {key, shiftKey, altKey} = event;
+    const ctrl = event.ctrlKey || event.metaKey;
+    if (key === "Escape") { area.blur(); return; }
+    if (key === "Enter") { event.preventDefault(); area.blur(); return; }
+    if (shiftKey || altKey) return;
+    const [ini, fim] = [area.selectionStart, area.selectionEnd];
+    const n = geo.porLinha || TOTAL, c = Math.min(ini, TOTAL - 1);
+    const linha = c - (c % n);
+    let para = null;
+    if (key === "ArrowLeft") para = ctrl ? linha : fim > ini ? ini : Math.max(ini - 1, 0);
+    else if (key === "ArrowRight") para = ctrl ? Math.min(linha + n, TOTAL) - 1 : fim > ini ? fim - 1 : Math.min(ini + 1, TOTAL - 1);
+    else if (key === "ArrowUp") para = c - n >= 0 ? c - n : c;
+    else if (key === "ArrowDown") para = c + n < TOTAL ? c + n : c;
+    else if (key === "Home") para = ctrl ? 0 : linha;
+    else if (key === "End") para = ctrl ? TOTAL - 1 : Math.min(linha + n, TOTAL) - 1;
+    if (para === null) return;
+    event.preventDefault();
+    irPara(para);
   });
   for (const tipo of ["keyup", "select", "selectionchange"]) area.addEventListener(tipo, pintar);
-  document.addEventListener("selectionchange", pintar);
+  // O toque longo seleciona a "palavra", que pode ser a folha inteira: fica só
+  // a questão tocada, para colar ou trocar ali.
+  document.addEventListener("selectionchange", () => {
+    if (toque && toque.i !== null && area.selectionEnd - area.selectionStart > 1
+        && performance.now() - toque.t < 2000) {
+      const {i} = toque;
+      toque = null;
+      area.setSelectionRange(i, i + 1);
+    }
+    pintar();
+  });
   // Garante que nenhuma rolagem interna desalinhe o texto das células.
   area.addEventListener("scroll", () => { area.scrollTop = 0; area.scrollLeft = 0; });
   $("folha").addEventListener("scroll", event => { event.target.scrollTop = 0; event.target.scrollLeft = 0; });

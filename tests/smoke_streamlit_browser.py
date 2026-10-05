@@ -17,6 +17,43 @@ sys.path[:0] = [str(ROOT), str(ROOT / "src")]
 from streamlit_app.config import AREAS_ENEM  # noqa: E402
 
 
+def sheet(answers):
+    """The field always holds 45 characters, "_" for unanswered questions."""
+    return answers.ljust(45, "_")
+
+
+# Mirrors the invisible textarea text and lists glyphs outside their cells:
+# selection handles and the keyboard popup must sit on the right question.
+MISALIGNED = """() => {
+  const ta = document.getElementById('input_box'), cs = getComputedStyle(ta);
+  const mirror = document.createElement('div');
+  for (const p of ['font', 'letterSpacing', 'lineHeight', 'paddingLeft', 'paddingTop', 'width',
+                   'whiteSpace', 'wordBreak', 'overflowWrap', 'lineBreak']) mirror.style[p] = cs[p];
+  Object.assign(mirror.style, {position: 'absolute', visibility: 'hidden', margin: '0', border: '0',
+                               left: ta.offsetLeft + 'px', top: ta.offsetTop + 'px'});
+  mirror.textContent = ta.value;
+  ta.parentElement.appendChild(mirror);
+  const cells = [...document.querySelectorAll('.cel')].map(c => c.getBoundingClientRect());
+  const range = document.createRange(), wrong = [];
+  for (let i = 0; i < ta.value.length; i++) {
+    range.setStart(mirror.firstChild, i); range.setEnd(mirror.firstChild, i + 1);
+    const g = [...range.getClientRects()].pop(), c = cells[i];
+    const x = g.left + (g.width - parseFloat(cs.letterSpacing)) / 2, y = g.top + g.height / 2;
+    if (x < c.left || x > c.right || y < c.top || y > c.bottom) wrong.push(i);
+  }
+  mirror.remove();
+  return wrong;
+}"""
+
+# Records each painted active cell, to catch the highlight jumping mid-click.
+RECORD_ACTIVE = """() => {
+  const active = () => [...document.querySelectorAll('.cel')].findIndex(c => c.classList.contains('cel--atual'));
+  window.painted = [active()];
+  new MutationObserver(() => { if (window.painted.at(-1) !== active()) window.painted.push(active()); })
+    .observe(document.getElementById('camada'), {subtree: true, attributes: true});
+}"""
+
+
 def check_layout(page):
     # Streamlit scrolls inside stMain, so checking body alone misses overflow.
     for selector in ("body", '[data-testid="stMain"]', ".st-key-app_content", ".resumo", ".grade-painel", ".diagnostico-grupo"):
@@ -34,6 +71,16 @@ def check_frame(frame, label):
     assert frame.locator("#status").evaluate(
         "el => el.getBoundingClientRect().bottom <= window.innerHeight"
     ), f"{label}: field clipped by iframe"
+
+
+CARD_ORDER = {2011: ["CH", "CN", "LC", "MT"], 2023: ["LC", "CH", "CN", "MT"]}
+
+# Mid-rerun, a moved card shows twice: new at its place, stale at the old one.
+CARDS_SETTLED = """order => {
+  const keys = [...document.querySelectorAll('[class*="st-key-respostas_"]')]
+    .map(c => [...c.classList].find(k => k.startsWith('st-key-respostas_')).slice(17));
+  return keys.join() === order.join() && !document.querySelector('[data-stale="true"]');
+}"""
 
 
 def check_year_changes(browser, url, *, delayed_html=False):
@@ -67,8 +114,8 @@ def check_year_changes(browser, url, *, delayed_html=False):
         year_input.click()        # the filtered list only opens after a click
         year_input.fill(str(year))
         page.get_by_role("option", name=str(year), exact=True).click()
-        first_area = "CH" if year == 2011 else "LC"
-        first = page.locator(f".st-key-respostas_{first_area}").frame_locator("iframe")
+        page.wait_for_function(CARDS_SETTLED, arg=CARD_ORDER[year])
+        first = page.locator(f".st-key-respostas_{CARD_ORDER[year][0]}").frame_locator("iframe")
         expect(first.locator(".num").first).to_have_text("1")
         for area, answer in answers.items():
             frame = page.locator(f".st-key-respostas_{area}").frame_locator("iframe")
@@ -80,9 +127,10 @@ def check_year_changes(browser, url, *, delayed_html=False):
             else:
                 expect(field).to_have_value(answer)
                 # Check that the restored input still sends edits to Python.
-                field.fill(answer[:-1])
+                field.press("Control+End")
+                field.press("Backspace")
                 expect(page.get_by_text(f"Falta 1 resposta em {AREAS_ENEM[area]}.", exact=False)).to_be_visible()
-                field.fill(answer)
+                field.press_sequentially(answer[-1])
             expect(frame.locator("#contador")).to_have_text("45/45 respostas · completo")
         expect(page.get_by_role("button", name="Calcular nota", exact=True)).to_be_enabled()
     assert not errors, errors
@@ -112,20 +160,88 @@ def check_composition(browser, url):
 
     tap(0)
     compose("abfc")
-    expect(field).to_have_value("ABC")
-    expect(frame.locator("#posicao")).to_have_text("“f” não é alternativa · use A a E ou ponto")
+    expect(field).to_have_value(sheet("ABC"))
+    expect(frame.locator("#posicao")).to_have_text("“F” não é alternativa · use A a E ou ponto")
     tap(7)                        # an empty question ahead
     compose("d")
-    expect(field).to_have_value("ABC\u00a0\u00a0\u00a0\u00a0D")
+    expect(field).to_have_value(sheet("ABC____D"))
     tap(1)                        # replace, then keep replacing
     compose("e")
     compose("e")
-    expect(field).to_have_value("AEE\u00a0\u00a0\u00a0\u00a0D")
+    expect(field).to_have_value(sheet("AEE____D"))
     field.blur()
     expect(page.get_by_text("Faltam 41 respostas em Matemática.", exact=False)).to_be_visible()
     assert not errors, errors
     page.close()
     print("PASS composition: skipped question, replace, invalid letter", flush=True)
+
+
+def check_answer_sheet(browser, url, width, touch):
+    """Answering out of order never shifts answers, and the cursor stays put."""
+    page = browser.new_page(viewport={"width": width, "height": 900}, has_touch=touch, is_mobile=touch)
+    errors = []
+    page.on("pageerror", lambda error: errors.append(str(error)))
+    page.goto(url)
+    frame = page.locator(".st-key-respostas_MT").frame_locator("iframe")
+    field = frame.get_by_label("Respostas MT", exact=True)
+    field.scroll_into_view_if_needed()
+    first = frame.locator(".num").first.inner_text()
+    question = lambda i: f"Questão {int(first) + i}"
+
+    def tap(index):
+        box = frame.locator(".cel").nth(index).bounding_box()
+        x, y = box["x"] + box["width"] / 2, box["y"] + box["height"] / 2
+        if touch:
+            page.touchscreen.tap(x, y)
+        else:
+            page.mouse.move(x, y)
+            page.mouse.down()
+            page.wait_for_timeout(150)   # a slow click paints the native caret first
+            page.mouse.up()
+
+    def painted():
+        return frame.locator("body").evaluate("() => window.painted")
+
+    frame.locator("body").evaluate(RECORD_ACTIVE)
+    tap(20)                       # first tap on an empty field starts at question 1
+    assert set(painted()) <= {-1, 0} and painted()[-1] == 0, painted()
+    field.press_sequentially("ab.cd.", delay=20)
+    tap(20)
+    field.press_sequentially("e", delay=20)
+    tap(12)
+    field.press_sequentially("ab", delay=20)
+    if touch:
+        tap(11)
+    else:
+        for _ in range(3):
+            field.press("ArrowLeft")
+    field.press_sequentially("c", delay=20)
+    expect(field).to_have_value(sheet("AB.CD._____CAB______E"))
+    expect(frame.locator("#posicao")).to_have_text(question(12))
+    frame.locator("body").evaluate(RECORD_ACTIVE)
+    tap(6)                        # filling the gap stops overwriting nothing else
+    assert painted() == [12, 6], painted()
+    field.press_sequentially("abcde", delay=20)
+    expect(field).to_have_value(sheet("AB.CD.ABCDECAB______E"))
+    assert frame.locator("body").evaluate(MISALIGNED) == []
+    assert "".join(frame.locator(".cel").all_inner_texts()).replace("\n", "") == "AB.CD.ABCDECABE"
+    if not touch:
+        field.press("Backspace")  # right after typing: clears the previous question
+        expect(field).to_have_value(sheet("AB.CD.ABCD_CAB______E"))
+        tap(3)
+        field.press("Backspace")  # a chosen answered question clears itself
+        expect(field).to_have_value(sheet("AB._D.ABCD_CAB______E"))
+        field.press("Control+z")
+        expect(field).to_have_value(sheet("AB.CD.ABCD_CAB______E"))
+        field.press("Enter")
+        expect(field).not_to_be_focused()
+    else:
+        field.blur()
+    expect(frame.locator("#contador")).to_have_text(f"{14 if not touch else 15}/45 respostas · faltam {31 if not touch else 30}")
+    expect(page.get_by_text(f"Faltam {31 if not touch else 30} respostas em Matemática.", exact=False)).to_be_visible()
+    assert not errors, errors
+    page.close()
+    print(f"PASS answer sheet {width}px touch={touch}: out of order, no shift, no jump, aligned", flush=True)
 
 
 def run(url, executable, output):
@@ -143,6 +259,8 @@ def run(url, executable, output):
         check_year_changes(browser, url)
         check_year_changes(browser, url, delayed_html=True)
         check_composition(browser, url)
+        for width, touch in ((1440, False), (390, False), (390, True)):
+            check_answer_sheet(browser, url, width, touch)
         for width in (360, 390, 768, 1024, 1440):
             page = browser.new_page(viewport={"width": width, "height": 900},
                                     has_touch=width < 768, is_mobile=width < 768)
@@ -172,9 +290,10 @@ def run(url, executable, output):
             field.fill("ABCDE" * 9)
             expect(calculate).to_be_enabled()
             expect(counter).to_have_text("45/45 respostas · completo")
-            field.press("Control+Home")  # Home alone stops at the start of the visual row
+            field.press("Control+Home")  # Home alone stops at the start of the grid row
             field.press("ArrowRight")
-            field.press("Delete")
+            field.press("Delete")        # clears question 2 and stays there
+            expect(counter).to_have_text("44/45 respostas · faltam 1")
             field.press_sequentially("B")
             expect(counter).to_have_text("45/45 respostas · completo")
             expect(field).to_be_focused()
@@ -263,7 +382,8 @@ def run(url, executable, output):
             field.focus()
             field.press("Tab")
             expect(field).not_to_be_focused()
-            field.fill("A")
+            field.press("Control+End")
+            field.press("Backspace")
             expect(download).to_have_count(0)
             expect(calculate).to_be_disabled()
             page.get_by_test_id("stPopover").filter(has_text="Sobre o cálculo").get_by_role("button").click()

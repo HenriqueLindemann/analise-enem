@@ -20,9 +20,24 @@ no [fórum oficial](https://discuss.streamlit.io/t/code-snippet-create-component
   usam.
 - Não substitui o rascunho nem a seleção do usuário quando o Python devolve
   o valor (o original reescrevia o campo a cada rerun).
-- Faz flush imediato em `blur` e `Enter`, além do debounce.
+- Faz flush imediato ao sair do campo (`blur`, `Enter`), além do debounce.
 
 ## Mudanças em relação ao original
+
+O campo é uma folha de respostas, não um texto livre:
+
+- A textarea guarda sempre 45 caracteres, um por questão (`_` = sem
+  resposta), e só recebe teclado, colar e desfazer. Letras, números e o
+  cursor são desenhados na camada atrás dela, então a quebra de linha do
+  navegador não desalinha nada.
+- Toda edição sobrescreve questões e nunca desloca as seguintes: digitar
+  grava e avança; Backspace apaga a anterior logo após digitar, ou a própria
+  questão escolhida; Delete apaga a do cursor; setas andam pela grade.
+- Edições que o navegador aplica sozinho (composição do teclado Android,
+  eventos não canceláveis) são refeitas como sobrescrita.
+- O destino de um clique ou toque é decidido no `pointerdown`; o primeiro
+  toque num campo vazio vai para a primeira questão.
+- Ao Python vai o valor sem os `_` finais, em `session_state[key]`.
 
 `main.js` só inicializa o campo na primeira renderização; as seguintes
 apenas redimensionam o iframe e reaplicam o tema. `__init__.py` é um

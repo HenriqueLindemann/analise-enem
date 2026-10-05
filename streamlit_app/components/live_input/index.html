@@ -17,12 +17,14 @@
         <div class="camada" id="camada" aria-hidden="true"></div>
         <textarea id="input_box" rows="1" autocomplete="off" autocorrect="off"
                   autocapitalize="characters" spellcheck="false" enterkeyhint="done"
+                  inputmode="text"
                   aria-describedby="status"></textarea>
       </div>
     </div>
     <div class="status" id="status">
       <span id="contador"></span>
-      <span id="posicao" aria-live="polite"></span>
+      <span id="posicao"></span>
     </div>
+    <div class="sr-only" id="anuncio" aria-live="polite"></div>
   </body>
 </html>
