@@ -4,6 +4,7 @@
 Componentes de exibição de resultados para o Streamlit.
 """
 
+from copy import deepcopy
 from html import escape
 
 import streamlit as st
@@ -16,6 +17,24 @@ from tri_enem.precisao import formatar_desempenho_tipico
 
 from ..config import AREAS_ENEM
 from .graficos import grafico_impacto, grade_questoes
+
+
+def _grafico_impacto_por_sessao(sigla: str, questoes: List[Dict]):
+    """Guarda só a figura atual de cada área, isolada na sessão do usuário.
+
+    Serializar uma Figure em cache_data volta a executar os validadores do
+    Plotly ao desserializar. Reusar a figura da própria sessão evita esse
+    trabalho; a comparação de dados invalida qualquer mudança no gráfico.
+    """
+    graficos = st.session_state.setdefault('graficos_resultados', {})
+    salvo = graficos.get(sigla)
+    if salvo is None or salvo['questoes'] != questoes:
+        salvo = {
+            'questoes': deepcopy(questoes),
+            'figura': grafico_impacto(questoes, ""),
+        }
+        graficos[sigla] = salvo
+    return salvo['figura']
 
 
 def exibir_resumo_geral(resultados: List[Dict]):
@@ -130,7 +149,7 @@ def exibir_resultado_area(resultado: Dict):
     with st.container(key=f"impacto_scroll_{sigla}"):
         with st.container(key=f"impacto_fig_{sigla}"):
             st.plotly_chart(
-                grafico_impacto(todas_questoes, ""),
+                _grafico_impacto_por_sessao(sigla, todas_questoes),
                 key=f"impacto_{sigla}",
                 config={'displayModeBar': False, 'scrollZoom': False, 'doubleClick': False},
             )

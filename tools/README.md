@@ -5,6 +5,16 @@ interface usam somente o catálogo incluído no pacote. O
 [método](../docs/SCORE_RECALCULATION.md) descreve o modelo, a evidência e os
 limites conhecidos.
 
+`perfil_streamlit.py` mede o app offline, com as dependências web instaladas,
+sem alterar dados ou fixtures. Use `--repo /caminho/do/repo` para comparar
+cópias com as mesmas dependências, em processos separados.
+
+`validar_otimizacao.py --referencia <commit>` compara o motor atual com o
+motor anterior nas quatro fixtures completas e nos extremos de cada grupo
+prova/idioma do holdout. Não recalibra modelos. Os relatórios de equivalência,
+desempenho e validação da versão 6.1.0 ficam em
+`resultados/investigacao/otimizacao_6_1_0/`, ignorados pelo Git.
+
 Instale as dependências de desenvolvimento (inclui SciPy). Os microdados
 originais são apenas lidos. Defina `OPENBLAS_NUM_THREADS=1` ao usar
 `--workers`, para não multiplicar threads entre processos.

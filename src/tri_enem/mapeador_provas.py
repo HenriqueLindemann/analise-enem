@@ -28,6 +28,11 @@ from typing import Dict, List
 from dataclasses import dataclass
 
 
+# As wheels do PyYAML incluem LibYAML; preservar o parser seguro também em
+# instalações sem a extensão C.
+_YAML_SAFE_LOADER = getattr(yaml, "CSafeLoader", yaml.SafeLoader)
+
+
 # Trechos dos nomes de cadernos especiais, na ordem de substituição.
 _TRECHOS_COR = (
     ("videoprova libras", "videoprova em Libras"),
@@ -66,7 +71,7 @@ def _carregar_yaml_cache(
     """
     del mtime_ns, tamanho
     with open(caminho, 'r', encoding='utf-8') as f:
-        return yaml.safe_load(f) or {}
+        return yaml.load(f, Loader=_YAML_SAFE_LOADER) or {}
 
 
 def _carregar_yaml(caminho: Path) -> Dict:

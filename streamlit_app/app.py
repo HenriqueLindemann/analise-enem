@@ -217,7 +217,9 @@ def _limpar_resultados_salvos():
         'resultado_ano',
         'resultado_tipo',
         'resultado_assinatura',
+        'graficos_resultados',
         'pdf_bytes',
+        'pdf_download',
         'pdf_chave',
         'pdf_ano',
     ):
@@ -254,9 +256,6 @@ def _processar_calculo(calc, ano, tipo_aplicacao, lingua, cores, respostas):
             st.session_state['resultado_assinatura'] = _assinatura_resultado(
                 ano, tipo_aplicacao, lingua, cores, respostas
             )
-            # Limpar PDF antigo para gerar novo
-            for chave in ('pdf_bytes', 'pdf_chave', 'pdf_ano'):
-                st.session_state.pop(chave, None)
         
         # Mostrar erros de cálculo
         for erro in erros_calculo:
@@ -312,21 +311,24 @@ def _exibir_resultados_salvos(
     
     # Detalhes por área em expanders
     for resultado in resultados:
-        sigla = resultado['sigla']
-        nome = AREAS_ENEM.get(sigla, sigla)
-        nota = resultado['nota']
-        acertos = resultado['acertos']
-        total = resultado['total_itens']
-        questoes_anuladas = resultado.get('questoes_anuladas') or [
-            q['posicao'] for q in resultado.get('anuladas', [])
-        ]
-        anuladas_txt = ""
-        if questoes_anuladas:
-            q_list = ", ".join(f"Q{q}" for q in sorted(questoes_anuladas))
-            anuladas_txt = f" · {q_list} anulada" if len(questoes_anuladas) == 1 else f" · {q_list} anuladas"
-        
-        nota_texto = formatar_numero(nota)
-        with st.expander(f"**{nome}** · {nota_texto} pts ({acertos}/{total} acertos{anuladas_txt})", expanded=False):
+        _exibir_detalhe_area(resultado)
+
+
+@st.fragment
+def _exibir_detalhe_area(resultado):
+    """Renderiza detalhes só ao abrir; a interação reexecuta apenas esta área."""
+    sigla = resultado['sigla']
+    nome = AREAS_ENEM.get(sigla, sigla)
+    nota = resultado['nota']
+    acertos = resultado['acertos']
+    total = resultado['total_itens']
+
+    nota_texto = formatar_numero(nota)
+    with st.expander(
+        f"**{nome}** · {nota_texto} pts ({acertos}/{total} acertos)",
+        expanded=False, key=f"detalhes_{sigla}", on_change="rerun",
+    ) as detalhes:
+        if detalhes.open:
             exibir_resultado_area(resultado)
     
 

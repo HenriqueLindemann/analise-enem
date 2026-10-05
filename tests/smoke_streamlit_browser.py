@@ -244,6 +244,73 @@ def check_answer_sheet(browser, url, width, touch):
     print(f"PASS answer sheet {width}px touch={touch}: out of order, no shift, no jump, aligned", flush=True)
 
 
+def check_lazy_results(browser, url):
+    """Four fragments open independently; PDF repeats and edits clear output."""
+    page = browser.new_page(viewport={"width": 1440, "height": 1200})
+    errors = []
+    page.on("pageerror", lambda error: errors.append(str(error)))
+    page.goto(url)
+    ano = page.locator(".st-key-ano_prova").get_by_role("combobox")
+    ano.click()
+    page.get_by_role("option", name="2023", exact=True).click()
+    fields = {}
+    for area, answer in zip(("LC", "CH", "CN", "MT"), "ABCD"):
+        fields[area] = page.locator(f".st-key-respostas_{area}").frame_locator("iframe").get_by_label(
+            f"Respostas {area}", exact=True,
+        )
+        fields[area].fill(answer * 45)
+    calculate = page.get_by_role("button", name="Calcular nota", exact=True)
+    expect(calculate).to_be_enabled()
+    calculate.click()
+    download = page.get_by_role("button", name="Baixar relatório PDF")
+    expect(download).to_be_visible()
+    expect(page.locator(".questao")).to_have_count(0)
+    expect(page.locator(".js-plotly-plot")).to_have_count(0)
+    for field in fields.values():
+        field.evaluate("""() => {
+            window.testRenders = 0;
+            window.addEventListener('message', event => {
+                if (event.data?.type === 'streamlit:render') window.testRenders++;
+            });
+        }""")
+    for area in fields:
+        # 1.55 tracks expander keys without exposing their CSS classes.
+        details = page.get_by_test_id("stExpander").filter(
+            has=page.locator("summary").filter(has_text=AREAS_ENEM[area]),
+        ).first
+        details.locator("summary").first.click()
+        expect(details.locator(".questao")).to_have_count(45)
+    expect(page.locator(".js-plotly-plot")).to_have_count(4)
+    ch = page.get_by_test_id("stExpander").filter(
+        has=page.locator("summary").filter(has_text=AREAS_ENEM["CH"]),
+    ).first
+    ch.locator("summary").first.click()
+    expect(page.locator(".js-plotly-plot")).to_have_count(3)
+    ch.locator("summary").first.click()
+    expect(page.locator(".js-plotly-plot")).to_have_count(4)
+    for area, field in fields.items():
+        assert field.evaluate("() => window.testRenders") == 0, f"{area}: fragment reran inputs"
+    pdfs = []
+    for _ in range(2):
+        with page.expect_download() as event:
+            download.click()
+        pdfs.append(Path(event.value.path()).read_bytes())
+    assert pdfs[0] == pdfs[1] and pdfs[0].startswith(b"%PDF-")
+    fields["MT"].press("Control+Home")
+    fields["MT"].press_sequentially("E")
+    fields["MT"].press("Tab")
+    expect(download).to_have_count(0)
+    expect(page.locator(".questao")).to_have_count(0)
+    calculate.click()
+    expect(download).to_be_visible()
+    with page.expect_download() as event:
+        download.click()
+    assert Path(event.value.path()).read_bytes() != pdfs[0]
+    assert not errors, errors
+    page.close()
+    print("PASS lazy results: four independent fragments, repeated PDF, edit and recalculate", flush=True)
+
+
 def run(url, executable, output):
     from streamlit_app.calculador import CalculadorEnem
     from tri_enem.formatacao import formatar_numero
@@ -259,6 +326,7 @@ def run(url, executable, output):
         check_year_changes(browser, url)
         check_year_changes(browser, url, delayed_html=True)
         check_composition(browser, url)
+        check_lazy_results(browser, url)
         for width, touch in ((1440, False), (390, False), (390, True)):
             check_answer_sheet(browser, url, width, touch)
         for width in (360, 390, 768, 1024, 1440):
@@ -306,6 +374,8 @@ def run(url, executable, output):
                 formatar_numero(expected["nota"]), timeout=30000,
             )
             expect(field).to_have_value(final_answer)
+            expect(page.locator(".questao")).to_have_count(0)
+            expect(page.locator(".js-plotly-plot")).to_have_count(0)
             download = page.get_by_role("button", name="Baixar relatório PDF")
             expect(download).to_be_visible()
             with page.expect_download() as event:
@@ -387,7 +457,7 @@ def run(url, executable, output):
             expect(download).to_have_count(0)
             expect(calculate).to_be_disabled()
             page.get_by_test_id("stPopover").filter(has_text="Sobre o cálculo").get_by_role("button").click()
-            expect(page.get_by_text("Modelo Logístico de 3 Parâmetros (ML3)", exact=True)).to_be_visible()
+            expect(page.get_by_text("Modelo Logístico de 3 Parâmetros (ML3)", exact=False)).to_be_visible()
             page.keyboard.press("Escape")
             assert not errors, errors
             print(f"PASS {width}px: typing, paste, focus, calculation, PDF, layout", flush=True)

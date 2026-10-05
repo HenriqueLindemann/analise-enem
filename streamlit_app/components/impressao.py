@@ -13,6 +13,8 @@ import tempfile
 import os
 import sys
 import hashlib
+from copy import deepcopy
+from threading import Lock
 from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
@@ -60,7 +62,10 @@ if str(_src_path) not in sys.path:
     sys.path.insert(0, str(_src_path))
 
 
-def _gerar_pdf(resultados: List[Dict], ano: int, tipo_aplicacao: str, cor_prova: str) -> bytes | None:
+def _gerar_pdf(
+    resultados: List[Dict], ano: int, tipo_aplicacao: str, cor_prova: str,
+    *, data_geracao: datetime | None = None,
+) -> bytes | None:
     """Gera o PDF e retorna bytes."""
     if not resultados:
         return None
@@ -77,7 +82,7 @@ def _gerar_pdf(resultados: List[Dict], ano: int, tipo_aplicacao: str, cor_prova:
         titulo="Desempenho no Simulado ENEM",
         tipo_aplicacao=tipo_aplicacao,
         cor_prova=cor_prova,
-        data_geracao=_data_geracao_usuario(),
+        data_geracao=data_geracao if data_geracao is not None else _data_geracao_usuario(),
     )
     
     # Gerar PDF. Exceções são propagadas para que a interface mostre a causa.
@@ -97,12 +102,39 @@ def _gerar_pdf(resultados: List[Dict], ano: int, tipo_aplicacao: str, cor_prova:
             os.unlink(tmp_path)
 
 
+class _DownloadPDF:
+    """Snapshot do resultado com geração sob demanda, isolado por sessão.
+
+    Streamlit executa downloads diferidos em outra thread: capturar o fuso e
+    os dados na thread da página evita acessar seu contexto durante o download.
+    O lock evita gerar duas vezes em cliques simultâneos. Falhas podem ser
+    tentadas novamente e são apresentadas pelo download nativo do Streamlit.
+    """
+
+    def __init__(self, resultados, ano, tipo_aplicacao, cor_prova):
+        self._resultados = deepcopy(resultados)
+        self._ano = ano
+        self._tipo_aplicacao = tipo_aplicacao
+        self._cor_prova = cor_prova
+        self._data_geracao = _data_geracao_usuario()
+        self._bytes = None
+        self._lock = Lock()
+
+    def __call__(self) -> bytes:
+        with self._lock:
+            if self._bytes is None:
+                pdf = _gerar_pdf(
+                    self._resultados, self._ano, self._tipo_aplicacao,
+                    self._cor_prova, data_geracao=self._data_geracao,
+                )
+                if not pdf:
+                    raise RuntimeError("Não foi possível gerar o PDF.")
+                self._bytes = pdf
+            return self._bytes
+
+
 def exibir_download_pdf(resultados: List[Dict], ano: int, tipo_aplicacao: str = ""):
-    """
-    Exibe botão de download do relatório PDF.
-    
-    Usa session_state para manter o PDF gerado entre reruns.
-    """
+    """Exibe download em um clique; só gera PDF quando solicitado."""
     # Obter cor predominante
     cor_prova = ""
     for r in resultados:
@@ -115,35 +147,21 @@ def exibir_download_pdf(resultados: List[Dict], ano: int, tipo_aplicacao: str = 
         repr((ano, tipo_aplicacao, cor_prova, resultados)).encode('utf-8')
     ).hexdigest()
 
-    # Gerar PDF apenas uma vez e salvar na session
+    # Guardar apenas o download atual. A função não é chamada durante reruns.
     if st.session_state.get('pdf_chave') != pdf_chave:
-        st.session_state.pop('pdf_bytes', None)
-        with st.spinner("Gerando PDF..."):
-            try:
-                pdf_bytes = _gerar_pdf(
-                    resultados, ano, tipo_aplicacao, cor_prova
-                )
-            except Exception as exc:
-                st.error(f"Não foi possível gerar o PDF: {exc}")
-                return
-            if pdf_bytes:
-                st.session_state['pdf_bytes'] = pdf_bytes
-                st.session_state['pdf_chave'] = pdf_chave
-    
-    pdf_bytes = st.session_state.get('pdf_bytes')
-    
-    if pdf_bytes:
-        nome_arquivo = f"resultado_enem_{ano}.pdf"
-        
-        st.download_button(
-            label="Baixar relatório PDF",
-            icon=":material/download:",
-            help=TEXTO_DOWNLOAD_PDF,
-            data=pdf_bytes,
-            file_name=nome_arquivo,
-            mime="application/pdf",
-            type="secondary",
-            on_click="ignore",
+        st.session_state['pdf_download'] = _DownloadPDF(
+            resultados, ano, tipo_aplicacao, cor_prova,
         )
-    else:
-        st.error("Não foi possível gerar o PDF.")
+        st.session_state['pdf_chave'] = pdf_chave
+
+    st.download_button(
+        label="Baixar relatório PDF",
+        icon=":material/download:",
+        help=TEXTO_DOWNLOAD_PDF,
+        data=st.session_state['pdf_download'],
+        key=f"download_pdf_{pdf_chave}",
+        file_name=f"resultado_enem_{ano}.pdf",
+        mime="application/pdf",
+        type="secondary",
+        on_click="ignore",
+    )

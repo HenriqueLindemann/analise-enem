@@ -2,8 +2,8 @@
 # pip install -r streamlit_app/requirements.txt
 
 # Framework Web
-# 1.52+ executa JS no st.html (autoplay do vídeo)
-streamlit>=1.52.0
+# 1.55+ permite renderizar expanders apenas quando abertos.
+streamlit>=1.55.0
 
 # Gráficos interativos
 plotly>=5.18.0

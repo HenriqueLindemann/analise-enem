@@ -231,6 +231,132 @@ class TestEstimacaoEAP:
         )
         assert vetorizado == pytest.approx(escalar, abs=2e-14)
 
+    @pytest.mark.parametrize("caso", CASOS, ids=_ids(CASOS))
+    def test_eap_preserva_soma_escalar_de_referencia(self, calc, caso):
+        """Compara a otimização com a verossimilhança escalar independente."""
+        itens, respostas, _ = calc._preparar_calculo(
+            caso["ano"], caso["area"], caso["co_prova"],
+            caso["respostas"], caso["tp_lingua"],
+        )
+        pontos, pesos = calc._quadratura_itens(itens)
+        log_l = np.asarray([
+            calc.log_verossimilhanca(ponto, respostas, itens)
+            for ponto in pontos
+        ])
+        l = np.exp(log_l - log_l.max())
+        referencia = np.sum(pontos * l * pesos) / np.sum(l * pesos)
+        assert calc.estimar_theta_eap(respostas, itens) == pytest.approx(
+            referencia, rel=0, abs=2e-14,
+        )
+
+    @pytest.mark.parametrize("metodo", ["gauss_hermite_80", "grade_41"])
+    def test_eap_preserva_limites_e_anulados(self, calc, metodo):
+        itens = self._prova()
+        for item in itens:
+            item.metodo_quadratura = metodo
+        itens[0].param_a = 1000.0
+        itens[1].param_c = 1.0
+        itens[2].param_c = 0.0
+        itens[3].abandonado = True
+        itens[3].param_a = float("nan")
+        pontos, pesos = calc._quadratura_itens(itens)
+        for respostas in ([0] * 45, [1] * 45, [0, 1] * 22 + [0], []):
+            log_l = np.asarray([
+                calc.log_verossimilhanca(ponto, respostas, itens)
+                for ponto in pontos
+            ])
+            l = np.exp(log_l - log_l.max())
+            referencia = np.sum(pontos * l * pesos) / np.sum(l * pesos)
+            assert calc.estimar_theta_eap(respostas, itens) == pytest.approx(
+                referencia, rel=0, abs=2e-14,
+            )
+
+    def test_cache_reusa_probabilidades_entre_respostas_e_batch(self, monkeypatch):
+        calc = CalculadorTRI()
+        itens = self._prova()
+        original = calc.probabilidade_acerto
+        chamadas = []
+
+        def contar(theta, item):
+            chamadas.append(theta)
+            return original(theta, item)
+
+        monkeypatch.setattr(calc, "probabilidade_acerto", contar)
+        referencia = calc.estimar_theta_eap([1] * 45, itens)
+        n_primeiro = len(chamadas)
+        assert n_primeiro == 45 * 80
+        assert calc.estimar_theta_eap([1] * 45, itens) == referencia
+        calc.estimar_theta_eap([0] * 45, itens)
+        lote = calc.estimar_theta_eap_batch([[1] * 45, [0] * 45], itens)
+        assert lote[0] == pytest.approx(referencia, rel=0, abs=2e-14)
+        assert len(chamadas) == n_primeiro
+
+    @pytest.mark.parametrize("mudanca", [
+        "param_a", "param_b", "param_c", "abandonado", "metodo", "D", "pontos",
+    ])
+    def test_cache_acompanha_mudancas_numericas(self, mudanca):
+        calc = CalculadorTRI()
+        itens = self._prova()
+        respostas = [1] * 20 + [0] * 25
+        calc.estimar_theta_eap(respostas, itens)
+        if mudanca == "metodo":
+            for item in itens:
+                item.metodo_quadratura = "grade_41"
+        elif mudanca == "D":
+            calc.D = 1.7
+        elif mudanca == "pontos":
+            calc._pontos_quad = calc._pontos_quad * 0.9
+        elif mudanca == "abandonado":
+            itens[0].abandonado = True
+        else:
+            setattr(itens[0], mudanca, getattr(itens[0], mudanca) + 0.15)
+        pontos, pesos = calc._quadratura_itens(itens)
+        logs = np.asarray([
+            calc.log_verossimilhanca(ponto, respostas, itens) for ponto in pontos
+        ])
+        l = np.exp(logs - logs.max())
+        referencia = np.sum(pontos * l * pesos) / np.sum(l * pesos)
+        assert calc.estimar_theta_eap(respostas, itens) == pytest.approx(
+            referencia, rel=0, abs=2e-14,
+        )
+
+    def test_cache_e_limitado_e_arrays_nao_podem_ser_mutados(self):
+        calc = CalculadorTRI()
+        calc.MAX_CACHE_QUADRATURA = 2
+        itens = self._prova()
+        pontos, _ = calc._quadratura_itens(itens)
+        for valor in range(4):
+            itens[0].param_b = float(valor)
+            log_p, log_q = calc._logs_quadratura(pontos, itens)
+            with pytest.raises(ValueError):
+                log_p[0, 0] = 0
+            with pytest.raises(ValueError):
+                log_q[0, 0] = 0
+        assert len(calc._cache_logs_quadratura) == 2
+
+    def test_calculador_compartilhado_preserva_resultados_em_threads(self):
+        from concurrent.futures import ThreadPoolExecutor
+        from copy import deepcopy
+
+        calc = CalculadorTRI()
+        itens = self._prova()
+        respostas = [[1] * k + [0] * (45 - k) for k in range(0, 46, 5)]
+        referencias = [calc.estimar_theta_eap(r, itens) for r in respostas]
+        calc._cache_logs_quadratura.clear()
+        with ThreadPoolExecutor(max_workers=8) as pool:
+            valores = list(pool.map(
+                lambda r: calc.estimar_theta_eap(r, deepcopy(itens)), respostas * 3,
+            ))
+        assert valores == referencias * 3
+
+    def test_prova_totalmente_anulada_eap_e_batch(self):
+        calc = CalculadorTRI()
+        itens = self._prova()
+        for item in itens:
+            item.abandonado = True
+        assert calc.estimar_theta_eap([1] * 45, itens) == pytest.approx(0, abs=1e-15)
+        assert np.array_equal(calc.estimar_theta_eap_batch([[1] * 45], itens), [0])
+
 
 class TestConverterRespostas:
     @staticmethod

@@ -255,6 +255,8 @@ class TestFluxoCompleto:
 
         resultado = [r for r in at.session_state["resultados"]
                      if r["sigla"] == "MT"][0]
+        at.session_state["detalhes_MT"] = True
+        at.run()
         assert resultado["co_prova"] == co_prova
         resumo = resultado["resumo_validacao"]
         assert "Erro absoluto médio" in resumo
@@ -289,7 +291,7 @@ class TestFluxoCompleto:
         assert "Complete 45 respostas" in textos
         assert "resultados" not in at.session_state
 
-    def test_expander_formata_plural_de_questoes_anuladas(self):
+    def test_expander_omite_questoes_anuladas_do_titulo(self):
         from tri_enem import MapeadorProvas
 
         info = next(
@@ -307,8 +309,12 @@ class TestFluxoCompleto:
             if "CALCULAR" in (b.label or "").upper()
         ).click().run()
 
-        labels = [expander.label for expander in at.expander]
-        assert any("Q161, Q164 anuladas" in label for label in labels)
+        titulo = next(e.label for e in at.expander if "Matemática" in e.label)
+        assert "acertos)" in titulo
+        assert "anulada" not in titulo
+        assert "Q161" not in titulo and "Q164" not in titulo
+        resultado = next(r for r in at.session_state["resultados"] if r["sigla"] == "MT")
+        assert resultado["questoes_anuladas"] == [161, 164]
 
     def test_respostas_incompletas_nao_produzem_nota(self, caso_real):
         at = _app_com_respostas({"MT": caso_real["MT"]["respostas"][:30]})
@@ -496,6 +502,41 @@ class TestGraficos:
         assert fig.layout.xaxis.fixedrange is True
         assert fig.layout.yaxis.fixedrange is True
 
+    def test_cache_grafico_reusa_e_invalida_dados_sem_misturar_sessoes(self, monkeypatch):
+        from copy import deepcopy
+        from streamlit_app.components import resultados
+
+        chamadas = []
+        construir = resultados.grafico_impacto
+
+        def contar(questoes, titulo):
+            chamadas.append(deepcopy(questoes))
+            return construir(questoes, titulo)
+
+        monkeypatch.setattr(resultados, "grafico_impacto", contar)
+        sessao_1 = {}
+        monkeypatch.setattr(resultados.st, "session_state", sessao_1)
+        questoes = [{'posicao': 1, 'impacto': 10.0, 'acertou': True}]
+        primeira = resultados._grafico_impacto_por_sessao("MT", questoes)
+        repetida = resultados._grafico_impacto_por_sessao("MT", deepcopy(questoes))
+        assert repetida is primeira
+        assert len(chamadas) == 1
+        assert primeira.to_dict() == construir(questoes, "").to_dict()
+
+        # A chave guarda cópia dos dados: editar a mesma lista invalida a figura.
+        questoes[0]['impacto'] = 20.0
+        nova = resultados._grafico_impacto_por_sessao("MT", questoes)
+        assert nova is not primeira
+        assert list(nova.data[0].y) == [20.0]
+        assert len(chamadas) == 2
+        assert len(sessao_1['graficos_resultados']) == 1
+
+        monkeypatch.setattr(resultados.st, "session_state", {})
+        outra_sessao = resultados._grafico_impacto_por_sessao("MT", questoes)
+        assert outra_sessao is not nova
+        assert outra_sessao.to_dict() == nova.to_dict()
+        assert len(chamadas) == 3
+
     def test_resumo_limita_a_barra_quando_a_nota_passa_de_1000(self, monkeypatch):
         """Algumas provas de MT passam de 1000; a barra para em 100%."""
         from streamlit_app.components import resultados
@@ -618,6 +659,57 @@ class TestRelatorioPDF:
 
         pdf = _gerar_pdf([], 2023, "1a_aplicacao", "azul")
         assert pdf is None or pdf.startswith(b"%PDF-")
+
+    def test_download_diferido_preserva_snapshot_fuso_e_reusa_bytes(self, monkeypatch):
+        from concurrent.futures import ThreadPoolExecutor
+        from datetime import datetime, timezone
+        from streamlit_app.components import impressao
+
+        horario = datetime(2026, 8, 22, 18, 4, tzinfo=timezone.utc)
+        monkeypatch.setattr(impressao, "_data_geracao_usuario", lambda: horario)
+        chamadas = []
+
+        def gerar(resultados, ano, tipo, cor, *, data_geracao):
+            chamadas.append((resultados, ano, tipo, cor, data_geracao))
+            return b"%PDF-teste"
+
+        monkeypatch.setattr(impressao, "_gerar_pdf", gerar)
+        resultados = [{"nota": 600, "cor_prova": "azul"}]
+        download = impressao._DownloadPDF(resultados, 2024, "1a_aplicacao", "azul")
+        assert not chamadas
+        resultados[0]["nota"] = 800
+
+        def sem_contexto():
+            raise AssertionError("A thread de download não tem contexto da página")
+
+        monkeypatch.setattr(impressao, "_data_geracao_usuario", sem_contexto)
+        with ThreadPoolExecutor(max_workers=4) as pool:
+            arquivos = list(pool.map(lambda _: download(), range(8)))
+        assert arquivos == [b"%PDF-teste"] * 8
+        assert chamadas == [([{"nota": 600, "cor_prova": "azul"}],
+                             2024, "1a_aplicacao", "azul", horario)]
+
+    @pytest.mark.parametrize("falha", ["excecao", "vazio"])
+    def test_download_permite_repetir_apos_falha(self, monkeypatch, falha):
+        from streamlit_app.components import impressao
+
+        chamadas = []
+
+        def gerar(*_args, **_kwargs):
+            chamadas.append(True)
+            if len(chamadas) == 1:
+                if falha == "excecao":
+                    raise RuntimeError("Falha simulada")
+                return None
+            return b"%PDF-teste"
+
+        monkeypatch.setattr(impressao, "_gerar_pdf", gerar)
+        download = impressao._DownloadPDF([{"nota": 600}], 2024, "", "")
+        with pytest.raises(RuntimeError):
+            download()
+        assert download() == b"%PDF-teste"
+        assert download() == b"%PDF-teste"
+        assert len(chamadas) == 2
 
 
 class TestAvisoAcuracia:
@@ -795,6 +887,49 @@ class TestAvisoAcuracia:
 
 
 class TestEstadoDaInterface:
+    def test_detalhes_renderizam_so_areas_abertas_e_reabrem_com_mesmo_grafico(self):
+        at = _app_com_respostas({area: "A" * 45 for area in ("LC", "CH", "CN", "MT")}).run()
+        at.button(key="calcular").click().run()
+        assert "graficos_resultados" not in at.session_state
+        assert not at.get("plotly_chart")
+        at.session_state["detalhes_MT"] = True
+        at.run()
+        assert len(at.get("plotly_chart")) == 1
+        figura = at.session_state["graficos_resultados"]["MT"]["figura"]
+        at.session_state["detalhes_MT"] = False
+        at.run()
+        assert not at.get("plotly_chart")
+        at.session_state["detalhes_MT"] = True
+        at.run()
+        assert at.session_state["graficos_resultados"]["MT"]["figura"] is figura
+        # AppTest não serializa o estado dos expanders dinâmicos: informar
+        # todas as áreas em cada execução; cliques reais ficam no smoke.
+        for area in ("LC", "CH", "CN", "MT"):
+            at.session_state[f"detalhes_{area}"] = True
+        at.run()
+        assert not at.exception
+        assert len(at.get("plotly_chart")) == 4
+        assert set(at.session_state["graficos_resultados"]) == {"LC", "CH", "CN", "MT"}
+
+    def test_calculo_e_rerun_nao_geram_pdf_e_download_fica_na_sessao(self, monkeypatch):
+        from streamlit_app.components import impressao
+
+        def nao_gerar(*_args, **_kwargs):
+            raise AssertionError("PDF só deve ser gerado no download")
+
+        monkeypatch.setattr(impressao, "_gerar_pdf", nao_gerar)
+        at = _app_com_respostas({"MT": "A" * 45}).run()
+        at.button(key="calcular").click().run()
+        download = at.session_state["pdf_download"]
+        assert download._bytes is None
+        at.run()
+        assert not at.exception
+        assert not at.error
+        assert at.session_state["pdf_download"] is download
+        outra = _app_com_respostas({"MT": "A" * 45}).run()
+        outra.button(key="calcular").click().run()
+        assert outra.session_state["pdf_download"] is not download
+
     @pytest.mark.parametrize("chave,valor", [
         ("ano_prova", 2009), ("tipo_prova", "reaplicacao"),
         ("lingua_prova", "espanhol"), ("cor_MT", "amarela"),
@@ -805,14 +940,21 @@ class TestEstadoDaInterface:
         at.selectbox(key="ano_prova").set_value(2023).run()
         at.button(key="calcular").click().run()
         assert len(at.session_state["resultados"]) == 1
-        assert at.session_state["pdf_bytes"].startswith(b"%PDF-")
+        assert at.session_state["pdf_download"]().startswith(b"%PDF-")
+        assert "graficos_resultados" not in at.session_state
+        at.session_state["detalhes_MT"] = True
+        at.run()
+        assert set(at.session_state["graficos_resultados"]) == {"MT"}
         if chave.startswith("resp_"):
             at.session_state[chave] = valor
             at.run()
         else:
             at.selectbox(key=chave).set_value(valor).run()
         assert not at.exception
-        for key in ("resultados", "resultado_assinatura", "pdf_bytes", "pdf_chave"):
+        for key in (
+            "resultados", "resultado_assinatura", "pdf_bytes", "pdf_chave", "pdf_download",
+            "graficos_resultados",
+        ):
             assert key not in at.session_state
         assert at.session_state["resp_mt"] == (valor if chave == "resp_mt" else "A" * 45)
 
@@ -879,3 +1021,4 @@ class TestEstadoDaInterface:
         assert at.error
         assert "resultados" not in at.session_state
         assert "pdf_bytes" not in at.session_state
+        assert "pdf_download" not in at.session_state

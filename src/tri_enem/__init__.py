@@ -64,4 +64,4 @@ __all__ = [
     'normalizar_posicoes_resultados',
     'posicao_caderno',
 ]
-__version__ = '6.0.0'
+__version__ = '6.1.0'

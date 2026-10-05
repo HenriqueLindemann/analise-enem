@@ -40,6 +40,19 @@ python tests/smoke_streamlit_browser.py
 O script é opt-in e não é coletado pelo pytest; os artefatos (PDF, capturas
 de tela) vão para um diretório temporário.
 
+## Desempenho no Cloud
+
+Para medir o app e o motor localmente, sem modificar dados ou fixtures:
+
+```bash
+python tools/perfil_streamlit.py --repeticoes 15
+```
+
+O PDF é gerado no clique de download; resultados e gráficos aparecem antes.
+O botão continua baixando em um clique, sem reexecutar o app.
+Os gráficos e as tabelas de cada área são renderizados ao abrir seus detalhes.
+Essa interação reexecuta apenas a área, preservando os campos de respostas.
+
 ## Estrutura Modular
 
 ```

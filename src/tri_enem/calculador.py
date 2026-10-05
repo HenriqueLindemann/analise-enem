@@ -66,11 +66,13 @@ prova por erro medido contra notas oficiais.
 
 import numpy as np
 import pandas as pd
+from collections import OrderedDict
 from copy import deepcopy
 from importlib.resources import files
 from pathlib import Path
 from typing import Iterable, Tuple, List, Dict
 from dataclasses import dataclass
+from threading import Lock
 
 from .coeficientes import (
     aplicar_transformacao, obter_transformacao, obter_reconstrucoes_itens,
@@ -111,6 +113,7 @@ class CalculadorTRI:
     
     D = 1.0  # Fator de escala
     N_QUADRATURA = 80  # Gauss-Hermite padrão; a grade alternativa tem 41 pontos.
+    MAX_CACHE_QUADRATURA = 128
     
     # Coeficientes carregados de coeficientes.py
     # Ver coeficientes.py para adicionar novos coeficientes
@@ -133,6 +136,9 @@ class CalculadorTRI:
             self.base_path = Path(itens_path)
         self._cache_itens: Dict[str, List[ItemTRI]] = {}
         self._cache_df_itens: Dict[str, pd.DataFrame] = {}
+        # Só parâmetros públicos da prova, nunca respostas dos participantes.
+        self._cache_logs_quadratura = OrderedDict()
+        self._lock_logs_quadratura = Lock()
         self._mapeador: object | None = None  # Criado sob demanda; ver _ordem_provas.
         self._pontos_quad, self._pesos_quad = self._calcular_quadratura()
         self.reconstrucoes = (
@@ -274,42 +280,43 @@ class CalculadorTRI:
             raise ValueError(f"Prova não encontrada: {ano}/{area}/{co_prova}")
 
         itens = []
-        for _, row in df_prova.iterrows():
+        # Evitar construir uma Series por questão ao carregar os cadernos.
+        for row in df_prova.itertuples(index=False):
             # Item anulado: excluído da verossimilhança (ver estimar_theta_eap).
             # A sinalização varia conforme o ano, daí as quatro condições: flag
             # explícita, parâmetros TRI ausentes ou gabarito marcado como
             # anulado ('X', '.', '*' ou vazio).
             is_abandonado = (
-                row.get('IN_ITEM_ABAN') == 1
+                getattr(row, 'IN_ITEM_ABAN', None) == 1
             ) or (
-                pd.isna(row['NU_PARAM_A']) or
-                pd.isna(row['NU_PARAM_B']) or
-                pd.isna(row['NU_PARAM_C'])
+                pd.isna(row.NU_PARAM_A) or
+                pd.isna(row.NU_PARAM_B) or
+                pd.isna(row.NU_PARAM_C)
             ) or (
-                str(row['TX_GABARITO']).upper() == 'X'
+                str(row.TX_GABARITO).upper() == 'X'
             ) or (
-                pd.isna(row['TX_GABARITO']) or
-                str(row['TX_GABARITO']) == '.' or
-                str(row['TX_GABARITO']) == '*'
+                pd.isna(row.TX_GABARITO) or
+                str(row.TX_GABARITO) == '.' or
+                str(row.TX_GABARITO) == '*'
             )
 
             # CO_ITEM é só identificador e falta em itens anulados (LC 2009
             # tem um por prova). Descartar a linha desalinharia todas as
             # posições seguintes.
             try:
-                co_item_val = int(row['CO_ITEM'])
+                co_item_val = int(row.CO_ITEM)
             except (ValueError, TypeError):
                 co_item_val = 0
 
             item = ItemTRI(
-                posicao=int(row['CO_POSICAO']),
-                gabarito=str(row['TX_GABARITO']),
-                param_a=float(row['NU_PARAM_A']) if pd.notna(row['NU_PARAM_A']) else 0.0,
-                param_b=float(row['NU_PARAM_B']) if pd.notna(row['NU_PARAM_B']) else 0.0,
-                param_c=float(row['NU_PARAM_C']) if pd.notna(row['NU_PARAM_C']) else 0.0,
+                posicao=int(row.CO_POSICAO),
+                gabarito=str(row.TX_GABARITO),
+                param_a=float(row.NU_PARAM_A) if pd.notna(row.NU_PARAM_A) else 0.0,
+                param_b=float(row.NU_PARAM_B) if pd.notna(row.NU_PARAM_B) else 0.0,
+                param_c=float(row.NU_PARAM_C) if pd.notna(row.NU_PARAM_C) else 0.0,
                 co_item=co_item_val,
                 abandonado=is_abandonado,
-                tp_lingua=row.get('TP_LINGUA'),
+                tp_lingua=getattr(row, 'TP_LINGUA', None),
             )
             itens.append(item)
         
@@ -365,6 +372,40 @@ class CalculadorTRI:
             log_L += np.log(p) if u == 1 else np.log(1 - p)
         
         return log_L
+
+    def _logs_quadratura(self, pontos, itens):
+        """Reutiliza log(P) e log(1-P), com limite de memória por calculador.
+
+        A chave acompanha mudanças nos parâmetros, no fator D e nos pontos.
+        Os arrays publicados são imutáveis e o LRU é protegido entre sessões.
+        A construção mantém a rotina escalar e a disposição usada no batch.
+        """
+        ativos = [item for item in itens if not item.abandonado]
+        chave = (
+            self.D, tuple(pontos),
+            tuple((item.param_a, item.param_b, item.param_c) for item in ativos),
+        )
+        with self._lock_logs_quadratura:
+            salvo = self._cache_logs_quadratura.get(chave)
+            if salvo is not None:
+                self._cache_logs_quadratura.move_to_end(chave)
+                return salvo
+
+        probabilidades = np.asarray([
+            [self.probabilidade_acerto(theta, item) for item in ativos]
+            for theta in pontos
+        ]).reshape(len(pontos), len(ativos))
+        probabilidades = np.clip(probabilidades, 1e-15, 1 - 1e-15)
+        log_p = np.log(probabilidades)
+        log_q = np.log(1 - probabilidades)
+        log_p.setflags(write=False)
+        log_q.setflags(write=False)
+        with self._lock_logs_quadratura:
+            self._cache_logs_quadratura[chave] = (log_p, log_q)
+            self._cache_logs_quadratura.move_to_end(chave)
+            while len(self._cache_logs_quadratura) > self.MAX_CACHE_QUADRATURA:
+                self._cache_logs_quadratura.popitem(last=False)
+        return log_p, log_q
     
     def estimar_theta_eap(self, respostas: List[int], itens: List[ItemTRI]) -> float:
         """
@@ -373,10 +414,15 @@ class CalculadorTRI:
         θ_EAP = Σ(X_k * L_k * W_k) / Σ(L_k * W_k)
         """
         pontos, pesos = self._quadratura_itens(itens)
-        log_L = np.array([
-            self.log_verossimilhanca(theta_k, respostas, itens) 
-            for theta_k in pontos
-        ])
+        log_p, log_q = self._logs_quadratura(pontos, itens)
+        # Preservar a ordem das somas do caminho escalar de referência.
+        log_L = np.zeros(len(pontos), dtype=float)
+        coluna = 0
+        for u, item in zip(respostas, itens):
+            if item.abandonado:
+                continue
+            log_L += log_p[:, coluna] if u == 1 else log_q[:, coluna]
+            coluna += 1
         
         log_L_max = np.max(log_L)
         L = np.exp(log_L - log_L_max)
@@ -416,13 +462,7 @@ class CalculadorTRI:
         if not itens_ativos:
             return np.zeros(matriz.shape[0], dtype=float)
 
-        probabilidades = np.asarray([
-            [self.probabilidade_acerto(theta, item) for item in itens_ativos]
-            for theta in pontos
-        ])
-        probabilidades = np.clip(probabilidades, 1e-15, 1 - 1e-15)
-        log_p = np.log(probabilidades)
-        log_q = np.log(1 - probabilidades)
+        log_p, log_q = self._logs_quadratura(pontos, itens)
 
         resultado = np.empty(matriz.shape[0], dtype=float)
         for inicio in range(0, matriz.shape[0], batch_size):
