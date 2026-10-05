@@ -15,8 +15,8 @@ from ..config import AREAS_ENEM, ORDEM_AREAS, ORDEM_CORES
 TOTAL_RESPOSTAS = 45
 TAMANHO_BLOCO = 5
 TEXTO_AJUDA = (
-    "Digite as letras de A a E, com ponto nas questões em branco. "
-    "Toque numa questão para ir até ela: o que digitar entra ali, sem mover as outras. "
+    "Use A a E nas respostas e ponto (.) nas questões em branco. "
+    "Toque ou clique na questão para corrigir. "
     "Preencha só as provas que quiser."
 )
 
