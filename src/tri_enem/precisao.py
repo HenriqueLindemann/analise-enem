@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+from copy import deepcopy
+
 import json
 import math
 from functools import lru_cache
@@ -59,9 +61,23 @@ def _msg_sem_itens() -> str:
 
 def _msg_nao_calibrada() -> str:
     return (
-        "Prova sem holdout suficiente para garantir o limite de precisão. O "
-        "resultado deve ser interpretado como estimativa."
+        "Não há resultados oficiais suficientes para conferir a precisão "
+        "desta prova. A nota deve ser tratada como estimativa."
     )
+
+
+def formatar_desempenho_tipico(tipico: Mapping[str, Any] | None) -> str | None:
+    """Explica a evidência média sem exigir vocabulário estatístico."""
+    if not tipico or not tipico.get('n') or tipico.get('mae') is None:
+        return None
+    erro = f"{float(tipico['mae']):.2f}".replace('.', ',')
+    unidade = "ponto" if abs(float(tipico['mae'])) <= 1 else "pontos"
+    if tipico.get('independente'):
+        return (f"Em {tipico['n']} novos resultados oficiais, a diferença média "
+                f"estimada para a nota oficial foi de {erro} {unidade}.")
+    return (f"Nos {tipico['n']} resultados oficiais examinados, a diferença média "
+            f"estimada foi de {erro} {unidade}. Esses resultados já foram usados na "
+            "pesquisa, por isso essa diferença não comprova a precisão para outras pessoas.")
 
 
 def classificar_perfil_validacao(
@@ -69,6 +85,7 @@ def classificar_perfil_validacao(
     erro_p95: float | None,
     n_acima_2: int | None,
     n_validacao: int | None,
+    independente_media: bool | None = None,
 ) -> str:
     """Resume o desempenho típico sem alterar o status técnico estrito.
 
@@ -76,6 +93,8 @@ def classificar_perfil_validacao(
     O perfil intermediário serve apenas para comunicar que as divergências
     ficaram concentradas em uma pequena minoria do holdout.
     """
+    if independente_media is False:
+        return PERFIL_SEM_VALIDACAO
     if status == "ok":
         return PERFIL_CALIBRACAO_VERIFICADA
     if (
@@ -156,7 +175,8 @@ def formatar_resumo_validacao(
         unidade = "ponto" if abs(float(valor)) <= 1 else "pontos"
         return f"{numero(valor)} {unidade}"
 
-    validacao = f"Validada em {int(n_validacao)} resultados oficiais."
+    verbo = "Observada" if precisao.get("origem_metricas") == "diagnostico_calibracao" else "Validada"
+    validacao = f"{verbo} em {int(n_validacao)} resultados oficiais."
     metricas = []
     if precisao.get("mae") is not None:
         metricas.append(
@@ -170,6 +190,10 @@ def formatar_resumo_validacao(
         metricas.append(
             f"Maior diferença observada: {pontos(precisao['erro_maximo'])}"
         )
+    tipico = precisao.get("desempenho_tipico")
+    explicacao = formatar_desempenho_tipico(tipico)
+    if explicacao:
+        metricas.append(explicacao)
     if formato == "reportlab":
         metricas_compactas = [f"{int(n_validacao)} resultados oficiais"]
         if precisao.get("mae") is not None:
@@ -235,6 +259,11 @@ def formatar_aviso_curto(
             return f'<span style="color: var(--text-color);">{conteudo}</span>'
         return conteudo
 
+    tipico = precisao.get('desempenho_tipico')
+    if isinstance(tipico, dict) and tipico.get('independente') is False:
+        x = _destaque("estimativa", COR_CALIBRACAO_MODERADA)
+        return _frase(f"Esta nota é uma {x}. Há poucos resultados oficiais para conferir sua precisão.")
+
     if status == "ok" or perfil == PERFIL_CALIBRACAO_VERIFICADA or severidade == "sucesso":
         x = _destaque("alta confiabilidade", COR_CALIBRACAO_BOA)
         return _frase(f"Estimativa com {x} nesta prova.")
@@ -252,7 +281,7 @@ def formatar_aviso_curto(
         return _frase(f"Estimativa {x} para esta prova (parâmetros ausentes nos dados públicos).")
 
     if status == "nao_calibrado":
-        x = _destaque("ainda não verificada", COR_CALIBRACAO_MODERADA)
+        x = _destaque("não verificada", COR_CALIBRACAO_MODERADA)
         return _frase(f"Confiabilidade {x} nesta prova (amostra de validação insuficiente).")
 
     if severidade == "alerta" or status == "erro_alto":
@@ -315,6 +344,25 @@ def _inteiro_nao_negativo(valor: Any) -> int | None:
     return inteiro
 
 
+def validacao_para_apresentacao(info: Mapping[str, Any]) -> Dict[str, Any]:
+    """Mostra a amostra com maior erro máximo, sem misturar suas métricas."""
+    primaria = info.get("validacao") or {}
+    escolhida = primaria
+    for key in ("validacao_confirmacao", "validacao_residual", "validacao_media", "diagnostico_calibracao"):
+        confirmacao = info.get(key)
+        if confirmacao is None:
+            continue
+        if not isinstance(confirmacao, dict):
+            raise ValueError("confirmação inválida")
+        n = _inteiro_nao_negativo(confirmacao.get("n"))
+        maior = _numero_finito(confirmacao.get("erro_maximo"))
+        if not n or maior is None or maior < 0:
+            raise ValueError("confirmação inválida")
+        if maior > float(escolhida.get("erro_maximo", -1)):
+            escolhida = confirmacao
+    return escolhida
+
+
 def verificar_precisao_prova(ano: int, area: str, co_prova: int) -> Dict[str, Any]:
     """Retorna métricas de holdout e falha fechado quando não há catálogo."""
     try:
@@ -356,9 +404,10 @@ def verificar_precisao_prova(ano: int, area: str, co_prova: int) -> Dict[str, An
     ):
         return _resultado_fechado()
 
-    validacao = validacao_bruta or {}
     transformacao = transformacao_bruta or {}
     try:
+        validacao = validacao_para_apresentacao(info)
+        n_primaria = _inteiro_nao_negativo((validacao_bruta or {}).get("n")) or 0
         mae = _numero_finito(validacao.get("mae"))
         erro_maximo = _numero_finito(validacao.get("erro_maximo"))
         erro_p95 = _numero_finito(validacao.get("erro_p95"))
@@ -369,7 +418,7 @@ def verificar_precisao_prova(ano: int, area: str, co_prova: int) -> Dict[str, An
         return _resultado_fechado()
 
     faixas_cobertas = validacao.get("faixas_cobertas", [])
-    faixas_existentes = validacao.get("faixas_existentes", [])
+    faixas_existentes = (validacao_bruta or {}).get("faixas_existentes", [])
     if not isinstance(faixas_cobertas, list) or not isinstance(
         faixas_existentes, list
     ):
@@ -380,11 +429,11 @@ def verificar_precisao_prova(ano: int, area: str, co_prova: int) -> Dict[str, An
         or erro_p95 is None
         or n_validacao is None
         or n_acima_2 is None
-        or n_validacao < 30
+        or n_primaria < 30
         or n_acima_2 != 0
         or erro_maximo > 2.0 + 1e-12
         or len(faixas_existentes) < 2
-        or set(faixas_cobertas) != set(faixas_existentes)
+        or set((validacao_bruta or {}).get("faixas_cobertas", [])) != set(faixas_existentes)
     ):
         return _resultado_fechado()
     if (
@@ -394,22 +443,41 @@ def verificar_precisao_prova(ano: int, area: str, co_prova: int) -> Dict[str, An
     ):
         return _resultado_fechado()
 
+    tipico = info.get('desempenho_tipico')
     perfil = classificar_perfil_validacao(
-        status, erro_p95, n_acima_2, n_validacao
+        status, erro_p95, n_acima_2, n_validacao,
+        tipico.get('independente') if isinstance(tipico, dict) else None
     )
     percentual_ate_2 = (
         100.0 * (n_validacao - n_acima_2) / n_validacao
         if n_validacao and n_acima_2 is not None
         else None
     )
+    if tipico is not None:
+        try:
+            if not isinstance(tipico, dict):
+                return _resultado_fechado()
+            nt = _inteiro_nao_negativo(tipico.get('n'))
+            mt = _numero_finito(tipico.get('mae'))
+            pt = _numero_finito(tipico.get('erro_p95'))
+            if (not nt or mt is None or mt < 0 or pt is None or pt < 0
+                    or not isinstance(tipico.get('independente'), bool)):
+                return _resultado_fechado()
+        except ValueError:
+            return _resultado_fechado()
+    aviso = _msg_por_metricas(status, perfil)
+    limitada = tipico is not None and tipico['independente'] is False
+    if limitada:
+        aviso = ("Esta nota é uma estimativa. Há poucos resultados oficiais para "
+                 "conferir sua precisão.")
     return {
         "mae": mae,
         "r_squared": r_squared,
-        "confiavel": status == "ok",
-        "aviso": _msg_por_metricas(status, perfil),
+        "confiavel": status == "ok" and not limitada,
+        "aviso": aviso,
         "severidade": (
             "atencao"
-            if perfil == PERFIL_BOA_COM_EXCECOES
+            if perfil == PERFIL_BOA_COM_EXCECOES or (limitada and status == 'ok')
             else SEVERIDADE_POR_STATUS.get(status, "atencao")
         ),
         "status": status,
@@ -424,4 +492,7 @@ def verificar_precisao_prova(ano: int, area: str, co_prova: int) -> Dict[str, An
         "modelo": transformacao.get("tipo"),
         "validado_em": qualidade.get("validado_em"),
         "motivo": qualidade.get("motivo"),
+        "origem_metricas": validacao.get("origem"),
+        "criterio_modelo": (info.get("calibracao") or {}).get("objetivo_selecao"),
+        "desempenho_tipico": deepcopy(tipico),
     }

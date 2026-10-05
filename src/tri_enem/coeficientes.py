@@ -82,7 +82,7 @@ def _normalizar_transformacao(info: Dict[str, Any], origem: str) -> Dict[str, An
     if not valida:
         return _linear(slope, intercept, origem)
 
-    return {
+    resultado = {
         "tipo": "monotonica_linear",
         "slope": slope,
         "intercept": intercept,
@@ -90,6 +90,9 @@ def _normalizar_transformacao(info: Dict[str, Any], origem: str) -> Dict[str, An
         "score_knots": notas.tolist(),
         "origem": origem,
     }
+    if isinstance(transformacao.get("ancoras_extremos"), dict):
+        resultado["ancoras_extremos"] = deepcopy(transformacao["ancoras_extremos"])
+    return resultado
 
 
 def _coeficientes_area() -> Dict[Tuple[int, str], Tuple[float, float]]:
@@ -170,3 +173,12 @@ def aplicar_transformacao(theta: float, transformacao: Dict[str, Any]) -> float:
 def obter_catalogo() -> Dict[str, Any]:
     """Retorna uma cópia defensiva do catálogo carregado."""
     return deepcopy(_DATA)
+
+
+def obter_reconstrucoes_itens() -> Dict[str, Any]:
+    """Associações empíricas publicadas junto do modelo e de sua validação."""
+    return {
+        chave: deepcopy(info["reconstrucao_itens"])
+        for chave, info in _DATA.get("por_prova", {}).items()
+        if isinstance(info.get("reconstrucao_itens"), dict)
+    }

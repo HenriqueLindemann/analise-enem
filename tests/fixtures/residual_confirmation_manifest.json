@@ -1,0 +1,674 @@
+{
+  "schema_version": 1,
+  "models_published": true,
+  "models_refitted": false,
+  "modelos_sha256": "a23b476b36bd0bfe2c5adc8df4c29e2ef039373545b4b7d3121dbb533ba0ed00",
+  "catalogo_sha256": "e870c5cc2aeaac84da62276dd2c12f2847d2aa1f26bdec97c8c5c3a8142ed78c",
+  "identity_algorithm": "pandas-null-object-v1",
+  "excluded_caches": {
+    "amostra.json.gz": {
+      "cache_sha256": "5a22ae64da2c371e454161d9fffa8f5ba9ad25f505f2a70f3b2d708bfe9918cc",
+      "cases": 531479,
+      "case_ids_sha256": "cfcc4f0c47a1f83367001fbf54a8418741fd819bb9079ffbd9beef018a91eb94"
+    },
+    "confirmacao.json.gz": {
+      "cache_sha256": "d1571d361e52183e741321b8a48c0c5a2459a689c7bf0e1c07271c807ba6850a",
+      "cases": 113922,
+      "case_ids_sha256": "54f00967f3558e76dfcb75bf8463982faf85ceff1473d52159f767f73de7b9ec"
+    }
+  },
+  "excluded_cases": 645401,
+  "overlapping_cases": 0,
+  "cases": 1144,
+  "case_ids_sha256": "10fba95ea2a4a29aa45feeae00e3163d2e6665681bd4455a9674e90315e68921",
+  "sem_casos_novos": [
+    "2016,CN,332",
+    "2017,LC,441",
+    "2025,MT,1611"
+  ],
+  "before": {
+    "total": {
+      "n": 1144,
+      "mae": 0.6169457670192077,
+      "erro_p95": 2.8401549558102333,
+      "erro_maximo": 9.853750446467131,
+      "acima_2": 71
+    },
+    "por_prova": {
+      "2009,CH,72": {
+        "n": 104,
+        "mae": 3.058436857653287,
+        "erro_p95": 6.676928224807974,
+        "erro_maximo": 9.853750446467131,
+        "acima_2": 55,
+        "r_squared": 0.9967807065973565,
+        "faixas_cobertas": [
+          "400_500",
+          "500_600",
+          "ate_400"
+        ]
+      },
+      "2011,LC,126": {
+        "n": 400,
+        "mae": 0.33138046078750605,
+        "erro_p95": 1.1497828099838319,
+        "erro_maximo": 1.948828190326708,
+        "acima_2": 0,
+        "r_squared": 0.9999844432286019,
+        "faixas_cobertas": [
+          "400_500",
+          "500_600",
+          "600_700",
+          "700_800",
+          "ate_400"
+        ]
+      },
+      "2011,LC,128": {
+        "n": 400,
+        "mae": 0.48797738999133,
+        "erro_p95": 1.4470080497338471,
+        "erro_maximo": 2.7465544326917097,
+        "acima_2": 5,
+        "r_squared": 0.9999681236634019,
+        "faixas_cobertas": [
+          "400_500",
+          "500_600",
+          "600_700",
+          "700_800",
+          "ate_400"
+        ]
+      },
+      "2016,MT,367": {
+        "n": 240,
+        "mae": 0.24985576651040542,
+        "erro_p95": 1.8894103096036057,
+        "erro_maximo": 3.761653756878104,
+        "acima_2": 11,
+        "r_squared": 0.999981322159852,
+        "faixas_cobertas": [
+          "400_500",
+          "500_600",
+          "600_700",
+          "700_800",
+          "800_900",
+          "ate_400"
+        ]
+      }
+    },
+    "case_ids_sha256": "10fba95ea2a4a29aa45feeae00e3163d2e6665681bd4455a9674e90315e68921"
+  },
+  "after": {
+    "total": {
+      "n": 1144,
+      "mae": 0.026891725189362465,
+      "erro_p95": 0.04735789292399772,
+      "erro_maximo": 1.6236362501109056,
+      "acima_2": 0
+    },
+    "por_prova": {
+      "2009,CH,72": {
+        "n": 104,
+        "mae": 0.025448846732688733,
+        "erro_p95": 0.04723579348749354,
+        "erro_maximo": 0.04945334122226086,
+        "acima_2": 0,
+        "r_squared": 0.9999998158018619,
+        "faixas_cobertas": [
+          "400_500",
+          "500_600",
+          "ate_400"
+        ]
+      },
+      "2011,LC,126": {
+        "n": 400,
+        "mae": 0.030006449969939127,
+        "erro_p95": 0.04833258077106847,
+        "erro_maximo": 1.6236362501109056,
+        "acima_2": 0,
+        "r_squared": 0.9999995109591705,
+        "faixas_cobertas": [
+          "400_500",
+          "500_600",
+          "600_700",
+          "700_800",
+          "ate_400"
+        ]
+      },
+      "2011,LC,128": {
+        "n": 400,
+        "mae": 0.025247283634168553,
+        "erro_p95": 0.04693459165825402,
+        "erro_maximo": 0.05178427706982802,
+        "acima_2": 0,
+        "r_squared": 0.9999999463430956,
+        "faixas_cobertas": [
+          "400_500",
+          "500_600",
+          "600_700",
+          "700_800",
+          "ate_400"
+        ]
+      },
+      "2016,MT,367": {
+        "n": 240,
+        "mae": 0.02506650047828316,
+        "erro_p95": 0.04657547209038455,
+        "erro_maximo": 0.04999432070042076,
+        "acima_2": 0,
+        "r_squared": 0.9999999693851227,
+        "faixas_cobertas": [
+          "400_500",
+          "500_600",
+          "600_700",
+          "700_800",
+          "800_900",
+          "ate_400"
+        ]
+      }
+    },
+    "case_ids_sha256": "10fba95ea2a4a29aa45feeae00e3163d2e6665681bd4455a9674e90315e68921"
+  },
+  "published_proofs": [
+    "2009,CH,72",
+    "2011,LC,126",
+    "2011,LC,128",
+    "2016,MT,367"
+  ],
+  "published_catalogo_sha256": "167255ae2e5729b2f8abc542308d83808a71cc84cae9c51cfc1b08c68ae9067d",
+  "fixture_sha256": "531ddf9ac6c469d95f573ed347971d2a8ed6f84ac0243b64b2fa4e2aa0ad2d61",
+  "primary_manifest_sha256": "50ec56aedb7d24f7a971bc0a1ccddd110451d7e065ca49f0bcf7f7b1402f741e",
+  "primary_fixture_sha256": "a7f3ca8ad6c0ca4053c0661c5d9ef7aaa4bcea466cba8e73d54cd097aea568ac",
+  "secondary_fixture_sha256": "4db1c5c75874bc0557d38a7506e7d793c7a614760dff4bb5d5f4e5f988fa0f51",
+  "frozen_models": {
+    "2009,CH,72": {
+      "transformacao": {
+        "tipo": "linear",
+        "slope": 112.30945225469122,
+        "intercept": 501.48777969259396,
+        "complexidade": 2
+      },
+      "reconstrucao_itens": {
+        "quadratura": "grade_41",
+        "origem": "gabarito_2009_CH_72_restaurado",
+        "itens": [
+          {
+            "a": 2.21264,
+            "b": 0.49351,
+            "c": 0.16385,
+            "abandonado": false,
+            "gabarito": "B",
+            "co_item": 58938
+          },
+          {
+            "a": 1.17622,
+            "b": 0.63214,
+            "c": 0.20609,
+            "abandonado": false,
+            "gabarito": "C",
+            "co_item": 58251
+          },
+          {
+            "a": 1.22035,
+            "b": -0.26715,
+            "c": 0.149,
+            "abandonado": false,
+            "gabarito": "C",
+            "co_item": 58068
+          },
+          {
+            "a": 1.47937,
+            "b": 0.65363,
+            "c": 0.14448,
+            "abandonado": false,
+            "gabarito": "C",
+            "co_item": 58744
+          },
+          {
+            "a": 1.84502,
+            "b": 0.34592,
+            "c": 0.22276,
+            "abandonado": false,
+            "gabarito": "D",
+            "co_item": 58942
+          },
+          {
+            "a": 1.24302,
+            "b": 0.05463,
+            "c": 0.14673,
+            "abandonado": false,
+            "gabarito": "D",
+            "co_item": 58534
+          },
+          {
+            "a": 1.31967,
+            "b": -0.12117,
+            "c": 0.20178,
+            "abandonado": false,
+            "gabarito": "B",
+            "co_item": 59197
+          },
+          {
+            "a": 2.56547,
+            "b": 0.55481,
+            "c": 0.2194,
+            "abandonado": false,
+            "gabarito": "E",
+            "co_item": 58087
+          },
+          {
+            "a": 1.51926,
+            "b": 0.34501,
+            "c": 0.12704,
+            "abandonado": false,
+            "gabarito": "A",
+            "co_item": 58245
+          },
+          {
+            "a": 2.10707,
+            "b": 0.35351,
+            "c": 0.2347,
+            "abandonado": false,
+            "gabarito": "C",
+            "co_item": 58530
+          },
+          {
+            "a": 1.21317,
+            "b": 1.3403,
+            "c": 0.15623,
+            "abandonado": false,
+            "gabarito": "C",
+            "co_item": 58527
+          },
+          {
+            "a": 1.60076,
+            "b": 0.00932,
+            "c": 0.12395,
+            "abandonado": false,
+            "gabarito": "A",
+            "co_item": 58759
+          },
+          {
+            "a": 2.00853,
+            "b": 0.47951,
+            "c": 0.30938,
+            "abandonado": false,
+            "gabarito": "E",
+            "co_item": 58715
+          },
+          {
+            "a": 1.31405,
+            "b": 0.18227,
+            "c": 0.07888,
+            "abandonado": false,
+            "gabarito": "A",
+            "co_item": 58760
+          },
+          {
+            "a": 2.51547,
+            "b": 0.60177,
+            "c": 0.23343,
+            "abandonado": false,
+            "gabarito": "D",
+            "co_item": 58100
+          },
+          {
+            "a": 1.50206,
+            "b": 1.22002,
+            "c": 0.16136,
+            "abandonado": false,
+            "gabarito": "B",
+            "co_item": 58273
+          },
+          {
+            "a": 1.75425,
+            "b": 1.48017,
+            "c": 0.20371,
+            "abandonado": false,
+            "gabarito": "C",
+            "co_item": 58276
+          },
+          {
+            "a": 1.42754,
+            "b": 1.60842,
+            "c": 0.22691,
+            "abandonado": false,
+            "gabarito": "A",
+            "co_item": 58542
+          },
+          {
+            "a": 1.95672,
+            "b": 0.25621,
+            "c": 0.17348,
+            "abandonado": false,
+            "gabarito": "A",
+            "co_item": 58271
+          },
+          {
+            "a": 3.44534,
+            "b": 0.19578,
+            "c": 0.20954,
+            "abandonado": false,
+            "gabarito": "C",
+            "co_item": 58284
+          },
+          {
+            "a": 3.34114,
+            "b": 0.19387,
+            "c": 0.2074,
+            "abandonado": false,
+            "gabarito": "E",
+            "co_item": 58119
+          },
+          {
+            "a": 1.51642,
+            "b": 0.89389,
+            "c": 0.1116,
+            "abandonado": false,
+            "gabarito": "E",
+            "co_item": 58246
+          },
+          {
+            "a": 0.70664,
+            "b": 1.24735,
+            "c": 0.15002,
+            "abandonado": false,
+            "gabarito": "B",
+            "co_item": 58061
+          },
+          {
+            "a": 2.49971,
+            "b": 1.36519,
+            "c": 0.1296,
+            "abandonado": false,
+            "gabarito": "D",
+            "co_item": 58893
+          },
+          {
+            "a": 1.19559,
+            "b": 1.44481,
+            "c": 0.20943,
+            "abandonado": false,
+            "gabarito": "C",
+            "co_item": 58719
+          },
+          {
+            "a": 2.175,
+            "b": 1.10388,
+            "c": 0.1833,
+            "abandonado": false,
+            "gabarito": "D",
+            "co_item": 58970
+          },
+          {
+            "a": 1.83652,
+            "b": 1.5799,
+            "c": 0.162,
+            "abandonado": false,
+            "gabarito": "D",
+            "co_item": 57820
+          },
+          {
+            "a": 1.30538,
+            "b": 1.54158,
+            "c": 0.14049,
+            "abandonado": false,
+            "gabarito": "D",
+            "co_item": 58717
+          },
+          {
+            "a": 2.10289,
+            "b": 0.92426,
+            "c": 0.21213,
+            "abandonado": false,
+            "gabarito": "C",
+            "co_item": 57767
+          },
+          {
+            "a": 1.12725,
+            "b": 0.85157,
+            "c": 0.17454,
+            "abandonado": false,
+            "gabarito": "B",
+            "co_item": 58935
+          },
+          {
+            "a": 1.30149,
+            "b": 0.90306,
+            "c": 0.14871,
+            "abandonado": false,
+            "gabarito": "D",
+            "co_item": 58109
+          },
+          {
+            "a": 2.2234,
+            "b": 1.30763,
+            "c": 0.10989,
+            "abandonado": false,
+            "gabarito": "E",
+            "co_item": 58902
+          },
+          {
+            "a": 2.70795,
+            "b": 2.03813,
+            "c": 0.18765,
+            "abandonado": false,
+            "gabarito": "A",
+            "co_item": 58871
+          },
+          {
+            "a": 1.2184,
+            "b": 1.86605,
+            "c": 0.12589,
+            "abandonado": false,
+            "gabarito": "D",
+            "co_item": 58300
+          },
+          {
+            "a": 1.87162,
+            "b": 1.98225,
+            "c": 0.17273,
+            "abandonado": false,
+            "gabarito": "D",
+            "co_item": 60080
+          },
+          {
+            "a": 2.17144,
+            "b": 1.01514,
+            "c": 0.15421,
+            "abandonado": false,
+            "gabarito": "A",
+            "co_item": 58086
+          },
+          {
+            "a": 2.04623,
+            "b": 1.41682,
+            "c": 0.13358,
+            "abandonado": false,
+            "gabarito": "D",
+            "co_item": 57759
+          },
+          {
+            "a": 3.0483,
+            "b": 2.15615,
+            "c": 0.12306,
+            "abandonado": false,
+            "gabarito": "E",
+            "co_item": 58875
+          },
+          {
+            "a": 1.82041,
+            "b": 2.26986,
+            "c": 0.20371,
+            "abandonado": false,
+            "gabarito": "C",
+            "co_item": 58761
+          },
+          {
+            "a": 1.67318,
+            "b": 3.38972,
+            "c": 0.21839,
+            "abandonado": false,
+            "gabarito": "D",
+            "co_item": 58876
+          },
+          {
+            "a": 1.59729,
+            "b": 2.46153,
+            "c": 0.19037,
+            "abandonado": false,
+            "gabarito": "D",
+            "co_item": 58288
+          },
+          {
+            "a": 1.21526,
+            "b": 1.90971,
+            "c": 0.17363,
+            "abandonado": false,
+            "gabarito": "D",
+            "co_item": 57804
+          },
+          {
+            "a": 1.6573,
+            "b": 1.40928,
+            "c": 0.16859,
+            "abandonado": false,
+            "gabarito": "B",
+            "co_item": 58531
+          },
+          {
+            "a": 1.22521,
+            "b": 2.63831,
+            "c": 0.17959,
+            "abandonado": false,
+            "gabarito": "E",
+            "co_item": 58772
+          },
+          {
+            "a": 1.406,
+            "b": 2.50315,
+            "c": 0.18312,
+            "abandonado": false,
+            "gabarito": "E",
+            "co_item": 58896
+          }
+        ],
+        "inferencia": {
+          "n_treino": 322,
+          "n_selecao": 97,
+          "correcao_posicao": 18,
+          "letra_fonte": "B",
+          "letra_inferida": "A"
+        }
+      },
+      "slope": 112.30945225469122,
+      "intercept": 501.48777969259396
+    },
+    "2011,LC,126": {
+      "transformacao": {
+        "tipo": "linear",
+        "slope": 108.08829603826108,
+        "intercept": 499.97726581295836,
+        "complexidade": 2,
+        "experimento": {
+          "tipo": "afim_robusta",
+          "escala_residuo": 0.1,
+          "convergiu": true
+        }
+      },
+      "reconstrucao_itens": {
+        "quadratura": "grade_41",
+        "origem": "posterior_finito_confirmado"
+      },
+      "slope": 108.08829603826108,
+      "intercept": 499.97726581295836
+    },
+    "2011,LC,128": {
+      "transformacao": {
+        "tipo": "linear",
+        "slope": 108.08705602173283,
+        "intercept": 499.9762731990377,
+        "complexidade": 2,
+        "experimento": {
+          "tipo": "afim_robusta",
+          "escala_residuo": 0.1,
+          "convergiu": true
+        }
+      },
+      "reconstrucao_itens": {
+        "quadratura": "grade_41",
+        "origem": "posterior_finito_confirmado"
+      },
+      "slope": 108.08705602173283,
+      "intercept": 499.9762731990377
+    },
+    "2016,MT,367": {
+      "transformacao": {
+        "tipo": "monotonica_linear",
+        "slope": 129.646650776758,
+        "intercept": 500.0187493397918,
+        "complexidade": 5,
+        "theta_knots": [
+          -1.392589987293277,
+          -1.3925867274684205,
+          -1.3923903799923978,
+          3.5681208943520817,
+          3.6365792030431123
+        ],
+        "score_knots": [
+          319.5,
+          319.5,
+          319.5,
+          962.6136728591096,
+          978.4265019423128
+        ],
+        "experimento": {
+          "tipo": "interior_afim_extremos_vigentes",
+          "limites_internos": [
+            -1.3925867274684205,
+            3.5681208943520817
+          ],
+          "notas_extremas_ajustadas": false,
+          "interior_limitado_a_extremos": true,
+          "transformacao_interna": {
+            "tipo": "linear",
+            "slope": 129.646650776758,
+            "intercept": 500.0187493397918,
+            "complexidade": 2
+          },
+          "transformacao_extremos": {
+            "tipo": "monotonica_linear",
+            "slope": 129.646650776758,
+            "intercept": 500.0187493397918,
+            "theta_knots": [
+              -1.392589987293277,
+              -0.751822290458444,
+              0.8308522859574508,
+              2.3416167954491147,
+              3.4197243840085383
+            ],
+            "score_knots": [
+              319.5,
+              402.55,
+              607.7,
+              803.6,
+              949.15
+            ],
+            "n_nos_solicitados": 5
+          }
+        }
+      },
+      "reconstrucao_itens": {
+        "quadratura": "grade_41",
+        "origem": "grade_41"
+      },
+      "slope": 129.646650776758,
+      "intercept": 500.0187493397918
+    }
+  },
+  "historical_comparison": {
+    "models_location": "resultados/investigacao/modelos_anteriores_confirmacao_residual.json",
+    "models_sha256": "0a0b49af59560190dc670dca35fc5370f58ee32232592dfda3060e08a38b6022",
+    "suite_models": "current_only"
+  },
+  "current_catalogo_sha256": "22fe4e26ece072471d25cfb1efa583c9c053c5373dec1c5c85fa6fcf7fe7b535"
+}

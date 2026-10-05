@@ -12,6 +12,7 @@ from typing import Dict, List
 from tri_enem import MapeadorProvas, normalizar_posicoes_resultados
 from tri_enem.formatacao import formatar_numero
 from tri_enem.precisao import formatar_aviso_curto as _formatar_aviso_curto_tri
+from tri_enem.precisao import formatar_desempenho_tipico
 
 from ..config import AREAS_ENEM
 from .graficos import grafico_impacto, grade_questoes
@@ -240,10 +241,14 @@ def exibir_aviso_acuracia(resultado: Dict):
 
     with st.expander("Mais detalhes sobre a precisão", expanded=False):
         if n_validacao:
-            st.caption(f"Validada em {n_validacao} resultados oficiais.")
+            diagnostico = resultado.get('origem_metricas') == 'diagnostico_calibracao'
+            tipico = resultado.get('desempenho_tipico')
+            exploratoria = isinstance(tipico, dict) and tipico.get('independente') is False
+            verbo = "Observada" if diagnostico or exploratoria else "Validada"
+            st.caption(f"{verbo} em {n_validacao} resultados oficiais.")
             c1, c2, c3, c4 = st.columns(4)
             c1.metric("Resultados oficiais", f"{n_validacao}")
-            c1.caption("usados na validação")
+            c1.caption("observados no ajuste" if diagnostico else "resultados examinados" if exploratoria else "usados na validação")
 
             mae_str = f"{formatar_numero(mae, 2)} pts" if mae is not None else "—"
             c2.metric("Erro absoluto médio", mae_str)
@@ -268,6 +273,9 @@ def exibir_aviso_acuracia(resultado: Dict):
                 info_items.append(f"Ajuste TRI: {modelo}")
             info_items.append("Microdados oficiais do INEP")
             st.caption(" · ".join(info_items))
+            explicacao = formatar_desempenho_tipico(tipico)
+            if explicacao:
+                st.caption(explicacao)
         else:
             if status == 'sem_participantes':
                 st.caption("Prova sem participantes suficientes nos microdados do INEP. Aplicado ajuste médio.")

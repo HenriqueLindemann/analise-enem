@@ -24,7 +24,7 @@ from tri_enem import (  # noqa: E402
     MapeadorProvas,
     aplicar_transformacao,
 )
-from tri_enem.calibracao_modelos import classificar_validacao  # noqa: E402
+from tri_enem.calibracao_modelos import classificar_validacao, evidencia_adicional_mais_adversa  # noqa: E402
 
 ITEM_MANIFEST = ROOT / "src" / "tri_enem" / "data" / "itens" / "manifest.json"
 HOLDOUT_FIELDS = {
@@ -173,7 +173,10 @@ def validar(
         )
         grupos[chave].append(caso)
 
-    calc = CalculadorTRI()
+    calc = CalculadorTRI(reconstrucoes={
+        key: info["reconstrucao_itens"] for key, info in catalogo["por_prova"].items()
+        if "reconstrucao_itens" in info
+    })
     erros_por_prova = defaultdict(list)
     faixas_por_prova = defaultdict(list)
     for (ano, area, prova, lingua), grupo in sorted(grupos.items()):
@@ -236,7 +239,8 @@ def validar(
             "faixas_cobertas": sorted(set(faixas_por_prova[chave])),
         }
         esperado, _ = classificar_validacao(
-            metricas_status, validacao.get("faixas_existentes", [])
+            metricas_status, validacao.get("faixas_existentes", []),
+            evidencia_adicional_mais_adversa(info),
         )
         if esperado != status:
             falhas.append(f"{chave}: status={status}, esperado={esperado}")

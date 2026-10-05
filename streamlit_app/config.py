@@ -120,13 +120,15 @@ O cálculo é uma **estimativa por Teoria de Resposta ao Item (TRI)**,
 verificada contra notas oficiais dos microdados do INEP.
 
 **Características:**
-- Modelo Logístico de 3 Parâmetros (ML3)
+- Modelo Logístico de 3 Parâmetros (ML3) com os parâmetros publicados pelo INEP
 - Estimação EAP (Expected a Posteriori)
-- Coeficientes de equalização calibrados
+- Conversão para a escala do ENEM ajustada por prova, pelo menor erro médio
 
 **Validação:**
-- Cada prova é conferida em holdout de participantes reais
-- A interface mostra erro médio e maior diferença observada
+- As provas com participantes nos microdados são conferidas com notas
+  oficiais que não foram usadas no ajuste
+- A interface mostra o erro médio e a maior diferença observada
+- Provas com poucos resultados para conferir são indicadas como estimativa
 
 Consulte o [relatório técnico]({APP_VALIDATION_REPORT_URL}) completo, com métricas e erros por prova
 """

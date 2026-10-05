@@ -4,7 +4,7 @@
 Calculadora Nota TRI ENEM - Módulo Principal de Cálculo
 
 Implementa o modelo logístico de 3 parâmetros (ML3) com estimação bayesiana
-Expected a Posteriori (EAP) sobre quadratura de Gauss-Hermite.
+Expected a Posteriori (EAP), com a quadratura definida por prova no catálogo.
 
 A documentação a seguir registra as decisões que não decorrem do modelo TRI
 padrão e que foram estabelecidas empiricamente por comparação com notas
@@ -14,15 +14,16 @@ Método
 ------
 - Modelo ML3: P(acerto|θ) = c + (1 - c) / (1 + exp(-D·a·(θ - b)))
 - Fator de escala D = 1.0 (e não 1.7, como é usual na literatura)
-- Prior N(0, 1); estimação EAP com 80 pontos de quadratura
+- Prior normal: Gauss-Hermite de 80 pontos ou grade de 41 pontos em [-4, 4]
+- Correções de associação, gabarito e exclusão de itens vêm do catálogo
+  (``reconstrucao_itens``); os CSVs oficiais não são alterados
 - Itens anulados são excluídos da verossimilhança, não contados como erro
 
-Alternativas medidas e descartadas, avaliadas pelo MAE com refit ótimo (que
-isola a qualidade do θ). Não vale retestá-las:
+Alternativas medidas e descartadas:
 
     D = 1.7 em vez de 1.0        pior em todos os casos; 2023-MT vai de 0,09 a 8,79
     relação θ->nota quadrática   não garante monotonicidade nem melhora o holdout
-    200 pontos de quadratura     não altera o resultado
+    GH com 200 pontos            não corrige a diferença de suporte da prior
     anulados contam como acerto  efeito nulo; os parâmetros são NaN
 
 Transformação para a escala ENEM
@@ -65,12 +66,15 @@ prova por erro medido contra notas oficiais.
 
 import numpy as np
 import pandas as pd
+from copy import deepcopy
 from importlib.resources import files
 from pathlib import Path
 from typing import Iterable, Tuple, List, Dict
 from dataclasses import dataclass
 
-from .coeficientes import aplicar_transformacao, obter_transformacao
+from .coeficientes import (
+    aplicar_transformacao, obter_transformacao, obter_reconstrucoes_itens,
+)
 from .posicoes import posicao_caderno as calcular_posicao_caderno
 
 
@@ -85,6 +89,7 @@ class ItemTRI:
     co_item: int
     abandonado: bool = False
     tp_lingua: float | None = None  # 0=inglês, 1=espanhol, NaN=comum
+    metodo_quadratura: str = "gauss_hermite_80"
 
 
 class CalculadorTRI:
@@ -93,7 +98,7 @@ class CalculadorTRI:
     
     Implementação:
     - Modelo Logístico de 3 Parâmetros (ML3)
-    - Estimação EAP com pontos de quadratura gaussiana
+    - Estimação EAP com quadratura registrada no catálogo
     - Prior: N(0, 1) - Normal padrão
     - Transformação de escala calibrada por prova contra notas oficiais
     
@@ -105,16 +110,19 @@ class CalculadorTRI:
     """
     
     D = 1.0  # Fator de escala
-    N_QUADRATURA = 80  # 80 pontos melhora precisão para notas altas
+    N_QUADRATURA = 80  # Gauss-Hermite padrão; a grade alternativa tem 41 pontos.
     
     # Coeficientes carregados de coeficientes.py
     # Ver coeficientes.py para adicionar novos coeficientes
     
-    def __init__(self, itens_path: str = None):
+    def __init__(self, itens_path: str = None, reconstrucoes: Dict | None = None):
         """
         Args:
             itens_path: Caminho externo opcional para a pasta de itens.
                 Quando omitido, usa os parâmetros empacotados com ``tri_enem``.
+            reconstrucoes: Ajustes explícitos por ano/área/prova. None usa o
+                catálogo empacotado; {} carrega somente os CSVs originais.
+                Fontes externas não recebem ajustes do pacote implicitamente.
         """
         self._packaged_base = Path(
             str(files("tri_enem").joinpath("data", "itens"))
@@ -127,6 +135,23 @@ class CalculadorTRI:
         self._cache_df_itens: Dict[str, pd.DataFrame] = {}
         self._mapeador: object | None = None  # Criado sob demanda; ver _ordem_provas.
         self._pontos_quad, self._pesos_quad = self._calcular_quadratura()
+        self.reconstrucoes = (
+            deepcopy(reconstrucoes) if reconstrucoes is not None
+            else obter_reconstrucoes_itens() if itens_path is None else {}
+        )
+        self._usar_ancoras_catalogo = reconstrucoes is None and itens_path is None
+        pontos_grade = np.linspace(-4.0, 4.0, 41)
+        self._quadratura_grade = (pontos_grade, np.exp(-pontos_grade ** 2 / 2))
+
+    def _quadratura_itens(self, itens: List[ItemTRI]):
+        metodos = {item.metodo_quadratura for item in itens}
+        if len(metodos) > 1:
+            raise ValueError("Os itens devem usar o mesmo método de quadratura")
+        if metodos == {"grade_41"}:
+            return self._quadratura_grade
+        if metodos - {"gauss_hermite_80"}:
+            raise ValueError(f"Quadratura desconhecida: {metodos}")
+        return self._pontos_quad, self._pesos_quad
     
     def _ordem_provas(self, ano: int) -> List[str]:
         """Ordem das áreas no caderno, com um único mapeador por instância."""
@@ -214,6 +239,9 @@ class CalculadorTRI:
         # Traduzir códigos BAM2 (Segunda Oportunidade) de 2025 para códigos PPL equivalentes
         # que possuem itens definidos no ITENS_PROVA_2025.csv
         co_prova_busca = co_prova
+        reconstrucao = self.reconstrucoes.get(f"{ano},{area},{co_prova}", {})
+        if "por_idioma" in reconstrucao:
+            reconstrucao = reconstrucao["por_idioma"].get(str(tp_lingua), {})
         if ano == 2025:
             TRADUCAO_BAM2 = {
                 # Matemática
@@ -227,6 +255,8 @@ class CalculadorTRI:
             }
             if co_prova in TRADUCAO_BAM2:
                 co_prova_busca = TRADUCAO_BAM2[co_prova]
+
+        co_prova_busca = int(reconstrucao.get("codigo_base", co_prova_busca))
 
         df = self._carregar_df_itens(ano)
 
@@ -284,6 +314,27 @@ class CalculadorTRI:
             itens.append(item)
         
         itens.sort(key=lambda x: x.posicao)
+        ajustes = reconstrucao.get("itens")
+        if ajustes is not None:
+            if len(ajustes) != len(itens):
+                raise ValueError(f"{cache_key}: reconstrução com número de itens inválido")
+            for item, ajuste in zip(itens, ajustes):
+                item.param_a = float(ajuste["a"])
+                item.param_b = float(ajuste["b"])
+                item.param_c = float(ajuste["c"])
+                item.abandonado = bool(ajuste["abandonado"])
+                item.gabarito = ajuste.get("gabarito", item.gabarito)
+                item.co_item = int(ajuste.get("co_item", item.co_item))
+                parametros = (item.param_a, item.param_b, item.param_c)
+                if (not np.all(np.isfinite(parametros)) or item.param_a < 0
+                        or not 0 <= item.param_c <= 1):
+                    raise ValueError(f"{cache_key}: parâmetros reconstruídos inválidos")
+                if not item.abandonado and item.gabarito not in set("ABCDE"):
+                    raise ValueError(f"{cache_key}: gabarito reconstruído inválido")
+        metodo = reconstrucao.get("quadratura", "gauss_hermite_80")
+        for item in itens:
+            item.metodo_quadratura = metodo
+        self._quadratura_itens(itens)
         self._cache_itens[cache_key] = itens
         return itens
     
@@ -321,16 +372,17 @@ class CalculadorTRI:
         
         θ_EAP = Σ(X_k * L_k * W_k) / Σ(L_k * W_k)
         """
+        pontos, pesos = self._quadratura_itens(itens)
         log_L = np.array([
             self.log_verossimilhanca(theta_k, respostas, itens) 
-            for theta_k in self._pontos_quad
+            for theta_k in pontos
         ])
         
         log_L_max = np.max(log_L)
         L = np.exp(log_L - log_L_max)
         
-        numerador = np.sum(self._pontos_quad * L * self._pesos_quad)
-        denominador = np.sum(L * self._pesos_quad)
+        numerador = np.sum(pontos * L * pesos)
+        denominador = np.sum(L * pesos)
         
         return numerador / denominador if denominador > 0 else 0.0
 
@@ -357,6 +409,7 @@ class CalculadorTRI:
         if batch_size <= 0:
             raise ValueError("batch_size deve ser positivo")
 
+        pontos, pesos = self._quadratura_itens(itens)
         ativos = np.asarray([not item.abandonado for item in itens])
         matriz = matriz[:, ativos]
         itens_ativos = [item for item in itens if not item.abandonado]
@@ -365,7 +418,7 @@ class CalculadorTRI:
 
         probabilidades = np.asarray([
             [self.probabilidade_acerto(theta, item) for item in itens_ativos]
-            for theta in self._pontos_quad
+            for theta in pontos
         ])
         probabilidades = np.clip(probabilidades, 1e-15, 1 - 1e-15)
         log_p = np.log(probabilidades)
@@ -377,9 +430,9 @@ class CalculadorTRI:
             bloco = matriz[inicio:fim]
             log_l = bloco @ log_p.T + (1 - bloco) @ log_q.T
             log_l -= np.max(log_l, axis=1, keepdims=True)
-            posterior = np.exp(log_l) * self._pesos_quad
+            posterior = np.exp(log_l) * pesos
             denominador = posterior.sum(axis=1)
-            numerador = posterior @ self._pontos_quad
+            numerador = posterior @ pontos
             resultado[inicio:fim] = np.divide(
                 numerador,
                 denominador,

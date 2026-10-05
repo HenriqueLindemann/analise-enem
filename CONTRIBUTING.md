@@ -21,6 +21,9 @@ O pacote usa layout `src/`; a instalação editável evita ajustes manuais no
 ```bash
 pytest -q
 python tests/validar_holdout.py
+python tests/validar_confirmacao.py
+python tests/validar_confirmacao_residual.py
+python tests/validar_erro_medio.py
 python -m build --wheel
 ```
 
@@ -44,6 +47,9 @@ checkout.
 - Não edite `docs/VALIDATION_REPORT.md` manualmente: ele é validado contra os
   demais artefatos.
 - Microdados brutos e extratos de participantes não devem ser commitados.
+- Método e limites ficam em `docs/SCORE_RECALCULATION.md`. Relatórios de
+  experimentos e notas de pesquisa ficam em `resultados/investigacao/`,
+  evitando novos Markdown redundantes em `docs/`.
 
 Consulte [`tests/README.md`](tests/README.md) e
 [`tools/README.md`](tools/README.md) antes de recalibrar. Esse fluxo requer os

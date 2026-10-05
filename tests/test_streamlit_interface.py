@@ -231,12 +231,13 @@ class TestFluxoCompleto:
             )
 
     @pytest.mark.parametrize("ano,co_prova,tem_alerta", [
-        (2017, 403, True),    # erro_alto: não reproduz a nota oficial
+        (2015, 286, True),    # erro_alto por uma exceção no extremo
+        (2017, 403, False),   # associação reconstruída e validada
         (2023, 1211, False),  # ok
     ])
     def test_prova_nao_confiavel_exibe_alerta(self, exemplos, ano, co_prova,
                                               tem_alerta):
-        """Prova com erro_alto exibe mensagem discreta indicando variação relevante."""
+        """O alerta estrito e a mensagem típica acompanham o catálogo recalibrado."""
         from tri_enem import MapeadorProvas
 
         e = next(x for x in exemplos if x["ano"] == ano and x["area"] == "MT")
@@ -245,7 +246,8 @@ class TestFluxoCompleto:
 
         at = _app_com_respostas({"MT": e["respostas"]})
         at.selectbox[0].set_value(ano)
-        at.run()  # recarrega as cores de 2017 antes de selecionar
+        at.run()
+        at.selectbox(key="tipo_prova").set_value(info.tipo_aplicacao).run()
         next(s for s in at.selectbox if s.key == "cor_MT").set_value(info.cor)
         at.run()
         next(b for b in at.button
@@ -261,10 +263,12 @@ class TestFluxoCompleto:
         assert "p95" not in resumo
         assert "aviso_forte" not in resumo
         if tem_alerta:
-            assert resultado["severidade_precisao"] == "alerta"
+            assert resultado["status_precisao"] == "erro_alto"
+            assert not resultado["confiavel"]
+            assert resultado["severidade_precisao"] == "atencao"
             assert any(
-                "confiabilidade" in m.value.lower()
-                and "limitada" in m.value.lower()
+                "confiável" in m.value.lower()
+                and "maioria" in m.value.lower()
                 for m in at.markdown
             )
         else:
@@ -670,7 +674,7 @@ class TestAvisoAcuracia:
                     "severidade_precisao": "atencao",
                     "aviso_precisao": "x",
                 },
-                "ainda não verificada",
+                "não verificada",
                 "#B45309",
             ),
             (

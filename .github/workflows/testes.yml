@@ -14,6 +14,8 @@ jobs:
   pytest:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    env:
+      OPENBLAS_NUM_THREADS: 1
     strategy:
       fail-fast: false
       matrix:
@@ -40,6 +42,15 @@ jobs:
 
       - name: Validar holdout oficial completo
         run: python tests/validar_holdout.py
+
+      - name: Validar confirmacao independente
+        run: python tests/validar_confirmacao.py
+
+      - name: Validar confirmacao residual pareada
+        run: python tests/validar_confirmacao_residual.py
+
+      - name: Validar erro medio dos modelos atuais
+        run: python tests/validar_erro_medio.py
 
       - name: Construir e instalar o wheel
         run: |

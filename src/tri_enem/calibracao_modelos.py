@@ -169,6 +169,46 @@ def aplicar_modelo(theta: Sequence[float], modelo: Dict[str, Any]) -> np.ndarray
     return pred
 
 
+def ajustar_com_extremos(theta, nota, extremos):
+    """Mantém a reta em todo padrão não extremo e ancora 0/100% de acerto.
+
+    As notas das âncoras vêm exclusivamente do treino, inclusive de cadernos
+    com o mesmo conjunto de curvas. Os limites internos são obtidos enumerando
+    os padrões com um acerto e com um erro, sem consultar notas oficiais.
+    """
+    x, y = np.asarray(theta), np.asarray(nota)
+    pontos = np.asarray(extremos["pontos"], dtype=float)
+    interior = ~np.isclose(x[:, None], pontos[:, 0], rtol=0, atol=1e-10).any(axis=1)
+    modelo = ajustar_linear(x[interior], y[interior])
+    low, high = extremos["limites_internos"]
+    xs = [float(low), float(high)]
+    ys = aplicar_modelo(xs, modelo).tolist()
+    inferiores = [yy for xx, yy in pontos if xx < low - 1e-10]
+    superiores = [yy for xx, yy in pontos if xx > high + 1e-10]
+    if inferiores:
+        ys[0] = max(ys[0], max(inferiores))
+    if superiores:
+        ys[1] = min(ys[1], min(superiores))
+    if ys[1] < ys[0]:
+        raise ValueError("Âncoras incompatíveis com transformação monotônica")
+    # O reajuste pode deslocar a reta em centésimos além de uma âncora de
+    # nota arredondada. Restringe os extremos da reta para manter a ordem.
+    modelo["slope"] = float((ys[1]-ys[0])/(high-low))
+    modelo["intercept"] = float(ys[0]-modelo["slope"]*low)
+    for xx, yy in pontos:
+        if low - 1e-10 <= xx <= high + 1e-10:
+            raise ValueError("Âncora extrema invade padrões não extremos")
+        xs.append(float(xx))
+        ys.append(float(yy))
+    ordem = np.argsort(xs)
+    xs, ys = np.asarray(xs)[ordem], np.asarray(ys)[ordem]
+    if np.any(np.diff(xs) <= 1e-10) or np.any(np.diff(ys) < 0):
+        raise ValueError("Âncoras incompatíveis com transformação monotônica")
+    return {**modelo, "tipo": "monotonica_linear", "theta_knots": xs.tolist(),
+            "score_knots": ys.tolist(), "complexidade": len(xs),
+            "ancoras_extremos": extremos}
+
+
 def metricas_modelo(
     theta: Sequence[float],
     nota: Sequence[float],
@@ -199,27 +239,47 @@ def selecionar_modelo(
     nota_treino: Sequence[float],
     theta_selecao: Sequence[float],
     nota_selecao: Sequence[float],
+    extremos: Dict[str, Any] | None = None,
+    pesos_selecao: Sequence[float] | None = None,
 ) -> Dict[str, Any]:
-    """Seleciona por violações de 2 pontos, máximo, MAE e complexidade."""
+    """Minimiza erro absoluto médio; os máximos determinam os avisos depois.
+
+    Pesos opcionais corrigem a frequência das faixas na amostra estratificada.
+    A política serve ao participante típico, sem omitir exceções das métricas.
+    """
+    if pesos_selecao is not None:
+        pesos_selecao = np.asarray(pesos_selecao, dtype=float)
+        if (pesos_selecao.shape != np.asarray(nota_selecao).shape
+                or not np.isfinite(pesos_selecao).all() or np.any(pesos_selecao <= 0)):
+            raise ValueError("Pesos de seleção inválidos")
     candidatos = [ajustar_linear(theta_treino, nota_treino)]
     for n_nos in NOS_CANDIDATOS:
         try:
             candidatos.append(ajustar_monotonica(theta_treino, nota_treino, n_nos))
         except ValueError:
             continue
+    if extremos and extremos.get("pontos"):
+        try:
+            candidatos.append(ajustar_com_extremos(theta_treino, nota_treino, extremos))
+        except ValueError:
+            pass
 
     avaliados = []
     for modelo in candidatos:
         metricas = metricas_modelo(theta_selecao, nota_selecao, modelo)
-        chave = (
-            metricas["acima_2"],
-            metricas["erro_maximo"],
-            metricas["mae"],
-            modelo["complexidade"],
-        )
+        if pesos_selecao is not None:
+            erros = abs(aplicar_modelo(theta_selecao, modelo) - np.asarray(nota_selecao))
+            metricas["mae_ponderado"] = float(np.average(erros, weights=pesos_selecao))
+        chave = ranking_erro_medio(metricas, modelo["complexidade"])
         avaliados.append((chave, modelo, metricas))
     _, modelo, metricas = min(avaliados, key=lambda item: item[0])
     return {"modelo": modelo, "metricas_selecao": metricas}
+
+
+def ranking_erro_medio(metricas, complexidade=2):
+    """Objetivo comum à seleção de escala e de reconstrução dos itens."""
+    return (metricas.get("mae_ponderado", metricas["mae"]), complexidade,
+            metricas["erro_p95"], metricas["erro_maximo"])
 
 
 def reajustar_modelo(
@@ -227,6 +287,8 @@ def reajustar_modelo(
     theta: Sequence[float],
     nota: Sequence[float],
 ) -> Dict[str, Any]:
+    if "ancoras_extremos" in modelo_selecionado:
+        return ajustar_com_extremos(theta, nota, modelo_selecionado["ancoras_extremos"])
     if modelo_selecionado["tipo"] == "linear":
         return ajustar_linear(theta, nota)
     return ajustar_monotonica(
@@ -243,7 +305,13 @@ def reajustar_modelo(
 def classificar_validacao(
     metricas: Dict[str, Any] | None,
     faixas_existentes: Sequence[str],
+    confirmacao: Dict[str, Any] | None = None,
 ) -> tuple[str, str]:
+    """Status pelo maior erro; a cobertura vem sempre do holdout primário.
+
+    ``confirmacao`` é a amostra adicional mais adversa
+    (ver ``evidencia_adicional_mais_adversa``) e só pode rebaixar o status.
+    """
     if not metricas or metricas.get("n", 0) < 30:
         return "nao_calibrado", "holdout_insuficiente"
     cobertas = set(metricas.get("faixas_cobertas", []))
@@ -251,11 +319,35 @@ def classificar_validacao(
     if len(existentes) < 2 or not existentes.issubset(cobertas):
         return "nao_calibrado", "faixas_incompletas"
 
-    erro = float(metricas["erro_maximo"])
-    if erro <= 2.0 + 1e-12:
-        return "ok", "erro_maximo_ate_2"
-    if erro <= 5.0 + 1e-12:
-        return "aviso_leve", "erro_maximo_ate_5"
-    if erro <= 15.0 + 1e-12:
-        return "aviso_forte", "erro_maximo_ate_15"
-    return "erro_alto", "erro_maximo_acima_15"
+    def classificar_erro(erro):
+        if erro <= 2.0 + 1e-12:
+            return "ok", "erro_maximo_ate_2"
+        if erro <= 5.0 + 1e-12:
+            return "aviso_leve", "erro_maximo_ate_5"
+        if erro <= 15.0 + 1e-12:
+            return "aviso_forte", "erro_maximo_ate_15"
+        return "erro_alto", "erro_maximo_acima_15"
+
+    status, motivo = classificar_erro(float(metricas["erro_maximo"]))
+    if confirmacao and confirmacao.get("n", 0) > 0:
+        ordem = {"ok": 0, "aviso_leve": 1, "aviso_forte": 2, "erro_alto": 3}
+        novo_status, novo_motivo = classificar_erro(float(confirmacao["erro_maximo"]))
+        if ordem[novo_status] > ordem[status]:
+            origem = ("diagnostico_" if confirmacao.get("origem") == "diagnostico_calibracao"
+                      else "confirmacao_")
+            return novo_status, origem + novo_motivo
+    return status, motivo
+
+
+def evidencia_adicional_mais_adversa(info: Dict[str, Any]) -> Dict[str, Any] | None:
+    """Amostra adicional com maior erro máximo, ou None se não houver.
+
+    Confirmações e diagnóstico de treino/seleção só podem piorar o status.
+    O diagnóstico não é teste independente, mas demonstra exceções reais que
+    não devem ser omitidas da confiança apresentada.
+    """
+    candidatas = [info[k] for k in ("validacao_confirmacao", "validacao_residual", "validacao_media",
+                                  "diagnostico_calibracao") if info.get(k)]
+    if not candidatas:
+        return None
+    return max(candidatas, key=lambda m: float(m["erro_maximo"]))

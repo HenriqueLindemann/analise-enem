@@ -4,9 +4,7 @@
 Testes da classificação de confiabilidade por prova.
 
 Verificam o invariante central da apresentação de resultados: uma prova cuja
-nota não é confiável nunca deve ser exibida sem aviso. Anteriormente, 16
-provas com status 'erro_alto' possuíam mensagem nula em
-coeficientes_data.json e eram apresentadas sem qualquer sinalização.
+nota não é confiável nunca deve ser exibida sem aviso.
 """
 
 import json
@@ -184,6 +182,11 @@ class TestClassificacao:
         assert chaves
         for chave in chaves[:200]:
             r = _consultar(chave)
+            if (r.get('desempenho_tipico') or {}).get('independente') is False:
+                assert r['confiavel'] is False
+                assert r['perfil'] == 'sem_validacao'
+                assert r['severidade'] != 'sucesso'
+                continue
             assert "boa calibração" in r["aviso"].lower()
             assert r["confiavel"] is True
             assert r["severidade"] == "sucesso"

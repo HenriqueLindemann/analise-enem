@@ -22,7 +22,8 @@ Exemplo de <a href="meu_simulado.py" target="_blank" rel="noopener noreferrer"><
 ## Como usar
 
 Na <a href="https://notatri.com/" target="_blank" rel="noopener noreferrer">interface web</a>, selecione o ano, a aplicação, a área
-e a cor do caderno. Preencha suas respostas na ordem da prova para calcular a
+e o caderno. As opções incluem atendimento especializado quando há parâmetros
+disponíveis. Preencha suas respostas na ordem da prova para calcular a
 nota e baixar o PDF. Para Linguagens, escolha também inglês ou espanhol.
 
 Consulte as <a href="docs/VALIDATION_REPORT.md" target="_blank" rel="noopener noreferrer">provas disponíveis e sua validação</a>.
@@ -86,7 +87,11 @@ com nome automático. Para calcular apenas no terminal, defina
 O cálculo usa parâmetros publicados pelo INEP e é validado contra notas dos
 microdados oficiais. A precisão varia por prova.
 
-Veja o <a href="docs/SCORE_RECALCULATION.md" target="_blank" rel="noopener noreferrer">método de cálculo</a> (em inglês), as
+A escala de cada prova é escolhida pelo menor erro médio. Provas com poucos
+resultados oficiais para conferência são apresentadas como estimativas, mesmo
+quando o erro observado é baixo.
+
+Veja o <a href="docs/SCORE_RECALCULATION.md" target="_blank" rel="noopener noreferrer">método de cálculo</a>, as
 <a href="docs/VALIDATION_REPORT.md" target="_blank" rel="noopener noreferrer">métricas por prova</a> e
 <a href="relatorios/README.md" target="_blank" rel="noopener noreferrer">como interpretar o relatório</a>.
 
@@ -130,7 +135,8 @@ python -m pytest
 | <a href="streamlit_app/README.md" target="_blank" rel="noopener noreferrer">Interface web</a> | Execução e estrutura do aplicativo |
 | <a href="tests/README.md" target="_blank" rel="noopener noreferrer">Testes</a> | Testes automatizados e validação com microdados |
 | <a href="tools/README.md" target="_blank" rel="noopener noreferrer">Ferramentas</a> | Preparação dos dados e recalibração |
-| <a href="docs/README.md" target="_blank" rel="noopener noreferrer">Documentação técnica</a> | Método e resultados de validação |
+| <a href="docs/SCORE_RECALCULATION.md" target="_blank" rel="noopener noreferrer">Método</a> | Modelo, evidência e limites conhecidos |
+| <a href="docs/VALIDATION_REPORT.md" target="_blank" rel="noopener noreferrer">Validação</a> | Métricas e situação de cada prova, geradas do catálogo |
 
 Sugestões, relatos de problemas e contribuições são bem-vindos. Veja
 <a href="CONTRIBUTING.md" target="_blank" rel="noopener noreferrer">CONTRIBUTING.md</a> para orientações.

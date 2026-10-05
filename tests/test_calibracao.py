@@ -136,4 +136,4 @@ def test_relatorio_combina_resumo_humano_e_metricas_por_prova():
     assert "## Listas de provas por status" in relatorio
     assert "## Detalhamento por prova" in relatorio
     assert "ENEM 2020 · Linguagens · Prova digital · Branca" in relatorio
-    assert "| Status | Perfil | Motivo | Modelo | n | MAE | p95 |" in relatorio
+    assert "| Status | Perfil | Motivo | Modelo | Amostra | n | MAE | p95 |" in relatorio

@@ -47,6 +47,7 @@ streamlit_app/
 ├── app.py              # Aplicação principal (orquestrador)
 ├── config.py           # Configurações centralizadas (SEO, textos, constantes)
 ├── calculador.py       # Wrapper do módulo tri_enem
+├── mapeador.py         # Seletores com cadernos calculáveis, incluindo os especiais
 ├── styles.css          # Estilos CSS externos
 ├── requirements.txt    # Dependências específicas da web
 ├── components/
@@ -72,10 +73,19 @@ O aplicativo inclui otimizações completas para motores de busca e compartilham
 
 ## Funcionalidades
 
-- Cobertura de todas as edições de **2009 a 2025** (todas as áreas e aplicações).
+- Edições de **2009 a 2025**, com seleção de área, aplicação e caderno.
+- **Atendimento especializado**, incluindo Libras e cadernos adaptados com
+  parâmetros disponíveis; cadernos sem itens não aparecem nos seletores.
 - **Estimativa TRI instantânea** com status de validação transparente por prova.
 - **Grade visual de acertos/erros** e ranking de impacto das questões.
 - **Download de relatório PDF** com detalhamento vetorial completo.
+
+O cálculo usa a mesma API e o mesmo catálogo do pacote. A mensagem de
+precisão distingue boa validação, exceções e evidência insuficiente; “Mais
+detalhes sobre a precisão” mostra as métricas e a origem da evidência.
+
+Consulte o [método](../docs/SCORE_RECALCULATION.md) e as
+[métricas por prova](../docs/VALIDATION_REPORT.md).
 
 ## Licença
 

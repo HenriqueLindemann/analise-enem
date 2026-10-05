@@ -1,51 +1,57 @@
 # Ferramentas de desenvolvimento
 
-## Fonte dos itens de prova
+Os scripts desta pasta preparam dados e pesquisam a calibração; a API e a
+interface usam somente o catálogo incluído no pacote. O
+[método](../docs/SCORE_RECALCULATION.md) descreve o modelo, a evidência e os
+limites conhecidos.
 
-Os parâmetros versionados têm uma única localização:
+Instale as dependências de desenvolvimento (inclui SciPy). Os microdados
+originais são apenas lidos. Defina `OPENBLAS_NUM_THREADS=1` ao usar
+`--workers`, para não multiplicar threads entre processos.
 
-```text
-src/tri_enem/data/itens/<ano>/ITENS_PROVA_<ano>.csv
-```
+## Itens e recalibração
 
-O gerador reproduzível lê diretamente a estrutura oficial extraída do INEP:
-
-```bash
-python tools/gerar_dados_itens.py \
-  --microdados-dir /caminho/MICRODADOS_ENEM
-```
-
-Ele exige os 17 anos, valida colunas e áreas, normaliza os CSVs para UTF-8 com
-separador `;` e publica tudo somente após validar o conjunto completo. O
-`manifest.json` gerado registra caminho relativo, contagens e hashes SHA-256
-da fonte e da saída.
-
-## Recalibração oficial
-
-O fluxo de publicação lê diretamente a estrutura de download do INEP:
+O gerador de itens exige 2009–2025, valida os dados e publica os CSVs
+normalizados com um manifesto SHA-256:
 
 ```bash
-python tools/recalibrar_validacao.py \
-  --microdados-dir /caminho/MICRODADOS_ENEM \
-  --workers 3
+python tools/gerar_dados_itens.py --microdados-dir /caminho/MICRODADOS_ENEM
 ```
 
-Ele:
+Para reajustar as escalas mantendo as reconstruções e âncoras do catálogo:
 
-1. cobre cada prova mapeada e cada idioma disponível;
-2. amostra deterministicamente todas as faixas, inclusive notas acima de 1000;
-3. separa calibração, seleção e holdout;
-4. compara modelos lineares e monotônicos;
-5. publica catálogo, fixture, manifesto e relatório somente após validar todas
-   as invariantes.
-
-Saídas:
-
-```text
-src/tri_enem/coeficientes_data.json
-tests/fixtures/validation_holdout.jsonl.gz
-tests/fixtures/validation_manifest.json
-docs/VALIDATION_REPORT.md
+```bash
+OPENBLAS_NUM_THREADS=1 python tools/recalibrar_validacao.py \
+  --microdados-dir /caminho/MICRODADOS_ENEM --workers 3
 ```
 
-Use `python tests/validar_holdout.py` para recalcular a fixture publicada.
+O comando cobre as provas mapeadas, separa treino, seleção e holdout,
+escolhe pelo MAE ponderado e só publica catálogo, fixture primária, manifesto
+e `docs/VALIDATION_REPORT.md` depois de validar as invariantes.
+`--nao-publicar` permite inspecionar os candidatos.
+
+Para pesquisar também associações de itens, gabaritos e quadratura:
+
+```bash
+OPENBLAS_NUM_THREADS=1 python tools/fechar_gap_validacao.py \
+  --microdados-dir /caminho/MICRODADOS_ENEM --workers 3 --nao-publicar
+```
+
+Depois de mudar modelos, regenere `tests/fixtures/golden_notas.json` e
+reavalie as confirmações (veja [tests/README.md](../tests/README.md)).
+Atualizar apenas hashes não valida um cálculo novo.
+
+## Mudanças de modelo
+
+Um modelo novo é escolhido em treino/seleção e congelado antes de ser
+avaliado. A confirmação usa casos novos, amostrados depois de excluir todos
+os anteriores (`amostrar_microdados(..., excluir_case_ids=...)`); uma amostra
+já examinada é apenas exploratória. Ao incorporar, as métricas são
+recalculadas nos mesmos casos, sem reajuste, e a nova fixture passa a ser
+conferida por um validador em `tests/`.
+
+`gerar_imagem_readme.py` gera a imagem de exemplo do README.
+
+Caches e resultados de pesquisa ficam em `resultados/investigacao/`, ignorado
+pelo Git. A documentação versionada fica restrita ao método e ao relatório
+gerado.

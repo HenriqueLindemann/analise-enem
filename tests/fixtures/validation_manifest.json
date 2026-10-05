@@ -1,8 +1,8 @@
 {
   "schema_version": 3,
-  "algorithm_version": "stratified-v3.1",
-  "generated_at": "2026-09-17T18:39:58+00:00",
-  "git_commit": "5d4970e59c2b536f6fd96837cb9bed9a8f821f86",
+  "algorithm_version": "item-association-v1",
+  "generated_at": "2026-10-04T23:12:08+00:00",
+  "git_commit": "3466eabbba457f1a7ddcc0dba3a3c2119861a600",
   "hash_key": "enem-tri-v3",
   "seed": "enem-tri-v3",
   "score_bands": [
@@ -22,7 +22,8 @@
       "treino": 100,
       "selecao": 30,
       "holdout": 30
-    }
+    },
+    "identity_algorithm": "pandas-null-object-v1"
   },
   "sources": [
     {
@@ -115,11 +116,11 @@
     "mapped_proofs": 762,
     "holdout_cases": 101552,
     "status": {
-      "aviso_forte": 78,
-      "aviso_leve": 98,
-      "erro_alto": 76,
+      "aviso_forte": 31,
+      "aviso_leve": 3,
+      "erro_alto": 11,
       "nao_calibrado": 26,
-      "ok": 372,
+      "ok": 579,
       "sem_itens": 12,
       "sem_participantes": 100
     },
@@ -40147,5 +40148,98 @@
       "2025,MT,1611": 78,
       "2025,MT,1633": 487
     }
+  },
+  "research": {
+    "estimator_selection": "treino_e_selecao",
+    "holdout_used_for_fitting": false,
+    "runtime": {
+      "python": "3.13.15",
+      "numpy": "2.5.3",
+      "pandas": "3.0.6",
+      "scipy": "1.18.1"
+    },
+    "code_sha256": {
+      "tools/fechar_gap_validacao.py": "efa4974f257bfc92de37f8ddf18f11ac1fb89bd83270d4255dc543fe08c86b22",
+      "tools/reconstruir_associacao_itens.py": "b6b990bf0064b3a7c17ae3f39807f91d819924b9758543a84691ee041259cd80",
+      "tools/recalibrar_validacao.py": "6a6a3847715ca016fafc7bf35881ac78cd3e5dc901da6fc6e861a49ce91ef9f7",
+      "src/tri_enem/calculador.py": "4905ab5a3abca3493ce0a9ca59c1bf1d09f54449f489ef310f721d482f7dd34f",
+      "src/tri_enem/calibracao_modelos.py": "78299e019f01ae607b12acd757f9a93f7098187dd82ecb6863b5f7a7c9854ecf",
+      "src/tri_enem/precisao.py": "1bbaec213173aad547f50ba1f4c9d8079f29a65d22538b7d78b3cd46d83933ec"
+    }
+  },
+  "confirmation_audit": {
+    "cases": 113922,
+    "overlapping_cases": 0,
+    "models_refitted": false,
+    "downgraded_proofs": {
+      "2011,CN,122": {
+        "before": "ok",
+        "after": "aviso_forte"
+      },
+      "2011,MT,131": {
+        "before": "ok",
+        "after": "aviso_forte"
+      },
+      "2011,MT,132": {
+        "before": "ok",
+        "after": "aviso_forte"
+      },
+      "2015,CN,277": {
+        "before": "ok",
+        "after": "erro_alto"
+      }
+    }
+  },
+  "residual_repair": {
+    "proofs": [
+      "2009,CH,72",
+      "2011,LC,126",
+      "2011,LC,128",
+      "2016,MT,367"
+    ],
+    "models_refitted_during_validation": false,
+    "independent_confirmation_cases": 1144,
+    "excluded_previous_cases": 645401,
+    "overlapping_cases": 0,
+    "frozen_models_sha256": "a23b476b36bd0bfe2c5adc8df4c29e2ef039373545b4b7d3121dbb533ba0ed00",
+    "code_sha256": {
+      "tools/experimentos_posterior.py": "5ed7b1c1aa5aeb68e9bf2087a705dbc57b6d35d2c07745dccc586bd3a9a7952e",
+      "tools/testar_reparos_residuais.py": "839935b6a501fe80bb8044ce79656c2ba03c49c5ddfda4cf08d870fae9b00db9",
+      "tools/confirmar_reparos_residuais.py": "e8d45e43c5a4cfc02637c3ad6a5371e7d297328d45249e3179d535546d3126d2",
+      "tools/publicar_reparos_residuais.py": "87e5becebe4e27310b276536585f79884c5c44704e1053ddcb8bf99f1f7d16f7"
+    }
+  },
+  "mean_error_repair": {
+    "published_proofs": [
+      "2010,CN,105",
+      "2011,MT,129",
+      "2012,CH,154",
+      "2012,CN,153",
+      "2016,CN,332",
+      "2017,LC,441",
+      "2018,CH,452",
+      "2018,MT,462",
+      "2019,MT,516",
+      "2021,LC,896",
+      "2025,CN,1483",
+      "2025,CN,1484",
+      "2025,CN,1485",
+      "2025,MT,1611"
+    ],
+    "frozen_sha256": "970412a1cda3ec16456e5d251d07f8317e1067d203caab10c5c32cdffa595dc8",
+    "confirmation_sha256": "53f29cce09d90ae6b203fa5b9a063640240065a972e1d308b0393508874f602d",
+    "excluded_previous_cases": 646545,
+    "independent_cases": 4513,
+    "overlapping_cases": 0,
+    "models_refitted": false,
+    "census_exhausted": [
+      "2012,CH,154",
+      "2012,CN,153",
+      "2016,CN,332",
+      "2017,LC,441",
+      "2021,LC,896",
+      "2025,MT,1611"
+    ],
+    "objective": "mae_ponderado_por_frequencia_de_faixa_idioma"
   }
 }

@@ -3,6 +3,16 @@
 Este é o módulo principal para cálculo de notas do ENEM usando TRI. Os
 parâmetros dos itens e o catálogo de transformação são incluídos no pacote.
 
+O catálogo também registra, por prova, correções de associação entre curvas
+e posições, gabaritos, exclusões e quadratura, validadas contra participantes
+reais; os CSVs oficiais não são alterados. `CalculadorTRI(reconstrucoes={})`
+calcula com a interpretação direta dos CSVs, e itens externos em
+`itens_path` não recebem essas correções implicitamente.
+
+`verificar_precisao_prova()` informa status, métricas e `confiavel`. Este só
+é `True` com status `ok` e evidência em casos não usados na pesquisa. Veja o
+[método](../../docs/SCORE_RECALCULATION.md#precisão-na-api-e-na-interface).
+
 ## Arquivos
 
 | Arquivo | Descrição |
@@ -37,6 +47,20 @@ print(f"Nota: {resultado.nota:.1f}")
 ```
 
 > **Nota:** Também é possível informar `co_prova` diretamente. Para LC, informe `lingua='ingles'` ou `lingua='espanhol'`.
+
+Para consultar a precisão do resultado:
+
+```python
+from tri_enem import verificar_precisao_prova, formatar_resumo_validacao
+
+precisao = verificar_precisao_prova(resultado.ano, resultado.area, resultado.co_prova)
+print(precisao['aviso'])
+print(formatar_resumo_validacao(precisao))
+```
+
+`MapeadorProvas` resolve códigos e nomes de caderno, incluindo os especiais.
+`descrever_cor(cor, masculino=True)` converte nomes internos para a descrição
+de um caderno, por exemplo `roxa_videoprova_libras` → “roxo videoprova em Libras”.
 
 ## Regras de Numeração e Integração
 

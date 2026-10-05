@@ -1,134 +1,86 @@
-# Testes e Validação
+# Testes e validação
 
-Scripts para validar a precisão do cálculo TRI contra os microdados reais do ENEM.
+A suíte e as fixtures verificam o motor e o catálogo atuais sem exigir os
+microdados brutos.
 
-## Início Rápido
+## Verificação offline
 
-```bash
-# Pipeline completo (requer microdados brutos do INEP)
-python tests/run_full_validation.py \
-  --microdados-dir /caminho/para/MICRODADOS_ENEM
-
-# Revalidar catálogo/holdout já publicados sem reler 47 GB
-python tests/run_full_validation.py \
-  --microdados-dir /caminho/para/MICRODADOS_ENEM \
-  --somente-validar
-
-# Catálogo v3 e holdout estratificado (publica artefatos)
-python tools/recalibrar_validacao.py \
-  --microdados-dir /caminho/para/MICRODADOS_ENEM
-
-# Só testes unitários (sem microdados)
-pytest tests/ -v
-```
-
-O `--microdados-dir` aceita tanto a estrutura do projeto (`YYYY/MICRODADOS_ENEM_YYYY.csv`)
-quanto a estrutura de download do INEP (`microdados_enem_YYYY/DADOS/RESULTADOS_YYYY.csv`).
-
-## Arquivos
-
-| Arquivo | Descrição |
-|---------|-----------|
-| `run_full_validation.py` | Pipeline canônico: itens, recalibração, holdout e pytest |
-| `gerar_exemplos_microdados.py` | Extrai até N exemplos por CO_PROVA dos microdados brutos |
-| `validar_exemplos_microdados.py` | Compara notas calculadas vs oficiais; MAE por prova e global |
-| `validar_holdout.py` | Recalcula o holdout e confere catálogo, manifesto e relatório |
-| `test_calculador.py` | Motor TRI: regressão (golden), coerência CLI × web e propriedades do modelo |
-| `test_calibracao.py` | Ajuste monotônico, amostragem estratificada e geração do relatório |
-| `test_e2e_usuario.py` | Coerência ponta a ponta das três interfaces em 2009-2025 |
-| `test_streamlit_interface.py` | App Streamlit, gráficos, entrada e PDF |
-| `test_relatorios_casos.py` | Casos funcionais e estruturais do relatório PDF A4 |
-| `test_questoes_anuladas.py` | Anulações, numeração canônica e adaptadores |
-| `test_itens_empacotados.py` | Integridade dos 17 CSVs incluídos no pacote |
-| `test_precisao.py` | Classificação de confiabilidade e invariantes dos avisos |
-| `test_mapeador_provas.py` | Testes unitários do mapeamento de códigos de prova |
-| `test_simulador.py` | Seleção explícita da prova na interface simplificada |
-| `test_validadores_cli.py` | Códigos de saída e falha fechada dos validadores |
-| `test_utils.py` | Testes unitários de `_utils.py` |
-| `smoke_instalacao.py` | Testa o wheel instalado fora do repositório |
-| `_utils.py` | Funções compartilhadas entre os scripts |
-| `conftest.py` | Configuração pytest |
-
-## Pré-requisitos
-
-- Microdados brutos do INEP — arquivos originais por ano (para gerar exemplos)
-- `src/tri_enem/data/itens/` — parâmetros de itens usados no cálculo e no wheel
-- `src/tri_enem/mapeamento_provas.yaml` — mapeamento de códigos
-
-Os microdados brutos do INEP estão disponíveis em
-<https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/microdados/enem>.
-
-## Saídas
-
-| Arquivo | Commitado | Descrição |
-|---------|-----------|-----------|
-| `fixtures/exemplos_microdados.json` | Sim | Exemplos extraídos dos microdados (10 por CO_PROVA) |
-| `fixtures/validation_holdout.jsonl.gz` | Sim | Holdout estratificado sem identificadores pessoais |
-| `fixtures/validation_manifest.json` | Sim | Origem, hashes, cobertura e versão da amostragem |
-| `fixtures/golden_notas.json` | Sim | Valores de referência de nota e theta usados na regressão |
-| `../docs/VALIDATION_REPORT.md` | Sim | Relatório gerado do mesmo catálogo e manifesto do holdout |
-
-Os arquivos commitados em `fixtures/` permitem rodar `pytest` e consultar o
-mapeamento de provas sem precisar dos microdados brutos do INEP.
-
-Os testes do núcleo de anulações rodam somente com as dependências CLI. Os
-testes de Streamlit, Plotly e PDF são marcados como opcionais e são pulados
-individualmente quando o respectivo extra não está instalado.
-
-## Pipeline Completo
-
-O pipeline de publicação é `tools/recalibrar_validacao.py`. Ele substitui os
-artefatos de forma atômica e deve ser seguido por:
+Na raiz do repositório, com o ambiente de desenvolvimento instalado:
 
 ```bash
+python -m pip install -e ".[web,dev]"
+python -m pytest -q
 python tests/validar_holdout.py
-pytest -q
+python tests/validar_confirmacao.py
+python tests/validar_confirmacao_residual.py
+python tests/validar_erro_medio.py
 ```
 
-```text
-tools/recalibrar_validacao.py
-    ├─► src/tri_enem/coeficientes_data.json
-    ├─► tests/fixtures/validation_holdout.jsonl.gz
-    ├─► tests/fixtures/validation_manifest.json
-    └─► docs/VALIDATION_REPORT.md
-```
+A CI executa essas verificações, constrói o wheel e testa a instalação fora
+do checkout com `smoke_instalacao.py`. Testes que dependem de Streamlit,
+Plotly ou PDF são pulados quando o respectivo extra não está instalado.
 
-## Como o status em runtime é atualizado
+## Evidência reproduzível
 
-A fonte única de verdade é a entrada de cada prova em
-`src/tri_enem/coeficientes_data.json` (schema v3), lida por `precisao.py`.
-Modelo, métricas e status são publicados juntos.
-`tests/validar_holdout.py` recalcula as métricas sem modificar o catálogo.
+Cada validador recalcula as notas das suas fixtures com o código e o catálogo
+atuais e compara com o manifesto e com as métricas publicadas no catálogo.
+Também confere hashes, cobertura e a separação entre as amostras.
 
-## Execução Individual
+| Fixture e manifesto | Casos | Verificação |
+|---|---:|---|
+| `validation_holdout` / `validation_manifest` | 101.552 | Catálogo, cobertura, métricas, status e relatório gerado |
+| `reconstruction_confirmation` | 113.922 | Confirmação secundária, identidades e comparação pareada |
+| `residual_confirmation` | 1.144 | Quatro reparos residuais e congelamento dos modelos |
+| `mean_error_confirmation` | 4.444 novos + 270 exploratórios | Quatorze transformações, métricas ponderadas e origem da evidência |
+
+As respostas ficam em `.jsonl.gz`; os manifestos, em `.json`.
+`golden_notas.json` protege a regressão numérica. `reconstruction_regressions.json`
+contém casos selecionados por causa de erro específica e não substitui as
+avaliações completas.
+
+Com os caches locais de `resultados/investigacao/`, dois validadores
+conferem também a exclusão de todos os casos de desenvolvimento (645.401
+antes da confirmação residual e 646.545 antes da do erro médio):
 
 ```bash
-# Gerar exemplos (10 por prova)
-python tests/gerar_exemplos_microdados.py \
-  --microdados-dir /caminho/para/microdados_inep \
-  --n-max 10
-
-# Validar exemplos auxiliares (somente leitura no schema v3)
-python tests/validar_exemplos_microdados.py \
-  --exemplos tests/fixtures/exemplos_microdados.json
-
-# Testes unitários
-pytest tests/ -v
-
-# Recalcular o holdout publicado
-python tests/validar_holdout.py
+python tests/validar_confirmacao_residual.py --cache-dir resultados/investigacao
+python tests/validar_erro_medio.py --cache-dir resultados/investigacao
 ```
 
-## Resultados Esperados
+## Cobertura da suíte
 
-| Métrica | Esperado |
-|---------|----------|
-| Prova `ok` | erro máximo individual ≤ 2 pontos |
-| Cobertura | todas as provas mapeadas catalogadas |
-| Integridade | nenhum caso pulado sem motivo explícito |
-| Apresentação | confirmação positiva, perfil intermediário ou cautela forte |
+- Motor: notas, theta, monotonicidade, extremos, reconstruções e equivalência
+  escalar/lote; integridade dos itens empacotados de 2009–2025.
+- API e interface: identificação da prova, atendimento especializado, idioma,
+  respostas, numeração das questões, coerência das notas e geração de PDF.
+- Precisão: status, perfil, origem das métricas, falha fechada e mensagens.
+  Modelos sem evidência em casos novos retornam `confiavel=False`, mesmo com
+  status `ok`.
+- Pesquisa: seleção por erro médio, ponderação das faixas, congelamento,
+  separação de casos e detecção de métricas ou modelos adulterados.
 
-O status de cada prova é derivado do maior erro absoluto do holdout e aparece
-na própria entrada da prova no catálogo v3. O perfil intermediário descreve o
-desempenho típico sem alterar o status estrito nem promover a prova a
-`confiavel=True`.
+O [método](../docs/SCORE_RECALCULATION.md) explica os critérios e limitações;
+[VALIDATION_REPORT.md](../docs/VALIDATION_REPORT.md) apresenta as métricas por
+prova. O relatório é gerado e não deve ser editado manualmente.
+
+## Microdados e atualização dos modelos
+
+`run_full_validation.py` prepara os itens e recalibra a partir dos arquivos
+originais; `--somente-validar` apenas confere os artefatos existentes. As
+ferramentas aceitam tanto `YYYY/MICRODADOS_ENEM_YYYY.csv` quanto a estrutura
+extraída do download do INEP. Consulte [tools/README.md](../tools/README.md)
+antes de recalibrar: esse fluxo altera o catálogo e exige reavaliar as
+confirmações.
+
+Após uma mudança numérica, gere o golden atual:
+
+```bash
+python tests/fixtures/gerar_golden_notas.py
+```
+
+Uma confirmação nova deve excluir todos os casos anteriores antes de amostrar;
+casos já examinados não contam como confirmação. Casos discrepantes nunca são
+removidos das avaliações.
+
+Para verificar digitação e layout em navegador real, consulte o smoke test
+opt-in em [streamlit_app/README.md](../streamlit_app/README.md#testes).
