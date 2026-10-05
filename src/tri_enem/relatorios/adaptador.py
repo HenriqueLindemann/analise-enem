@@ -19,6 +19,7 @@ _TIPOS_APLICACAO = {
     "digital": "Digital",
     "reaplicacao": "Reaplicação",
     "segunda_oportunidade": "Segunda Oportunidade",
+    "especiais": "Atendimento Especializado",
 }
 
 
@@ -52,7 +53,7 @@ def adaptar_resultados_para_relatorio(
         tipo_aplicacao=_TIPOS_APLICACAO.get(
             str(tipo_aplicacao or ""), str(tipo_aplicacao or "")
         ),
-        cor_prova=str(cor_prova or "").capitalize(),
+        cor_prova=str(cor_prova or ""),
         origem_geracao=origem_geracao,
         data_geracao=data_geracao or datetime.now().astimezone(),
         areas=[_adaptar_area(resultado, ano) for resultado in resultados_normalizados],

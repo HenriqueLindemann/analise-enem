@@ -340,8 +340,73 @@ class TestValidacaoDaEntrada:
 
         assert _nome_caderno("amarela") == "Caderno amarelo"
         assert _nome_caderno("laranja_atendimento_especializado") == (
-            "Caderno laranja atendimento especializado"
+            "Laranja atendimento especializado"
         )
+        assert _nome_caderno("roxa_videoprova_libras_superampliada") == (
+            "Roxo videoprova em Libras superampliado"
+        )
+        assert _nome_caderno("laranja_adaptada_ledor_segunda_oportunidade") == (
+            "Laranja adaptado ledor (2ª oportunidade)"
+        )
+        assert _nome_caderno("branca_adaptada_reaplicacao_2") == (
+            "Branco adaptado (reaplicação 2)"
+        )
+
+
+@pytest.fixture(scope="module")
+def mapeador():
+    from streamlit_app.mapeador import MapeadorInterface
+    from tri_enem import CalculadorTRI, MapeadorProvas
+
+    return MapeadorInterface(MapeadorProvas(), CalculadorTRI())
+
+
+class TestCadernosEspeciais:
+    """Atendimento especializado: seletores, destaque e cálculo."""
+
+    def test_oferece_especiais_com_itens(self, mapeador):
+        assert "especiais" in mapeador.listar_tipos_disponiveis(2024, "MT")
+        assert "roxa_videoprova_libras" in mapeador.listar_cores_disponiveis(2024, "MT", "especiais")
+        # Sem itens nos microdados: fora dos seletores.
+        assert "especiais" not in mapeador.listar_tipos_disponiveis(2009, "MT")
+        cores_2020 = mapeador.listar_cores_disponiveis(2020, "MT", "especiais")
+        assert cores_2020 and "rosa_ampliada" not in cores_2020
+
+    def test_toda_cor_tem_destaque_no_campo(self):
+        import re
+        from tri_enem import MapeadorProvas
+
+        css = (ROOT / "streamlit_app/components/live_input/style.css").read_text()
+        com_destaque = set(re.findall(r'\[data-cor="(\w+)"\]', css))
+        bases = {p.cor.split("_")[0] for p in MapeadorProvas().listar_todas_provas()}
+        assert bases <= com_destaque, bases - com_destaque
+
+    def test_campo_recebe_a_cor_base(self, monkeypatch):
+        from streamlit_app.components import inputs
+
+        chamadas = []
+        monkeypatch.setattr(inputs, "st_keyup", lambda *a, **k: chamadas.append(k) or "")
+        inputs._render_input_prova({}, "MT", 4, "roxa_videoprova_libras")
+        inputs._render_input_prova({}, "MT", 4)
+        assert [k["cor"] for k in chamadas] == ["roxa", None]
+
+    def test_app_calcula_caderno_especial(self, exemplos):
+        e = next(x for x in exemplos if x["ano"] == 2023 and x["area"] == "MT")
+        at = _app_com_respostas({"MT": e["respostas"]})
+        at.selectbox[0].set_value(2024).run()
+        tipo = next(s for s in at.selectbox if s.label == "Tipo de aplicação")
+        assert "Atendimento Especializado" in tipo.options
+        tipo.set_value("especiais").run()
+        cor = next(s for s in at.selectbox if s.key == "cor_MT")
+        assert "Roxo videoprova em Libras" in cor.options
+        cor.set_value("roxa_videoprova_libras").run()
+        next(b for b in at.button if "CALCULAR" in (b.label or "").upper()).click().run()
+
+        assert not at.exception, at.exception
+        (resultado,) = at.session_state["resultados"]
+        assert resultado["co_prova"] == 1415
+        assert resultado["cor_prova"] == "roxa_videoprova_libras"
+        assert 0 < resultado["nota"] < 1000
 
 
 @pytest.fixture(scope="module")

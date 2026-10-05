@@ -7,18 +7,31 @@
   --sans: "Source Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --mono: "Source Code Pro", ui-monospace, Menlo, Consolas, "Roboto Mono", monospace;
   --muted: #687587;
-  --primaria-clara: rgba(52, 152, 219, 0.16);
+  /* Destaque na cor do caderno (data-cor); sem cor, a primária do tema. */
+  --destaque: var(--primary-color);
+  --destaque-claro: color-mix(in srgb, var(--destaque) 16%, transparent);
+  --destaque-texto: var(--destaque);
   --ok: #23845a;
   --erro: #b91c1c;
 }
+/* Tons escuros o bastante para ler o número e a borda sobre o fundo do campo;
+   o amarelo legível é escuro demais e vira dourado, então o texto tem tom próprio. */
+:root[data-cor="azul"] { --destaque: #3498db; }
+:root[data-cor="amarela"] { --destaque: #e8b600; --destaque-texto: #806400; --destaque-claro: rgba(232, 182, 0, 0.24); }
+:root[data-cor="rosa"] { --destaque: #d6336c; }
+:root[data-cor="cinza"] { --destaque: #6b7785; }
+:root[data-cor="branca"] { --destaque: #4a5868; }
+:root[data-cor="verde"] { --destaque: #2e8b57; }
+:root[data-cor="laranja"] { --destaque: #d35400; }
+:root[data-cor="roxa"] { --destaque: #8e44ad; }
 html, body { overflow: hidden; }
 body { margin: 0; padding: 2px 2px 0; color: var(--text-color); font-family: var(--sans); }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
-/* Mesma linguagem do campo anterior: fundo secundário, borda discreta, foco na cor primária. */
+/* Mesma linguagem do campo anterior: fundo secundário, borda discreta, foco na cor do caderno. */
 .caixa { box-sizing: border-box; padding: 4px 10px; border: 1px solid #aab4c0; border-radius: 6px;
          background: var(--secondary-background-color); cursor: text; }
-.caixa:focus-within { border-color: var(--primary-color); box-shadow: 0 0 0 1px var(--primary-color); }
+.caixa:focus-within { border-color: var(--destaque); box-shadow: 0 0 0 1px var(--destaque); }
 
 /* clip: nem o cursor no fim do texto pode rolar a folha e desalinhar as células. */
 .folha { position: relative; margin-inline: auto; overflow: hidden; overflow: clip; }
@@ -29,18 +42,18 @@ body { margin: 0; padding: 2px 2px 0; color: var(--text-color); font-family: var
        font-variant-numeric: tabular-nums; white-space: nowrap; }
 .num--bloco { color: #4f5d6b; font-weight: 600; }
 .num--hover { color: var(--text-color); }
-.num--ativo { color: var(--primary-color); font-weight: 700; }
+.num--ativo { color: var(--destaque-texto); font-weight: 700; }
 .cel { position: absolute; display: flex; align-items: center; justify-content: center; border-radius: 4px;
        font: 500 16px var(--mono); color: var(--text-color); }
 .cel--branco { color: var(--muted); }
 .cel--vazia::after { content: ""; position: absolute; left: 30%; right: 30%; bottom: 6px; border-bottom: 1.5px solid #c3cbd5; }
 /* Questão do cursor: o que for digitado entra aqui. */
-.cel--atual { background: var(--primaria-clara); box-shadow: inset 0 0 0 1.5px var(--primary-color); }
-.cel--atual.cel--vazia::after { border-bottom: 2px solid var(--primary-color); animation: piscar 1.1s steps(1) infinite; }
+.cel--atual { background: var(--destaque-claro); box-shadow: inset 0 0 0 1.5px var(--destaque); }
+.cel--atual.cel--vazia::after { border-bottom: 2px solid var(--destaque); animation: piscar 1.1s steps(1) infinite; }
 @keyframes piscar { 50% { opacity: 0; } }
-.cel--sel { background: var(--primaria-clara); }
+.cel--sel { background: var(--destaque-claro); }
 .cel--colada { animation: colada .6s ease-out; }
-@keyframes colada { from { background: rgba(52, 152, 219, 0.32); } }
+@keyframes colada { from { background: color-mix(in srgb, var(--destaque) 32%, transparent); } }
 @media (prefers-reduced-motion: reduce) { .cel--colada, .cel--atual.cel--vazia::after { animation: none; } }
 
 textarea {
@@ -74,4 +87,4 @@ textarea::selection { background: transparent; color: transparent; }
           font-size: 14px; line-height: 1.4; color: var(--muted); }
 #contador.completo { color: var(--ok); }
 #posicao.aviso { color: var(--erro); }
-#posicao { color: var(--primary-color); font-variant-numeric: tabular-nums; text-align: right; }
+#posicao { color: var(--destaque-texto); font-variant-numeric: tabular-nums; text-align: right; }

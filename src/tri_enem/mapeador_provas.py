@@ -28,6 +28,32 @@ from typing import Dict, List
 from dataclasses import dataclass
 
 
+# Trechos dos nomes de cadernos especiais, na ordem de substituição.
+_TRECHOS_COR = (
+    ("videoprova libras", "videoprova em Libras"),
+    ("segunda oportunidade", "(2ª oportunidade)"),
+    ("reaplicacao 2", "(reaplicação 2)"),
+    ("reaplicacao", "(reaplicação)"),
+)
+_MASCULINO = {
+    "amarela": "amarelo", "branca": "branco", "roxa": "roxo",
+    "adaptada": "adaptado", "ampliada": "ampliado", "superampliada": "superampliado",
+}
+
+
+def descrever_cor(cor: str, masculino: bool = False) -> str:
+    """'roxa_videoprova_libras_ampliada' -> 'roxa videoprova em Libras ampliada'.
+
+    Com ``masculino``, concorda com "caderno": 'roxo ... ampliado'.
+    """
+    texto = " ".join(str(cor or "").split("_"))
+    for trecho, nome in _TRECHOS_COR:
+        texto = texto.replace(trecho, nome)
+    if masculino:
+        texto = " ".join(_MASCULINO.get(p, p) for p in texto.split(" "))
+    return texto
+
+
 @lru_cache(maxsize=8)
 def _carregar_yaml_cache(
     caminho: str, mtime_ns: int, tamanho: int

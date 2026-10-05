@@ -521,6 +521,9 @@ function onRender(event) {
   }
   const args = event.detail.args;
   inicio = Number(args.inicio) || 1;
+  // Destaque na cor do caderno (style.css); sem cor, a primária do tema.
+  if (args.cor) document.documentElement.dataset.cor = args.cor;
+  else delete document.documentElement.dataset.cor;
   // Python echoes values asynchronously. Do not replace drafts or selection.
   if (!initialized) {
     iniciar(args);

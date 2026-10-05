@@ -14,6 +14,7 @@ from reportlab.platypus import Flowable, Paragraph, Spacer, Table, TableStyle
 
 from .base import AreaAnalise, QuestaoAnalise
 from .estilos import Cores, Medidas
+from .utils import formatar_cor
 from .marcacao import Elemento, estrutura_de, marcado, tabela_dados, tabela_layout
 from ..formatacao import formatar_numero
 
@@ -374,7 +375,7 @@ def tabela_resumo_areas(
     largura = largura or Medidas.LARGURA_UTIL
     dados = [["\u00c1rea", "Caderno / prova", "Nota TRI", "Acertos válidos", "Anuladas", "%"]]
     for area in areas:
-        caderno = area.cor_prova.capitalize() if area.cor_prova else "–"
+        caderno = formatar_cor(area.cor_prova) if area.cor_prova else "–"
         if area.co_prova:
             caderno += f" · {area.co_prova}"
         dados.append([

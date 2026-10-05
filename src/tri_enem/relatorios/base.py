@@ -39,7 +39,7 @@ class AreaAnalise:
     total_itens: int
     questoes: List[QuestaoAnalise] = field(default_factory=list)
     lingua: str | None = None  # Para LC
-    cor_prova: str | None = None  # Ex: "Rosa", "Azul"
+    cor_prova: str | None = None  # Ex: "rosa", "rosa_ampliada"
     
     @property
     def erros(self) -> int:
@@ -95,7 +95,7 @@ class DadosRelatorio:
     areas: List[AreaAnalise] = field(default_factory=list)
     observacoes: str = ""
     tipo_aplicacao: str = ""  # Ex: "1ª Aplicação", "Reaplicação", etc.
-    cor_prova: str = ""  # Ex: "Rosa", "Azul", etc.
+    cor_prova: str = ""  # Ex: "rosa", "rosa_ampliada"
     origem_geracao: str = "notatri.com"
     
     @property

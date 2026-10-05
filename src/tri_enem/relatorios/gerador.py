@@ -32,7 +32,7 @@ from .marcacao import (
     link, marcado, tabela_layout,
 )
 from .tabelas import tabela_diagnostico_questoes, tabela_resumo_areas
-from .utils import formatar_lingua
+from .utils import formatar_cor, formatar_lingua
 from ..formatacao import formatar_numero
 from ..mapeador_provas import MapeadorProvas
 from ..precisao import formatar_aviso_curto, formatar_resumo_validacao, verificar_precisao_prova
@@ -189,7 +189,7 @@ class RelatorioPDF:
         if dados.tipo_aplicacao:
             partes.append(escape(str(dados.tipo_aplicacao)))
         if dados.cor_prova:
-            partes.append(escape(str(dados.cor_prova).capitalize()))
+            partes.append(escape(formatar_cor(dados.cor_prova)))
         data = self._formatar_data_local(dados.data_geracao, com_as=True)
         return [
             marcado(Paragraph(escape(str(dados.titulo)), titulo_style), "H1"),
@@ -328,7 +328,7 @@ class RelatorioPDF:
 
         prova = f"Prova {area.co_prova}" if area.co_prova else "Prova não informada"
         if area.cor_prova:
-            prova += f" · {escape(str(area.cor_prova).capitalize())}"
+            prova += f" · {escape(formatar_cor(area.cor_prova))}"
         info = (
             f"{prova}  ·  <b>{formatar_numero(area.nota)} pontos</b>  ·  "
             f"{area.acertos}/{area.total_itens_validos} acertos válidos  ·  "

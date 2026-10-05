@@ -100,15 +100,16 @@ TIPOS_APLICACAO: Dict[str, str] = {
     'digital': 'Digital',
     'reaplicacao': 'Reaplicação',
     'segunda_oportunidade': 'Segunda Oportunidade',
+    'especiais': 'Atendimento Especializado',
 }
 
-ORDEM_TIPOS: List[str] = ['1a_aplicacao', 'digital', 'reaplicacao', 'segunda_oportunidade']
+ORDEM_TIPOS: List[str] = ['1a_aplicacao', 'digital', 'reaplicacao', 'segunda_oportunidade', 'especiais']
 
 # ============================================================================
 #                         CORES DAS PROVAS
 # ============================================================================
 
-ORDEM_CORES: List[str] = ['azul', 'amarela', 'rosa', 'cinza', 'branca', 'verde', 'laranja']
+ORDEM_CORES: List[str] = ['azul', 'amarela', 'rosa', 'cinza', 'branca', 'verde', 'laranja', 'roxa']
 
 # ============================================================================
 #                         TEXTOS DA INTERFACE

@@ -8,13 +8,12 @@ import streamlit as st
 from .live_input import st_keyup
 from typing import Dict, List, Tuple
 import html
+from tri_enem import descrever_cor
 from ..config import AREAS_ENEM, ORDEM_AREAS, ORDEM_CORES
 
 
 TOTAL_RESPOSTAS = 45
 TAMANHO_BLOCO = 5
-# Os dados usam o feminino (prova amarela); o rótulo diz "caderno".
-MASCULINO = {"amarela": "amarelo", "branca": "branco", "adaptada": "adaptado", "ampliada": "ampliado"}
 TEXTO_AJUDA = (
     "Digite as letras de A a E, com ponto nas questões em branco. "
     "Toque numa questão para ir até ela: o que digitar entra ali, sem mover as outras. "
@@ -60,7 +59,7 @@ def input_respostas(
                                               key="lingua_prova", label_visibility="collapsed", width=120,
                                               format_func=lambda l: "Inglês" if l == "ingles" else "Espanhol")
                     cores[area] = _selecionar_cor(ano, area, mapeador, tipo_aplicacao, largura_cor)
-            _render_input_prova(respostas, area, idx)
+            _render_input_prova(respostas, area, idx, cores[area])
 
     st.session_state['respostas_por_area'] = {
         area: respostas.get(area, '') for area in ORDEM_AREAS
@@ -74,7 +73,8 @@ def _selecionar_cor(ano: int, area: str, mapeador, tipo_aplicacao: str, largura:
     if not disponiveis:
         st.caption("Área não disponível nesta aplicação.", width="content")
         return None
-    ordenadas = sorted(disponiveis, key=lambda c: (ORDEM_CORES.index(c) if c in ORDEM_CORES else 99, c))
+    base = lambda c: c.split("_")[0]
+    ordenadas = sorted(disponiveis, key=lambda c: (ORDEM_CORES.index(base(c)) if base(c) in ORDEM_CORES else 99, c))
     chave = f"cor_{area}"
     if st.session_state.get(chave) not in ordenadas:
         st.session_state[chave] = ordenadas[0]
@@ -93,8 +93,12 @@ def _largura_cor(ano: int, mapeador, tipo_aplicacao: str) -> int:
 
 
 def _nome_caderno(cor: str) -> str:
-    """'cinza_adaptada' -> 'Caderno cinza adaptado'."""
-    return "Caderno " + " ".join(MASCULINO.get(p, p) for p in cor.split("_"))
+    """'azul' -> 'Caderno azul'; 'cinza_adaptada' -> 'Cinza adaptado'.
+
+    Sem o prefixo, os nomes especiais cabem no seletor de um celular de 360 px.
+    """
+    nome = descrever_cor(cor, masculino=True)
+    return f"Caderno {nome}" if "_" not in cor else nome[:1].upper() + nome[1:]
 
 
 def _obter_ordem_provas(ano: int, mapeador=None) -> List[str]:
@@ -128,8 +132,8 @@ def _normalizar_ordem_provas(ordem) -> List[str]:
     return normalizada
 
 
-def _render_input_prova(respostas: Dict[str, str], area: str, ordem_idx: int) -> None:
-    """Renderiza o campo de uma prova, numerado pela posição no caderno."""
+def _render_input_prova(respostas: Dict[str, str], area: str, ordem_idx: int, cor: str | None = None) -> None:
+    """Renderiza o campo de uma prova, numerado pela posição e destacado na cor do caderno."""
     inicio = (ordem_idx - 1) * TOTAL_RESPOSTAS + 1
     key = f"resp_{area.lower()}"
     valor_atual = st.session_state.get(key, '')
@@ -137,7 +141,8 @@ def _render_input_prova(respostas: Dict[str, str], area: str, ordem_idx: int) ->
     try:
         # O componente mostra numeração, contagem e posição do cursor.
         valor = st_keyup(f"Respostas {area}", value=valor_atual, max_chars=TOTAL_RESPOSTAS,
-                         key=key, debounce=100, inicio=inicio)
+                         key=key, debounce=100, inicio=inicio,
+                         cor=cor.split("_")[0] if cor else None)
         respostas[area] = (valor or '').upper()
         return
     except ValueError as exc:

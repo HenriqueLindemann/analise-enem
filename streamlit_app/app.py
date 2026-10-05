@@ -45,6 +45,7 @@ from streamlit_app.config import (
 from tri_enem import MapeadorProvas, normalizar_posicoes_resultados
 from tri_enem.formatacao import formatar_numero
 from streamlit_app.calculador import get_calculador
+from streamlit_app.mapeador import get_mapeador_interface
 from streamlit_app.components.inputs import input_respostas, validar_todas_respostas
 from streamlit_app.components.resultados import exibir_resumo_geral, exibir_resultado_area
 from streamlit_app.components.impressao import exibir_download_pdf
@@ -133,10 +134,12 @@ def main():
     
     # Configurações da prova na página principal
     calc = get_calculador()
-    ano, tipo_aplicacao = render_config(calc.mapeador)
+    # Só cadernos com itens, incluindo os de atendimento especializado.
+    mapeador = get_mapeador_interface()
+    ano, tipo_aplicacao = render_config(mapeador)
     
     # Área principal: inputs de respostas
-    respostas, cores, lingua = input_respostas(ano, calc.mapeador, tipo_aplicacao)
+    respostas, cores, lingua = input_respostas(ano, mapeador, tipo_aplicacao)
     # Área indisponível nesta aplicação guarda o que foi digitado, mas não conta.
     respostas = {area: r for area, r in respostas.items() if cores.get(area)}
     

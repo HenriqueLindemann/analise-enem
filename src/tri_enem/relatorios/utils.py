@@ -6,6 +6,8 @@ from __future__ import annotations
 
 import math
 
+from ..mapeador_provas import descrever_cor
+
 
 _LINGUAS_APRESENTACAO = {
     "ingles": "Inglês",
@@ -24,6 +26,12 @@ def formatar_lingua(lingua: str | None) -> str:
     if not texto:
         return ""
     return _LINGUAS_APRESENTACAO.get(texto.casefold(), texto.capitalize())
+
+
+def formatar_cor(cor: str | None) -> str:
+    """'rosa_ampliada' -> 'Rosa ampliada'."""
+    nome = descrever_cor(cor)
+    return nome[:1].upper() + nome[1:]
 
 
 def formatar_dificuldade(param_b: float | None) -> str:

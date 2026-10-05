@@ -32,7 +32,7 @@ from tri_enem.relatorios.tabelas import (
     tabela_diagnostico_questoes,
     tabela_resumo_areas,
 )
-from tri_enem.relatorios.utils import formatar_lingua
+from tri_enem.relatorios.utils import formatar_cor, formatar_lingua
 
 
 def _criar_area_sintetica(
@@ -279,6 +279,16 @@ def test_tabela_resume_denominador_valido_e_diagnostico():
 )
 def test_idioma_formatado_para_apresentacao(entrada, esperado):
     assert formatar_lingua(entrada) == esperado
+
+
+@pytest.mark.parametrize(
+    ("entrada", "esperado"),
+    [("azul", "Azul"), ("Azul", "Azul"), (None, ""),
+     ("roxa_videoprova_libras", "Roxa videoprova em Libras"),
+     ("cinza_adaptada_ledor", "Cinza adaptada ledor")],
+)
+def test_cor_formatada_para_apresentacao(entrada, esperado):
+    assert formatar_cor(entrada) == esperado
 
 
 def test_relatorio_sem_areas_e_rejeitado(tmp_path):

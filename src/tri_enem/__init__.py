@@ -33,7 +33,7 @@ from .coeficientes import (
     obter_transformacao,
 )
 from .tradutor import obter_config_lc, filtrar_itens_lc, ConfiguracaoLC
-from .mapeador_provas import MapeadorProvas, InfoProva
+from .mapeador_provas import MapeadorProvas, InfoProva, descrever_cor
 from .precisao import formatar_aviso_curto, formatar_resumo_validacao, verificar_precisao_prova
 from .posicoes import normalizar_posicoes_resultados, posicao_caderno
 
@@ -55,6 +55,7 @@ __all__ = [
     # Mapeador de códigos
     'MapeadorProvas',
     'InfoProva',
+    'descrever_cor',
     # Verificação de precisão
     'verificar_precisao_prova',
     'formatar_resumo_validacao',
