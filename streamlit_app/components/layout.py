@@ -54,8 +54,9 @@ def carregar_css() -> None:
 def render_header() -> None:
     st.markdown('<h1 style="margin-bottom: 0.5rem;">Calculadora Nota TRI ENEM</h1>',
                 unsafe_allow_html=True)
-    st.markdown("Estime sua nota por TRI, com precisão conferida em microdados do INEP.")
-    st.caption("Peso de cada questão · gráficos · relatório PDF")
+    st.markdown("**No ENEM, importa não só quantas questões você acerta, mas quais.**")
+    st.caption("Estimativa pela TRI, o mesmo modelo do INEP, com os parâmetros oficiais "
+               "da prova. Veja o que mais pesou na sua nota.")
     render_botao_video()
 
 

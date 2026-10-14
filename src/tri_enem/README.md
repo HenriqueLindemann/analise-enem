@@ -11,7 +11,7 @@ calcula com a interpretação direta dos CSVs, e itens externos em
 
 `verificar_precisao_prova()` informa status, métricas e `confiavel`. Este só
 é `True` com status `ok` e evidência em casos não usados na pesquisa. Veja o
-[método](../../docs/SCORE_RECALCULATION.md#precisão-na-api-e-na-interface).
+[método](../../docs/SCORE_RECALCULATION.md#status-de-precisão).
 
 ## Arquivos
 

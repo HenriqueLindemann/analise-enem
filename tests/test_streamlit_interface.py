@@ -142,7 +142,6 @@ class TestAppExecuta:
         assert "Língua estrangeira" in rotulos
         textos = " ".join(bloco.value for bloco in at.markdown)
         assert "Carl Sagan" in textos
-        assert "precisão conferida em microdados do INEP" in textos
         # Uma seleção de cor por área
         assert {"cor_LC", "cor_CH", "cor_CN", "cor_MT"} <= {
             s.key for s in at.selectbox if s.key
