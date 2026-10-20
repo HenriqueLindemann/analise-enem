@@ -158,7 +158,7 @@ def test_grade_de_acertos_ordena_por_maior_impacto():
     assert [texto[0] for texto in textos] == ["2", "3", "1"]
 
 
-@pytest.mark.parametrize("erros", [0, 1, 22, 30, 35, 44, 45])
+@pytest.mark.parametrize("erros", [0, 1, 22, 24, 28, 30, 35, 44, 45])
 def test_uma_area_cabe_em_uma_pagina_em_casos_extremos(erros, tmp_path):
     caminho, reader = _gerar(
         tmp_path,
@@ -177,6 +177,31 @@ def test_uma_area_cabe_em_uma_pagina_em_casos_extremos(erros, tmp_path):
     else:
         assert texto.index("Ganho se acertasse") < texto.index("Dificuldade (b): valor")
         assert texto.index("Dificuldade (b): valor") < texto.index("Acertos (")
+
+
+@pytest.mark.parametrize("anuladas", [0, 2])
+def test_uma_area_respeita_altura_util_para_qualquer_contagem_de_erros(anuladas):
+    relatorio = RelatorioPDF()
+    validas = 45 - anuladas
+    for erros in range(validas + 1):
+        area = _criar_area_sintetica(
+            "MT", "Matemática e suas Tecnologias", erros + anuladas,
+        )
+        for indice in range(anuladas):
+            area.questoes[indice].anulada = True
+        area.acertos = len(area.questoes_acertadas)
+        dados = _dados([area])
+        pagina = relatorio._pagina_area(
+            area,
+            incluir_identidade=True,
+            dados=dados,
+            incluir_explicacao_b=True,
+            incluir_diagnostico=True,
+        )
+        altura = relatorio._validar_altura_pagina(
+            pagina, f"1 área com {erros} erros e {anuladas} anuladas",
+        )
+        assert altura <= Medidas.ALTURA_UTIL + 0.5
 
 
 @pytest.mark.parametrize("erros", [0, 22, 45])

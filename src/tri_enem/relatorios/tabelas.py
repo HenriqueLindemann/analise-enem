@@ -271,7 +271,7 @@ def _tabela_erros_compacta(
     total = len(erros)
     if total > 38:
         fonte, leading, padding = 6.5, 6.6, 0.0
-    elif total > 28:
+    elif total > 22:
         fonte, leading, padding = 6.8, 7.0, 0.2
     else:
         fonte, leading, padding = 7.3, 8.4, 1.25
