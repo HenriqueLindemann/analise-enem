@@ -10,7 +10,7 @@ import streamlit as st
 from ..config import (
     APP_VERSION, APP_GITHUB_URL, APP_ISSUES_URL,
     APP_VIDEO_SHARE_URL, APP_VIDEO_FILE_URL,
-    TEXTO_SOBRE, TEXTO_PRIVACIDADE, TEXTO_FOOTER, TEXTO_ABOUT_MENU,
+    TEXTO_SOBRE, TEXTO_PRIVACIDADE, TEXTO_RECADO, TEXTO_FOOTER, TEXTO_ABOUT_MENU,
     TIPOS_APLICACAO, ORDEM_TIPOS, SEO,
 )
 
@@ -57,7 +57,10 @@ def render_header() -> None:
     st.markdown("**No ENEM, importa não só quantas questões você acerta, mas quais.**")
     st.caption("Estimativa pela TRI, o mesmo modelo do INEP, com os parâmetros oficiais "
                "da prova. Veja o que mais pesou na sua nota.")
-    render_botao_video()
+    with st.container(horizontal=True, gap="small"):
+        render_botao_video()
+        with st.popover("Um recado"):
+            st.markdown(TEXTO_RECADO)
 
 
 @st.dialog("Como a nota TRI é calculada", width="large")
