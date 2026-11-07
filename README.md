@@ -8,7 +8,7 @@ Estime sua nota no ENEM (2009–2025) pela Teoria de Resposta ao Item, a partir 
 <a href="relatorios/EXEMPLO_relatorio.pdf" target="_blank" rel="noopener noreferrer">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/imagens/exemplo-matematica-dark.svg">
-    <img src="docs/imagens/exemplo-matematica.svg" alt="Respostas → nota → impacto por questão. Matemática, ENEM 2021: 916,3 pontos e gráfico de impacto das 44 questões válidas." width="1100">
+    <img src="docs/imagens/exemplo-matematica.svg" alt="Respostas → nota → impacto por questão. Matemática, ENEM 2021: 916,4 pontos e gráfico de impacto das 44 questões válidas." width="1100">
   </picture>
 </a>
 <br>
