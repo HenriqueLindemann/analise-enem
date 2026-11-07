@@ -186,6 +186,55 @@ class TestAppExecuta:
         assert not at.exception, at.exception
         assert at.session_state["ano_respostas"] == ano
 
+    def test_ano_2026_nao_e_padrao_e_oculta_respostas_com_aviso(self):
+        at = AppTest.from_file(APP, default_timeout=TIMEOUT)
+        at.run()
+        seletor = next(s for s in at.selectbox if s.label == "Ano da prova")
+        assert "2026" in seletor.options
+        assert seletor.value == 2025
+
+        seletor.set_value(2026).run()
+        assert not at.exception, at.exception
+        rotulos = {s.label for s in at.selectbox}
+        assert "Tipo de aplicação" not in rotulos
+        assert "Língua estrangeira" not in rotulos
+        assert not any(s.key and s.key.startswith("cor_") for s in at.selectbox)
+        assert not any("CALCULAR" in (b.label or "").upper() for b in at.button)
+        textos = " ".join(bloco.value for bloco in at.markdown)
+        assert "Suas respostas" not in textos
+        assert "ENEM 2026" in textos
+        assert "publicar os seus microdados oficiais" in textos
+        assert "estimativa grosseira" in textos
+        assert "2009 a 2025" in textos
+
+    def test_ida_e_volta_para_2026_preserva_estado_e_limpa_resultados(self):
+        at = _app_com_respostas({"LC": "A" * 45, "MT": "B" * 45})
+        at.selectbox(key="ano_prova").set_value(2023).run()
+        at.selectbox(key="tipo_prova").set_value("reaplicacao").run()
+        at.selectbox(key="lingua_prova").set_value("espanhol").run()
+        at.selectbox(key="cor_MT").set_value("amarela").run()
+        at.button(key="calcular").click().run()
+        assert "resultados" in at.session_state
+
+        # Vai para 2026: resultados antigos são limpos e inputs somem
+        at.selectbox(key="ano_prova").set_value(2026).run()
+        assert not at.exception, at.exception
+        assert "resultados" not in at.session_state
+        assert "pdf_download" not in at.session_state
+
+        # Volta para 2023: respostas e seleções anteriores continuam preservadas
+        at.selectbox(key="ano_prova").set_value(2023).run()
+        assert not at.exception, at.exception
+        assert at.selectbox(key="tipo_prova").value == "reaplicacao"
+        assert at.selectbox(key="lingua_prova").value == "espanhol"
+        assert at.selectbox(key="cor_MT").value == "amarela"
+        assert at.session_state["resp_lc"] == "A" * 45
+        assert at.session_state["resp_mt"] == "B" * 45
+        assert not at.button(key="calcular").disabled
+        at.button(key="calcular").click().run()
+        assert not at.exception, at.exception
+        assert len(at.session_state["resultados"]) == 2
+
 
 class TestFluxoCompleto:
     """Digitar, calcular e ver a nota."""

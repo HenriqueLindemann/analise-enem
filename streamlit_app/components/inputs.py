@@ -45,7 +45,10 @@ def input_respostas(
     st.session_state['ordem_provas_atual'] = ordem_provas
     st.session_state['ano_respostas'] = ano
 
-    lingua = "ingles"
+    if st.session_state.get("lingua_prova") not in ("ingles", "espanhol"):
+        lingua_salva = st.session_state.get("lingua_prova_salva")
+        st.session_state["lingua_prova"] = lingua_salva if lingua_salva in ("ingles", "espanhol") else "ingles"
+    lingua = st.session_state["lingua_prova"]
     largura_cor = _largura_cor(ano, mapeador, tipo_aplicacao)
     for idx, area in enumerate(ordem_provas, start=1):
         with st.container(border=True, key=f"respostas_{area}", gap="xsmall"):
@@ -58,6 +61,7 @@ def input_respostas(
                         lingua = st.selectbox("Língua estrangeira", ["ingles", "espanhol"],
                                               key="lingua_prova", label_visibility="collapsed", width=120,
                                               format_func=lambda l: "Inglês" if l == "ingles" else "Espanhol")
+                        st.session_state["lingua_prova_salva"] = lingua
                     cores[area] = _selecionar_cor(ano, area, mapeador, tipo_aplicacao, largura_cor)
             _render_input_prova(respostas, area, idx, cores[area])
 
@@ -77,10 +81,13 @@ def _selecionar_cor(ano: int, area: str, mapeador, tipo_aplicacao: str, largura:
     ordenadas = sorted(disponiveis, key=lambda c: (ORDEM_CORES.index(base(c)) if base(c) in ORDEM_CORES else 99, c))
     chave = f"cor_{area}"
     if st.session_state.get(chave) not in ordenadas:
-        st.session_state[chave] = ordenadas[0]
-    return st.selectbox("Cor do caderno", ordenadas, key=chave, width=largura,
-                        label_visibility="collapsed",
-                        format_func=_nome_caderno)
+        cor_salva = st.session_state.get(f"cor_salva_{area}")
+        st.session_state[chave] = cor_salva if cor_salva in ordenadas else ordenadas[0]
+    cor = st.selectbox("Cor do caderno", ordenadas, key=chave, width=largura,
+                       label_visibility="collapsed",
+                       format_func=_nome_caderno)
+    st.session_state[f"cor_salva_{area}"] = cor
+    return cor
 
 
 def _largura_cor(ano: int, mapeador, tipo_aplicacao: str) -> int:

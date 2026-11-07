@@ -148,6 +148,16 @@ Um abraço e desejos de sucesso,
 Henrique
 """
 
+ANO_EM_BREVE = 2026
+
+TEXTO_ENEM_2026 = """
+**As provas do ENEM 2026 serão adicionadas quando o INEP publicar os seus microdados oficiais**, o que costuma ocorrer entre maio e julho do ano seguinte à prova. Se você fez essa edição, o seu resultado individual sairá antes disso, na Página do Participante.
+
+Na TRI, a nota depende dos parâmetros oficiais de cada questão, divulgados apenas nesses microdados. Por isso, até lá não é possível prever a nota com precisão, e qualquer cálculo seria apenas uma estimativa grosseira.
+
+Enquanto isso, você pode calcular e analisar as notas das provas de **2009 a 2025**.
+"""
+
 TEXTO_PRIVACIDADE = f"""
 Esta calculadora foi desenvolvida com **privacidade desde a concepção**: não
 solicita dados que identifiquem você nem mantém uma base com suas respostas ou

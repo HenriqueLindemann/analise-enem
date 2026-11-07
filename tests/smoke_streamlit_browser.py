@@ -108,12 +108,16 @@ def check_year_changes(browser, url, *, delayed_html=False):
 
     answers = {"CH": "A" * 45, "CN": "B" * 45, "LC": "C" * 45, "MT": "D" * 45}
     page.goto(url)
-    for step, year in enumerate((2023, 2011, 2023, 2011)):
+    for step, year in enumerate((2023, 2026, 2011, 2023, 2011)):
         year_input = page.locator(".st-key-ano_prova").get_by_role("combobox")
         year_input.scroll_into_view_if_needed()
         year_input.click()        # the filtered list only opens after a click
         year_input.fill(str(year))
         page.get_by_role("option", name=str(year), exact=True).click()
+        if year == 2026:
+            expect(page.locator(".st-key-aviso_ano_em_breve")).to_be_visible()
+            expect(page.locator('[class*="st-key-respostas_"]')).to_have_count(0)
+            continue
         page.wait_for_function(CARDS_SETTLED, arg=CARD_ORDER[year])
         first = page.locator(f".st-key-respostas_{CARD_ORDER[year][0]}").frame_locator("iframe")
         expect(first.locator(".num").first).to_have_text("1")

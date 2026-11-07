@@ -54,6 +54,7 @@ from streamlit_app.components.layout import (
     carregar_css,
     render_header,
     render_config,
+    render_aviso_ano_em_breve,
     render_botao_calcular,
     render_footer,
 )
@@ -137,6 +138,11 @@ def main():
     # Só cadernos com itens, incluindo os de atendimento especializado.
     mapeador = get_mapeador_interface()
     ano, tipo_aplicacao = render_config(mapeador)
+    if tipo_aplicacao is None:
+        _limpar_resultados_salvos()
+        render_aviso_ano_em_breve()
+        render_footer()
+        return
     
     # Área principal: inputs de respostas
     respostas, cores, lingua = input_respostas(ano, mapeador, tipo_aplicacao)

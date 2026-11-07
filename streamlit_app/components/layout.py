@@ -10,6 +10,7 @@ import streamlit as st
 from ..config import (
     APP_VERSION, APP_GITHUB_URL, APP_ISSUES_URL,
     APP_VIDEO_SHARE_URL, APP_VIDEO_FILE_URL,
+    ANO_EM_BREVE, TEXTO_ENEM_2026,
     TEXTO_SOBRE, TEXTO_PRIVACIDADE, TEXTO_RECADO, TEXTO_FOOTER, TEXTO_ABOUT_MENU,
     TIPOS_APLICACAO, ORDEM_TIPOS, SEO,
 )
@@ -89,21 +90,33 @@ def render_botao_video() -> None:
         _dialog_video()
 
 
-def render_config(mapeador) -> Tuple[int, str]:
+def render_config(mapeador) -> Tuple[int, str | None]:
     st.subheader("Sua prova")
+    anos_calculaveis = sorted(mapeador.listar_anos_disponiveis(), reverse=True)
+    anos_opcoes = sorted(set(anos_calculaveis) | {ANO_EM_BREVE}, reverse=True)
+    index_padrao = anos_opcoes.index(anos_calculaveis[0]) if anos_calculaveis else 0
     col_ano, col_tipo = st.columns(2)
     with col_ano:
-        ano = st.selectbox("Ano da prova", sorted(mapeador.listar_anos_disponiveis(), reverse=True), key="ano_prova")
+        ano = st.selectbox("Ano da prova", anos_opcoes, index=index_padrao, key="ano_prova")
     tipos = set()
     for area in ("LC", "CH", "CN", "MT"):
         tipos.update(mapeador.listar_tipos_disponiveis(ano, area))
     disponiveis = [tipo for tipo in ORDEM_TIPOS if tipo in tipos]
+    if not disponiveis:
+        return ano, None
     if st.session_state.get("tipo_prova") not in disponiveis:
-        st.session_state["tipo_prova"] = disponiveis[0]
+        tipo_salvo = st.session_state.get("tipo_prova_salvo")
+        st.session_state["tipo_prova"] = tipo_salvo if tipo_salvo in disponiveis else disponiveis[0]
     with col_tipo:
         tipo = st.selectbox("Tipo de aplicação", disponiveis, key="tipo_prova",
                             format_func=lambda t: TIPOS_APLICACAO.get(t, t))
+    st.session_state["tipo_prova_salvo"] = tipo
     return ano, tipo
+
+
+def render_aviso_ano_em_breve() -> None:
+    with st.container(border=True, key="aviso_ano_em_breve"):
+        st.markdown(TEXTO_ENEM_2026)
 
 
 def render_botao_calcular(pode_calcular: bool) -> bool:
