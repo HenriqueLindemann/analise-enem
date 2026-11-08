@@ -1,965 +1,903 @@
 # Validação das notas TRI
 
-Relatório gerado automaticamente a partir do holdout estratificado de participantes reais dos microdados públicos do INEP.
+Quão perto a calculadora chega da nota oficial do INEP? Comparamos as **262.711.274 notas** de todos os participantes do ENEM 2009–2025 nos microdados públicos com as calculadas.
 
-- Provas catalogadas: **762**
-- Casos no holdout: **101552**
-- Geração: `2026-10-04T23:12:08+00:00`
+## Resumo
 
-## Como interpretar este relatório
+- **0,026 ponto** de diferença média.
+- **99,99%** das notas a até 2 pontos da oficial.
+- **602 de 762 provas** verificadas, 22 com falhas conhecidas e 138 sem dados para conferir. Cada área, cor e aplicação conta como uma prova.
 
-- **Boa calibração verificada:** a prova foi conferida com casos reais e atendeu integralmente ao critério estrito do projeto.
-- **Estimativa confiável na maioria dos casos, com exceções:** o erro típico foi baixo, mas casos atípicos impedem a garantia estrita.
-- **Estimativa com variação relevante:** as diferenças não ficaram limitadas a poucas exceções; a nota exige mais cautela.
-- **Sem validação suficiente:** faltam participantes, faixas ou parâmetros públicos, ou a única evidência são casos já usados na pesquisa.
+## Sua prova
 
-As mensagens da interface usam esses perfis em linguagem simples. As seções seguintes preservam códigos, métricas e limites para auditoria.
-O status descreve o erro observado; a interface também considera a origem da evidência. Modelos apoiados apenas em casos já usados na pesquisa retornam `confiavel=False`, mesmo com status técnico `ok`. Veja o [método](SCORE_RECALCULATION.md#precisão-na-api-e-na-interface).
+Ao lado da nota, a calculadora indica uma destas situações:
 
-## Status
+| Situação | O que significa | Provas |
+|---|---|---:|
+| Boa calibração verificada | Praticamente todas as notas ficaram a até 2 pontos da oficial. | 602 |
+| Precisa para quase todos | Quase todas batem; um pequeno grupo passou de 2 pontos. | 22 |
+| Sem validação suficiente | A nota é calculada, mas faltam notas oficiais para conferi-la. | 138 |
 
-| Status | Provas |
-|---|---:|
-| `aviso_forte` | 31 |
-| `aviso_leve` | 3 |
-| `erro_alto` | 11 |
-| `nao_calibrado` | 26 |
-| `ok` | 579 |
-| `sem_itens` | 12 |
-| `sem_participantes` | 100 |
+Por edição:
 
-## Estatísticas por ano
+| Ano | Provas | Verificadas | Com falhas | Sem validação | Notas | Diferença média | Até 2 pontos |
+|---:|---:|---:|---:|---:|---:|---:|---:|
+| 2009 | 36 | 32 | 0 | 4 | 10.006.310 | 0,025 | 100% |
+| 2010 | 32 | 23 | 1 | 8 | 13.244.970 | 0,026 | 99,99% |
+| 2011 | 16 | 0 | 16 | 0 | 15.703.092 | 0,031 | 99,94% |
+| 2012 | 20 | 15 | 5 | 0 | 16.625.361 | 0,026 | 99,99% |
+| 2013 | 20 | 20 | 0 | 0 | 20.456.527 | 0,025 | 99,99% |
+| 2014 | 22 | 22 | 0 | 0 | 24.265.152 | 0,025 | 100% |
+| 2015 | 36 | 36 | 0 | 0 | 22.748.454 | 0,025 | 99,99% |
+| 2016 | 56 | 38 | 0 | 18 | 23.673.826 | 0,025 | 100% |
+| 2017 | 40 | 32 | 0 | 8 | 18.264.999 | 0,025 | 99,99% |
+| 2018 | 40 | 32 | 0 | 8 | 16.093.026 | 0,025 | 100% |
+| 2019 | 42 | 24 | 0 | 18 | 15.256.422 | 0,025 | 100% |
+| 2020 | 68 | 56 | 0 | 12 | 10.694.126 | 0,025 | 100% |
+| 2021 | 84 | 72 | 0 | 12 | 9.240.720 | 0,025 | 100% |
+| 2022 | 56 | 56 | 0 | 0 | 9.690.375 | 0,025 | 100% |
+| 2023 | 52 | 48 | 0 | 4 | 10.989.174 | 0,025 | 100% |
+| 2024 | 66 | 32 | 0 | 34 | 12.336.074 | 0,025 | 100% |
+| 2025 | 76 | 64 | 0 | 12 | 13.422.666 | 0,025 | 100% |
 
-| Ano | Provas | ok | leve | forte | alto | não calibrado | sem participantes | sem itens | Casos | Até 2 pts | MAE mediano |
-|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| 2009 | 36 | 32 | 0 | 0 | 0 | 0 | 0 | 4 | 4563 | 100.00% | 0.026 |
-| 2010 | 32 | 22 | 0 | 0 | 2 | 0 | 8 | 0 | 4337 | 99.98% | 0.025 |
-| 2011 | 16 | 4 | 1 | 11 | 0 | 0 | 0 | 0 | 3360 | 99.67% | 0.049 |
-| 2012 | 20 | 17 | 1 | 1 | 1 | 0 | 0 | 0 | 3700 | 99.92% | 0.027 |
-| 2013 | 20 | 20 | 0 | 0 | 0 | 0 | 0 | 0 | 3931 | 100.00% | 0.026 |
-| 2014 | 22 | 22 | 0 | 0 | 0 | 0 | 0 | 0 | 4174 | 100.00% | 0.026 |
-| 2015 | 36 | 33 | 0 | 0 | 3 | 0 | 0 | 0 | 5825 | 99.97% | 0.025 |
-| 2016 | 56 | 34 | 0 | 1 | 3 | 4 | 14 | 0 | 7028 | 99.94% | 0.025 |
-| 2017 | 40 | 32 | 0 | 0 | 0 | 0 | 8 | 0 | 4474 | 100.00% | 0.025 |
-| 2018 | 40 | 32 | 0 | 0 | 0 | 0 | 8 | 0 | 4682 | 100.00% | 0.025 |
-| 2019 | 42 | 24 | 0 | 0 | 0 | 0 | 18 | 0 | 3975 | 100.00% | 0.026 |
-| 2020 | 68 | 56 | 0 | 0 | 0 | 0 | 4 | 8 | 9550 | 100.00% | 0.025 |
-| 2021 | 84 | 71 | 0 | 1 | 0 | 0 | 12 | 0 | 11122 | 99.98% | 0.025 |
-| 2022 | 56 | 56 | 0 | 0 | 0 | 0 | 0 | 0 | 7926 | 100.00% | 0.025 |
-| 2023 | 52 | 46 | 0 | 0 | 2 | 4 | 0 | 0 | 7712 | 99.97% | 0.026 |
-| 2024 | 66 | 28 | 0 | 4 | 0 | 8 | 26 | 0 | 5574 | 99.93% | 0.025 |
-| 2025 | 76 | 50 | 1 | 13 | 0 | 10 | 2 | 0 | 9619 | 99.72% | 0.026 |
+Cada prova, por ano e cor, está no [detalhamento](#detalhamento-por-prova).
 
-## Estatísticas por área
+## Provas com falhas conhecidas
 
-| Área | Provas | ok | leve | forte | alto | não calibrado | sem participantes | sem itens | Casos | Até 2 pts | MAE mediano |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| CH | 191 | 155 | 0 | 3 | 2 | 7 | 21 | 3 | 21665 | 99.98% | 0.025 |
-| CN | 189 | 141 | 1 | 9 | 5 | 8 | 22 | 3 | 20697 | 99.89% | 0.025 |
-| LC | 192 | 142 | 2 | 10 | 2 | 5 | 28 | 3 | 34228 | 99.94% | 0.025 |
-| MT | 190 | 141 | 0 | 9 | 2 | 6 | 29 | 3 | 24962 | 99.96% | 0.027 |
+Nestas provas, um pequeno grupo de participantes ficou a mais de 2 pontos da nota oficial. Em 2011, o INEP anulou itens só para parte dos participantes, e a calculadora não tem como saber a qual grupo cada um pertence.
 
-## Métricas agregadas
+| Prova | Participantes | Acima de 2 pontos | Proporção | Maior diferença |
+|---|---:|---:|---|---:|
+| ENEM 2010 · Matemática · 1ª aplicação · Amarela (prova `97`) | 840.825 | 761 | 1 em cada 1.100 | 47,0 |
+| ENEM 2011 · Ciências Humanas · 1ª aplicação · Azul (prova `117`) | 1.038.191 | 210 | 1 em cada 4.900 | 33,0 |
+| ENEM 2011 · Ciências Humanas · 1ª aplicação · Amarela (prova `118`) | 983.317 | 241 | 1 em cada 4.100 | 38,4 |
+| ENEM 2011 · Ciências Humanas · 1ª aplicação · Branca (prova `119`) | 1.007.247 | 894 | 1 em cada 1.100 | 23,2 |
+| ENEM 2011 · Ciências Humanas · 1ª aplicação · Rosa (prova `120`) | 953.900 | 212 | 1 em cada 4.500 | 42,6 |
+| ENEM 2011 · Ciências da Natureza · 1ª aplicação · Azul (prova `121`) | 1.038.191 | 216 | 1 em cada 4.800 | 41,2 |
+| ENEM 2011 · Ciências da Natureza · 1ª aplicação · Amarela (prova `122`) | 983.317 | 243 | 1 em cada 4.000 | 47,1 |
+| ENEM 2011 · Ciências da Natureza · 1ª aplicação · Branca (prova `123`) | 1.007.247 | 1.792 | 1 em cada 560 | 33,5 |
+| ENEM 2011 · Ciências da Natureza · 1ª aplicação · Rosa (prova `124`) | 953.900 | 204 | 1 em cada 4.700 | 49,1 |
+| ENEM 2011 · Linguagens · 1ª aplicação · Amarela (prova `125`) | 1.005.964 | 143 | 1 em cada 7.000 | 18,9 |
+| ENEM 2011 · Linguagens · 1ª aplicação · Cinza (prova `126`) | 958.723 | 1.231 | 1 em cada 780 | 20,8 |
+| ENEM 2011 · Linguagens · 1ª aplicação · Azul (prova `127`) | 978.571 | 162 | 1 em cada 6.000 | 14,3 |
+| ENEM 2011 · Linguagens · 1ª aplicação · Rosa (prova `128`) | 925.633 | 133 | 1 em cada 7.000 | 20,1 |
+| ENEM 2011 · Matemática · 1ª aplicação · Amarela (prova `129`) | 1.005.964 | 232 | 1 em cada 4.300 | 43,1 |
+| ENEM 2011 · Matemática · 1ª aplicação · Cinza (prova `130`) | 958.723 | 1.871 | 1 em cada 510 | 42,6 |
+| ENEM 2011 · Matemática · 1ª aplicação · Azul (prova `131`) | 978.571 | 245 | 1 em cada 4.000 | 45,5 |
+| ENEM 2011 · Matemática · 1ª aplicação · Rosa (prova `132`) | 925.633 | 231 | 1 em cada 4.000 | 47,0 |
+| ENEM 2012 · Ciências Humanas · 1ª aplicação · Branca (prova `139`) | 1.070.411 | 163 | 1 em cada 6.600 | 10,4 |
+| ENEM 2012 · Ciências Humanas · Especiais · Branca ledor (prova `154`) | 233 | 7 | 1 em cada 33 | 13,1 |
+| ENEM 2012 · Ciências da Natureza · 1ª aplicação · Branca (prova `143`) | 1.070.411 | 591 | 1 em cada 1.800 | 33,9 |
+| ENEM 2012 · Ciências da Natureza · Especiais · Branca ledor (prova `153`) | 233 | 5 | 1 em cada 47 | 32,0 |
+| ENEM 2012 · Matemática · 1ª aplicação · Cinza (prova `150`) | 1.013.485 | 682 | 1 em cada 1.500 | 79,1 |
 
-- MAE mediano por prova: **0.03 pontos**
-- Maior erro observado: **279.32 pontos**
-- Casos com erro absoluto de até 2 pontos: **101496/101552 (99.94%)**
+## Provas sem validação
 
-Uma prova só recebe `ok` quando os casos do holdout e de uma eventual confirmação ficam em até 2 pontos da nota oficial e a cobertura mínima do holdout é satisfeita.
+A nota é calculada, mas não há notas oficiais para conferi-la.
 
-## Perfis usados na apresentação
+<details>
+<summary><strong>100</strong> provas: sem participantes nos microdados do INEP</summary>
 
-O status permanece estrito e auditável. O perfil serve apenas para evitar que poucas exceções ocultem o desempenho típico da calibração.
+- **2010:** Linguagens · Reaplicação · Amarela (prova `109`); Linguagens · Reaplicação · Cinza (prova `110`); Linguagens · Reaplicação · Azul (prova `111`); Linguagens · Reaplicação · Rosa (prova `112`); Matemática · Reaplicação · Amarela (prova `113`); Matemática · Reaplicação · Cinza (prova `114`); Matemática · Reaplicação · Azul (prova `115`); Matemática · Reaplicação · Rosa (prova `116`)
+- **2016:** Ciências Humanas · Reaplicação · Rosa (prova `339`); Ciências Humanas · Especiais · Branca adaptada reaplicacao 2 (prova `360`); Ciências da Natureza · Reaplicação · Rosa (prova `334`); Ciências da Natureza · Especiais · Branca adaptada reaplicacao 2 (prova `355`); Linguagens · Reaplicação · Azul (prova `341`); Linguagens · Reaplicação · Amarela (prova `342`); Linguagens · Reaplicação · Rosa (prova `343`); Linguagens · Reaplicação · Cinza adaptada (prova `344`); Linguagens · Especiais · Cinza adaptada reaplicacao 2 (prova `365`); Matemática · Reaplicação · Azul (prova `346`); Matemática · Reaplicação · Amarela (prova `347`); Matemática · Reaplicação · Rosa (prova `348`); Matemática · Reaplicação · Cinza (prova `349`); Matemática · Especiais · Cinza adaptada reaplicacao 2 (prova `370`)
+- **2017:** Ciências da Natureza · Reaplicação · Amarela (prova `431`); Ciências da Natureza · Reaplicação · Cinza (prova `432`); Ciências da Natureza · Reaplicação · Azul (prova `433`); Ciências da Natureza · Reaplicação · Rosa (prova `434`); Matemática · Reaplicação · Amarela (prova `443`); Matemática · Reaplicação · Cinza (prova `444`); Matemática · Reaplicação · Azul (prova `445`); Matemática · Reaplicação · Rosa (prova `446`)
+- **2018:** Ciências da Natureza · Reaplicação · Amarela (prova `487`); Ciências da Natureza · Reaplicação · Cinza (prova `488`); Ciências da Natureza · Reaplicação · Azul (prova `489`); Ciências da Natureza · Reaplicação · Rosa (prova `490`); Matemática · Reaplicação · Amarela (prova `499`); Matemática · Reaplicação · Cinza (prova `500`); Matemática · Reaplicação · Azul (prova `501`); Matemática · Reaplicação · Rosa (prova `502`)
+- **2019:** Ciências Humanas · Reaplicação · Azul (prova `547`); Ciências Humanas · Reaplicação · Amarela (prova `548`); Ciências Humanas · Reaplicação · Branca (prova `549`); Ciências Humanas · Reaplicação · Rosa (prova `550`); Ciências Humanas · Especiais · Laranja adaptada ledor reaplicacao (prova `564`); Ciências da Natureza · Reaplicação · Amarela (prova `543`); Ciências da Natureza · Reaplicação · Cinza (prova `544`); Ciências da Natureza · Reaplicação · Azul (prova `545`); Ciências da Natureza · Reaplicação · Rosa (prova `546`); Linguagens · Reaplicação · Azul (prova `551`); Linguagens · Reaplicação · Amarela (prova `552`); Linguagens · Reaplicação · Branca (prova `553`); Linguagens · Reaplicação · Rosa (prova `554`); Linguagens · Especiais · Laranja adaptada ledor reaplicacao (prova `565`); Matemática · Reaplicação · Amarela (prova `555`); Matemática · Reaplicação · Cinza (prova `556`); Matemática · Reaplicação · Azul (prova `557`); Matemática · Reaplicação · Rosa (prova `558`)
+- **2020:** Ciências Humanas · Especiais · Laranja adaptada ledor reaplicacao (prova `654`); Ciências da Natureza · Especiais · Laranja adaptada ledor reaplicacao (prova `684`); Linguagens · Especiais · Laranja adaptada ledor reaplicacao (prova `664`); Matemática · Especiais · Laranja adaptada ledor reaplicacao (prova `674`)
+- **2021:** Ciências Humanas · Especiais · Laranja braille (prova `885`); Ciências Humanas · Especiais · Laranja adaptada ledor reaplicacao (prova `966`); Ciências Humanas · Especiais · Laranja adaptada ledor segunda oportunidade (prova `1022`); Ciências da Natureza · Especiais · Laranja braille (prova `915`); Ciências da Natureza · Especiais · Laranja adaptada ledor reaplicacao (prova `996`); Ciências da Natureza · Especiais · Laranja adaptada ledor segunda oportunidade (prova `1052`); Linguagens · Especiais · Laranja braille (prova `895`); Linguagens · Especiais · Laranja adaptada ledor reaplicacao (prova `976`); Linguagens · Especiais · Laranja adaptada ledor segunda oportunidade (prova `1032`); Matemática · Especiais · Laranja braille (prova `905`); Matemática · Especiais · Laranja adaptada ledor reaplicacao (prova `986`); Matemática · Especiais · Laranja adaptada ledor segunda oportunidade (prova `1042`)
+- **2024:** Ciências Humanas · Reaplicação · Azul (prova `1343`); Ciências Humanas · Reaplicação · Amarela (prova `1344`); Ciências Humanas · Reaplicação · Branca (prova `1345`); Ciências Humanas · Reaplicação · Verde (prova `1346`); Ciências Humanas · Especiais · Verde ampliada reaplicacao (prova `1347`); Ciências Humanas · Especiais · Verde superampliada reaplicacao (prova `1348`); Ciências Humanas · Especiais · Laranja adaptada ledor reaplicacao (prova `1350`); Ciências Humanas · Especiais · Roxa videoprova libras ampliada (prova `1392`); Ciências Humanas · Especiais · Roxa videoprova libras superampliada (prova `1393`); Ciências da Natureza · Especiais · Verde ampliada reaplicacao (prova `1377`); Ciências da Natureza · Especiais · Verde superampliada reaplicacao (prova `1378`); Ciências da Natureza · Especiais · Laranja adaptada ledor reaplicacao (prova `1380`); Ciências da Natureza · Especiais · Roxa videoprova libras ampliada (prova `1428`); Linguagens · Reaplicação · Azul (prova `1353`); Linguagens · Reaplicação · Amarela (prova `1354`); Linguagens · Reaplicação · Verde (prova `1355`); Linguagens · Reaplicação · Branca (prova `1356`); Linguagens · Especiais · Verde ampliada reaplicacao (prova `1357`); Linguagens · Especiais · Verde superampliada reaplicacao (prova `1358`); Linguagens · Especiais · Laranja adaptada ledor reaplicacao (prova `1360`); Linguagens · Especiais · Roxa videoprova libras ampliada (prova `1404`); Linguagens · Especiais · Roxa videoprova libras superampliada (prova `1405`); Matemática · Especiais · Verde ampliada reaplicacao (prova `1367`); Matemática · Especiais · Verde superampliada reaplicacao (prova `1368`); Matemática · Especiais · Laranja adaptada ledor reaplicacao (prova `1370`); Matemática · Especiais · Roxa videoprova libras ampliada (prova `1416`)
+- **2025:** Ciências Humanas · Reaplicação · Amarela (prova `1540`); Linguagens · Reaplicação · Amarela (prova `1550`)
 
-| Perfil | Provas |
-|---|---:|
-| Estimativa confiável na maioria dos casos, com exceções (`boa_na_maioria_com_excecoes`) | 43 |
-| Boa calibração verificada (`calibracao_verificada`) | 577 |
-| Sem validação suficiente (`sem_validacao`) | 142 |
+</details>
 
-## Listas de provas por status
+<details>
+<summary><strong>12</strong> provas: sem parâmetros de itens publicados (nota indisponível)</summary>
 
-### `ok` (579)
+- **2009:** Ciências Humanas · Especiais · Branca adaptada ledor (prova `82`); Ciências da Natureza · Especiais · Branca adaptada ledor (prova `81`); Linguagens · Especiais · Cinza adaptada ledor (prova `83`); Matemática · Especiais · Cinza adaptada ledor (prova `84`)
+- **2020:** Ciências Humanas · Especiais · Rosa ampliada (prova `571`); Ciências Humanas · Especiais · Rosa superampliada (prova `572`); Ciências da Natureza · Especiais · Rosa ampliada (prova `601`); Ciências da Natureza · Especiais · Rosa superampliada (prova `602`); Linguagens · Especiais · Rosa ampliada (prova `581`); Linguagens · Especiais · Rosa superampliada (prova `582`); Matemática · Especiais · Rosa ampliada (prova `591`); Matemática · Especiais · Rosa superampliada (prova `592`)
 
-- **ENEM 2009:** Ciências Humanas · 1ª aplicação · Azul (prova `53`); Ciências Humanas · 1ª aplicação · Amarela (prova `54`); Ciências Humanas · 1ª aplicação · Branca (prova `55`); Ciências Humanas · 1ª aplicação · Rosa (prova `56`); Ciências Humanas · Reaplicação · Azul (prova `69`); Ciências Humanas · Reaplicação · Amarela (prova `70`); Ciências Humanas · Reaplicação · Branca (prova `71`); Ciências Humanas · Reaplicação · Rosa (prova `72`); Ciências da Natureza · 1ª aplicação · Azul (prova `49`); Ciências da Natureza · 1ª aplicação · Amarela (prova `50`); Ciências da Natureza · 1ª aplicação · Branca (prova `51`); Ciências da Natureza · 1ª aplicação · Rosa (prova `52`); Ciências da Natureza · Reaplicação · Azul (prova `65`); Ciências da Natureza · Reaplicação · Amarela (prova `66`); Ciências da Natureza · Reaplicação · Branca (prova `67`); Ciências da Natureza · Reaplicação · Rosa (prova `68`); Linguagens · 1ª aplicação · Amarela (prova `57`); Linguagens · 1ª aplicação · Cinza (prova `58`); Linguagens · 1ª aplicação · Azul (prova `59`); Linguagens · 1ª aplicação · Rosa (prova `60`); Linguagens · Reaplicação · Amarela (prova `73`); Linguagens · Reaplicação · Cinza (prova `74`); Linguagens · Reaplicação · Azul (prova `75`); Linguagens · Reaplicação · Rosa (prova `76`); Matemática · 1ª aplicação · Amarela (prova `61`); Matemática · 1ª aplicação · Cinza (prova `62`); Matemática · 1ª aplicação · Azul (prova `63`); Matemática · 1ª aplicação · Rosa (prova `64`); Matemática · Reaplicação · Amarela (prova `77`); Matemática · Reaplicação · Cinza (prova `78`); Matemática · Reaplicação · Azul (prova `79`); Matemática · Reaplicação · Rosa (prova `80`)
-- **ENEM 2010:** Ciências Humanas · 1ª aplicação · Azul (prova `85`); Ciências Humanas · 1ª aplicação · Amarela (prova `86`); Ciências Humanas · 1ª aplicação · Branca (prova `87`); Ciências Humanas · 1ª aplicação · Rosa (prova `88`); Ciências Humanas · Reaplicação · Amarela (prova `102`); Ciências Humanas · Reaplicação · Branca (prova `103`); Ciências Humanas · Reaplicação · Rosa (prova `104`); Ciências da Natureza · 1ª aplicação · Azul (prova `89`); Ciências da Natureza · 1ª aplicação · Amarela (prova `90`); Ciências da Natureza · 1ª aplicação · Branca (prova `91`); Ciências da Natureza · 1ª aplicação · Rosa (prova `92`); Ciências da Natureza · Reaplicação · Amarela (prova `106`); Ciências da Natureza · Reaplicação · Branca (prova `107`); Ciências da Natureza · Reaplicação · Rosa (prova `108`); Linguagens · 1ª aplicação · Amarela (prova `93`); Linguagens · 1ª aplicação · Cinza (prova `94`); Linguagens · 1ª aplicação · Azul (prova `95`); Linguagens · 1ª aplicação · Rosa (prova `96`); Matemática · 1ª aplicação · Amarela (prova `97`); Matemática · 1ª aplicação · Cinza (prova `98`); Matemática · 1ª aplicação · Azul (prova `99`); Matemática · 1ª aplicação · Rosa (prova `100`)
-- **ENEM 2011:** Ciências Humanas · 1ª aplicação · Amarela (prova `118`); Ciências Humanas · 1ª aplicação · Branca (prova `119`); Ciências Humanas · 1ª aplicação · Rosa (prova `120`); Linguagens · 1ª aplicação · Amarela (prova `125`)
-- **ENEM 2012:** Ciências Humanas · 1ª aplicação · Azul (prova `137`); Ciências Humanas · 1ª aplicação · Amarela (prova `138`); Ciências Humanas · 1ª aplicação · Branca (prova `139`); Ciências Humanas · 1ª aplicação · Rosa (prova `140`); Ciências da Natureza · 1ª aplicação · Azul (prova `141`); Ciências da Natureza · 1ª aplicação · Amarela (prova `142`); Ciências da Natureza · 1ª aplicação · Rosa (prova `144`); Linguagens · 1ª aplicação · Amarela (prova `145`); Linguagens · 1ª aplicação · Cinza (prova `146`); Linguagens · 1ª aplicação · Azul (prova `147`); Linguagens · 1ª aplicação · Rosa (prova `148`); Linguagens · Especiais · Cinza ledor (prova `155`); Matemática · 1ª aplicação · Amarela (prova `149`); Matemática · 1ª aplicação · Cinza (prova `150`); Matemática · 1ª aplicação · Azul (prova `151`); Matemática · 1ª aplicação · Rosa (prova `152`); Matemática · Especiais · Cinza ledor (prova `156`)
-- **ENEM 2013:** Ciências Humanas · 1ª aplicação · Azul (prova `167`); Ciências Humanas · 1ª aplicação · Amarela (prova `168`); Ciências Humanas · 1ª aplicação · Branca (prova `169`); Ciências Humanas · 1ª aplicação · Rosa (prova `170`); Ciências Humanas · Especiais · Branca adaptada ledor (prova `187`); Ciências da Natureza · 1ª aplicação · Azul (prova `171`); Ciências da Natureza · 1ª aplicação · Amarela (prova `172`); Ciências da Natureza · 1ª aplicação · Branca (prova `173`); Ciências da Natureza · 1ª aplicação · Rosa (prova `174`); Ciências da Natureza · Especiais · Branca adaptada ledor (prova `188`); Linguagens · 1ª aplicação · Amarela (prova `175`); Linguagens · 1ª aplicação · Cinza (prova `176`); Linguagens · 1ª aplicação · Azul (prova `177`); Linguagens · 1ª aplicação · Rosa (prova `178`); Linguagens · Especiais · Cinza adaptada ledor (prova `189`); Matemática · 1ª aplicação · Amarela (prova `179`); Matemática · 1ª aplicação · Cinza (prova `180`); Matemática · 1ª aplicação · Azul (prova `181`); Matemática · 1ª aplicação · Rosa (prova `182`); Matemática · Especiais · Cinza adaptada ledor (prova `190`)
-- **ENEM 2014:** Ciências Humanas · 1ª aplicação · Azul (prova `195`); Ciências Humanas · 1ª aplicação · Amarela (prova `196`); Ciências Humanas · 1ª aplicação · Branca (prova `197`); Ciências Humanas · 1ª aplicação · Rosa (prova `198`); Ciências Humanas · Especiais · Branca adaptada (prova `215`); Ciências da Natureza · 1ª aplicação · Azul (prova `199`); Ciências da Natureza · 1ª aplicação · Amarela (prova `200`); Ciências da Natureza · 1ª aplicação · Branca (prova `201`); Ciências da Natureza · 1ª aplicação · Rosa (prova `202`); Ciências da Natureza · Especiais · Branca adaptada (prova `216`); Linguagens · 1ª aplicação · Amarela (prova `203`); Linguagens · 1ª aplicação · Cinza (prova `204`); Linguagens · 1ª aplicação · Azul (prova `205`); Linguagens · 1ª aplicação · Rosa (prova `206`); Linguagens · Reaplicação · Cinza (prova `213`); Linguagens · Especiais · Cinza adaptada (prova `217`); Matemática · 1ª aplicação · Amarela (prova `207`); Matemática · 1ª aplicação · Cinza (prova `208`); Matemática · 1ª aplicação · Azul (prova `209`); Matemática · 1ª aplicação · Rosa (prova `210`); Matemática · Reaplicação · Cinza (prova `214`); Matemática · Especiais · Cinza adaptada (prova `218`)
-- **ENEM 2015:** Ciências Humanas · 1ª aplicação · Azul (prova `231`); Ciências Humanas · 1ª aplicação · Amarela (prova `232`); Ciências Humanas · 1ª aplicação · Branca (prova `233`); Ciências Humanas · 1ª aplicação · Rosa (prova `234`); Ciências Humanas · Especiais · Branca adaptada (prova `251`); Ciências Humanas · Reaplicação · Azul (prova `271`); Ciências Humanas · Reaplicação · Amarela (prova `272`); Ciências Humanas · Reaplicação · Rosa (prova `274`); Ciências da Natureza · 1ª aplicação · Azul (prova `235`); Ciências da Natureza · 1ª aplicação · Amarela (prova `236`); Ciências da Natureza · 1ª aplicação · Branca (prova `237`); Ciências da Natureza · 1ª aplicação · Rosa (prova `238`); Ciências da Natureza · Especiais · Branca adaptada (prova `252`); Ciências da Natureza · Reaplicação · Azul (prova `275`); Ciências da Natureza · Reaplicação · Amarela (prova `276`); Ciências da Natureza · Reaplicação · Rosa (prova `278`); Linguagens · 1ª aplicação · Amarela (prova `239`); Linguagens · 1ª aplicação · Cinza (prova `240`); Linguagens · 1ª aplicação · Azul (prova `241`); Linguagens · 1ª aplicação · Rosa (prova `242`); Linguagens · Especiais · Cinza adaptada (prova `253`); Linguagens · Reaplicação · Amarela (prova `279`); Linguagens · Reaplicação · Cinza (prova `280`); Linguagens · Reaplicação · Azul (prova `281`); Linguagens · Reaplicação · Rosa (prova `282`); Matemática · 1ª aplicação · Amarela (prova `243`); Matemática · 1ª aplicação · Cinza (prova `244`); Matemática · 1ª aplicação · Azul (prova `245`); Matemática · 1ª aplicação · Rosa (prova `246`); Matemática · Especiais · Cinza adaptada (prova `254`); Matemática · Reaplicação · Amarela (prova `283`); Matemática · Reaplicação · Cinza (prova `284`); Matemática · Reaplicação · Azul (prova `285`)
-- **ENEM 2016:** Ciências Humanas · 1ª aplicação · Azul (prova `295`); Ciências Humanas · 1ª aplicação · Amarela (prova `296`); Ciências Humanas · 1ª aplicação · Branca (prova `297`); Ciências Humanas · 1ª aplicação · Rosa (prova `298`); Ciências Humanas · Especiais · Branca adaptada (prova `308`); Ciências Humanas · Reaplicação · Azul (prova `336`); Ciências Humanas · 2ª reaplicação · Azul (prova `356`); Ciências Humanas · 2ª reaplicação · Amarela (prova `357`); Ciências Humanas · 2ª reaplicação · Branca (prova `358`); Ciências Humanas · 2ª reaplicação · Rosa (prova `359`); Ciências da Natureza · 1ª aplicação · Azul (prova `291`); Ciências da Natureza · 1ª aplicação · Amarela (prova `292`); Ciências da Natureza · 1ª aplicação · Branca (prova `293`); Ciências da Natureza · 1ª aplicação · Rosa (prova `294`); Ciências da Natureza · Especiais · Branca adaptada (prova `307`); Ciências da Natureza · Reaplicação · Azul (prova `331`); Ciências da Natureza · 2ª reaplicação · Azul (prova `351`); Ciências da Natureza · 2ª reaplicação · Amarela (prova `352`); Linguagens · 1ª aplicação · Azul (prova `299`); Linguagens · 1ª aplicação · Amarela (prova `300`); Linguagens · 1ª aplicação · Rosa (prova `301`); Linguagens · 1ª aplicação · Cinza (prova `302`); Linguagens · Especiais · Cinza adaptada (prova `309`); Linguagens · 2ª reaplicação · Azul (prova `361`); Linguagens · 2ª reaplicação · Amarela (prova `362`); Linguagens · 2ª reaplicação · Rosa (prova `363`); Linguagens · 2ª reaplicação · Cinza (prova `364`); Matemática · 1ª aplicação · Azul (prova `303`); Matemática · 1ª aplicação · Amarela (prova `304`); Matemática · 1ª aplicação · Rosa (prova `305`); Matemática · 1ª aplicação · Cinza (prova `306`); Matemática · Especiais · Cinza adaptada (prova `310`); Matemática · 2ª reaplicação · Rosa (prova `368`); Matemática · 2ª reaplicação · Cinza (prova `369`)
-- **ENEM 2017:** Ciências Humanas · 1ª aplicação · Azul (prova `395`); Ciências Humanas · 1ª aplicação · Amarela (prova `396`); Ciências Humanas · 1ª aplicação · Branca (prova `397`); Ciências Humanas · 1ª aplicação · Rosa (prova `398`); Ciências Humanas · Especiais · Laranja adaptada ledor (prova `408`); Ciências Humanas · Especiais · Verde videoprova libras (prova `412`); Ciências Humanas · Reaplicação · Azul (prova `435`); Ciências Humanas · Reaplicação · Amarela (prova `436`); Ciências Humanas · Reaplicação · Branca (prova `437`); Ciências Humanas · Reaplicação · Rosa (prova `438`); Ciências da Natureza · 1ª aplicação · Azul (prova `391`); Ciências da Natureza · 1ª aplicação · Amarela (prova `392`); Ciências da Natureza · 1ª aplicação · Cinza (prova `393`); Ciências da Natureza · 1ª aplicação · Rosa (prova `394`); Ciências da Natureza · Especiais · Laranja adaptada ledor (prova `407`); Ciências da Natureza · Especiais · Verde videoprova libras (prova `411`); Linguagens · 1ª aplicação · Azul (prova `399`); Linguagens · 1ª aplicação · Amarela (prova `400`); Linguagens · 1ª aplicação · Rosa (prova `401`); Linguagens · 1ª aplicação · Branca (prova `402`); Linguagens · Especiais · Laranja adaptada ledor (prova `409`); Linguagens · Especiais · Verde videoprova libras (prova `413`); Linguagens · Reaplicação · Azul (prova `439`); Linguagens · Reaplicação · Amarela (prova `440`); Linguagens · Reaplicação · Branca (prova `441`); Linguagens · Reaplicação · Rosa (prova `442`); Matemática · 1ª aplicação · Azul (prova `403`); Matemática · 1ª aplicação · Amarela (prova `404`); Matemática · 1ª aplicação · Rosa (prova `405`); Matemática · 1ª aplicação · Cinza (prova `406`); Matemática · Especiais · Laranja adaptada ledor (prova `410`); Matemática · Especiais · Verde videoprova libras (prova `414`)
-- **ENEM 2018:** Ciências Humanas · 1ª aplicação · Azul (prova `451`); Ciências Humanas · 1ª aplicação · Amarela (prova `452`); Ciências Humanas · 1ª aplicação · Branca (prova `453`); Ciências Humanas · 1ª aplicação · Rosa (prova `454`); Ciências Humanas · Especiais · Laranja adaptada ledor (prova `464`); Ciências Humanas · Especiais · Verde videoprova libras (prova `468`); Ciências Humanas · Reaplicação · Azul (prova `491`); Ciências Humanas · Reaplicação · Amarela (prova `492`); Ciências Humanas · Reaplicação · Branca (prova `493`); Ciências Humanas · Reaplicação · Rosa (prova `494`); Ciências da Natureza · 1ª aplicação · Azul (prova `447`); Ciências da Natureza · 1ª aplicação · Amarela (prova `448`); Ciências da Natureza · 1ª aplicação · Cinza (prova `449`); Ciências da Natureza · 1ª aplicação · Rosa (prova `450`); Ciências da Natureza · Especiais · Laranja adaptada ledor (prova `463`); Ciências da Natureza · Especiais · Verde videoprova libras (prova `467`); Linguagens · 1ª aplicação · Azul (prova `455`); Linguagens · 1ª aplicação · Amarela (prova `456`); Linguagens · 1ª aplicação · Rosa (prova `457`); Linguagens · 1ª aplicação · Branca (prova `458`); Linguagens · Especiais · Laranja adaptada ledor (prova `465`); Linguagens · Especiais · Verde videoprova libras (prova `469`); Linguagens · Reaplicação · Azul (prova `495`); Linguagens · Reaplicação · Amarela (prova `496`); Linguagens · Reaplicação · Branca (prova `497`); Linguagens · Reaplicação · Rosa (prova `498`); Matemática · 1ª aplicação · Azul (prova `459`); Matemática · 1ª aplicação · Amarela (prova `460`); Matemática · 1ª aplicação · Rosa (prova `461`); Matemática · 1ª aplicação · Cinza (prova `462`); Matemática · Especiais · Laranja adaptada ledor (prova `466`); Matemática · Especiais · Verde videoprova libras (prova `470`)
-- **ENEM 2019:** Ciências Humanas · 1ª aplicação · Azul (prova `507`); Ciências Humanas · 1ª aplicação · Amarela (prova `508`); Ciências Humanas · 1ª aplicação · Branca (prova `509`); Ciências Humanas · 1ª aplicação · Rosa (prova `510`); Ciências Humanas · Especiais · Laranja adaptada ledor (prova `520`); Ciências Humanas · Especiais · Verde videoprova libras (prova `524`); Ciências da Natureza · 1ª aplicação · Azul (prova `503`); Ciências da Natureza · 1ª aplicação · Amarela (prova `504`); Ciências da Natureza · 1ª aplicação · Cinza (prova `505`); Ciências da Natureza · 1ª aplicação · Rosa (prova `506`); Ciências da Natureza · Especiais · Laranja adaptada ledor (prova `519`); Ciências da Natureza · Especiais · Verde videoprova libras (prova `523`); Linguagens · 1ª aplicação · Azul (prova `511`); Linguagens · 1ª aplicação · Amarela (prova `512`); Linguagens · 1ª aplicação · Rosa (prova `513`); Linguagens · 1ª aplicação · Branca (prova `514`); Linguagens · Especiais · Laranja adaptada ledor (prova `521`); Linguagens · Especiais · Verde videoprova libras (prova `525`); Matemática · 1ª aplicação · Azul (prova `515`); Matemática · 1ª aplicação · Amarela (prova `516`); Matemática · 1ª aplicação · Rosa (prova `517`); Matemática · 1ª aplicação · Cinza (prova `518`); Matemática · Especiais · Laranja adaptada ledor (prova `522`); Matemática · Especiais · Verde videoprova libras (prova `526`)
-- **ENEM 2020:** Ciências Humanas · 1ª aplicação · Azul (prova `567`); Ciências Humanas · 1ª aplicação · Amarela (prova `568`); Ciências Humanas · 1ª aplicação · Branca (prova `569`); Ciências Humanas · 1ª aplicação · Rosa (prova `570`); Ciências Humanas · Especiais · Laranja adaptada ledor (prova `574`); Ciências Humanas · Especiais · Verde videoprova libras (prova `575`); Ciências Humanas · Reaplicação · Azul (prova `647`); Ciências Humanas · Reaplicação · Amarela (prova `648`); Ciências Humanas · Reaplicação · Branca (prova `649`); Ciências Humanas · Reaplicação · Rosa (prova `650`); Ciências Humanas · Prova digital · Azul (prova `687`); Ciências Humanas · Prova digital · Amarela (prova `688`); Ciências Humanas · Prova digital · Branca (prova `689`); Ciências Humanas · Prova digital · Rosa (prova `690`); Ciências da Natureza · 1ª aplicação · Azul (prova `597`); Ciências da Natureza · 1ª aplicação · Amarela (prova `598`); Ciências da Natureza · 1ª aplicação · Cinza (prova `599`); Ciências da Natureza · 1ª aplicação · Rosa (prova `600`); Ciências da Natureza · Especiais · Laranja adaptada ledor (prova `604`); Ciências da Natureza · Especiais · Verde videoprova libras (prova `605`); Ciências da Natureza · Reaplicação · Azul (prova `677`); Ciências da Natureza · Reaplicação · Amarela (prova `678`); Ciências da Natureza · Reaplicação · Cinza (prova `679`); Ciências da Natureza · Reaplicação · Rosa (prova `680`); Ciências da Natureza · Prova digital · Azul (prova `699`); Ciências da Natureza · Prova digital · Amarela (prova `700`); Ciências da Natureza · Prova digital · Rosa (prova `701`); Ciências da Natureza · Prova digital · Cinza (prova `702`); Linguagens · 1ª aplicação · Azul (prova `577`); Linguagens · 1ª aplicação · Amarela (prova `578`); Linguagens · 1ª aplicação · Rosa (prova `579`); Linguagens · 1ª aplicação · Branca (prova `580`); Linguagens · Especiais · Laranja adaptada ledor (prova `584`); Linguagens · Especiais · Verde videoprova libras (prova `585`); Linguagens · Reaplicação · Azul (prova `657`); Linguagens · Reaplicação · Amarela (prova `658`); Linguagens · Reaplicação · Rosa (prova `659`); Linguagens · Reaplicação · Branca (prova `660`); Linguagens · Prova digital · Azul (prova `691`); Linguagens · Prova digital · Amarela (prova `692`); Linguagens · Prova digital · Branca (prova `693`); Linguagens · Prova digital · Rosa (prova `694`); Matemática · 1ª aplicação · Azul (prova `587`); Matemática · 1ª aplicação · Amarela (prova `588`); Matemática · 1ª aplicação · Rosa (prova `589`); Matemática · 1ª aplicação · Cinza (prova `590`); Matemática · Especiais · Laranja adaptada ledor (prova `594`); Matemática · Especiais · Verde videoprova libras (prova `595`); Matemática · Reaplicação · Azul (prova `667`); Matemática · Reaplicação · Amarela (prova `668`); Matemática · Reaplicação · Rosa (prova `669`); Matemática · Reaplicação · Cinza (prova `670`); Matemática · Prova digital · Azul (prova `695`); Matemática · Prova digital · Amarela (prova `696`); Matemática · Prova digital · Rosa (prova `697`); Matemática · Prova digital · Cinza (prova `698`)
-- **ENEM 2021:** Ciências Humanas · 1ª aplicação · Azul (prova `879`); Ciências Humanas · 1ª aplicação · Amarela (prova `880`); Ciências Humanas · 1ª aplicação · Branca (prova `881`); Ciências Humanas · 1ª aplicação · Rosa (prova `882`); Ciências Humanas · Especiais · Laranja adaptada ledor (prova `886`); Ciências Humanas · Especiais · Verde videoprova libras (prova `887`); Ciências Humanas · Reaplicação · Azul (prova `959`); Ciências Humanas · Reaplicação · Amarela (prova `960`); Ciências Humanas · Reaplicação · Branca (prova `961`); Ciências Humanas · Reaplicação · Rosa (prova `962`); Ciências Humanas · Prova digital · Azul (prova `999`); Ciências Humanas · Prova digital · Amarela (prova `1000`); Ciências Humanas · Prova digital · Branca (prova `1001`); Ciências Humanas · Prova digital · Rosa (prova `1002`); Ciências Humanas · Segunda oportunidade · Azul (prova `1015`); Ciências Humanas · Segunda oportunidade · Amarela (prova `1016`); Ciências Humanas · Segunda oportunidade · Branca (prova `1017`); Ciências Humanas · Segunda oportunidade · Rosa (prova `1018`); Ciências da Natureza · 1ª aplicação · Azul (prova `909`); Ciências da Natureza · 1ª aplicação · Amarela (prova `910`); Ciências da Natureza · 1ª aplicação · Cinza (prova `911`); Ciências da Natureza · 1ª aplicação · Rosa (prova `912`); Ciências da Natureza · Especiais · Laranja adaptada ledor (prova `916`); Ciências da Natureza · Especiais · Verde videoprova libras (prova `917`); Ciências da Natureza · Reaplicação · Azul (prova `989`); Ciências da Natureza · Reaplicação · Amarela (prova `990`); Ciências da Natureza · Reaplicação · Cinza (prova `991`); Ciências da Natureza · Reaplicação · Rosa (prova `992`); Ciências da Natureza · Prova digital · Azul (prova `1011`); Ciências da Natureza · Prova digital · Amarela (prova `1012`); Ciências da Natureza · Prova digital · Rosa (prova `1013`); Ciências da Natureza · Prova digital · Cinza (prova `1014`); Ciências da Natureza · Segunda oportunidade · Azul (prova `1045`); Ciências da Natureza · Segunda oportunidade · Amarela (prova `1046`); Ciências da Natureza · Segunda oportunidade · Cinza (prova `1047`); Ciências da Natureza · Segunda oportunidade · Rosa (prova `1048`); Linguagens · 1ª aplicação · Azul (prova `889`); Linguagens · 1ª aplicação · Amarela (prova `890`); Linguagens · 1ª aplicação · Rosa (prova `891`); Linguagens · 1ª aplicação · Branca (prova `892`); Linguagens · Especiais · Laranja adaptada ledor (prova `896`); Linguagens · Reaplicação · Azul (prova `969`); Linguagens · Reaplicação · Amarela (prova `970`); Linguagens · Reaplicação · Rosa (prova `971`); Linguagens · Reaplicação · Branca (prova `972`); Linguagens · Prova digital · Azul (prova `1003`); Linguagens · Prova digital · Amarela (prova `1004`); Linguagens · Prova digital · Branca (prova `1005`); Linguagens · Prova digital · Rosa (prova `1006`); Linguagens · Segunda oportunidade · Azul (prova `1025`); Linguagens · Segunda oportunidade · Amarela (prova `1026`); Linguagens · Segunda oportunidade · Rosa (prova `1027`); Linguagens · Segunda oportunidade · Branca (prova `1028`); Matemática · 1ª aplicação · Azul (prova `899`); Matemática · 1ª aplicação · Amarela (prova `900`); Matemática · 1ª aplicação · Rosa (prova `901`); Matemática · 1ª aplicação · Cinza (prova `902`); Matemática · Especiais · Laranja adaptada ledor (prova `906`); Matemática · Especiais · Verde videoprova libras (prova `907`); Matemática · Reaplicação · Azul (prova `979`); Matemática · Reaplicação · Amarela (prova `980`); Matemática · Reaplicação · Rosa (prova `981`); Matemática · Reaplicação · Cinza (prova `982`); Matemática · Prova digital · Azul (prova `1007`); Matemática · Prova digital · Amarela (prova `1008`); Matemática · Prova digital · Rosa (prova `1009`); Matemática · Prova digital · Cinza (prova `1010`); Matemática · Segunda oportunidade · Azul (prova `1035`); Matemática · Segunda oportunidade · Amarela (prova `1036`); Matemática · Segunda oportunidade · Cinza (prova `1037`); Matemática · Segunda oportunidade · Rosa (prova `1038`)
-- **ENEM 2022:** Ciências Humanas · 1ª aplicação · Azul (prova `1055`); Ciências Humanas · 1ª aplicação · Amarela (prova `1056`); Ciências Humanas · 1ª aplicação · Branca (prova `1057`); Ciências Humanas · 1ª aplicação · Rosa (prova `1058`); Ciências Humanas · Especiais · Laranja adaptada ledor (prova `1062`); Ciências Humanas · Especiais · Verde videoprova libras (prova `1063`); Ciências Humanas · Reaplicação · Azul (prova `1135`); Ciências Humanas · Reaplicação · Amarela (prova `1136`); Ciências Humanas · Reaplicação · Branca (prova `1137`); Ciências Humanas · Reaplicação · Rosa (prova `1138`); Ciências Humanas · Prova digital · Azul (prova `1175`); Ciências Humanas · Prova digital · Amarela (prova `1176`); Ciências Humanas · Prova digital · Branca (prova `1177`); Ciências Humanas · Prova digital · Rosa (prova `1178`); Ciências da Natureza · 1ª aplicação · Azul (prova `1085`); Ciências da Natureza · 1ª aplicação · Amarela (prova `1086`); Ciências da Natureza · 1ª aplicação · Cinza (prova `1087`); Ciências da Natureza · 1ª aplicação · Rosa (prova `1088`); Ciências da Natureza · Especiais · Laranja adaptada ledor (prova `1092`); Ciências da Natureza · Especiais · Verde videoprova libras (prova `1093`); Ciências da Natureza · Reaplicação · Azul (prova `1165`); Ciências da Natureza · Reaplicação · Amarela (prova `1166`); Ciências da Natureza · Reaplicação · Cinza (prova `1167`); Ciências da Natureza · Reaplicação · Rosa (prova `1168`); Ciências da Natureza · Prova digital · Azul (prova `1187`); Ciências da Natureza · Prova digital · Amarela (prova `1188`); Ciências da Natureza · Prova digital · Rosa (prova `1189`); Ciências da Natureza · Prova digital · Cinza (prova `1190`); Linguagens · 1ª aplicação · Azul (prova `1065`); Linguagens · 1ª aplicação · Amarela (prova `1066`); Linguagens · 1ª aplicação · Rosa (prova `1067`); Linguagens · 1ª aplicação · Branca (prova `1068`); Linguagens · Especiais · Laranja adaptada ledor (prova `1072`); Linguagens · Especiais · Verde videoprova libras (prova `1073`); Linguagens · Reaplicação · Azul (prova `1145`); Linguagens · Reaplicação · Amarela (prova `1146`); Linguagens · Reaplicação · Rosa (prova `1147`); Linguagens · Reaplicação · Branca (prova `1148`); Linguagens · Prova digital · Azul (prova `1179`); Linguagens · Prova digital · Amarela (prova `1180`); Linguagens · Prova digital · Branca (prova `1181`); Linguagens · Prova digital · Rosa (prova `1182`); Matemática · 1ª aplicação · Azul (prova `1075`); Matemática · 1ª aplicação · Amarela (prova `1076`); Matemática · 1ª aplicação · Rosa (prova `1077`); Matemática · 1ª aplicação · Cinza (prova `1078`); Matemática · Especiais · Laranja adaptada ledor (prova `1082`); Matemática · Especiais · Verde videoprova libras (prova `1083`); Matemática · Reaplicação · Azul (prova `1155`); Matemática · Reaplicação · Amarela (prova `1156`); Matemática · Reaplicação · Rosa (prova `1157`); Matemática · Reaplicação · Cinza (prova `1158`); Matemática · Prova digital · Azul (prova `1183`); Matemática · Prova digital · Amarela (prova `1184`); Matemática · Prova digital · Rosa (prova `1185`); Matemática · Prova digital · Cinza (prova `1186`)
-- **ENEM 2023:** Ciências Humanas · 1ª aplicação · Azul (prova `1191`); Ciências Humanas · 1ª aplicação · Amarela (prova `1192`); Ciências Humanas · 1ª aplicação · Branca (prova `1193`); Ciências Humanas · 1ª aplicação · Rosa (prova `1194`); Ciências Humanas · Especiais · Rosa ampliada (prova `1195`); Ciências Humanas · Especiais · Rosa superampliada (prova `1196`); Ciências Humanas · Especiais · Laranja adaptada ledor (prova `1198`); Ciências Humanas · Especiais · Verde videoprova libras (prova `1199`); Ciências Humanas · Reaplicação · Azul (prova `1271`); Ciências Humanas · Reaplicação · Amarela (prova `1272`); Ciências Humanas · Reaplicação · Branca (prova `1273`); Ciências Humanas · Reaplicação · Rosa (prova `1274`); Ciências da Natureza · 1ª aplicação · Azul (prova `1221`); Ciências da Natureza · 1ª aplicação · Amarela (prova `1222`); Ciências da Natureza · 1ª aplicação · Rosa (prova `1223`); Ciências da Natureza · 1ª aplicação · Cinza (prova `1224`); Ciências da Natureza · Especiais · Rosa ampliada (prova `1225`); Ciências da Natureza · Especiais · Rosa superampliada (prova `1226`); Ciências da Natureza · Especiais · Laranja adaptada ledor (prova `1228`); Ciências da Natureza · Especiais · Verde videoprova libras (prova `1229`); Ciências da Natureza · Reaplicação · Azul (prova `1301`); Ciências da Natureza · Reaplicação · Amarela (prova `1302`); Ciências da Natureza · Reaplicação · Cinza (prova `1303`); Ciências da Natureza · Reaplicação · Rosa (prova `1304`); Linguagens · 1ª aplicação · Azul (prova `1201`); Linguagens · 1ª aplicação · Amarela (prova `1202`); Linguagens · 1ª aplicação · Rosa (prova `1203`); Linguagens · 1ª aplicação · Branca (prova `1204`); Linguagens · Especiais · Rosa ampliada (prova `1205`); Linguagens · Especiais · Rosa superampliada (prova `1206`); Linguagens · Especiais · Laranja adaptada ledor (prova `1208`); Linguagens · Especiais · Verde videoprova libras (prova `1209`); Linguagens · Reaplicação · Azul (prova `1281`); Linguagens · Reaplicação · Rosa (prova `1283`); Matemática · 1ª aplicação · Azul (prova `1211`); Matemática · 1ª aplicação · Amarela (prova `1212`); Matemática · 1ª aplicação · Rosa (prova `1213`); Matemática · 1ª aplicação · Cinza (prova `1214`); Matemática · Especiais · Rosa ampliada (prova `1215`); Matemática · Especiais · Rosa superampliada (prova `1216`); Matemática · Especiais · Laranja adaptada ledor (prova `1218`); Matemática · Especiais · Verde videoprova libras (prova `1219`); Matemática · Reaplicação · Azul (prova `1291`); Matemática · Reaplicação · Amarela (prova `1292`); Matemática · Reaplicação · Rosa (prova `1293`); Matemática · Reaplicação · Cinza (prova `1294`)
-- **ENEM 2024:** Ciências Humanas · 1ª aplicação · Azul (prova `1383`); Ciências Humanas · 1ª aplicação · Amarela (prova `1384`); Ciências Humanas · 1ª aplicação · Branca (prova `1385`); Ciências Humanas · 1ª aplicação · Verde (prova `1386`); Ciências Humanas · Especiais · Verde ampliada (prova `1387`); Ciências Humanas · Especiais · Verde superampliada (prova `1388`); Ciências Humanas · Especiais · Laranja adaptada ledor (prova `1390`); Ciências Humanas · Especiais · Roxa videoprova libras (prova `1391`); Ciências da Natureza · 1ª aplicação · Azul (prova `1419`); Ciências da Natureza · 1ª aplicação · Amarela (prova `1420`); Ciências da Natureza · 1ª aplicação · Verde (prova `1421`); Ciências da Natureza · 1ª aplicação · Cinza (prova `1422`); Ciências da Natureza · Especiais · Verde ampliada (prova `1423`); Ciências da Natureza · Especiais · Verde superampliada (prova `1424`); Ciências da Natureza · Especiais · Laranja adaptada ledor (prova `1426`); Ciências da Natureza · Especiais · Roxa videoprova libras (prova `1427`); Linguagens · Especiais · Verde ampliada (prova `1399`); Linguagens · Especiais · Verde superampliada (prova `1400`); Linguagens · Especiais · Laranja adaptada ledor (prova `1402`); Linguagens · Especiais · Roxa videoprova libras (prova `1403`); Matemática · 1ª aplicação · Azul (prova `1407`); Matemática · 1ª aplicação · Amarela (prova `1408`); Matemática · 1ª aplicação · Verde (prova `1409`); Matemática · 1ª aplicação · Cinza (prova `1410`); Matemática · Especiais · Verde ampliada (prova `1411`); Matemática · Especiais · Verde superampliada (prova `1412`); Matemática · Especiais · Laranja adaptada ledor (prova `1414`); Matemática · Especiais · Roxa videoprova libras (prova `1415`)
-- **ENEM 2025:** Ciências Humanas · 1ª aplicação · Azul (prova `1447`); Ciências Humanas · 1ª aplicação · Amarela (prova `1448`); Ciências Humanas · 1ª aplicação · Branca (prova `1449`); Ciências Humanas · 1ª aplicação · Verde (prova `1450`); Ciências Humanas · Especiais · Laranja ampliada (prova `1451`); Ciências Humanas · Especiais · Laranja superampliada (prova `1452`); Ciências Humanas · Especiais · Laranja adaptada ledor (prova `1454`); Ciências Humanas · Especiais · Roxa videoprova libras (prova `1455`); Ciências Humanas · Especiais · Laranja atendimento especializado (prova `1495`); Ciências Humanas · Segunda oportunidade · Amarela (prova `1584`); Ciências Humanas · Segunda oportunidade · Branca (prova `1585`); Ciências Humanas · Segunda oportunidade · Verde (prova `1586`); Ciências Humanas · Segunda oportunidade · Laranja atendimento especializado (prova `1631`); Ciências da Natureza · Especiais · Laranja ampliada (prova `1487`); Ciências da Natureza · Especiais · Laranja superampliada (prova `1488`); Ciências da Natureza · Especiais · Laranja adaptada ledor (prova `1490`); Ciências da Natureza · Especiais · Roxa videoprova libras (prova `1491`); Ciências da Natureza · Reaplicação · Azul (prova `1569`); Ciências da Natureza · Reaplicação · Amarela (prova `1570`); Ciências da Natureza · Reaplicação · Cinza (prova `1571`); Ciências da Natureza · Reaplicação · Verde (prova `1572`); Ciências da Natureza · Segunda oportunidade · Azul (prova `1619`); Ciências da Natureza · Segunda oportunidade · Amarela (prova `1620`); Ciências da Natureza · Segunda oportunidade · Verde (prova `1621`); Ciências da Natureza · Segunda oportunidade · Cinza (prova `1622`); Ciências da Natureza · Segunda oportunidade · Laranja atendimento especializado (prova `1634`); Linguagens · Especiais · Laranja ampliada (prova `1463`); Linguagens · Especiais · Laranja superampliada (prova `1464`); Linguagens · Especiais · Laranja adaptada ledor (prova `1466`); Linguagens · Especiais · Roxa videoprova libras (prova `1467`); Linguagens · Especiais · Laranja atendimento especializado (prova `1496`); Linguagens · Segunda oportunidade · Azul (prova `1595`); Linguagens · Segunda oportunidade · Amarela (prova `1596`); Linguagens · Segunda oportunidade · Verde (prova `1597`); Linguagens · Segunda oportunidade · Branca (prova `1598`); Linguagens · Segunda oportunidade · Laranja atendimento especializado (prova `1632`); Matemática · Especiais · Laranja ampliada (prova `1475`); Matemática · Especiais · Laranja superampliada (prova `1476`); Matemática · Especiais · Laranja adaptada ledor (prova `1478`); Matemática · Especiais · Roxa videoprova libras (prova `1479`); Matemática · Especiais · Laranja atendimento especializado (prova `1497`); Matemática · Reaplicação · Azul (prova `1559`); Matemática · Reaplicação · Amarela (prova `1560`); Matemática · Reaplicação · Verde (prova `1561`); Matemática · Reaplicação · Cinza (prova `1562`); Matemática · Segunda oportunidade · Azul (prova `1607`); Matemática · Segunda oportunidade · Amarela (prova `1608`); Matemática · Segunda oportunidade · Verde (prova `1609`); Matemática · Segunda oportunidade · Cinza (prova `1610`); Matemática · Segunda oportunidade · Laranja atendimento especializado (prova `1633`)
+</details>
 
-### `aviso_leve` (3)
+<details>
+<summary><strong>26</strong> provas: participantes de menos para conferir</summary>
 
-- **ENEM 2011:** Linguagens · 1ª aplicação · Rosa (prova `128`)
-- **ENEM 2012:** Ciências da Natureza · 1ª aplicação · Branca (prova `143`)
-- **ENEM 2025:** Linguagens · 1ª aplicação · Branca (prova `1462`)
+- **2016:** Ciências Humanas · Reaplicação · Amarela (prova `337`); Ciências Humanas · Reaplicação · Branca (prova `338`); Ciências da Natureza · Reaplicação · Amarela (prova `332`); Ciências da Natureza · Reaplicação · Branca (prova `333`)
+- **2023:** Ciências Humanas · Especiais · Laranja braille (prova `1197`); Ciências da Natureza · Especiais · Laranja braille (prova `1227`); Linguagens · Especiais · Laranja braille (prova `1207`); Matemática · Especiais · Laranja braille (prova `1217`)
+- **2024:** Ciências da Natureza · Reaplicação · Azul (prova `1373`); Ciências da Natureza · Reaplicação · Amarela (prova `1374`); Ciências da Natureza · Reaplicação · Cinza (prova `1375`); Ciências da Natureza · Reaplicação · Verde (prova `1376`); Matemática · Reaplicação · Azul (prova `1363`); Matemática · Reaplicação · Amarela (prova `1364`); Matemática · Reaplicação · Verde (prova `1365`); Matemática · Reaplicação · Cinza (prova `1366`)
+- **2025:** Ciências Humanas · Reaplicação · Azul (prova `1539`); Ciências Humanas · Reaplicação · Branca (prova `1541`); Ciências Humanas · Reaplicação · Verde (prova `1542`); Ciências Humanas · Segunda oportunidade · Laranja ampliada (prova `1587`); Ciências da Natureza · Segunda oportunidade · Laranja ampliada (prova `1623`); Linguagens · Reaplicação · Azul (prova `1549`); Linguagens · Reaplicação · Verde (prova `1551`); Linguagens · Reaplicação · Branca (prova `1552`); Linguagens · Segunda oportunidade · Laranja ampliada (prova `1599`); Matemática · Segunda oportunidade · Laranja ampliada (prova `1611`)
 
-### `aviso_forte` (31)
+</details>
 
-- **ENEM 2011:** Ciências Humanas · 1ª aplicação · Azul (prova `117`); Ciências da Natureza · 1ª aplicação · Azul (prova `121`); Ciências da Natureza · 1ª aplicação · Amarela (prova `122`); Ciências da Natureza · 1ª aplicação · Branca (prova `123`); Ciências da Natureza · 1ª aplicação · Rosa (prova `124`); Linguagens · 1ª aplicação · Cinza (prova `126`); Linguagens · 1ª aplicação · Azul (prova `127`); Matemática · 1ª aplicação · Amarela (prova `129`); Matemática · 1ª aplicação · Cinza (prova `130`); Matemática · 1ª aplicação · Azul (prova `131`); Matemática · 1ª aplicação · Rosa (prova `132`)
-- **ENEM 2012:** Ciências Humanas · Especiais · Branca ledor (prova `154`)
-- **ENEM 2016:** Matemática · 2ª reaplicação · Amarela (prova `367`)
-- **ENEM 2021:** Linguagens · Especiais · Verde videoprova libras (prova `897`)
-- **ENEM 2024:** Linguagens · 1ª aplicação · Azul (prova `1395`); Linguagens · 1ª aplicação · Amarela (prova `1396`); Linguagens · 1ª aplicação · Verde (prova `1397`); Linguagens · 1ª aplicação · Branca (prova `1398`)
-- **ENEM 2025:** Ciências Humanas · Segunda oportunidade · Azul (prova `1583`); Ciências da Natureza · 1ª aplicação · Azul (prova `1483`); Ciências da Natureza · 1ª aplicação · Amarela (prova `1484`); Ciências da Natureza · 1ª aplicação · Verde (prova `1485`); Ciências da Natureza · 1ª aplicação · Cinza (prova `1486`); Ciências da Natureza · Especiais · Laranja atendimento especializado (prova `1498`); Linguagens · 1ª aplicação · Azul (prova `1459`); Linguagens · 1ª aplicação · Amarela (prova `1460`); Linguagens · 1ª aplicação · Verde (prova `1461`); Matemática · 1ª aplicação · Azul (prova `1471`); Matemática · 1ª aplicação · Amarela (prova `1472`); Matemática · 1ª aplicação · Verde (prova `1473`); Matemática · 1ª aplicação · Cinza (prova `1474`)
+## Como a validação é feita
 
-### `erro_alto` (11)
+Para cada participante válido dos microdados, a nota calculada é comparada com a oficial. Cada prova recebe um status pelo número de participantes a mais de 2 pontos; 1 ou 2 casos isolados, com erro de dezenas de pontos, são registros corrompidos e não rebaixam a prova.
 
-- **ENEM 2010:** Ciências Humanas · Reaplicação · Azul (prova `101`); Ciências da Natureza · Reaplicação · Azul (prova `105`)
-- **ENEM 2012:** Ciências da Natureza · Especiais · Branca ledor (prova `153`)
-- **ENEM 2015:** Ciências Humanas · Reaplicação · Branca (prova `273`); Ciências da Natureza · Reaplicação · Branca (prova `277`); Matemática · Reaplicação · Rosa (prova `286`)
-- **ENEM 2016:** Ciências da Natureza · 2ª reaplicação · Branca (prova `353`); Ciências da Natureza · 2ª reaplicação · Rosa (prova `354`); Matemática · 2ª reaplicação · Azul (prova `366`)
-- **ENEM 2023:** Linguagens · Reaplicação · Amarela (prova `1282`); Linguagens · Reaplicação · Branca (prova `1284`)
+| Status | Critério | Provas |
+|---|---|---:|
+| `ok` | menos de 5 participantes acima de 2 pontos | 602 |
+| `erro_raro` | 5 ou mais participantes acima de 2 pontos | 22 |
+| `nao_calibrado` | menos de 30 participantes | 26 |
+| `sem_participantes` | nenhum participante válido nos microdados | 100 |
+| `sem_itens` | parâmetros dos itens indisponíveis | 12 |
 
-### `nao_calibrado` (26)
+A escala de cada área é ajustada com 329.020 participantes sorteados. Outros 221.059, fora de todo ajuste, confirmam o resultado: diferença média de 0,026 ponto e 99,98% a até 2 pontos.
 
-- **ENEM 2016:** Ciências Humanas · Reaplicação · Amarela (prova `337`); Ciências Humanas · Reaplicação · Branca (prova `338`); Ciências da Natureza · Reaplicação · Amarela (prova `332`); Ciências da Natureza · Reaplicação · Branca (prova `333`)
-- **ENEM 2023:** Ciências Humanas · Especiais · Laranja braille (prova `1197`); Ciências da Natureza · Especiais · Laranja braille (prova `1227`); Linguagens · Especiais · Laranja braille (prova `1207`); Matemática · Especiais · Laranja braille (prova `1217`)
-- **ENEM 2024:** Ciências da Natureza · Reaplicação · Azul (prova `1373`); Ciências da Natureza · Reaplicação · Amarela (prova `1374`); Ciências da Natureza · Reaplicação · Cinza (prova `1375`); Ciências da Natureza · Reaplicação · Verde (prova `1376`); Matemática · Reaplicação · Azul (prova `1363`); Matemática · Reaplicação · Amarela (prova `1364`); Matemática · Reaplicação · Verde (prova `1365`); Matemática · Reaplicação · Cinza (prova `1366`)
-- **ENEM 2025:** Ciências Humanas · Reaplicação · Azul (prova `1539`); Ciências Humanas · Reaplicação · Branca (prova `1541`); Ciências Humanas · Reaplicação · Verde (prova `1542`); Ciências Humanas · Segunda oportunidade · Laranja ampliada (prova `1587`); Ciências da Natureza · Segunda oportunidade · Laranja ampliada (prova `1623`); Linguagens · Reaplicação · Azul (prova `1549`); Linguagens · Reaplicação · Verde (prova `1551`); Linguagens · Reaplicação · Branca (prova `1552`); Linguagens · Segunda oportunidade · Laranja ampliada (prova `1599`); Matemática · Segunda oportunidade · Laranja ampliada (prova `1611`)
+Registros do INEP com respostas de outra prova (por exemplo, CN e CH trocadas) ficam fora das contas; estão em `tests/fixtures/registros_inconsistentes.json`.
 
-### `sem_participantes` (100)
+Por área:
 
-- **ENEM 2010:** Linguagens · Reaplicação · Amarela (prova `109`); Linguagens · Reaplicação · Cinza (prova `110`); Linguagens · Reaplicação · Azul (prova `111`); Linguagens · Reaplicação · Rosa (prova `112`); Matemática · Reaplicação · Amarela (prova `113`); Matemática · Reaplicação · Cinza (prova `114`); Matemática · Reaplicação · Azul (prova `115`); Matemática · Reaplicação · Rosa (prova `116`)
-- **ENEM 2016:** Ciências Humanas · Reaplicação · Rosa (prova `339`); Ciências Humanas · Especiais · Branca adaptada reaplicacao 2 (prova `360`); Ciências da Natureza · Reaplicação · Rosa (prova `334`); Ciências da Natureza · Especiais · Branca adaptada reaplicacao 2 (prova `355`); Linguagens · Reaplicação · Azul (prova `341`); Linguagens · Reaplicação · Amarela (prova `342`); Linguagens · Reaplicação · Rosa (prova `343`); Linguagens · Reaplicação · Cinza adaptada (prova `344`); Linguagens · Especiais · Cinza adaptada reaplicacao 2 (prova `365`); Matemática · Reaplicação · Azul (prova `346`); Matemática · Reaplicação · Amarela (prova `347`); Matemática · Reaplicação · Rosa (prova `348`); Matemática · Reaplicação · Cinza (prova `349`); Matemática · Especiais · Cinza adaptada reaplicacao 2 (prova `370`)
-- **ENEM 2017:** Ciências da Natureza · Reaplicação · Amarela (prova `431`); Ciências da Natureza · Reaplicação · Cinza (prova `432`); Ciências da Natureza · Reaplicação · Azul (prova `433`); Ciências da Natureza · Reaplicação · Rosa (prova `434`); Matemática · Reaplicação · Amarela (prova `443`); Matemática · Reaplicação · Cinza (prova `444`); Matemática · Reaplicação · Azul (prova `445`); Matemática · Reaplicação · Rosa (prova `446`)
-- **ENEM 2018:** Ciências da Natureza · Reaplicação · Amarela (prova `487`); Ciências da Natureza · Reaplicação · Cinza (prova `488`); Ciências da Natureza · Reaplicação · Azul (prova `489`); Ciências da Natureza · Reaplicação · Rosa (prova `490`); Matemática · Reaplicação · Amarela (prova `499`); Matemática · Reaplicação · Cinza (prova `500`); Matemática · Reaplicação · Azul (prova `501`); Matemática · Reaplicação · Rosa (prova `502`)
-- **ENEM 2019:** Ciências Humanas · Reaplicação · Azul (prova `547`); Ciências Humanas · Reaplicação · Amarela (prova `548`); Ciências Humanas · Reaplicação · Branca (prova `549`); Ciências Humanas · Reaplicação · Rosa (prova `550`); Ciências Humanas · Especiais · Laranja adaptada ledor reaplicacao (prova `564`); Ciências da Natureza · Reaplicação · Amarela (prova `543`); Ciências da Natureza · Reaplicação · Cinza (prova `544`); Ciências da Natureza · Reaplicação · Azul (prova `545`); Ciências da Natureza · Reaplicação · Rosa (prova `546`); Linguagens · Reaplicação · Azul (prova `551`); Linguagens · Reaplicação · Amarela (prova `552`); Linguagens · Reaplicação · Branca (prova `553`); Linguagens · Reaplicação · Rosa (prova `554`); Linguagens · Especiais · Laranja adaptada ledor reaplicacao (prova `565`); Matemática · Reaplicação · Amarela (prova `555`); Matemática · Reaplicação · Cinza (prova `556`); Matemática · Reaplicação · Azul (prova `557`); Matemática · Reaplicação · Rosa (prova `558`)
-- **ENEM 2020:** Ciências Humanas · Especiais · Laranja adaptada ledor reaplicacao (prova `654`); Ciências da Natureza · Especiais · Laranja adaptada ledor reaplicacao (prova `684`); Linguagens · Especiais · Laranja adaptada ledor reaplicacao (prova `664`); Matemática · Especiais · Laranja adaptada ledor reaplicacao (prova `674`)
-- **ENEM 2021:** Ciências Humanas · Especiais · Laranja braille (prova `885`); Ciências Humanas · Especiais · Laranja adaptada ledor reaplicacao (prova `966`); Ciências Humanas · Especiais · Laranja adaptada ledor segunda oportunidade (prova `1022`); Ciências da Natureza · Especiais · Laranja braille (prova `915`); Ciências da Natureza · Especiais · Laranja adaptada ledor reaplicacao (prova `996`); Ciências da Natureza · Especiais · Laranja adaptada ledor segunda oportunidade (prova `1052`); Linguagens · Especiais · Laranja braille (prova `895`); Linguagens · Especiais · Laranja adaptada ledor reaplicacao (prova `976`); Linguagens · Especiais · Laranja adaptada ledor segunda oportunidade (prova `1032`); Matemática · Especiais · Laranja braille (prova `905`); Matemática · Especiais · Laranja adaptada ledor reaplicacao (prova `986`); Matemática · Especiais · Laranja adaptada ledor segunda oportunidade (prova `1042`)
-- **ENEM 2024:** Ciências Humanas · Reaplicação · Azul (prova `1343`); Ciências Humanas · Reaplicação · Amarela (prova `1344`); Ciências Humanas · Reaplicação · Branca (prova `1345`); Ciências Humanas · Reaplicação · Verde (prova `1346`); Ciências Humanas · Especiais · Verde ampliada reaplicacao (prova `1347`); Ciências Humanas · Especiais · Verde superampliada reaplicacao (prova `1348`); Ciências Humanas · Especiais · Laranja adaptada ledor reaplicacao (prova `1350`); Ciências Humanas · Especiais · Roxa videoprova libras ampliada (prova `1392`); Ciências Humanas · Especiais · Roxa videoprova libras superampliada (prova `1393`); Ciências da Natureza · Especiais · Verde ampliada reaplicacao (prova `1377`); Ciências da Natureza · Especiais · Verde superampliada reaplicacao (prova `1378`); Ciências da Natureza · Especiais · Laranja adaptada ledor reaplicacao (prova `1380`); Ciências da Natureza · Especiais · Roxa videoprova libras ampliada (prova `1428`); Linguagens · Reaplicação · Azul (prova `1353`); Linguagens · Reaplicação · Amarela (prova `1354`); Linguagens · Reaplicação · Verde (prova `1355`); Linguagens · Reaplicação · Branca (prova `1356`); Linguagens · Especiais · Verde ampliada reaplicacao (prova `1357`); Linguagens · Especiais · Verde superampliada reaplicacao (prova `1358`); Linguagens · Especiais · Laranja adaptada ledor reaplicacao (prova `1360`); Linguagens · Especiais · Roxa videoprova libras ampliada (prova `1404`); Linguagens · Especiais · Roxa videoprova libras superampliada (prova `1405`); Matemática · Especiais · Verde ampliada reaplicacao (prova `1367`); Matemática · Especiais · Verde superampliada reaplicacao (prova `1368`); Matemática · Especiais · Laranja adaptada ledor reaplicacao (prova `1370`); Matemática · Especiais · Roxa videoprova libras ampliada (prova `1416`)
-- **ENEM 2025:** Ciências Humanas · Reaplicação · Amarela (prova `1540`); Linguagens · Reaplicação · Amarela (prova `1550`)
+| Área | Provas | Notas | Diferença média | Até 2 pontos |
+|---|---:|---:|---:|---:|
+| Ciências Humanas | 191 | 67.041.626 | 0,025 | 99,99% |
+| Ciências da Natureza | 189 | 65.435.972 | 0,026 | 99,99% |
+| Linguagens | 192 | 65.938.730 | 0,025 | 99,99% |
+| Matemática | 190 | 64.294.946 | 0,026 | 99,99% |
 
-### `sem_itens` (12)
-
-- **ENEM 2009:** Ciências Humanas · Especiais · Branca adaptada ledor (prova `82`); Ciências da Natureza · Especiais · Branca adaptada ledor (prova `81`); Linguagens · Especiais · Cinza adaptada ledor (prova `83`); Matemática · Especiais · Cinza adaptada ledor (prova `84`)
-- **ENEM 2020:** Ciências Humanas · Especiais · Rosa ampliada (prova `571`); Ciências Humanas · Especiais · Rosa superampliada (prova `572`); Ciências da Natureza · Especiais · Rosa ampliada (prova `601`); Ciências da Natureza · Especiais · Rosa superampliada (prova `602`); Linguagens · Especiais · Rosa ampliada (prova `581`); Linguagens · Especiais · Rosa superampliada (prova `582`); Matemática · Especiais · Rosa ampliada (prova `591`); Matemática · Especiais · Rosa superampliada (prova `592`)
-
-## Listas de provas por perfil de apresentação
-
-### Estimativa confiável na maioria dos casos, com exceções (`boa_na_maioria_com_excecoes`, 43)
-
-- **ENEM 2010:** Ciências Humanas · Reaplicação · Azul (prova `101`); Ciências da Natureza · Reaplicação · Azul (prova `105`)
-- **ENEM 2011:** Ciências Humanas · 1ª aplicação · Azul (prova `117`); Ciências da Natureza · 1ª aplicação · Azul (prova `121`); Ciências da Natureza · 1ª aplicação · Amarela (prova `122`); Ciências da Natureza · 1ª aplicação · Branca (prova `123`); Ciências da Natureza · 1ª aplicação · Rosa (prova `124`); Linguagens · 1ª aplicação · Cinza (prova `126`); Linguagens · 1ª aplicação · Azul (prova `127`); Linguagens · 1ª aplicação · Rosa (prova `128`); Matemática · 1ª aplicação · Amarela (prova `129`); Matemática · 1ª aplicação · Cinza (prova `130`); Matemática · 1ª aplicação · Azul (prova `131`); Matemática · 1ª aplicação · Rosa (prova `132`)
-- **ENEM 2012:** Ciências da Natureza · 1ª aplicação · Branca (prova `143`)
-- **ENEM 2015:** Ciências Humanas · Reaplicação · Branca (prova `273`); Ciências da Natureza · Reaplicação · Branca (prova `277`); Matemática · Reaplicação · Rosa (prova `286`)
-- **ENEM 2016:** Ciências da Natureza · 2ª reaplicação · Branca (prova `353`); Ciências da Natureza · 2ª reaplicação · Rosa (prova `354`); Matemática · 2ª reaplicação · Azul (prova `366`); Matemática · 2ª reaplicação · Amarela (prova `367`)
-- **ENEM 2021:** Linguagens · Especiais · Verde videoprova libras (prova `897`)
-- **ENEM 2023:** Linguagens · Reaplicação · Amarela (prova `1282`); Linguagens · Reaplicação · Branca (prova `1284`)
-- **ENEM 2024:** Linguagens · 1ª aplicação · Azul (prova `1395`); Linguagens · 1ª aplicação · Amarela (prova `1396`); Linguagens · 1ª aplicação · Verde (prova `1397`); Linguagens · 1ª aplicação · Branca (prova `1398`)
-- **ENEM 2025:** Ciências Humanas · Segunda oportunidade · Azul (prova `1583`); Ciências da Natureza · 1ª aplicação · Azul (prova `1483`); Ciências da Natureza · 1ª aplicação · Amarela (prova `1484`); Ciências da Natureza · 1ª aplicação · Verde (prova `1485`); Ciências da Natureza · 1ª aplicação · Cinza (prova `1486`); Ciências da Natureza · Especiais · Laranja atendimento especializado (prova `1498`); Linguagens · 1ª aplicação · Azul (prova `1459`); Linguagens · 1ª aplicação · Amarela (prova `1460`); Linguagens · 1ª aplicação · Verde (prova `1461`); Linguagens · 1ª aplicação · Branca (prova `1462`); Matemática · 1ª aplicação · Azul (prova `1471`); Matemática · 1ª aplicação · Amarela (prova `1472`); Matemática · 1ª aplicação · Verde (prova `1473`); Matemática · 1ª aplicação · Cinza (prova `1474`)
-
-### Boa calibração verificada (`calibracao_verificada`, 577)
-
-- **ENEM 2009:** Ciências Humanas · 1ª aplicação · Azul (prova `53`); Ciências Humanas · 1ª aplicação · Amarela (prova `54`); Ciências Humanas · 1ª aplicação · Branca (prova `55`); Ciências Humanas · 1ª aplicação · Rosa (prova `56`); Ciências Humanas · Reaplicação · Azul (prova `69`); Ciências Humanas · Reaplicação · Amarela (prova `70`); Ciências Humanas · Reaplicação · Branca (prova `71`); Ciências Humanas · Reaplicação · Rosa (prova `72`); Ciências da Natureza · 1ª aplicação · Azul (prova `49`); Ciências da Natureza · 1ª aplicação · Amarela (prova `50`); Ciências da Natureza · 1ª aplicação · Branca (prova `51`); Ciências da Natureza · 1ª aplicação · Rosa (prova `52`); Ciências da Natureza · Reaplicação · Azul (prova `65`); Ciências da Natureza · Reaplicação · Amarela (prova `66`); Ciências da Natureza · Reaplicação · Branca (prova `67`); Ciências da Natureza · Reaplicação · Rosa (prova `68`); Linguagens · 1ª aplicação · Amarela (prova `57`); Linguagens · 1ª aplicação · Cinza (prova `58`); Linguagens · 1ª aplicação · Azul (prova `59`); Linguagens · 1ª aplicação · Rosa (prova `60`); Linguagens · Reaplicação · Amarela (prova `73`); Linguagens · Reaplicação · Cinza (prova `74`); Linguagens · Reaplicação · Azul (prova `75`); Linguagens · Reaplicação · Rosa (prova `76`); Matemática · 1ª aplicação · Amarela (prova `61`); Matemática · 1ª aplicação · Cinza (prova `62`); Matemática · 1ª aplicação · Azul (prova `63`); Matemática · 1ª aplicação · Rosa (prova `64`); Matemática · Reaplicação · Amarela (prova `77`); Matemática · Reaplicação · Cinza (prova `78`); Matemática · Reaplicação · Azul (prova `79`); Matemática · Reaplicação · Rosa (prova `80`)
-- **ENEM 2010:** Ciências Humanas · 1ª aplicação · Azul (prova `85`); Ciências Humanas · 1ª aplicação · Amarela (prova `86`); Ciências Humanas · 1ª aplicação · Branca (prova `87`); Ciências Humanas · 1ª aplicação · Rosa (prova `88`); Ciências Humanas · Reaplicação · Amarela (prova `102`); Ciências Humanas · Reaplicação · Branca (prova `103`); Ciências Humanas · Reaplicação · Rosa (prova `104`); Ciências da Natureza · 1ª aplicação · Azul (prova `89`); Ciências da Natureza · 1ª aplicação · Amarela (prova `90`); Ciências da Natureza · 1ª aplicação · Branca (prova `91`); Ciências da Natureza · 1ª aplicação · Rosa (prova `92`); Ciências da Natureza · Reaplicação · Amarela (prova `106`); Ciências da Natureza · Reaplicação · Branca (prova `107`); Ciências da Natureza · Reaplicação · Rosa (prova `108`); Linguagens · 1ª aplicação · Amarela (prova `93`); Linguagens · 1ª aplicação · Cinza (prova `94`); Linguagens · 1ª aplicação · Azul (prova `95`); Linguagens · 1ª aplicação · Rosa (prova `96`); Matemática · 1ª aplicação · Amarela (prova `97`); Matemática · 1ª aplicação · Cinza (prova `98`); Matemática · 1ª aplicação · Azul (prova `99`); Matemática · 1ª aplicação · Rosa (prova `100`)
-- **ENEM 2011:** Ciências Humanas · 1ª aplicação · Amarela (prova `118`); Ciências Humanas · 1ª aplicação · Branca (prova `119`); Ciências Humanas · 1ª aplicação · Rosa (prova `120`); Linguagens · 1ª aplicação · Amarela (prova `125`)
-- **ENEM 2012:** Ciências Humanas · 1ª aplicação · Azul (prova `137`); Ciências Humanas · 1ª aplicação · Amarela (prova `138`); Ciências Humanas · 1ª aplicação · Branca (prova `139`); Ciências Humanas · 1ª aplicação · Rosa (prova `140`); Ciências da Natureza · 1ª aplicação · Azul (prova `141`); Ciências da Natureza · 1ª aplicação · Amarela (prova `142`); Ciências da Natureza · 1ª aplicação · Rosa (prova `144`); Linguagens · 1ª aplicação · Amarela (prova `145`); Linguagens · 1ª aplicação · Cinza (prova `146`); Linguagens · 1ª aplicação · Azul (prova `147`); Linguagens · 1ª aplicação · Rosa (prova `148`); Linguagens · Especiais · Cinza ledor (prova `155`); Matemática · 1ª aplicação · Amarela (prova `149`); Matemática · 1ª aplicação · Cinza (prova `150`); Matemática · 1ª aplicação · Azul (prova `151`); Matemática · 1ª aplicação · Rosa (prova `152`); Matemática · Especiais · Cinza ledor (prova `156`)
-- **ENEM 2013:** Ciências Humanas · 1ª aplicação · Azul (prova `167`); Ciências Humanas · 1ª aplicação · Amarela (prova `168`); Ciências Humanas · 1ª aplicação · Branca (prova `169`); Ciências Humanas · 1ª aplicação · Rosa (prova `170`); Ciências Humanas · Especiais · Branca adaptada ledor (prova `187`); Ciências da Natureza · 1ª aplicação · Azul (prova `171`); Ciências da Natureza · 1ª aplicação · Amarela (prova `172`); Ciências da Natureza · 1ª aplicação · Branca (prova `173`); Ciências da Natureza · 1ª aplicação · Rosa (prova `174`); Ciências da Natureza · Especiais · Branca adaptada ledor (prova `188`); Linguagens · 1ª aplicação · Amarela (prova `175`); Linguagens · 1ª aplicação · Cinza (prova `176`); Linguagens · 1ª aplicação · Azul (prova `177`); Linguagens · 1ª aplicação · Rosa (prova `178`); Linguagens · Especiais · Cinza adaptada ledor (prova `189`); Matemática · 1ª aplicação · Amarela (prova `179`); Matemática · 1ª aplicação · Cinza (prova `180`); Matemática · 1ª aplicação · Azul (prova `181`); Matemática · 1ª aplicação · Rosa (prova `182`); Matemática · Especiais · Cinza adaptada ledor (prova `190`)
-- **ENEM 2014:** Ciências Humanas · 1ª aplicação · Azul (prova `195`); Ciências Humanas · 1ª aplicação · Amarela (prova `196`); Ciências Humanas · 1ª aplicação · Branca (prova `197`); Ciências Humanas · 1ª aplicação · Rosa (prova `198`); Ciências Humanas · Especiais · Branca adaptada (prova `215`); Ciências da Natureza · 1ª aplicação · Azul (prova `199`); Ciências da Natureza · 1ª aplicação · Amarela (prova `200`); Ciências da Natureza · 1ª aplicação · Branca (prova `201`); Ciências da Natureza · 1ª aplicação · Rosa (prova `202`); Ciências da Natureza · Especiais · Branca adaptada (prova `216`); Linguagens · 1ª aplicação · Amarela (prova `203`); Linguagens · 1ª aplicação · Cinza (prova `204`); Linguagens · 1ª aplicação · Azul (prova `205`); Linguagens · 1ª aplicação · Rosa (prova `206`); Linguagens · Reaplicação · Cinza (prova `213`); Linguagens · Especiais · Cinza adaptada (prova `217`); Matemática · 1ª aplicação · Amarela (prova `207`); Matemática · 1ª aplicação · Cinza (prova `208`); Matemática · 1ª aplicação · Azul (prova `209`); Matemática · 1ª aplicação · Rosa (prova `210`); Matemática · Reaplicação · Cinza (prova `214`); Matemática · Especiais · Cinza adaptada (prova `218`)
-- **ENEM 2015:** Ciências Humanas · 1ª aplicação · Azul (prova `231`); Ciências Humanas · 1ª aplicação · Amarela (prova `232`); Ciências Humanas · 1ª aplicação · Branca (prova `233`); Ciências Humanas · 1ª aplicação · Rosa (prova `234`); Ciências Humanas · Especiais · Branca adaptada (prova `251`); Ciências Humanas · Reaplicação · Azul (prova `271`); Ciências Humanas · Reaplicação · Amarela (prova `272`); Ciências Humanas · Reaplicação · Rosa (prova `274`); Ciências da Natureza · 1ª aplicação · Azul (prova `235`); Ciências da Natureza · 1ª aplicação · Amarela (prova `236`); Ciências da Natureza · 1ª aplicação · Branca (prova `237`); Ciências da Natureza · 1ª aplicação · Rosa (prova `238`); Ciências da Natureza · Especiais · Branca adaptada (prova `252`); Ciências da Natureza · Reaplicação · Azul (prova `275`); Ciências da Natureza · Reaplicação · Amarela (prova `276`); Ciências da Natureza · Reaplicação · Rosa (prova `278`); Linguagens · 1ª aplicação · Amarela (prova `239`); Linguagens · 1ª aplicação · Cinza (prova `240`); Linguagens · 1ª aplicação · Azul (prova `241`); Linguagens · 1ª aplicação · Rosa (prova `242`); Linguagens · Especiais · Cinza adaptada (prova `253`); Linguagens · Reaplicação · Amarela (prova `279`); Linguagens · Reaplicação · Cinza (prova `280`); Linguagens · Reaplicação · Azul (prova `281`); Linguagens · Reaplicação · Rosa (prova `282`); Matemática · 1ª aplicação · Amarela (prova `243`); Matemática · 1ª aplicação · Cinza (prova `244`); Matemática · 1ª aplicação · Azul (prova `245`); Matemática · 1ª aplicação · Rosa (prova `246`); Matemática · Especiais · Cinza adaptada (prova `254`); Matemática · Reaplicação · Amarela (prova `283`); Matemática · Reaplicação · Cinza (prova `284`); Matemática · Reaplicação · Azul (prova `285`)
-- **ENEM 2016:** Ciências Humanas · 1ª aplicação · Azul (prova `295`); Ciências Humanas · 1ª aplicação · Amarela (prova `296`); Ciências Humanas · 1ª aplicação · Branca (prova `297`); Ciências Humanas · 1ª aplicação · Rosa (prova `298`); Ciências Humanas · Especiais · Branca adaptada (prova `308`); Ciências Humanas · Reaplicação · Azul (prova `336`); Ciências Humanas · 2ª reaplicação · Azul (prova `356`); Ciências Humanas · 2ª reaplicação · Amarela (prova `357`); Ciências Humanas · 2ª reaplicação · Branca (prova `358`); Ciências Humanas · 2ª reaplicação · Rosa (prova `359`); Ciências da Natureza · 1ª aplicação · Azul (prova `291`); Ciências da Natureza · 1ª aplicação · Amarela (prova `292`); Ciências da Natureza · 1ª aplicação · Branca (prova `293`); Ciências da Natureza · 1ª aplicação · Rosa (prova `294`); Ciências da Natureza · Especiais · Branca adaptada (prova `307`); Ciências da Natureza · Reaplicação · Azul (prova `331`); Ciências da Natureza · 2ª reaplicação · Azul (prova `351`); Ciências da Natureza · 2ª reaplicação · Amarela (prova `352`); Linguagens · 1ª aplicação · Azul (prova `299`); Linguagens · 1ª aplicação · Amarela (prova `300`); Linguagens · 1ª aplicação · Rosa (prova `301`); Linguagens · 1ª aplicação · Cinza (prova `302`); Linguagens · Especiais · Cinza adaptada (prova `309`); Linguagens · 2ª reaplicação · Azul (prova `361`); Linguagens · 2ª reaplicação · Amarela (prova `362`); Linguagens · 2ª reaplicação · Rosa (prova `363`); Linguagens · 2ª reaplicação · Cinza (prova `364`); Matemática · 1ª aplicação · Azul (prova `303`); Matemática · 1ª aplicação · Amarela (prova `304`); Matemática · 1ª aplicação · Rosa (prova `305`); Matemática · 1ª aplicação · Cinza (prova `306`); Matemática · Especiais · Cinza adaptada (prova `310`); Matemática · 2ª reaplicação · Rosa (prova `368`); Matemática · 2ª reaplicação · Cinza (prova `369`)
-- **ENEM 2017:** Ciências Humanas · 1ª aplicação · Azul (prova `395`); Ciências Humanas · 1ª aplicação · Amarela (prova `396`); Ciências Humanas · 1ª aplicação · Branca (prova `397`); Ciências Humanas · 1ª aplicação · Rosa (prova `398`); Ciências Humanas · Especiais · Laranja adaptada ledor (prova `408`); Ciências Humanas · Especiais · Verde videoprova libras (prova `412`); Ciências Humanas · Reaplicação · Azul (prova `435`); Ciências Humanas · Reaplicação · Amarela (prova `436`); Ciências Humanas · Reaplicação · Branca (prova `437`); Ciências Humanas · Reaplicação · Rosa (prova `438`); Ciências da Natureza · 1ª aplicação · Azul (prova `391`); Ciências da Natureza · 1ª aplicação · Amarela (prova `392`); Ciências da Natureza · 1ª aplicação · Cinza (prova `393`); Ciências da Natureza · 1ª aplicação · Rosa (prova `394`); Ciências da Natureza · Especiais · Laranja adaptada ledor (prova `407`); Ciências da Natureza · Especiais · Verde videoprova libras (prova `411`); Linguagens · 1ª aplicação · Azul (prova `399`); Linguagens · 1ª aplicação · Amarela (prova `400`); Linguagens · 1ª aplicação · Rosa (prova `401`); Linguagens · 1ª aplicação · Branca (prova `402`); Linguagens · Especiais · Laranja adaptada ledor (prova `409`); Linguagens · Especiais · Verde videoprova libras (prova `413`); Linguagens · Reaplicação · Azul (prova `439`); Linguagens · Reaplicação · Amarela (prova `440`); Linguagens · Reaplicação · Rosa (prova `442`); Matemática · 1ª aplicação · Azul (prova `403`); Matemática · 1ª aplicação · Amarela (prova `404`); Matemática · 1ª aplicação · Rosa (prova `405`); Matemática · 1ª aplicação · Cinza (prova `406`); Matemática · Especiais · Laranja adaptada ledor (prova `410`); Matemática · Especiais · Verde videoprova libras (prova `414`)
-- **ENEM 2018:** Ciências Humanas · 1ª aplicação · Azul (prova `451`); Ciências Humanas · 1ª aplicação · Amarela (prova `452`); Ciências Humanas · 1ª aplicação · Branca (prova `453`); Ciências Humanas · 1ª aplicação · Rosa (prova `454`); Ciências Humanas · Especiais · Laranja adaptada ledor (prova `464`); Ciências Humanas · Especiais · Verde videoprova libras (prova `468`); Ciências Humanas · Reaplicação · Azul (prova `491`); Ciências Humanas · Reaplicação · Amarela (prova `492`); Ciências Humanas · Reaplicação · Branca (prova `493`); Ciências Humanas · Reaplicação · Rosa (prova `494`); Ciências da Natureza · 1ª aplicação · Azul (prova `447`); Ciências da Natureza · 1ª aplicação · Amarela (prova `448`); Ciências da Natureza · 1ª aplicação · Cinza (prova `449`); Ciências da Natureza · 1ª aplicação · Rosa (prova `450`); Ciências da Natureza · Especiais · Laranja adaptada ledor (prova `463`); Ciências da Natureza · Especiais · Verde videoprova libras (prova `467`); Linguagens · 1ª aplicação · Azul (prova `455`); Linguagens · 1ª aplicação · Amarela (prova `456`); Linguagens · 1ª aplicação · Rosa (prova `457`); Linguagens · 1ª aplicação · Branca (prova `458`); Linguagens · Especiais · Laranja adaptada ledor (prova `465`); Linguagens · Especiais · Verde videoprova libras (prova `469`); Linguagens · Reaplicação · Azul (prova `495`); Linguagens · Reaplicação · Amarela (prova `496`); Linguagens · Reaplicação · Branca (prova `497`); Linguagens · Reaplicação · Rosa (prova `498`); Matemática · 1ª aplicação · Azul (prova `459`); Matemática · 1ª aplicação · Amarela (prova `460`); Matemática · 1ª aplicação · Rosa (prova `461`); Matemática · 1ª aplicação · Cinza (prova `462`); Matemática · Especiais · Laranja adaptada ledor (prova `466`); Matemática · Especiais · Verde videoprova libras (prova `470`)
-- **ENEM 2019:** Ciências Humanas · 1ª aplicação · Azul (prova `507`); Ciências Humanas · 1ª aplicação · Amarela (prova `508`); Ciências Humanas · 1ª aplicação · Branca (prova `509`); Ciências Humanas · 1ª aplicação · Rosa (prova `510`); Ciências Humanas · Especiais · Laranja adaptada ledor (prova `520`); Ciências Humanas · Especiais · Verde videoprova libras (prova `524`); Ciências da Natureza · 1ª aplicação · Azul (prova `503`); Ciências da Natureza · 1ª aplicação · Amarela (prova `504`); Ciências da Natureza · 1ª aplicação · Cinza (prova `505`); Ciências da Natureza · 1ª aplicação · Rosa (prova `506`); Ciências da Natureza · Especiais · Laranja adaptada ledor (prova `519`); Ciências da Natureza · Especiais · Verde videoprova libras (prova `523`); Linguagens · 1ª aplicação · Azul (prova `511`); Linguagens · 1ª aplicação · Amarela (prova `512`); Linguagens · 1ª aplicação · Rosa (prova `513`); Linguagens · 1ª aplicação · Branca (prova `514`); Linguagens · Especiais · Laranja adaptada ledor (prova `521`); Linguagens · Especiais · Verde videoprova libras (prova `525`); Matemática · 1ª aplicação · Azul (prova `515`); Matemática · 1ª aplicação · Amarela (prova `516`); Matemática · 1ª aplicação · Rosa (prova `517`); Matemática · 1ª aplicação · Cinza (prova `518`); Matemática · Especiais · Laranja adaptada ledor (prova `522`); Matemática · Especiais · Verde videoprova libras (prova `526`)
-- **ENEM 2020:** Ciências Humanas · 1ª aplicação · Azul (prova `567`); Ciências Humanas · 1ª aplicação · Amarela (prova `568`); Ciências Humanas · 1ª aplicação · Branca (prova `569`); Ciências Humanas · 1ª aplicação · Rosa (prova `570`); Ciências Humanas · Especiais · Laranja adaptada ledor (prova `574`); Ciências Humanas · Especiais · Verde videoprova libras (prova `575`); Ciências Humanas · Reaplicação · Azul (prova `647`); Ciências Humanas · Reaplicação · Amarela (prova `648`); Ciências Humanas · Reaplicação · Branca (prova `649`); Ciências Humanas · Reaplicação · Rosa (prova `650`); Ciências Humanas · Prova digital · Azul (prova `687`); Ciências Humanas · Prova digital · Amarela (prova `688`); Ciências Humanas · Prova digital · Branca (prova `689`); Ciências Humanas · Prova digital · Rosa (prova `690`); Ciências da Natureza · 1ª aplicação · Azul (prova `597`); Ciências da Natureza · 1ª aplicação · Amarela (prova `598`); Ciências da Natureza · 1ª aplicação · Cinza (prova `599`); Ciências da Natureza · 1ª aplicação · Rosa (prova `600`); Ciências da Natureza · Especiais · Laranja adaptada ledor (prova `604`); Ciências da Natureza · Especiais · Verde videoprova libras (prova `605`); Ciências da Natureza · Reaplicação · Azul (prova `677`); Ciências da Natureza · Reaplicação · Amarela (prova `678`); Ciências da Natureza · Reaplicação · Cinza (prova `679`); Ciências da Natureza · Reaplicação · Rosa (prova `680`); Ciências da Natureza · Prova digital · Azul (prova `699`); Ciências da Natureza · Prova digital · Amarela (prova `700`); Ciências da Natureza · Prova digital · Rosa (prova `701`); Ciências da Natureza · Prova digital · Cinza (prova `702`); Linguagens · 1ª aplicação · Azul (prova `577`); Linguagens · 1ª aplicação · Amarela (prova `578`); Linguagens · 1ª aplicação · Rosa (prova `579`); Linguagens · 1ª aplicação · Branca (prova `580`); Linguagens · Especiais · Laranja adaptada ledor (prova `584`); Linguagens · Especiais · Verde videoprova libras (prova `585`); Linguagens · Reaplicação · Azul (prova `657`); Linguagens · Reaplicação · Amarela (prova `658`); Linguagens · Reaplicação · Rosa (prova `659`); Linguagens · Reaplicação · Branca (prova `660`); Linguagens · Prova digital · Azul (prova `691`); Linguagens · Prova digital · Amarela (prova `692`); Linguagens · Prova digital · Branca (prova `693`); Linguagens · Prova digital · Rosa (prova `694`); Matemática · 1ª aplicação · Azul (prova `587`); Matemática · 1ª aplicação · Amarela (prova `588`); Matemática · 1ª aplicação · Rosa (prova `589`); Matemática · 1ª aplicação · Cinza (prova `590`); Matemática · Especiais · Laranja adaptada ledor (prova `594`); Matemática · Especiais · Verde videoprova libras (prova `595`); Matemática · Reaplicação · Azul (prova `667`); Matemática · Reaplicação · Amarela (prova `668`); Matemática · Reaplicação · Rosa (prova `669`); Matemática · Reaplicação · Cinza (prova `670`); Matemática · Prova digital · Azul (prova `695`); Matemática · Prova digital · Amarela (prova `696`); Matemática · Prova digital · Rosa (prova `697`); Matemática · Prova digital · Cinza (prova `698`)
-- **ENEM 2021:** Ciências Humanas · 1ª aplicação · Azul (prova `879`); Ciências Humanas · 1ª aplicação · Amarela (prova `880`); Ciências Humanas · 1ª aplicação · Branca (prova `881`); Ciências Humanas · 1ª aplicação · Rosa (prova `882`); Ciências Humanas · Especiais · Laranja adaptada ledor (prova `886`); Ciências Humanas · Especiais · Verde videoprova libras (prova `887`); Ciências Humanas · Reaplicação · Azul (prova `959`); Ciências Humanas · Reaplicação · Amarela (prova `960`); Ciências Humanas · Reaplicação · Branca (prova `961`); Ciências Humanas · Reaplicação · Rosa (prova `962`); Ciências Humanas · Prova digital · Azul (prova `999`); Ciências Humanas · Prova digital · Amarela (prova `1000`); Ciências Humanas · Prova digital · Branca (prova `1001`); Ciências Humanas · Prova digital · Rosa (prova `1002`); Ciências Humanas · Segunda oportunidade · Azul (prova `1015`); Ciências Humanas · Segunda oportunidade · Amarela (prova `1016`); Ciências Humanas · Segunda oportunidade · Branca (prova `1017`); Ciências Humanas · Segunda oportunidade · Rosa (prova `1018`); Ciências da Natureza · 1ª aplicação · Azul (prova `909`); Ciências da Natureza · 1ª aplicação · Amarela (prova `910`); Ciências da Natureza · 1ª aplicação · Cinza (prova `911`); Ciências da Natureza · 1ª aplicação · Rosa (prova `912`); Ciências da Natureza · Especiais · Laranja adaptada ledor (prova `916`); Ciências da Natureza · Especiais · Verde videoprova libras (prova `917`); Ciências da Natureza · Reaplicação · Azul (prova `989`); Ciências da Natureza · Reaplicação · Amarela (prova `990`); Ciências da Natureza · Reaplicação · Cinza (prova `991`); Ciências da Natureza · Reaplicação · Rosa (prova `992`); Ciências da Natureza · Prova digital · Azul (prova `1011`); Ciências da Natureza · Prova digital · Amarela (prova `1012`); Ciências da Natureza · Prova digital · Rosa (prova `1013`); Ciências da Natureza · Prova digital · Cinza (prova `1014`); Ciências da Natureza · Segunda oportunidade · Azul (prova `1045`); Ciências da Natureza · Segunda oportunidade · Amarela (prova `1046`); Ciências da Natureza · Segunda oportunidade · Cinza (prova `1047`); Ciências da Natureza · Segunda oportunidade · Rosa (prova `1048`); Linguagens · 1ª aplicação · Azul (prova `889`); Linguagens · 1ª aplicação · Amarela (prova `890`); Linguagens · 1ª aplicação · Rosa (prova `891`); Linguagens · 1ª aplicação · Branca (prova `892`); Linguagens · Reaplicação · Azul (prova `969`); Linguagens · Reaplicação · Amarela (prova `970`); Linguagens · Reaplicação · Rosa (prova `971`); Linguagens · Reaplicação · Branca (prova `972`); Linguagens · Prova digital · Azul (prova `1003`); Linguagens · Prova digital · Amarela (prova `1004`); Linguagens · Prova digital · Branca (prova `1005`); Linguagens · Prova digital · Rosa (prova `1006`); Linguagens · Segunda oportunidade · Azul (prova `1025`); Linguagens · Segunda oportunidade · Amarela (prova `1026`); Linguagens · Segunda oportunidade · Rosa (prova `1027`); Linguagens · Segunda oportunidade · Branca (prova `1028`); Matemática · 1ª aplicação · Azul (prova `899`); Matemática · 1ª aplicação · Amarela (prova `900`); Matemática · 1ª aplicação · Rosa (prova `901`); Matemática · 1ª aplicação · Cinza (prova `902`); Matemática · Especiais · Laranja adaptada ledor (prova `906`); Matemática · Especiais · Verde videoprova libras (prova `907`); Matemática · Reaplicação · Azul (prova `979`); Matemática · Reaplicação · Amarela (prova `980`); Matemática · Reaplicação · Rosa (prova `981`); Matemática · Reaplicação · Cinza (prova `982`); Matemática · Prova digital · Azul (prova `1007`); Matemática · Prova digital · Amarela (prova `1008`); Matemática · Prova digital · Rosa (prova `1009`); Matemática · Prova digital · Cinza (prova `1010`); Matemática · Segunda oportunidade · Azul (prova `1035`); Matemática · Segunda oportunidade · Amarela (prova `1036`); Matemática · Segunda oportunidade · Cinza (prova `1037`); Matemática · Segunda oportunidade · Rosa (prova `1038`)
-- **ENEM 2022:** Ciências Humanas · 1ª aplicação · Azul (prova `1055`); Ciências Humanas · 1ª aplicação · Amarela (prova `1056`); Ciências Humanas · 1ª aplicação · Branca (prova `1057`); Ciências Humanas · 1ª aplicação · Rosa (prova `1058`); Ciências Humanas · Especiais · Laranja adaptada ledor (prova `1062`); Ciências Humanas · Especiais · Verde videoprova libras (prova `1063`); Ciências Humanas · Reaplicação · Azul (prova `1135`); Ciências Humanas · Reaplicação · Amarela (prova `1136`); Ciências Humanas · Reaplicação · Branca (prova `1137`); Ciências Humanas · Reaplicação · Rosa (prova `1138`); Ciências Humanas · Prova digital · Azul (prova `1175`); Ciências Humanas · Prova digital · Amarela (prova `1176`); Ciências Humanas · Prova digital · Branca (prova `1177`); Ciências Humanas · Prova digital · Rosa (prova `1178`); Ciências da Natureza · 1ª aplicação · Azul (prova `1085`); Ciências da Natureza · 1ª aplicação · Amarela (prova `1086`); Ciências da Natureza · 1ª aplicação · Cinza (prova `1087`); Ciências da Natureza · 1ª aplicação · Rosa (prova `1088`); Ciências da Natureza · Especiais · Laranja adaptada ledor (prova `1092`); Ciências da Natureza · Especiais · Verde videoprova libras (prova `1093`); Ciências da Natureza · Reaplicação · Azul (prova `1165`); Ciências da Natureza · Reaplicação · Amarela (prova `1166`); Ciências da Natureza · Reaplicação · Cinza (prova `1167`); Ciências da Natureza · Reaplicação · Rosa (prova `1168`); Ciências da Natureza · Prova digital · Azul (prova `1187`); Ciências da Natureza · Prova digital · Amarela (prova `1188`); Ciências da Natureza · Prova digital · Rosa (prova `1189`); Ciências da Natureza · Prova digital · Cinza (prova `1190`); Linguagens · 1ª aplicação · Azul (prova `1065`); Linguagens · 1ª aplicação · Amarela (prova `1066`); Linguagens · 1ª aplicação · Rosa (prova `1067`); Linguagens · 1ª aplicação · Branca (prova `1068`); Linguagens · Especiais · Laranja adaptada ledor (prova `1072`); Linguagens · Especiais · Verde videoprova libras (prova `1073`); Linguagens · Reaplicação · Azul (prova `1145`); Linguagens · Reaplicação · Amarela (prova `1146`); Linguagens · Reaplicação · Rosa (prova `1147`); Linguagens · Reaplicação · Branca (prova `1148`); Linguagens · Prova digital · Azul (prova `1179`); Linguagens · Prova digital · Amarela (prova `1180`); Linguagens · Prova digital · Branca (prova `1181`); Linguagens · Prova digital · Rosa (prova `1182`); Matemática · 1ª aplicação · Azul (prova `1075`); Matemática · 1ª aplicação · Amarela (prova `1076`); Matemática · 1ª aplicação · Rosa (prova `1077`); Matemática · 1ª aplicação · Cinza (prova `1078`); Matemática · Especiais · Laranja adaptada ledor (prova `1082`); Matemática · Especiais · Verde videoprova libras (prova `1083`); Matemática · Reaplicação · Azul (prova `1155`); Matemática · Reaplicação · Amarela (prova `1156`); Matemática · Reaplicação · Rosa (prova `1157`); Matemática · Reaplicação · Cinza (prova `1158`); Matemática · Prova digital · Azul (prova `1183`); Matemática · Prova digital · Amarela (prova `1184`); Matemática · Prova digital · Rosa (prova `1185`); Matemática · Prova digital · Cinza (prova `1186`)
-- **ENEM 2023:** Ciências Humanas · 1ª aplicação · Azul (prova `1191`); Ciências Humanas · 1ª aplicação · Amarela (prova `1192`); Ciências Humanas · 1ª aplicação · Branca (prova `1193`); Ciências Humanas · 1ª aplicação · Rosa (prova `1194`); Ciências Humanas · Especiais · Rosa ampliada (prova `1195`); Ciências Humanas · Especiais · Rosa superampliada (prova `1196`); Ciências Humanas · Especiais · Laranja adaptada ledor (prova `1198`); Ciências Humanas · Especiais · Verde videoprova libras (prova `1199`); Ciências Humanas · Reaplicação · Azul (prova `1271`); Ciências Humanas · Reaplicação · Amarela (prova `1272`); Ciências Humanas · Reaplicação · Branca (prova `1273`); Ciências Humanas · Reaplicação · Rosa (prova `1274`); Ciências da Natureza · 1ª aplicação · Azul (prova `1221`); Ciências da Natureza · 1ª aplicação · Amarela (prova `1222`); Ciências da Natureza · 1ª aplicação · Rosa (prova `1223`); Ciências da Natureza · 1ª aplicação · Cinza (prova `1224`); Ciências da Natureza · Especiais · Rosa ampliada (prova `1225`); Ciências da Natureza · Especiais · Rosa superampliada (prova `1226`); Ciências da Natureza · Especiais · Laranja adaptada ledor (prova `1228`); Ciências da Natureza · Especiais · Verde videoprova libras (prova `1229`); Ciências da Natureza · Reaplicação · Azul (prova `1301`); Ciências da Natureza · Reaplicação · Amarela (prova `1302`); Ciências da Natureza · Reaplicação · Cinza (prova `1303`); Ciências da Natureza · Reaplicação · Rosa (prova `1304`); Linguagens · 1ª aplicação · Azul (prova `1201`); Linguagens · 1ª aplicação · Amarela (prova `1202`); Linguagens · 1ª aplicação · Rosa (prova `1203`); Linguagens · 1ª aplicação · Branca (prova `1204`); Linguagens · Especiais · Rosa ampliada (prova `1205`); Linguagens · Especiais · Rosa superampliada (prova `1206`); Linguagens · Especiais · Laranja adaptada ledor (prova `1208`); Linguagens · Especiais · Verde videoprova libras (prova `1209`); Linguagens · Reaplicação · Azul (prova `1281`); Linguagens · Reaplicação · Rosa (prova `1283`); Matemática · 1ª aplicação · Azul (prova `1211`); Matemática · 1ª aplicação · Amarela (prova `1212`); Matemática · 1ª aplicação · Rosa (prova `1213`); Matemática · 1ª aplicação · Cinza (prova `1214`); Matemática · Especiais · Rosa ampliada (prova `1215`); Matemática · Especiais · Rosa superampliada (prova `1216`); Matemática · Especiais · Laranja adaptada ledor (prova `1218`); Matemática · Especiais · Verde videoprova libras (prova `1219`); Matemática · Reaplicação · Azul (prova `1291`); Matemática · Reaplicação · Amarela (prova `1292`); Matemática · Reaplicação · Rosa (prova `1293`); Matemática · Reaplicação · Cinza (prova `1294`)
-- **ENEM 2024:** Ciências Humanas · 1ª aplicação · Azul (prova `1383`); Ciências Humanas · 1ª aplicação · Amarela (prova `1384`); Ciências Humanas · 1ª aplicação · Branca (prova `1385`); Ciências Humanas · 1ª aplicação · Verde (prova `1386`); Ciências Humanas · Especiais · Verde ampliada (prova `1387`); Ciências Humanas · Especiais · Verde superampliada (prova `1388`); Ciências Humanas · Especiais · Laranja adaptada ledor (prova `1390`); Ciências Humanas · Especiais · Roxa videoprova libras (prova `1391`); Ciências da Natureza · 1ª aplicação · Azul (prova `1419`); Ciências da Natureza · 1ª aplicação · Amarela (prova `1420`); Ciências da Natureza · 1ª aplicação · Verde (prova `1421`); Ciências da Natureza · 1ª aplicação · Cinza (prova `1422`); Ciências da Natureza · Especiais · Verde ampliada (prova `1423`); Ciências da Natureza · Especiais · Verde superampliada (prova `1424`); Ciências da Natureza · Especiais · Laranja adaptada ledor (prova `1426`); Ciências da Natureza · Especiais · Roxa videoprova libras (prova `1427`); Linguagens · Especiais · Verde ampliada (prova `1399`); Linguagens · Especiais · Verde superampliada (prova `1400`); Linguagens · Especiais · Laranja adaptada ledor (prova `1402`); Linguagens · Especiais · Roxa videoprova libras (prova `1403`); Matemática · 1ª aplicação · Azul (prova `1407`); Matemática · 1ª aplicação · Amarela (prova `1408`); Matemática · 1ª aplicação · Verde (prova `1409`); Matemática · 1ª aplicação · Cinza (prova `1410`); Matemática · Especiais · Verde ampliada (prova `1411`); Matemática · Especiais · Verde superampliada (prova `1412`); Matemática · Especiais · Laranja adaptada ledor (prova `1414`); Matemática · Especiais · Roxa videoprova libras (prova `1415`)
-- **ENEM 2025:** Ciências Humanas · 1ª aplicação · Azul (prova `1447`); Ciências Humanas · 1ª aplicação · Amarela (prova `1448`); Ciências Humanas · 1ª aplicação · Branca (prova `1449`); Ciências Humanas · 1ª aplicação · Verde (prova `1450`); Ciências Humanas · Especiais · Laranja ampliada (prova `1451`); Ciências Humanas · Especiais · Laranja superampliada (prova `1452`); Ciências Humanas · Especiais · Laranja adaptada ledor (prova `1454`); Ciências Humanas · Especiais · Roxa videoprova libras (prova `1455`); Ciências Humanas · Especiais · Laranja atendimento especializado (prova `1495`); Ciências Humanas · Segunda oportunidade · Amarela (prova `1584`); Ciências Humanas · Segunda oportunidade · Branca (prova `1585`); Ciências Humanas · Segunda oportunidade · Verde (prova `1586`); Ciências Humanas · Segunda oportunidade · Laranja atendimento especializado (prova `1631`); Ciências da Natureza · Especiais · Laranja ampliada (prova `1487`); Ciências da Natureza · Especiais · Laranja superampliada (prova `1488`); Ciências da Natureza · Especiais · Laranja adaptada ledor (prova `1490`); Ciências da Natureza · Especiais · Roxa videoprova libras (prova `1491`); Ciências da Natureza · Reaplicação · Azul (prova `1569`); Ciências da Natureza · Reaplicação · Amarela (prova `1570`); Ciências da Natureza · Reaplicação · Cinza (prova `1571`); Ciências da Natureza · Reaplicação · Verde (prova `1572`); Ciências da Natureza · Segunda oportunidade · Azul (prova `1619`); Ciências da Natureza · Segunda oportunidade · Amarela (prova `1620`); Ciências da Natureza · Segunda oportunidade · Verde (prova `1621`); Ciências da Natureza · Segunda oportunidade · Cinza (prova `1622`); Ciências da Natureza · Segunda oportunidade · Laranja atendimento especializado (prova `1634`); Linguagens · Especiais · Laranja ampliada (prova `1463`); Linguagens · Especiais · Laranja superampliada (prova `1464`); Linguagens · Especiais · Laranja adaptada ledor (prova `1466`); Linguagens · Especiais · Roxa videoprova libras (prova `1467`); Linguagens · Especiais · Laranja atendimento especializado (prova `1496`); Linguagens · Segunda oportunidade · Azul (prova `1595`); Linguagens · Segunda oportunidade · Amarela (prova `1596`); Linguagens · Segunda oportunidade · Verde (prova `1597`); Linguagens · Segunda oportunidade · Branca (prova `1598`); Linguagens · Segunda oportunidade · Laranja atendimento especializado (prova `1632`); Matemática · Especiais · Laranja ampliada (prova `1475`); Matemática · Especiais · Laranja superampliada (prova `1476`); Matemática · Especiais · Laranja adaptada ledor (prova `1478`); Matemática · Especiais · Roxa videoprova libras (prova `1479`); Matemática · Especiais · Laranja atendimento especializado (prova `1497`); Matemática · Reaplicação · Azul (prova `1559`); Matemática · Reaplicação · Amarela (prova `1560`); Matemática · Reaplicação · Verde (prova `1561`); Matemática · Reaplicação · Cinza (prova `1562`); Matemática · Segunda oportunidade · Azul (prova `1607`); Matemática · Segunda oportunidade · Amarela (prova `1608`); Matemática · Segunda oportunidade · Verde (prova `1609`); Matemática · Segunda oportunidade · Cinza (prova `1610`); Matemática · Segunda oportunidade · Laranja atendimento especializado (prova `1633`)
-
-### Sem validação suficiente (`sem_validacao`, 142)
-
-- **ENEM 2009:** Ciências Humanas · Especiais · Branca adaptada ledor (prova `82`); Ciências da Natureza · Especiais · Branca adaptada ledor (prova `81`); Linguagens · Especiais · Cinza adaptada ledor (prova `83`); Matemática · Especiais · Cinza adaptada ledor (prova `84`)
-- **ENEM 2010:** Linguagens · Reaplicação · Amarela (prova `109`); Linguagens · Reaplicação · Cinza (prova `110`); Linguagens · Reaplicação · Azul (prova `111`); Linguagens · Reaplicação · Rosa (prova `112`); Matemática · Reaplicação · Amarela (prova `113`); Matemática · Reaplicação · Cinza (prova `114`); Matemática · Reaplicação · Azul (prova `115`); Matemática · Reaplicação · Rosa (prova `116`)
-- **ENEM 2012:** Ciências Humanas · Especiais · Branca ledor (prova `154`); Ciências da Natureza · Especiais · Branca ledor (prova `153`)
-- **ENEM 2016:** Ciências Humanas · Reaplicação · Amarela (prova `337`); Ciências Humanas · Reaplicação · Branca (prova `338`); Ciências Humanas · Reaplicação · Rosa (prova `339`); Ciências Humanas · Especiais · Branca adaptada reaplicacao 2 (prova `360`); Ciências da Natureza · Reaplicação · Amarela (prova `332`); Ciências da Natureza · Reaplicação · Branca (prova `333`); Ciências da Natureza · Reaplicação · Rosa (prova `334`); Ciências da Natureza · Especiais · Branca adaptada reaplicacao 2 (prova `355`); Linguagens · Reaplicação · Azul (prova `341`); Linguagens · Reaplicação · Amarela (prova `342`); Linguagens · Reaplicação · Rosa (prova `343`); Linguagens · Reaplicação · Cinza adaptada (prova `344`); Linguagens · Especiais · Cinza adaptada reaplicacao 2 (prova `365`); Matemática · Reaplicação · Azul (prova `346`); Matemática · Reaplicação · Amarela (prova `347`); Matemática · Reaplicação · Rosa (prova `348`); Matemática · Reaplicação · Cinza (prova `349`); Matemática · Especiais · Cinza adaptada reaplicacao 2 (prova `370`)
-- **ENEM 2017:** Ciências da Natureza · Reaplicação · Amarela (prova `431`); Ciências da Natureza · Reaplicação · Cinza (prova `432`); Ciências da Natureza · Reaplicação · Azul (prova `433`); Ciências da Natureza · Reaplicação · Rosa (prova `434`); Linguagens · Reaplicação · Branca (prova `441`); Matemática · Reaplicação · Amarela (prova `443`); Matemática · Reaplicação · Cinza (prova `444`); Matemática · Reaplicação · Azul (prova `445`); Matemática · Reaplicação · Rosa (prova `446`)
-- **ENEM 2018:** Ciências da Natureza · Reaplicação · Amarela (prova `487`); Ciências da Natureza · Reaplicação · Cinza (prova `488`); Ciências da Natureza · Reaplicação · Azul (prova `489`); Ciências da Natureza · Reaplicação · Rosa (prova `490`); Matemática · Reaplicação · Amarela (prova `499`); Matemática · Reaplicação · Cinza (prova `500`); Matemática · Reaplicação · Azul (prova `501`); Matemática · Reaplicação · Rosa (prova `502`)
-- **ENEM 2019:** Ciências Humanas · Reaplicação · Azul (prova `547`); Ciências Humanas · Reaplicação · Amarela (prova `548`); Ciências Humanas · Reaplicação · Branca (prova `549`); Ciências Humanas · Reaplicação · Rosa (prova `550`); Ciências Humanas · Especiais · Laranja adaptada ledor reaplicacao (prova `564`); Ciências da Natureza · Reaplicação · Amarela (prova `543`); Ciências da Natureza · Reaplicação · Cinza (prova `544`); Ciências da Natureza · Reaplicação · Azul (prova `545`); Ciências da Natureza · Reaplicação · Rosa (prova `546`); Linguagens · Reaplicação · Azul (prova `551`); Linguagens · Reaplicação · Amarela (prova `552`); Linguagens · Reaplicação · Branca (prova `553`); Linguagens · Reaplicação · Rosa (prova `554`); Linguagens · Especiais · Laranja adaptada ledor reaplicacao (prova `565`); Matemática · Reaplicação · Amarela (prova `555`); Matemática · Reaplicação · Cinza (prova `556`); Matemática · Reaplicação · Azul (prova `557`); Matemática · Reaplicação · Rosa (prova `558`)
-- **ENEM 2020:** Ciências Humanas · Especiais · Rosa ampliada (prova `571`); Ciências Humanas · Especiais · Rosa superampliada (prova `572`); Ciências Humanas · Especiais · Laranja adaptada ledor reaplicacao (prova `654`); Ciências da Natureza · Especiais · Rosa ampliada (prova `601`); Ciências da Natureza · Especiais · Rosa superampliada (prova `602`); Ciências da Natureza · Especiais · Laranja adaptada ledor reaplicacao (prova `684`); Linguagens · Especiais · Rosa ampliada (prova `581`); Linguagens · Especiais · Rosa superampliada (prova `582`); Linguagens · Especiais · Laranja adaptada ledor reaplicacao (prova `664`); Matemática · Especiais · Rosa ampliada (prova `591`); Matemática · Especiais · Rosa superampliada (prova `592`); Matemática · Especiais · Laranja adaptada ledor reaplicacao (prova `674`)
-- **ENEM 2021:** Ciências Humanas · Especiais · Laranja braille (prova `885`); Ciências Humanas · Especiais · Laranja adaptada ledor reaplicacao (prova `966`); Ciências Humanas · Especiais · Laranja adaptada ledor segunda oportunidade (prova `1022`); Ciências da Natureza · Especiais · Laranja braille (prova `915`); Ciências da Natureza · Especiais · Laranja adaptada ledor reaplicacao (prova `996`); Ciências da Natureza · Especiais · Laranja adaptada ledor segunda oportunidade (prova `1052`); Linguagens · Especiais · Laranja braille (prova `895`); Linguagens · Especiais · Laranja adaptada ledor (prova `896`); Linguagens · Especiais · Laranja adaptada ledor reaplicacao (prova `976`); Linguagens · Especiais · Laranja adaptada ledor segunda oportunidade (prova `1032`); Matemática · Especiais · Laranja braille (prova `905`); Matemática · Especiais · Laranja adaptada ledor reaplicacao (prova `986`); Matemática · Especiais · Laranja adaptada ledor segunda oportunidade (prova `1042`)
-- **ENEM 2023:** Ciências Humanas · Especiais · Laranja braille (prova `1197`); Ciências da Natureza · Especiais · Laranja braille (prova `1227`); Linguagens · Especiais · Laranja braille (prova `1207`); Matemática · Especiais · Laranja braille (prova `1217`)
-- **ENEM 2024:** Ciências Humanas · Reaplicação · Azul (prova `1343`); Ciências Humanas · Reaplicação · Amarela (prova `1344`); Ciências Humanas · Reaplicação · Branca (prova `1345`); Ciências Humanas · Reaplicação · Verde (prova `1346`); Ciências Humanas · Especiais · Verde ampliada reaplicacao (prova `1347`); Ciências Humanas · Especiais · Verde superampliada reaplicacao (prova `1348`); Ciências Humanas · Especiais · Laranja adaptada ledor reaplicacao (prova `1350`); Ciências Humanas · Especiais · Roxa videoprova libras ampliada (prova `1392`); Ciências Humanas · Especiais · Roxa videoprova libras superampliada (prova `1393`); Ciências da Natureza · Reaplicação · Azul (prova `1373`); Ciências da Natureza · Reaplicação · Amarela (prova `1374`); Ciências da Natureza · Reaplicação · Cinza (prova `1375`); Ciências da Natureza · Reaplicação · Verde (prova `1376`); Ciências da Natureza · Especiais · Verde ampliada reaplicacao (prova `1377`); Ciências da Natureza · Especiais · Verde superampliada reaplicacao (prova `1378`); Ciências da Natureza · Especiais · Laranja adaptada ledor reaplicacao (prova `1380`); Ciências da Natureza · Especiais · Roxa videoprova libras ampliada (prova `1428`); Linguagens · Reaplicação · Azul (prova `1353`); Linguagens · Reaplicação · Amarela (prova `1354`); Linguagens · Reaplicação · Verde (prova `1355`); Linguagens · Reaplicação · Branca (prova `1356`); Linguagens · Especiais · Verde ampliada reaplicacao (prova `1357`); Linguagens · Especiais · Verde superampliada reaplicacao (prova `1358`); Linguagens · Especiais · Laranja adaptada ledor reaplicacao (prova `1360`); Linguagens · Especiais · Roxa videoprova libras ampliada (prova `1404`); Linguagens · Especiais · Roxa videoprova libras superampliada (prova `1405`); Matemática · Reaplicação · Azul (prova `1363`); Matemática · Reaplicação · Amarela (prova `1364`); Matemática · Reaplicação · Verde (prova `1365`); Matemática · Reaplicação · Cinza (prova `1366`); Matemática · Especiais · Verde ampliada reaplicacao (prova `1367`); Matemática · Especiais · Verde superampliada reaplicacao (prova `1368`); Matemática · Especiais · Laranja adaptada ledor reaplicacao (prova `1370`); Matemática · Especiais · Roxa videoprova libras ampliada (prova `1416`)
-- **ENEM 2025:** Ciências Humanas · Reaplicação · Azul (prova `1539`); Ciências Humanas · Reaplicação · Amarela (prova `1540`); Ciências Humanas · Reaplicação · Branca (prova `1541`); Ciências Humanas · Reaplicação · Verde (prova `1542`); Ciências Humanas · Segunda oportunidade · Laranja ampliada (prova `1587`); Ciências da Natureza · Segunda oportunidade · Laranja ampliada (prova `1623`); Linguagens · Reaplicação · Azul (prova `1549`); Linguagens · Reaplicação · Amarela (prova `1550`); Linguagens · Reaplicação · Verde (prova `1551`); Linguagens · Reaplicação · Branca (prova `1552`); Linguagens · Segunda oportunidade · Laranja ampliada (prova `1599`); Matemática · Segunda oportunidade · Laranja ampliada (prova `1611`)
+Modelo `escala-fixa-grade40-v1` · gerado em `2026-11-08T21:06:33+00:00`.
 
 ## Detalhamento por prova
 
-Os agregados acima usam o holdout original. A tabela abaixo mostra, para cada prova, a amostra com maior erro máximo, sem misturar suas métricas. A confirmação pode piorar o status, nunca promovê-lo.
-
-| Prova | Status | Perfil | Motivo | Modelo | Amostra | n | MAE | p95 | Máximo | >2 | Faixas |
-|---|---|---|---|---|---|---:|---:|---:|---:|---:|---:|
-| ENEM 2009 · Ciências Humanas · 1ª aplicação · Azul (prova `53`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 180 | 0.026 | 0.048 | 0.051 | 0 | 6/6 |
-| ENEM 2009 · Ciências Humanas · 1ª aplicação · Amarela (prova `54`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 180 | 0.030 | 0.069 | 0.085 | 0 | 6/6 |
-| ENEM 2009 · Ciências Humanas · 1ª aplicação · Branca (prova `55`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 240 | 0.027 | 0.050 | 0.076 | 0 | 6/6 |
-| ENEM 2009 · Ciências Humanas · 1ª aplicação · Rosa (prova `56`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 180 | 0.027 | 0.049 | 0.100 | 0 | 6/6 |
-| ENEM 2009 · Ciências Humanas · Reaplicação · Azul (prova `69`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 102 | 0.026 | 0.046 | 0.051 | 0 | 5/5 |
-| ENEM 2009 · Ciências Humanas · Reaplicação · Amarela (prova `70`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 97 | 0.024 | 0.048 | 0.051 | 0 | 4/4 |
-| ENEM 2009 · Ciências Humanas · Reaplicação · Branca (prova `71`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 120 | 0.024 | 0.045 | 0.051 | 0 | 3/5 |
-| ENEM 2009 · Ciências Humanas · Reaplicação · Rosa (prova `72`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 120 | 0.023 | 0.048 | 0.051 | 0 | 3/4 |
-| ENEM 2009 · Ciências Humanas · Especiais · Branca adaptada ledor (prova `82`) | `sem_itens` | Sem validação suficiente | `Prova não encontrada: 2009/CH/82` | `—` | holdout | — | — | — | — | — | — |
-| ENEM 2009 · Ciências da Natureza · 1ª aplicação · Azul (prova `49`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 240 | 0.026 | 0.050 | 0.077 | 0 | 6/7 |
-| ENEM 2009 · Ciências da Natureza · 1ª aplicação · Amarela (prova `50`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 240 | 0.024 | 0.048 | 0.096 | 0 | 6/7 |
-| ENEM 2009 · Ciências da Natureza · 1ª aplicação · Branca (prova `51`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 240 | 0.024 | 0.049 | 0.107 | 0 | 6/7 |
-| ENEM 2009 · Ciências da Natureza · 1ª aplicação · Rosa (prova `52`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 240 | 0.026 | 0.046 | 0.079 | 0 | 6/6 |
-| ENEM 2009 · Ciências da Natureza · Reaplicação · Azul (prova `65`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 120 | 0.025 | 0.049 | 0.051 | 0 | 3/4 |
-| ENEM 2009 · Ciências da Natureza · Reaplicação · Amarela (prova `66`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 93 | 0.025 | 0.048 | 0.052 | 0 | 4/4 |
-| ENEM 2009 · Ciências da Natureza · Reaplicação · Branca (prova `67`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 120 | 0.024 | 0.045 | 0.051 | 0 | 3/4 |
-| ENEM 2009 · Ciências da Natureza · Reaplicação · Rosa (prova `68`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 120 | 0.024 | 0.048 | 0.052 | 0 | 3/4 |
-| ENEM 2009 · Ciências da Natureza · Especiais · Branca adaptada ledor (prova `81`) | `sem_itens` | Sem validação suficiente | `Prova não encontrada: 2009/CN/81` | `—` | holdout | — | — | — | — | — | — |
-| ENEM 2009 · Linguagens · 1ª aplicação · Amarela (prova `57`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 222 | 0.024 | 0.047 | 0.053 | 0 | 6/6 |
-| ENEM 2009 · Linguagens · 1ª aplicação · Cinza (prova `58`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 180 | 0.023 | 0.052 | 0.065 | 0 | 6/6 |
-| ENEM 2009 · Linguagens · 1ª aplicação · Azul (prova `59`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 208 | 0.025 | 0.048 | 0.056 | 0 | 6/6 |
-| ENEM 2009 · Linguagens · 1ª aplicação · Rosa (prova `60`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 181 | 0.027 | 0.047 | 0.058 | 0 | 6/6 |
-| ENEM 2009 · Linguagens · Reaplicação · Amarela (prova `73`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 97 | 0.024 | 0.048 | 0.055 | 0 | 5/5 |
-| ENEM 2009 · Linguagens · Reaplicação · Cinza (prova `74`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 97 | 0.023 | 0.047 | 0.052 | 0 | 4/4 |
-| ENEM 2009 · Linguagens · Reaplicação · Azul (prova `75`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 120 | 0.025 | 0.049 | 0.052 | 0 | 3/4 |
-| ENEM 2009 · Linguagens · Reaplicação · Rosa (prova `76`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 93 | 0.024 | 0.048 | 0.052 | 0 | 4/4 |
-| ENEM 2009 · Linguagens · Especiais · Cinza adaptada ledor (prova `83`) | `sem_itens` | Sem validação suficiente | `Prova não encontrada: 2009/LC/83` | `—` | holdout | — | — | — | — | — | — |
-| ENEM 2009 · Matemática · 1ª aplicação · Amarela (prova `61`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 202 | 0.031 | 0.066 | 0.087 | 0 | 7/7 |
-| ENEM 2009 · Matemática · 1ª aplicação · Cinza (prova `62`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 203 | 0.027 | 0.056 | 0.077 | 0 | 7/7 |
-| ENEM 2009 · Matemática · 1ª aplicação · Azul (prova `63`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 201 | 0.026 | 0.049 | 0.155 | 0 | 7/7 |
-| ENEM 2009 · Matemática · 1ª aplicação · Rosa (prova `64`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 198 | 0.028 | 0.049 | 0.140 | 0 | 7/7 |
-| ENEM 2009 · Matemática · Reaplicação · Amarela (prova `77`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 114 | 0.026 | 0.046 | 0.052 | 0 | 6/6 |
-| ENEM 2009 · Matemática · Reaplicação · Cinza (prova `78`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 120 | 0.025 | 0.048 | 0.051 | 0 | 3/7 |
-| ENEM 2009 · Matemática · Reaplicação · Azul (prova `79`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 109 | 0.022 | 0.045 | 0.051 | 0 | 5/5 |
-| ENEM 2009 · Matemática · Reaplicação · Rosa (prova `80`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 103 | 0.028 | 0.049 | 0.051 | 0 | 5/5 |
-| ENEM 2009 · Matemática · Especiais · Cinza adaptada ledor (prova `84`) | `sem_itens` | Sem validação suficiente | `Prova não encontrada: 2009/MT/84` | `—` | holdout | — | — | — | — | — | — |
-| ENEM 2010 · Ciências Humanas · 1ª aplicação · Azul (prova `85`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 180 | 0.026 | 0.049 | 0.081 | 0 | 6/6 |
-| ENEM 2010 · Ciências Humanas · 1ª aplicação · Amarela (prova `86`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 180 | 0.025 | 0.048 | 0.083 | 0 | 6/6 |
-| ENEM 2010 · Ciências Humanas · 1ª aplicação · Branca (prova `87`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 180 | 0.025 | 0.048 | 0.081 | 0 | 6/6 |
-| ENEM 2010 · Ciências Humanas · 1ª aplicação · Rosa (prova `88`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 240 | 0.028 | 0.064 | 0.087 | 0 | 6/6 |
-| ENEM 2010 · Ciências Humanas · Reaplicação · Azul (prova `101`) | `erro_alto` | Estimativa confiável na maioria dos casos, com exceções | `erro_maximo_acima_15` | `linear` | holdout | 122 | 2.314 | 0.048 | 279.321 | 1 | 6/6 |
-| ENEM 2010 · Ciências Humanas · Reaplicação · Amarela (prova `102`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 120 | 0.024 | 0.047 | 0.050 | 0 | 3/6 |
-| ENEM 2010 · Ciências Humanas · Reaplicação · Branca (prova `103`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 116 | 0.024 | 0.047 | 0.052 | 0 | 5/5 |
-| ENEM 2010 · Ciências Humanas · Reaplicação · Rosa (prova `104`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 120 | 0.025 | 0.047 | 0.051 | 0 | 3/6 |
-| ENEM 2010 · Ciências da Natureza · 1ª aplicação · Azul (prova `89`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 200 | 0.024 | 0.047 | 0.051 | 0 | 5/6 |
-| ENEM 2010 · Ciências da Natureza · 1ª aplicação · Amarela (prova `90`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 200 | 0.025 | 0.048 | 0.054 | 0 | 5/6 |
-| ENEM 2010 · Ciências da Natureza · 1ª aplicação · Branca (prova `91`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 157 | 0.025 | 0.048 | 0.051 | 0 | 6/6 |
-| ENEM 2010 · Ciências da Natureza · 1ª aplicação · Rosa (prova `92`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 155 | 0.026 | 0.047 | 0.050 | 0 | 6/6 |
-| ENEM 2010 · Ciências da Natureza · Reaplicação · Azul (prova `105`) | `erro_alto` | Estimativa confiável na maioria dos casos, com exceções | `diagnostico_erro_maximo_acima_15` | `monotonica_linear` | diagnóstico de treino/seleção | 514 | 0.358 | 0.049 | 171.206 | 1 | 5/5 |
-| ENEM 2010 · Ciências da Natureza · Reaplicação · Amarela (prova `106`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 116 | 0.024 | 0.047 | 0.059 | 0 | 5/5 |
-| ENEM 2010 · Ciências da Natureza · Reaplicação · Branca (prova `107`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 117 | 0.025 | 0.048 | 0.068 | 0 | 5/5 |
-| ENEM 2010 · Ciências da Natureza · Reaplicação · Rosa (prova `108`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 118 | 0.023 | 0.049 | 0.074 | 0 | 5/5 |
-| ENEM 2010 · Linguagens · 1ª aplicação · Amarela (prova `93`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 400 | 0.025 | 0.048 | 0.051 | 0 | 5/6 |
-| ENEM 2010 · Linguagens · 1ª aplicação · Cinza (prova `94`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 400 | 0.025 | 0.047 | 0.051 | 0 | 5/5 |
-| ENEM 2010 · Linguagens · 1ª aplicação · Azul (prova `95`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 300 | 0.026 | 0.048 | 0.051 | 0 | 5/5 |
-| ENEM 2010 · Linguagens · 1ª aplicação · Rosa (prova `96`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 400 | 0.025 | 0.047 | 0.053 | 0 | 5/6 |
-| ENEM 2010 · Linguagens · Reaplicação · Amarela (prova `109`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2010 · Linguagens · Reaplicação · Cinza (prova `110`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2010 · Linguagens · Reaplicação · Azul (prova `111`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2010 · Linguagens · Reaplicação · Rosa (prova `112`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2010 · Matemática · 1ª aplicação · Amarela (prova `97`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 210 | 0.076 | 0.265 | 1.773 | 0 | 7/7 |
-| ENEM 2010 · Matemática · 1ª aplicação · Cinza (prova `98`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 280 | 0.027 | 0.058 | 0.085 | 0 | 7/7 |
-| ENEM 2010 · Matemática · 1ª aplicação · Azul (prova `99`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 280 | 0.027 | 0.058 | 0.078 | 0 | 7/7 |
-| ENEM 2010 · Matemática · 1ª aplicação · Rosa (prova `100`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 210 | 0.029 | 0.067 | 0.088 | 0 | 7/7 |
-| ENEM 2010 · Matemática · Reaplicação · Amarela (prova `113`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2010 · Matemática · Reaplicação · Cinza (prova `114`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2010 · Matemática · Reaplicação · Azul (prova `115`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2010 · Matemática · Reaplicação · Rosa (prova `116`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2011 · Ciências Humanas · 1ª aplicação · Azul (prova `117`) | `aviso_forte` | Estimativa confiável na maioria dos casos, com exceções | `erro_maximo_ate_15` | `monotonica_linear` | holdout | 150 | 0.066 | 0.068 | 5.341 | 1 | 5/5 |
-| ENEM 2011 · Ciências Humanas · 1ª aplicação · Amarela (prova `118`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 150 | 0.024 | 0.048 | 0.050 | 0 | 5/5 |
-| ENEM 2011 · Ciências Humanas · 1ª aplicação · Branca (prova `119`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 150 | 0.025 | 0.052 | 0.061 | 0 | 5/5 |
-| ENEM 2011 · Ciências Humanas · 1ª aplicação · Rosa (prova `120`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 150 | 0.025 | 0.059 | 0.071 | 0 | 5/5 |
-| ENEM 2011 · Ciências da Natureza · 1ª aplicação · Azul (prova `121`) | `aviso_forte` | Estimativa confiável na maioria dos casos, com exceções | `erro_maximo_ate_15` | `monotonica_linear` | holdout | 180 | 0.085 | 0.051 | 10.572 | 1 | 6/6 |
-| ENEM 2011 · Ciências da Natureza · 1ª aplicação · Amarela (prova `122`) | `aviso_forte` | Estimativa confiável na maioria dos casos, com exceções | `confirmacao_erro_maximo_ate_15` | `monotonica_linear` | confirmação | 240 | 0.078 | 0.068 | 11.846 | 1 | 6/6 |
-| ENEM 2011 · Ciências da Natureza · 1ª aplicação · Branca (prova `123`) | `aviso_forte` | Estimativa confiável na maioria dos casos, com exceções | `erro_maximo_ate_15` | `linear` | holdout | 180 | 0.189 | 0.070 | 8.689 | 4 | 6/6 |
-| ENEM 2011 · Ciências da Natureza · 1ª aplicação · Rosa (prova `124`) | `aviso_forte` | Estimativa confiável na maioria dos casos, com exceções | `erro_maximo_ate_15` | `monotonica_linear` | confirmação | 240 | 0.065 | 0.069 | 8.446 | 1 | 6/6 |
-| ENEM 2011 · Linguagens · 1ª aplicação · Amarela (prova `125`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 400 | 0.026 | 0.049 | 0.056 | 0 | 5/5 |
-| ENEM 2011 · Linguagens · 1ª aplicação · Cinza (prova `126`) | `aviso_forte` | Estimativa confiável na maioria dos casos, com exceções | `diagnostico_erro_maximo_ate_15` | `linear` | diagnóstico de treino/seleção | 1300 | 0.044 | 0.048 | 12.231 | 4 | 5/5 |
-| ENEM 2011 · Linguagens · 1ª aplicação · Azul (prova `127`) | `aviso_forte` | Estimativa confiável na maioria dos casos, com exceções | `erro_maximo_ate_15` | `linear` | holdout | 300 | 0.062 | 0.048 | 11.103 | 1 | 5/5 |
-| ENEM 2011 · Linguagens · 1ª aplicação · Rosa (prova `128`) | `aviso_leve` | Estimativa confiável na maioria dos casos, com exceções | `diagnostico_erro_maximo_ate_5` | `linear` | diagnóstico de treino/seleção | 1300 | 0.030 | 0.048 | 2.865 | 2 | 5/5 |
-| ENEM 2011 · Matemática · 1ª aplicação · Amarela (prova `129`) | `aviso_forte` | Estimativa confiável na maioria dos casos, com exceções | `erro_maximo_ate_15` | `monotonica_linear` | holdout | 210 | 0.093 | 0.054 | 13.976 | 1 | 7/7 |
-| ENEM 2011 · Matemática · 1ª aplicação · Cinza (prova `130`) | `aviso_forte` | Estimativa confiável na maioria dos casos, com exceções | `erro_maximo_ate_15` | `monotonica_linear` | holdout | 210 | 0.068 | 0.067 | 8.572 | 1 | 7/7 |
-| ENEM 2011 · Matemática · 1ª aplicação · Azul (prova `131`) | `aviso_forte` | Estimativa confiável na maioria dos casos, com exceções | `confirmacao_erro_maximo_ate_15` | `monotonica_linear` | confirmação | 280 | 0.267 | 0.819 | 14.952 | 2 | 7/7 |
-| ENEM 2011 · Matemática · 1ª aplicação · Rosa (prova `132`) | `aviso_forte` | Estimativa confiável na maioria dos casos, com exceções | `confirmacao_erro_maximo_ate_15` | `monotonica_linear` | confirmação | 280 | 0.064 | 0.062 | 10.036 | 1 | 7/7 |
-| ENEM 2012 · Ciências Humanas · 1ª aplicação · Azul (prova `137`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 180 | 0.025 | 0.049 | 0.113 | 0 | 6/6 |
-| ENEM 2012 · Ciências Humanas · 1ª aplicação · Amarela (prova `138`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 180 | 0.026 | 0.048 | 0.113 | 0 | 6/6 |
-| ENEM 2012 · Ciências Humanas · 1ª aplicação · Branca (prova `139`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 180 | 0.031 | 0.049 | 0.900 | 0 | 6/6 |
-| ENEM 2012 · Ciências Humanas · 1ª aplicação · Rosa (prova `140`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 181 | 0.027 | 0.048 | 0.069 | 0 | 6/6 |
-| ENEM 2012 · Ciências Humanas · Especiais · Branca ledor (prova `154`) | `aviso_forte` | Sem validação suficiente | `erro_maximo_ate_15` | `linear` | diagnóstico de treino/seleção | 182 | 0.268 | 0.164 | 13.061 | 6 | 5/5 |
-| ENEM 2012 · Ciências da Natureza · 1ª aplicação · Azul (prova `141`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 165 | 0.025 | 0.048 | 0.051 | 0 | 6/6 |
-| ENEM 2012 · Ciências da Natureza · 1ª aplicação · Amarela (prova `142`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 162 | 0.026 | 0.048 | 0.052 | 0 | 6/6 |
-| ENEM 2012 · Ciências da Natureza · 1ª aplicação · Branca (prova `143`) | `aviso_leve` | Estimativa confiável na maioria dos casos, com exceções | `erro_maximo_ate_5` | `monotonica_linear` | confirmação | 200 | 0.044 | 0.047 | 3.675 | 1 | 5/6 |
-| ENEM 2012 · Ciências da Natureza · 1ª aplicação · Rosa (prova `144`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 167 | 0.027 | 0.048 | 0.060 | 0 | 6/6 |
-| ENEM 2012 · Ciências da Natureza · Especiais · Branca ledor (prova `153`) | `erro_alto` | Sem validação suficiente | `diagnostico_erro_maximo_acima_15` | `monotonica_linear` | diagnóstico de treino/seleção | 183 | 0.401 | 0.498 | 31.952 | 5 | 4/4 |
-| ENEM 2012 · Linguagens · 1ª aplicação · Amarela (prova `145`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 300 | 0.027 | 0.049 | 0.051 | 0 | 5/5 |
-| ENEM 2012 · Linguagens · 1ª aplicação · Cinza (prova `146`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 301 | 0.025 | 0.048 | 0.050 | 0 | 6/6 |
-| ENEM 2012 · Linguagens · 1ª aplicação · Azul (prova `147`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 400 | 0.026 | 0.047 | 0.050 | 0 | 5/6 |
-| ENEM 2012 · Linguagens · 1ª aplicação · Rosa (prova `148`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 400 | 0.025 | 0.048 | 0.051 | 0 | 5/6 |
-| ENEM 2012 · Linguagens · Especiais · Cinza ledor (prova `155`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 91 | 0.025 | 0.048 | 0.050 | 0 | 4/4 |
-| ENEM 2012 · Matemática · 1ª aplicação · Amarela (prova `149`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 280 | 0.026 | 0.054 | 0.073 | 0 | 7/7 |
-| ENEM 2012 · Matemática · 1ª aplicação · Cinza (prova `150`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 210 | 0.029 | 0.056 | 0.110 | 0 | 7/7 |
-| ENEM 2012 · Matemática · 1ª aplicação · Azul (prova `151`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 280 | 0.029 | 0.065 | 0.078 | 0 | 7/7 |
-| ENEM 2012 · Matemática · 1ª aplicação · Rosa (prova `152`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 280 | 0.025 | 0.057 | 0.073 | 0 | 7/7 |
-| ENEM 2012 · Matemática · Especiais · Cinza ledor (prova `156`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 83 | 0.027 | 0.047 | 0.051 | 0 | 5/5 |
-| ENEM 2013 · Ciências Humanas · 1ª aplicação · Azul (prova `167`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 180 | 0.025 | 0.048 | 0.084 | 0 | 6/6 |
-| ENEM 2013 · Ciências Humanas · 1ª aplicação · Amarela (prova `168`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 240 | 0.030 | 0.073 | 0.097 | 0 | 6/6 |
-| ENEM 2013 · Ciências Humanas · 1ª aplicação · Branca (prova `169`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 240 | 0.026 | 0.046 | 0.125 | 0 | 6/6 |
-| ENEM 2013 · Ciências Humanas · 1ª aplicação · Rosa (prova `170`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 180 | 0.030 | 0.069 | 0.098 | 0 | 6/6 |
-| ENEM 2013 · Ciências Humanas · Especiais · Branca adaptada ledor (prova `187`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 110 | 0.026 | 0.048 | 0.054 | 0 | 5/5 |
-| ENEM 2013 · Ciências da Natureza · 1ª aplicação · Azul (prova `171`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 200 | 0.027 | 0.049 | 0.056 | 0 | 5/6 |
-| ENEM 2013 · Ciências da Natureza · 1ª aplicação · Amarela (prova `172`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 175 | 0.026 | 0.049 | 0.061 | 0 | 6/6 |
-| ENEM 2013 · Ciências da Natureza · 1ª aplicação · Branca (prova `173`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 176 | 0.025 | 0.047 | 0.091 | 0 | 7/7 |
-| ENEM 2013 · Ciências da Natureza · 1ª aplicação · Rosa (prova `174`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 178 | 0.025 | 0.048 | 0.062 | 0 | 6/6 |
-| ENEM 2013 · Ciências da Natureza · Especiais · Branca adaptada ledor (prova `188`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 96 | 0.028 | 0.050 | 0.159 | 0 | 5/5 |
-| ENEM 2013 · Linguagens · 1ª aplicação · Amarela (prova `175`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 301 | 0.027 | 0.049 | 0.057 | 0 | 6/6 |
-| ENEM 2013 · Linguagens · 1ª aplicação · Cinza (prova `176`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 301 | 0.026 | 0.049 | 0.056 | 0 | 6/6 |
-| ENEM 2013 · Linguagens · 1ª aplicação · Azul (prova `177`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 302 | 0.025 | 0.048 | 0.055 | 0 | 6/6 |
-| ENEM 2013 · Linguagens · 1ª aplicação · Rosa (prova `178`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 400 | 0.026 | 0.048 | 0.055 | 0 | 5/6 |
-| ENEM 2013 · Linguagens · Especiais · Cinza adaptada ledor (prova `189`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 150 | 0.024 | 0.050 | 0.054 | 0 | 5/5 |
-| ENEM 2013 · Matemática · 1ª aplicação · Amarela (prova `179`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 280 | 0.028 | 0.067 | 0.084 | 0 | 7/7 |
-| ENEM 2013 · Matemática · 1ª aplicação · Cinza (prova `180`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 280 | 0.029 | 0.063 | 0.082 | 0 | 7/7 |
-| ENEM 2013 · Matemática · 1ª aplicação · Azul (prova `181`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 280 | 0.029 | 0.066 | 0.094 | 0 | 7/7 |
-| ENEM 2013 · Matemática · 1ª aplicação · Rosa (prova `182`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 280 | 0.023 | 0.051 | 0.070 | 0 | 7/7 |
-| ENEM 2013 · Matemática · Especiais · Cinza adaptada ledor (prova `190`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 120 | 0.126 | 0.300 | 0.878 | 0 | 3/5 |
-| ENEM 2014 · Ciências Humanas · 1ª aplicação · Azul (prova `195`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 200 | 0.024 | 0.047 | 0.052 | 0 | 5/6 |
-| ENEM 2014 · Ciências Humanas · 1ª aplicação · Amarela (prova `196`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 170 | 0.023 | 0.046 | 0.051 | 0 | 6/6 |
-| ENEM 2014 · Ciências Humanas · 1ª aplicação · Branca (prova `197`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 200 | 0.024 | 0.047 | 0.052 | 0 | 5/6 |
-| ENEM 2014 · Ciências Humanas · 1ª aplicação · Rosa (prova `198`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 168 | 0.025 | 0.049 | 0.057 | 0 | 6/6 |
-| ENEM 2014 · Ciências Humanas · Especiais · Branca adaptada (prova `215`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 106 | 0.027 | 0.048 | 0.052 | 0 | 5/5 |
-| ENEM 2014 · Ciências da Natureza · 1ª aplicação · Azul (prova `199`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 240 | 0.026 | 0.047 | 0.055 | 0 | 6/6 |
-| ENEM 2014 · Ciências da Natureza · 1ª aplicação · Amarela (prova `200`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 180 | 0.026 | 0.048 | 0.053 | 0 | 6/6 |
-| ENEM 2014 · Ciências da Natureza · 1ª aplicação · Branca (prova `201`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 240 | 0.026 | 0.047 | 0.053 | 0 | 6/6 |
-| ENEM 2014 · Ciências da Natureza · 1ª aplicação · Rosa (prova `202`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 240 | 0.026 | 0.048 | 0.057 | 0 | 6/6 |
-| ENEM 2014 · Ciências da Natureza · Especiais · Branca adaptada (prova `216`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 96 | 0.027 | 0.049 | 0.051 | 0 | 6/6 |
-| ENEM 2014 · Linguagens · 1ª aplicação · Amarela (prova `203`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 302 | 0.025 | 0.047 | 0.062 | 0 | 6/6 |
-| ENEM 2014 · Linguagens · 1ª aplicação · Cinza (prova `204`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 301 | 0.025 | 0.047 | 0.051 | 0 | 6/6 |
-| ENEM 2014 · Linguagens · 1ª aplicação · Azul (prova `205`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 300 | 0.025 | 0.047 | 0.051 | 0 | 5/5 |
-| ENEM 2014 · Linguagens · 1ª aplicação · Rosa (prova `206`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 386 | 0.025 | 0.048 | 0.054 | 0 | 5/6 |
-| ENEM 2014 · Linguagens · Reaplicação · Cinza (prova `213`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 181 | 0.025 | 0.048 | 0.051 | 0 | 5/5 |
-| ENEM 2014 · Linguagens · Especiais · Cinza adaptada (prova `217`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 80 | 0.026 | 0.047 | 0.052 | 0 | 2/5 |
-| ENEM 2014 · Matemática · 1ª aplicação · Amarela (prova `207`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 280 | 0.031 | 0.071 | 0.086 | 0 | 7/7 |
-| ENEM 2014 · Matemática · 1ª aplicação · Cinza (prova `208`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 210 | 0.027 | 0.059 | 0.077 | 0 | 7/7 |
-| ENEM 2014 · Matemática · 1ª aplicação · Azul (prova `209`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 210 | 0.027 | 0.059 | 0.070 | 0 | 7/7 |
-| ENEM 2014 · Matemática · 1ª aplicação · Rosa (prova `210`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 280 | 0.024 | 0.051 | 0.071 | 0 | 7/7 |
-| ENEM 2014 · Matemática · Reaplicação · Cinza (prova `214`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 104 | 0.027 | 0.048 | 0.052 | 0 | 5/5 |
-| ENEM 2014 · Matemática · Especiais · Cinza adaptada (prova `218`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 120 | 0.024 | 0.048 | 0.049 | 0 | 3/6 |
-| ENEM 2015 · Ciências Humanas · 1ª aplicação · Azul (prova `231`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 200 | 0.023 | 0.046 | 0.052 | 0 | 5/6 |
-| ENEM 2015 · Ciências Humanas · 1ª aplicação · Amarela (prova `232`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 161 | 0.024 | 0.046 | 0.055 | 0 | 6/6 |
-| ENEM 2015 · Ciências Humanas · 1ª aplicação · Branca (prova `233`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 163 | 0.025 | 0.047 | 0.054 | 0 | 6/6 |
-| ENEM 2015 · Ciências Humanas · 1ª aplicação · Rosa (prova `234`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 200 | 0.024 | 0.048 | 0.055 | 0 | 5/6 |
-| ENEM 2015 · Ciências Humanas · Especiais · Branca adaptada (prova `251`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 160 | 0.026 | 0.050 | 0.058 | 0 | 4/6 |
-| ENEM 2015 · Ciências Humanas · Reaplicação · Azul (prova `271`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 98 | 0.026 | 0.047 | 0.055 | 0 | 5/5 |
-| ENEM 2015 · Ciências Humanas · Reaplicação · Amarela (prova `272`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 97 | 0.025 | 0.048 | 0.058 | 0 | 5/5 |
-| ENEM 2015 · Ciências Humanas · Reaplicação · Branca (prova `273`) | `erro_alto` | Estimativa confiável na maioria dos casos, com exceções | `erro_maximo_acima_15` | `monotonica_linear` | holdout | 97 | 1.071 | 0.064 | 101.169 | 1 | 5/5 |
-| ENEM 2015 · Ciências Humanas · Reaplicação · Rosa (prova `274`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 44 | 0.025 | 0.047 | 0.052 | 0 | 2/5 |
-| ENEM 2015 · Ciências da Natureza · 1ª aplicação · Azul (prova `235`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 180 | 0.025 | 0.048 | 0.052 | 0 | 6/6 |
-| ENEM 2015 · Ciências da Natureza · 1ª aplicação · Amarela (prova `236`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 181 | 0.030 | 0.059 | 0.268 | 0 | 6/6 |
-| ENEM 2015 · Ciências da Natureza · 1ª aplicação · Branca (prova `237`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 200 | 0.024 | 0.052 | 0.071 | 0 | 5/6 |
-| ENEM 2015 · Ciências da Natureza · 1ª aplicação · Rosa (prova `238`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 177 | 0.024 | 0.047 | 0.051 | 0 | 6/6 |
-| ENEM 2015 · Ciências da Natureza · Especiais · Branca adaptada (prova `252`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 106 | 0.026 | 0.047 | 0.049 | 0 | 6/6 |
-| ENEM 2015 · Ciências da Natureza · Reaplicação · Azul (prova `275`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 80 | 0.022 | 0.048 | 0.052 | 0 | 2/5 |
-| ENEM 2015 · Ciências da Natureza · Reaplicação · Amarela (prova `276`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 80 | 0.027 | 0.048 | 0.050 | 0 | 2/5 |
-| ENEM 2015 · Ciências da Natureza · Reaplicação · Branca (prova `277`) | `erro_alto` | Estimativa confiável na maioria dos casos, com exceções | `confirmacao_erro_maximo_acima_15` | `linear` | confirmação | 80 | 1.621 | 0.048 | 127.399 | 1 | 2/5 |
-| ENEM 2015 · Ciências da Natureza · Reaplicação · Rosa (prova `278`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 80 | 0.027 | 0.048 | 0.051 | 0 | 2/5 |
-| ENEM 2015 · Linguagens · 1ª aplicação · Amarela (prova `239`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 400 | 0.025 | 0.048 | 0.053 | 0 | 5/6 |
-| ENEM 2015 · Linguagens · 1ª aplicação · Cinza (prova `240`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 302 | 0.024 | 0.047 | 0.051 | 0 | 6/6 |
-| ENEM 2015 · Linguagens · 1ª aplicação · Azul (prova `241`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 400 | 0.026 | 0.048 | 0.052 | 0 | 5/6 |
-| ENEM 2015 · Linguagens · 1ª aplicação · Rosa (prova `242`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 301 | 0.026 | 0.047 | 0.052 | 0 | 6/6 |
-| ENEM 2015 · Linguagens · Especiais · Cinza adaptada (prova `253`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 203 | 0.024 | 0.048 | 0.052 | 0 | 5/5 |
-| ENEM 2015 · Linguagens · Reaplicação · Amarela (prova `279`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 107 | 0.025 | 0.048 | 0.054 | 0 | 2/4 |
-| ENEM 2015 · Linguagens · Reaplicação · Cinza (prova `280`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 80 | 0.024 | 0.047 | 0.052 | 0 | 1/4 |
-| ENEM 2015 · Linguagens · Reaplicação · Azul (prova `281`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 91 | 0.027 | 0.047 | 0.052 | 0 | 2/5 |
-| ENEM 2015 · Linguagens · Reaplicação · Rosa (prova `282`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 149 | 0.025 | 0.047 | 0.053 | 0 | 4/4 |
-| ENEM 2015 · Matemática · 1ª aplicação · Amarela (prova `243`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 280 | 0.030 | 0.068 | 0.101 | 0 | 7/8 |
-| ENEM 2015 · Matemática · 1ª aplicação · Cinza (prova `244`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 280 | 0.029 | 0.068 | 0.088 | 0 | 7/8 |
-| ENEM 2015 · Matemática · 1ª aplicação · Azul (prova `245`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 216 | 0.029 | 0.072 | 0.111 | 0 | 8/8 |
-| ENEM 2015 · Matemática · 1ª aplicação · Rosa (prova `246`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 215 | 0.028 | 0.065 | 0.087 | 0 | 8/8 |
-| ENEM 2015 · Matemática · Especiais · Cinza adaptada (prova `254`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 126 | 0.025 | 0.048 | 0.052 | 0 | 7/7 |
-| ENEM 2015 · Matemática · Reaplicação · Amarela (prova `283`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 127 | 0.024 | 0.048 | 0.050 | 0 | 6/6 |
-| ENEM 2015 · Matemática · Reaplicação · Cinza (prova `284`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 122 | 0.023 | 0.046 | 0.051 | 0 | 7/7 |
-| ENEM 2015 · Matemática · Reaplicação · Azul (prova `285`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 125 | 0.026 | 0.048 | 0.051 | 0 | 6/6 |
-| ENEM 2015 · Matemática · Reaplicação · Rosa (prova `286`) | `erro_alto` | Estimativa confiável na maioria dos casos, com exceções | `erro_maximo_acima_15` | `linear` | holdout | 122 | 0.536 | 0.050 | 62.585 | 1 | 7/7 |
-| ENEM 2016 · Ciências Humanas · 1ª aplicação · Azul (prova `295`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 214 | 0.027 | 0.048 | 0.052 | 0 | 6/6 |
-| ENEM 2016 · Ciências Humanas · 1ª aplicação · Amarela (prova `296`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 208 | 0.025 | 0.049 | 0.052 | 0 | 6/6 |
-| ENEM 2016 · Ciências Humanas · 1ª aplicação · Branca (prova `297`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 181 | 0.024 | 0.048 | 0.051 | 0 | 6/6 |
-| ENEM 2016 · Ciências Humanas · 1ª aplicação · Rosa (prova `298`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 182 | 0.024 | 0.048 | 0.053 | 0 | 6/6 |
-| ENEM 2016 · Ciências Humanas · Especiais · Branca adaptada (prova `308`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 80 | 0.025 | 0.047 | 0.050 | 0 | 2/5 |
-| ENEM 2016 · Ciências Humanas · Reaplicação · Azul (prova `336`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 30 | 0.032 | 0.046 | 0.050 | 0 | 5/5 |
-| ENEM 2016 · Ciências Humanas · Reaplicação · Amarela (prova `337`) | `nao_calibrado` | Sem validação suficiente | `holdout_insuficiente` | `linear` | holdout | 27 | 0.027 | 0.047 | 0.050 | 0 | 5/5 |
-| ENEM 2016 · Ciências Humanas · Reaplicação · Branca (prova `338`) | `nao_calibrado` | Sem validação suficiente | `holdout_insuficiente` | `linear` | holdout | 25 | 0.023 | 0.043 | 0.048 | 0 | 5/5 |
-| ENEM 2016 · Ciências Humanas · Reaplicação · Rosa (prova `339`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2016 · Ciências Humanas · 2ª reaplicação · Azul (prova `356`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 200 | 0.027 | 0.047 | 0.051 | 0 | 5/6 |
-| ENEM 2016 · Ciências Humanas · 2ª reaplicação · Amarela (prova `357`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 200 | 0.027 | 0.050 | 0.053 | 0 | 5/6 |
-| ENEM 2016 · Ciências Humanas · 2ª reaplicação · Branca (prova `358`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 151 | 0.027 | 0.048 | 0.050 | 0 | 6/6 |
-| ENEM 2016 · Ciências Humanas · 2ª reaplicação · Rosa (prova `359`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 152 | 0.025 | 0.047 | 0.052 | 0 | 6/6 |
-| ENEM 2016 · Ciências Humanas · Especiais · Branca adaptada reaplicacao 2 (prova `360`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2016 · Ciências da Natureza · 1ª aplicação · Azul (prova `291`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 180 | 0.024 | 0.047 | 0.052 | 0 | 6/6 |
-| ENEM 2016 · Ciências da Natureza · 1ª aplicação · Amarela (prova `292`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 221 | 0.025 | 0.048 | 0.051 | 0 | 6/6 |
-| ENEM 2016 · Ciências da Natureza · 1ª aplicação · Branca (prova `293`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 208 | 0.026 | 0.047 | 0.052 | 0 | 6/6 |
-| ENEM 2016 · Ciências da Natureza · 1ª aplicação · Rosa (prova `294`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 180 | 0.024 | 0.045 | 0.050 | 0 | 6/6 |
-| ENEM 2016 · Ciências da Natureza · Especiais · Branca adaptada (prova `307`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 97 | 0.024 | 0.045 | 0.050 | 0 | 5/5 |
-| ENEM 2016 · Ciências da Natureza · Reaplicação · Azul (prova `331`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 30 | 0.024 | 0.045 | 0.047 | 0 | 5/5 |
-| ENEM 2016 · Ciências da Natureza · Reaplicação · Amarela (prova `332`) | `nao_calibrado` | Sem validação suficiente | `holdout_insuficiente` | `linear` | holdout | 28 | 0.025 | 0.047 | 0.051 | 0 | 5/5 |
-| ENEM 2016 · Ciências da Natureza · Reaplicação · Branca (prova `333`) | `nao_calibrado` | Sem validação suficiente | `holdout_insuficiente` | `monotonica_linear` | holdout | 25 | 0.032 | 0.047 | 0.050 | 0 | 4/4 |
-| ENEM 2016 · Ciências da Natureza · Reaplicação · Rosa (prova `334`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2016 · Ciências da Natureza · 2ª reaplicação · Azul (prova `351`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 200 | 0.026 | 0.048 | 0.055 | 0 | 5/6 |
-| ENEM 2016 · Ciências da Natureza · 2ª reaplicação · Amarela (prova `352`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 200 | 0.023 | 0.046 | 0.050 | 0 | 5/6 |
-| ENEM 2016 · Ciências da Natureza · 2ª reaplicação · Branca (prova `353`) | `erro_alto` | Estimativa confiável na maioria dos casos, com exceções | `erro_maximo_acima_15` | `linear` | holdout | 151 | 0.193 | 0.048 | 25.719 | 1 | 6/6 |
-| ENEM 2016 · Ciências da Natureza · 2ª reaplicação · Rosa (prova `354`) | `erro_alto` | Estimativa confiável na maioria dos casos, com exceções | `erro_maximo_acima_15` | `linear` | holdout | 151 | 0.194 | 0.048 | 25.715 | 1 | 6/6 |
-| ENEM 2016 · Ciências da Natureza · Especiais · Branca adaptada reaplicacao 2 (prova `355`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2016 · Linguagens · 1ª aplicação · Azul (prova `299`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 301 | 0.025 | 0.048 | 0.052 | 0 | 5/5 |
-| ENEM 2016 · Linguagens · 1ª aplicação · Amarela (prova `300`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 300 | 0.025 | 0.048 | 0.051 | 0 | 5/5 |
-| ENEM 2016 · Linguagens · 1ª aplicação · Rosa (prova `301`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 360 | 0.025 | 0.047 | 0.052 | 0 | 5/6 |
-| ENEM 2016 · Linguagens · 1ª aplicação · Cinza (prova `302`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 300 | 0.025 | 0.047 | 0.052 | 0 | 5/5 |
-| ENEM 2016 · Linguagens · Especiais · Cinza adaptada (prova `309`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 115 | 0.023 | 0.046 | 0.052 | 0 | 4/4 |
-| ENEM 2016 · Linguagens · Reaplicação · Azul (prova `341`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2016 · Linguagens · Reaplicação · Amarela (prova `342`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2016 · Linguagens · Reaplicação · Rosa (prova `343`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2016 · Linguagens · Reaplicação · Cinza adaptada (prova `344`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2016 · Linguagens · 2ª reaplicação · Azul (prova `361`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 253 | 0.026 | 0.048 | 0.051 | 0 | 5/5 |
-| ENEM 2016 · Linguagens · 2ª reaplicação · Amarela (prova `362`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 253 | 0.025 | 0.047 | 0.052 | 0 | 5/5 |
-| ENEM 2016 · Linguagens · 2ª reaplicação · Rosa (prova `363`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 320 | 0.024 | 0.047 | 0.051 | 0 | 4/5 |
-| ENEM 2016 · Linguagens · 2ª reaplicação · Cinza (prova `364`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 256 | 0.026 | 0.047 | 0.051 | 0 | 5/5 |
-| ENEM 2016 · Linguagens · Especiais · Cinza adaptada reaplicacao 2 (prova `365`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2016 · Matemática · 1ª aplicação · Azul (prova `303`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 210 | 0.027 | 0.063 | 0.088 | 0 | 7/7 |
-| ENEM 2016 · Matemática · 1ª aplicação · Amarela (prova `304`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 280 | 0.032 | 0.076 | 0.089 | 0 | 7/7 |
-| ENEM 2016 · Matemática · 1ª aplicação · Rosa (prova `305`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 210 | 0.029 | 0.059 | 0.079 | 0 | 7/7 |
-| ENEM 2016 · Matemática · 1ª aplicação · Cinza (prova `306`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 210 | 0.029 | 0.065 | 0.093 | 0 | 7/7 |
-| ENEM 2016 · Matemática · Especiais · Cinza adaptada (prova `310`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 96 | 0.027 | 0.048 | 0.051 | 0 | 5/5 |
-| ENEM 2016 · Matemática · Reaplicação · Azul (prova `346`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2016 · Matemática · Reaplicação · Amarela (prova `347`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2016 · Matemática · Reaplicação · Rosa (prova `348`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2016 · Matemática · Reaplicação · Cinza (prova `349`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2016 · Matemática · 2ª reaplicação · Azul (prova `366`) | `erro_alto` | Estimativa confiável na maioria dos casos, com exceções | `erro_maximo_acima_15` | `monotonica_linear` | holdout | 186 | 0.179 | 0.401 | 18.223 | 1 | 7/7 |
-| ENEM 2016 · Matemática · 2ª reaplicação · Amarela (prova `367`) | `aviso_forte` | Estimativa confiável na maioria dos casos, com exceções | `erro_maximo_ate_15` | `monotonica_linear` | holdout | 187 | 0.097 | 0.048 | 13.073 | 1 | 7/7 |
-| ENEM 2016 · Matemática · 2ª reaplicação · Rosa (prova `368`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 240 | 0.029 | 0.061 | 0.069 | 0 | 6/7 |
-| ENEM 2016 · Matemática · 2ª reaplicação · Cinza (prova `369`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 185 | 0.027 | 0.047 | 0.100 | 0 | 7/7 |
-| ENEM 2016 · Matemática · Especiais · Cinza adaptada reaplicacao 2 (prova `370`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2017 · Ciências Humanas · 1ª aplicação · Azul (prova `395`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 168 | 0.026 | 0.048 | 0.070 | 0 | 6/6 |
-| ENEM 2017 · Ciências Humanas · 1ª aplicação · Amarela (prova `396`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 167 | 0.026 | 0.048 | 0.054 | 0 | 6/6 |
-| ENEM 2017 · Ciências Humanas · 1ª aplicação · Branca (prova `397`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 200 | 0.024 | 0.046 | 0.056 | 0 | 5/6 |
-| ENEM 2017 · Ciências Humanas · 1ª aplicação · Rosa (prova `398`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 166 | 0.025 | 0.046 | 0.054 | 0 | 6/6 |
-| ENEM 2017 · Ciências Humanas · Especiais · Laranja adaptada ledor (prova `408`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 80 | 0.024 | 0.046 | 0.051 | 0 | 2/5 |
-| ENEM 2017 · Ciências Humanas · Especiais · Verde videoprova libras (prova `412`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 120 | 0.027 | 0.047 | 0.051 | 0 | 3/5 |
-| ENEM 2017 · Ciências Humanas · Reaplicação · Azul (prova `435`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 56 | 0.024 | 0.046 | 0.049 | 0 | 5/5 |
-| ENEM 2017 · Ciências Humanas · Reaplicação · Amarela (prova `436`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 55 | 0.025 | 0.050 | 0.054 | 0 | 4/4 |
-| ENEM 2017 · Ciências Humanas · Reaplicação · Branca (prova `437`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 53 | 0.025 | 0.047 | 0.050 | 0 | 5/5 |
-| ENEM 2017 · Ciências Humanas · Reaplicação · Rosa (prova `438`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 57 | 0.027 | 0.045 | 0.050 | 0 | 4/4 |
-| ENEM 2017 · Ciências da Natureza · 1ª aplicação · Azul (prova `391`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 163 | 0.026 | 0.049 | 0.056 | 0 | 6/6 |
-| ENEM 2017 · Ciências da Natureza · 1ª aplicação · Amarela (prova `392`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 200 | 0.023 | 0.047 | 0.058 | 0 | 5/6 |
-| ENEM 2017 · Ciências da Natureza · 1ª aplicação · Cinza (prova `393`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 159 | 0.025 | 0.048 | 0.063 | 0 | 6/6 |
-| ENEM 2017 · Ciências da Natureza · 1ª aplicação · Rosa (prova `394`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 200 | 0.024 | 0.048 | 0.061 | 0 | 5/6 |
-| ENEM 2017 · Ciências da Natureza · Especiais · Laranja adaptada ledor (prova `407`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 73 | 0.024 | 0.046 | 0.051 | 0 | 4/4 |
-| ENEM 2017 · Ciências da Natureza · Especiais · Verde videoprova libras (prova `411`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 80 | 0.024 | 0.049 | 0.052 | 0 | 4/4 |
-| ENEM 2017 · Ciências da Natureza · Reaplicação · Amarela (prova `431`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2017 · Ciências da Natureza · Reaplicação · Cinza (prova `432`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2017 · Ciências da Natureza · Reaplicação · Azul (prova `433`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2017 · Ciências da Natureza · Reaplicação · Rosa (prova `434`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2017 · Linguagens · 1ª aplicação · Azul (prova `399`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 360 | 0.025 | 0.049 | 0.053 | 0 | 5/5 |
-| ENEM 2017 · Linguagens · 1ª aplicação · Amarela (prova `400`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 360 | 0.025 | 0.048 | 0.051 | 0 | 5/5 |
-| ENEM 2017 · Linguagens · 1ª aplicação · Rosa (prova `401`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 360 | 0.025 | 0.047 | 0.061 | 0 | 5/5 |
-| ENEM 2017 · Linguagens · 1ª aplicação · Branca (prova `402`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 278 | 0.025 | 0.048 | 0.054 | 0 | 5/5 |
-| ENEM 2017 · Linguagens · Especiais · Laranja adaptada ledor (prova `409`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 108 | 0.025 | 0.048 | 0.054 | 0 | 4/4 |
-| ENEM 2017 · Linguagens · Especiais · Verde videoprova libras (prova `413`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 160 | 0.027 | 0.049 | 0.051 | 0 | 2/4 |
-| ENEM 2017 · Linguagens · Reaplicação · Azul (prova `439`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 60 | 0.028 | 0.051 | 0.065 | 0 | 4/4 |
-| ENEM 2017 · Linguagens · Reaplicação · Amarela (prova `440`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 55 | 0.023 | 0.047 | 0.051 | 0 | 4/4 |
-| ENEM 2017 · Linguagens · Reaplicação · Branca (prova `441`) | `ok` | Sem validação suficiente | `erro_maximo_ate_2` | `linear` | diagnóstico de treino/seleção | 189 | 0.027 | 0.053 | 0.063 | 0 | 4/4 |
-| ENEM 2017 · Linguagens · Reaplicação · Rosa (prova `442`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 57 | 0.026 | 0.045 | 0.050 | 0 | 4/4 |
-| ENEM 2017 · Matemática · 1ª aplicação · Azul (prova `403`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 280 | 0.026 | 0.058 | 0.082 | 0 | 7/7 |
-| ENEM 2017 · Matemática · 1ª aplicação · Amarela (prova `404`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 280 | 0.027 | 0.067 | 0.083 | 0 | 7/7 |
-| ENEM 2017 · Matemática · 1ª aplicação · Rosa (prova `405`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 210 | 0.028 | 0.066 | 0.090 | 0 | 7/7 |
-| ENEM 2017 · Matemática · 1ª aplicação · Cinza (prova `406`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 280 | 0.026 | 0.065 | 0.085 | 0 | 7/7 |
-| ENEM 2017 · Matemática · Especiais · Laranja adaptada ledor (prova `410`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 40 | 0.026 | 0.047 | 0.049 | 0 | 1/4 |
-| ENEM 2017 · Matemática · Especiais · Verde videoprova libras (prova `414`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 80 | 0.026 | 0.048 | 0.052 | 0 | 2/7 |
-| ENEM 2017 · Matemática · Reaplicação · Amarela (prova `443`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2017 · Matemática · Reaplicação · Cinza (prova `444`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2017 · Matemática · Reaplicação · Azul (prova `445`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2017 · Matemática · Reaplicação · Rosa (prova `446`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2018 · Ciências Humanas · 1ª aplicação · Azul (prova `451`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 165 | 0.048 | 0.231 | 0.384 | 0 | 6/6 |
-| ENEM 2018 · Ciências Humanas · 1ª aplicação · Amarela (prova `452`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação do erro médio | 500 | 0.045 | 0.157 | 0.455 | 0 | 5/6 |
-| ENEM 2018 · Ciências Humanas · 1ª aplicação · Branca (prova `453`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 200 | 0.044 | 0.189 | 0.469 | 0 | 5/6 |
-| ENEM 2018 · Ciências Humanas · 1ª aplicação · Rosa (prova `454`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 161 | 0.044 | 0.122 | 0.637 | 0 | 6/6 |
-| ENEM 2018 · Ciências Humanas · Especiais · Laranja adaptada ledor (prova `464`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 69 | 0.048 | 0.166 | 0.259 | 0 | 2/5 |
-| ENEM 2018 · Ciências Humanas · Especiais · Verde videoprova libras (prova `468`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 97 | 0.057 | 0.245 | 0.524 | 0 | 5/5 |
-| ENEM 2018 · Ciências Humanas · Reaplicação · Azul (prova `491`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 60 | 0.024 | 0.047 | 0.049 | 0 | 5/5 |
-| ENEM 2018 · Ciências Humanas · Reaplicação · Amarela (prova `492`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 62 | 0.026 | 0.046 | 0.051 | 0 | 5/5 |
-| ENEM 2018 · Ciências Humanas · Reaplicação · Branca (prova `493`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 53 | 0.024 | 0.042 | 0.048 | 0 | 5/5 |
-| ENEM 2018 · Ciências Humanas · Reaplicação · Rosa (prova `494`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 62 | 0.024 | 0.048 | 0.052 | 0 | 5/5 |
-| ENEM 2018 · Ciências da Natureza · 1ª aplicação · Azul (prova `447`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 200 | 0.025 | 0.048 | 0.060 | 0 | 5/6 |
-| ENEM 2018 · Ciências da Natureza · 1ª aplicação · Amarela (prova `448`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 200 | 0.026 | 0.048 | 0.054 | 0 | 5/6 |
-| ENEM 2018 · Ciências da Natureza · 1ª aplicação · Cinza (prova `449`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 165 | 0.025 | 0.047 | 0.069 | 0 | 6/6 |
-| ENEM 2018 · Ciências da Natureza · 1ª aplicação · Rosa (prova `450`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 167 | 0.025 | 0.048 | 0.057 | 0 | 6/6 |
-| ENEM 2018 · Ciências da Natureza · Especiais · Laranja adaptada ledor (prova `463`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 43 | 0.021 | 0.044 | 0.051 | 0 | 2/4 |
-| ENEM 2018 · Ciências da Natureza · Especiais · Verde videoprova libras (prova `467`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 120 | 0.025 | 0.048 | 0.053 | 0 | 3/5 |
-| ENEM 2018 · Ciências da Natureza · Reaplicação · Amarela (prova `487`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2018 · Ciências da Natureza · Reaplicação · Cinza (prova `488`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2018 · Ciências da Natureza · Reaplicação · Azul (prova `489`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2018 · Ciências da Natureza · Reaplicação · Rosa (prova `490`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2018 · Linguagens · 1ª aplicação · Azul (prova `455`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 400 | 0.025 | 0.048 | 0.051 | 0 | 5/6 |
-| ENEM 2018 · Linguagens · 1ª aplicação · Amarela (prova `456`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 400 | 0.024 | 0.047 | 0.053 | 0 | 5/6 |
-| ENEM 2018 · Linguagens · 1ª aplicação · Rosa (prova `457`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 400 | 0.025 | 0.048 | 0.051 | 0 | 5/6 |
-| ENEM 2018 · Linguagens · 1ª aplicação · Branca (prova `458`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 400 | 0.026 | 0.048 | 0.052 | 0 | 5/5 |
-| ENEM 2018 · Linguagens · Especiais · Laranja adaptada ledor (prova `465`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 109 | 0.025 | 0.048 | 0.051 | 0 | 4/4 |
-| ENEM 2018 · Linguagens · Especiais · Verde videoprova libras (prova `469`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 154 | 0.025 | 0.047 | 0.051 | 0 | 2/4 |
-| ENEM 2018 · Linguagens · Reaplicação · Azul (prova `495`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 61 | 0.026 | 0.046 | 0.049 | 0 | 4/4 |
-| ENEM 2018 · Linguagens · Reaplicação · Amarela (prova `496`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 66 | 0.026 | 0.048 | 0.051 | 0 | 4/4 |
-| ENEM 2018 · Linguagens · Reaplicação · Branca (prova `497`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 57 | 0.024 | 0.048 | 0.052 | 0 | 4/4 |
-| ENEM 2018 · Linguagens · Reaplicação · Rosa (prova `498`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 64 | 0.023 | 0.045 | 0.049 | 0 | 4/4 |
-| ENEM 2018 · Matemática · 1ª aplicação · Azul (prova `459`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 280 | 0.028 | 0.065 | 0.088 | 0 | 7/7 |
-| ENEM 2018 · Matemática · 1ª aplicação · Amarela (prova `460`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 280 | 0.028 | 0.064 | 0.090 | 0 | 7/7 |
-| ENEM 2018 · Matemática · 1ª aplicação · Rosa (prova `461`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 280 | 0.029 | 0.067 | 0.090 | 0 | 7/7 |
-| ENEM 2018 · Matemática · 1ª aplicação · Cinza (prova `462`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 210 | 0.028 | 0.050 | 0.219 | 0 | 7/7 |
-| ENEM 2018 · Matemática · Especiais · Laranja adaptada ledor (prova `466`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 40 | 0.025 | 0.046 | 0.050 | 0 | 1/5 |
-| ENEM 2018 · Matemática · Especiais · Verde videoprova libras (prova `470`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 108 | 0.023 | 0.049 | 0.051 | 0 | 7/7 |
-| ENEM 2018 · Matemática · Reaplicação · Amarela (prova `499`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2018 · Matemática · Reaplicação · Cinza (prova `500`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2018 · Matemática · Reaplicação · Azul (prova `501`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2018 · Matemática · Reaplicação · Rosa (prova `502`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2019 · Ciências Humanas · 1ª aplicação · Azul (prova `507`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 153 | 0.027 | 0.047 | 0.059 | 0 | 6/6 |
-| ENEM 2019 · Ciências Humanas · 1ª aplicação · Amarela (prova `508`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 200 | 0.024 | 0.048 | 0.051 | 0 | 5/6 |
-| ENEM 2019 · Ciências Humanas · 1ª aplicação · Branca (prova `509`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 153 | 0.024 | 0.045 | 0.061 | 0 | 6/6 |
-| ENEM 2019 · Ciências Humanas · 1ª aplicação · Rosa (prova `510`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 152 | 0.024 | 0.049 | 0.064 | 0 | 6/6 |
-| ENEM 2019 · Ciências Humanas · Especiais · Laranja adaptada ledor (prova `520`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 83 | 0.025 | 0.050 | 0.055 | 0 | 5/5 |
-| ENEM 2019 · Ciências Humanas · Especiais · Verde videoprova libras (prova `524`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 98 | 0.024 | 0.046 | 0.051 | 0 | 5/5 |
-| ENEM 2019 · Ciências Humanas · Reaplicação · Azul (prova `547`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2019 · Ciências Humanas · Reaplicação · Amarela (prova `548`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2019 · Ciências Humanas · Reaplicação · Branca (prova `549`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2019 · Ciências Humanas · Reaplicação · Rosa (prova `550`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2019 · Ciências Humanas · Especiais · Laranja adaptada ledor reaplicacao (prova `564`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2019 · Ciências da Natureza · 1ª aplicação · Azul (prova `503`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 200 | 0.024 | 0.048 | 0.051 | 0 | 5/6 |
-| ENEM 2019 · Ciências da Natureza · 1ª aplicação · Amarela (prova `504`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 200 | 0.024 | 0.046 | 0.052 | 0 | 5/6 |
-| ENEM 2019 · Ciências da Natureza · 1ª aplicação · Cinza (prova `505`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 155 | 0.026 | 0.047 | 0.051 | 0 | 6/6 |
-| ENEM 2019 · Ciências da Natureza · 1ª aplicação · Rosa (prova `506`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 156 | 0.026 | 0.047 | 0.074 | 0 | 6/6 |
-| ENEM 2019 · Ciências da Natureza · Especiais · Laranja adaptada ledor (prova `519`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 78 | 0.026 | 0.046 | 0.053 | 0 | 5/5 |
-| ENEM 2019 · Ciências da Natureza · Especiais · Verde videoprova libras (prova `523`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 88 | 0.025 | 0.049 | 0.054 | 0 | 5/5 |
-| ENEM 2019 · Ciências da Natureza · Reaplicação · Amarela (prova `543`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2019 · Ciências da Natureza · Reaplicação · Cinza (prova `544`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2019 · Ciências da Natureza · Reaplicação · Azul (prova `545`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2019 · Ciências da Natureza · Reaplicação · Rosa (prova `546`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2019 · Linguagens · 1ª aplicação · Azul (prova `511`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 360 | 0.024 | 0.048 | 0.074 | 0 | 5/6 |
-| ENEM 2019 · Linguagens · 1ª aplicação · Amarela (prova `512`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 360 | 0.027 | 0.050 | 0.082 | 0 | 5/5 |
-| ENEM 2019 · Linguagens · 1ª aplicação · Rosa (prova `513`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 360 | 0.026 | 0.050 | 0.077 | 0 | 5/6 |
-| ENEM 2019 · Linguagens · 1ª aplicação · Branca (prova `514`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 276 | 0.026 | 0.049 | 0.074 | 0 | 6/6 |
-| ENEM 2019 · Linguagens · Especiais · Laranja adaptada ledor (prova `521`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 105 | 0.025 | 0.050 | 0.070 | 0 | 4/4 |
-| ENEM 2019 · Linguagens · Especiais · Verde videoprova libras (prova `525`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 167 | 0.027 | 0.049 | 0.077 | 0 | 4/4 |
-| ENEM 2019 · Linguagens · Reaplicação · Azul (prova `551`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2019 · Linguagens · Reaplicação · Amarela (prova `552`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2019 · Linguagens · Reaplicação · Branca (prova `553`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2019 · Linguagens · Reaplicação · Rosa (prova `554`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2019 · Linguagens · Especiais · Laranja adaptada ledor reaplicacao (prova `565`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2019 · Matemática · 1ª aplicação · Azul (prova `515`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 210 | 0.031 | 0.066 | 0.087 | 0 | 7/7 |
-| ENEM 2019 · Matemática · 1ª aplicação · Amarela (prova `516`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 280 | 0.028 | 0.052 | 0.181 | 0 | 7/7 |
-| ENEM 2019 · Matemática · 1ª aplicação · Rosa (prova `517`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 280 | 0.026 | 0.060 | 0.092 | 0 | 7/7 |
-| ENEM 2019 · Matemática · 1ª aplicação · Cinza (prova `518`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 280 | 0.030 | 0.066 | 0.088 | 0 | 7/7 |
-| ENEM 2019 · Matemática · Especiais · Laranja adaptada ledor (prova `522`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 78 | 0.024 | 0.048 | 0.052 | 0 | 5/5 |
-| ENEM 2019 · Matemática · Especiais · Verde videoprova libras (prova `526`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 101 | 0.025 | 0.049 | 0.058 | 0 | 6/6 |
-| ENEM 2019 · Matemática · Reaplicação · Amarela (prova `555`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2019 · Matemática · Reaplicação · Cinza (prova `556`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2019 · Matemática · Reaplicação · Azul (prova `557`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2019 · Matemática · Reaplicação · Rosa (prova `558`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2020 · Ciências Humanas · 1ª aplicação · Azul (prova `567`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 180 | 0.024 | 0.048 | 0.054 | 0 | 6/6 |
-| ENEM 2020 · Ciências Humanas · 1ª aplicação · Amarela (prova `568`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 180 | 0.028 | 0.050 | 0.066 | 0 | 6/6 |
-| ENEM 2020 · Ciências Humanas · 1ª aplicação · Branca (prova `569`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 180 | 0.025 | 0.049 | 0.054 | 0 | 6/6 |
-| ENEM 2020 · Ciências Humanas · 1ª aplicação · Rosa (prova `570`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 240 | 0.025 | 0.049 | 0.056 | 0 | 6/6 |
-| ENEM 2020 · Ciências Humanas · Especiais · Rosa ampliada (prova `571`) | `sem_itens` | Sem validação suficiente | `Prova não encontrada: 2020/CH/571` | `—` | holdout | — | — | — | — | — | — |
-| ENEM 2020 · Ciências Humanas · Especiais · Rosa superampliada (prova `572`) | `sem_itens` | Sem validação suficiente | `Prova não encontrada: 2020/CH/572` | `—` | holdout | — | — | — | — | — | — |
-| ENEM 2020 · Ciências Humanas · Especiais · Laranja adaptada ledor (prova `574`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 78 | 0.025 | 0.048 | 0.053 | 0 | 5/5 |
-| ENEM 2020 · Ciências Humanas · Especiais · Verde videoprova libras (prova `575`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 82 | 0.024 | 0.049 | 0.050 | 0 | 3/5 |
-| ENEM 2020 · Ciências Humanas · Reaplicação · Azul (prova `647`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 147 | 0.026 | 0.050 | 0.052 | 0 | 6/6 |
-| ENEM 2020 · Ciências Humanas · Reaplicação · Amarela (prova `648`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 160 | 0.025 | 0.047 | 0.052 | 0 | 4/6 |
-| ENEM 2020 · Ciências Humanas · Reaplicação · Branca (prova `649`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 160 | 0.024 | 0.047 | 0.052 | 0 | 4/5 |
-| ENEM 2020 · Ciências Humanas · Reaplicação · Rosa (prova `650`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 160 | 0.025 | 0.048 | 0.050 | 0 | 4/5 |
-| ENEM 2020 · Ciências Humanas · Especiais · Laranja adaptada ledor reaplicacao (prova `654`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2020 · Ciências Humanas · Prova digital · Azul (prova `687`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 141 | 0.024 | 0.047 | 0.050 | 0 | 6/6 |
-| ENEM 2020 · Ciências Humanas · Prova digital · Amarela (prova `688`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 137 | 0.024 | 0.049 | 0.052 | 0 | 5/5 |
-| ENEM 2020 · Ciências Humanas · Prova digital · Branca (prova `689`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 160 | 0.025 | 0.047 | 0.053 | 0 | 4/5 |
-| ENEM 2020 · Ciências Humanas · Prova digital · Rosa (prova `690`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 160 | 0.025 | 0.048 | 0.051 | 0 | 4/6 |
-| ENEM 2020 · Ciências da Natureza · 1ª aplicação · Azul (prova `597`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 155 | 0.024 | 0.047 | 0.062 | 0 | 6/6 |
-| ENEM 2020 · Ciências da Natureza · 1ª aplicação · Amarela (prova `598`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 159 | 0.024 | 0.046 | 0.061 | 0 | 6/6 |
-| ENEM 2020 · Ciências da Natureza · 1ª aplicação · Cinza (prova `599`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 155 | 0.024 | 0.049 | 0.058 | 0 | 6/6 |
-| ENEM 2020 · Ciências da Natureza · 1ª aplicação · Rosa (prova `600`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 157 | 0.025 | 0.046 | 0.050 | 0 | 6/6 |
-| ENEM 2020 · Ciências da Natureza · Especiais · Rosa ampliada (prova `601`) | `sem_itens` | Sem validação suficiente | `Prova não encontrada: 2020/CN/601` | `—` | holdout | — | — | — | — | — | — |
-| ENEM 2020 · Ciências da Natureza · Especiais · Rosa superampliada (prova `602`) | `sem_itens` | Sem validação suficiente | `Prova não encontrada: 2020/CN/602` | `—` | holdout | — | — | — | — | — | — |
-| ENEM 2020 · Ciências da Natureza · Especiais · Laranja adaptada ledor (prova `604`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 40 | 0.025 | 0.045 | 0.048 | 0 | 1/4 |
-| ENEM 2020 · Ciências da Natureza · Especiais · Verde videoprova libras (prova `605`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 81 | 0.027 | 0.049 | 0.051 | 0 | 4/4 |
-| ENEM 2020 · Ciências da Natureza · Reaplicação · Azul (prova `677`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 134 | 0.024 | 0.047 | 0.053 | 0 | 5/5 |
-| ENEM 2020 · Ciências da Natureza · Reaplicação · Amarela (prova `678`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 160 | 0.026 | 0.048 | 0.051 | 0 | 4/5 |
-| ENEM 2020 · Ciências da Natureza · Reaplicação · Cinza (prova `679`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 160 | 0.023 | 0.048 | 0.054 | 0 | 4/6 |
-| ENEM 2020 · Ciências da Natureza · Reaplicação · Rosa (prova `680`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 160 | 0.025 | 0.047 | 0.051 | 0 | 4/5 |
-| ENEM 2020 · Ciências da Natureza · Especiais · Laranja adaptada ledor reaplicacao (prova `684`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2020 · Ciências da Natureza · Prova digital · Azul (prova `699`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 126 | 0.027 | 0.049 | 0.055 | 0 | 5/5 |
-| ENEM 2020 · Ciências da Natureza · Prova digital · Amarela (prova `700`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 126 | 0.026 | 0.047 | 0.104 | 0 | 5/5 |
-| ENEM 2020 · Ciências da Natureza · Prova digital · Rosa (prova `701`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 160 | 0.026 | 0.048 | 0.117 | 0 | 4/6 |
-| ENEM 2020 · Ciências da Natureza · Prova digital · Cinza (prova `702`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 160 | 0.026 | 0.047 | 0.078 | 0 | 4/6 |
-| ENEM 2020 · Linguagens · 1ª aplicação · Azul (prova `577`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 360 | 0.026 | 0.047 | 0.051 | 0 | 5/5 |
-| ENEM 2020 · Linguagens · 1ª aplicação · Amarela (prova `578`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 360 | 0.026 | 0.048 | 0.052 | 0 | 5/5 |
-| ENEM 2020 · Linguagens · 1ª aplicação · Rosa (prova `579`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 295 | 0.024 | 0.048 | 0.051 | 0 | 5/5 |
-| ENEM 2020 · Linguagens · 1ª aplicação · Branca (prova `580`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 360 | 0.026 | 0.048 | 0.051 | 0 | 5/6 |
-| ENEM 2020 · Linguagens · Especiais · Rosa ampliada (prova `581`) | `sem_itens` | Sem validação suficiente | `Prova LC 581 não oferece inglês; disponível: nenhuma; Prova LC 581 não oferece espanhol; disponível: nenhuma` | `—` | holdout | — | — | — | — | — | — |
-| ENEM 2020 · Linguagens · Especiais · Rosa superampliada (prova `582`) | `sem_itens` | Sem validação suficiente | `Prova LC 582 não oferece inglês; disponível: nenhuma; Prova LC 582 não oferece espanhol; disponível: nenhuma` | `—` | holdout | — | — | — | — | — | — |
-| ENEM 2020 · Linguagens · Especiais · Laranja adaptada ledor (prova `584`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 83 | 0.025 | 0.051 | 0.054 | 0 | 4/4 |
-| ENEM 2020 · Linguagens · Especiais · Verde videoprova libras (prova `585`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 150 | 0.025 | 0.047 | 0.050 | 0 | 4/4 |
-| ENEM 2020 · Linguagens · Reaplicação · Azul (prova `657`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 320 | 0.024 | 0.048 | 0.051 | 0 | 4/5 |
-| ENEM 2020 · Linguagens · Reaplicação · Amarela (prova `658`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 246 | 0.025 | 0.046 | 0.051 | 0 | 5/5 |
-| ENEM 2020 · Linguagens · Reaplicação · Rosa (prova `659`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 320 | 0.025 | 0.048 | 0.051 | 0 | 4/5 |
-| ENEM 2020 · Linguagens · Reaplicação · Branca (prova `660`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 245 | 0.025 | 0.048 | 0.050 | 0 | 5/5 |
-| ENEM 2020 · Linguagens · Especiais · Laranja adaptada ledor reaplicacao (prova `664`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2020 · Linguagens · Prova digital · Azul (prova `691`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 232 | 0.026 | 0.047 | 0.050 | 0 | 5/5 |
-| ENEM 2020 · Linguagens · Prova digital · Amarela (prova `692`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 230 | 0.025 | 0.047 | 0.052 | 0 | 5/5 |
-| ENEM 2020 · Linguagens · Prova digital · Branca (prova `693`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 228 | 0.027 | 0.048 | 0.051 | 0 | 5/5 |
-| ENEM 2020 · Linguagens · Prova digital · Rosa (prova `694`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 231 | 0.025 | 0.047 | 0.050 | 0 | 5/5 |
-| ENEM 2020 · Matemática · 1ª aplicação · Azul (prova `587`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 280 | 0.030 | 0.067 | 0.092 | 0 | 7/7 |
-| ENEM 2020 · Matemática · 1ª aplicação · Amarela (prova `588`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 210 | 0.026 | 0.049 | 0.164 | 0 | 7/7 |
-| ENEM 2020 · Matemática · 1ª aplicação · Rosa (prova `589`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 210 | 0.030 | 0.069 | 0.095 | 0 | 7/7 |
-| ENEM 2020 · Matemática · 1ª aplicação · Cinza (prova `590`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 280 | 0.030 | 0.070 | 0.080 | 0 | 7/7 |
-| ENEM 2020 · Matemática · Especiais · Rosa ampliada (prova `591`) | `sem_itens` | Sem validação suficiente | `Prova não encontrada: 2020/MT/591` | `—` | holdout | — | — | — | — | — | — |
-| ENEM 2020 · Matemática · Especiais · Rosa superampliada (prova `592`) | `sem_itens` | Sem validação suficiente | `Prova não encontrada: 2020/MT/592` | `—` | holdout | — | — | — | — | — | — |
-| ENEM 2020 · Matemática · Especiais · Laranja adaptada ledor (prova `594`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 77 | 0.024 | 0.045 | 0.051 | 0 | 6/6 |
-| ENEM 2020 · Matemática · Especiais · Verde videoprova libras (prova `595`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 98 | 0.025 | 0.047 | 0.052 | 0 | 6/6 |
-| ENEM 2020 · Matemática · Reaplicação · Azul (prova `667`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 175 | 0.025 | 0.047 | 0.187 | 0 | 7/7 |
-| ENEM 2020 · Matemática · Reaplicação · Amarela (prova `668`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 168 | 0.025 | 0.050 | 0.117 | 0 | 7/7 |
-| ENEM 2020 · Matemática · Reaplicação · Rosa (prova `669`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 171 | 0.025 | 0.047 | 0.142 | 0 | 7/7 |
-| ENEM 2020 · Matemática · Reaplicação · Cinza (prova `670`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 172 | 0.026 | 0.047 | 0.181 | 0 | 7/7 |
-| ENEM 2020 · Matemática · Especiais · Laranja adaptada ledor reaplicacao (prova `674`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2020 · Matemática · Prova digital · Azul (prova `695`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 173 | 0.024 | 0.048 | 0.098 | 0 | 7/7 |
-| ENEM 2020 · Matemática · Prova digital · Amarela (prova `696`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 200 | 0.024 | 0.048 | 0.052 | 0 | 5/7 |
-| ENEM 2020 · Matemática · Prova digital · Rosa (prova `697`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 170 | 0.025 | 0.047 | 0.050 | 0 | 7/7 |
-| ENEM 2020 · Matemática · Prova digital · Cinza (prova `698`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 172 | 0.025 | 0.046 | 0.098 | 0 | 7/7 |
-| ENEM 2021 · Ciências Humanas · 1ª aplicação · Azul (prova `879`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 180 | 0.024 | 0.048 | 0.057 | 0 | 6/6 |
-| ENEM 2021 · Ciências Humanas · 1ª aplicação · Amarela (prova `880`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 240 | 0.026 | 0.048 | 0.059 | 0 | 6/6 |
-| ENEM 2021 · Ciências Humanas · 1ª aplicação · Branca (prova `881`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 180 | 0.026 | 0.048 | 0.058 | 0 | 6/6 |
-| ENEM 2021 · Ciências Humanas · 1ª aplicação · Rosa (prova `882`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 180 | 0.027 | 0.050 | 0.057 | 0 | 6/6 |
-| ENEM 2021 · Ciências Humanas · Especiais · Laranja braille (prova `885`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2021 · Ciências Humanas · Especiais · Laranja adaptada ledor (prova `886`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 69 | 0.023 | 0.047 | 0.058 | 0 | 5/5 |
-| ENEM 2021 · Ciências Humanas · Especiais · Verde videoprova libras (prova `887`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 95 | 0.025 | 0.049 | 0.051 | 0 | 5/5 |
-| ENEM 2021 · Ciências Humanas · Reaplicação · Azul (prova `959`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 105 | 0.025 | 0.048 | 0.052 | 0 | 5/5 |
-| ENEM 2021 · Ciências Humanas · Reaplicação · Amarela (prova `960`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 40 | 0.024 | 0.046 | 0.050 | 0 | 1/5 |
-| ENEM 2021 · Ciências Humanas · Reaplicação · Branca (prova `961`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 106 | 0.025 | 0.048 | 0.051 | 0 | 6/6 |
-| ENEM 2021 · Ciências Humanas · Reaplicação · Rosa (prova `962`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 103 | 0.023 | 0.045 | 0.051 | 0 | 5/5 |
-| ENEM 2021 · Ciências Humanas · Especiais · Laranja adaptada ledor reaplicacao (prova `966`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2021 · Ciências Humanas · Prova digital · Azul (prova `999`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 200 | 0.025 | 0.048 | 0.051 | 0 | 5/6 |
-| ENEM 2021 · Ciências Humanas · Prova digital · Amarela (prova `1000`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 151 | 0.023 | 0.046 | 0.063 | 0 | 6/6 |
-| ENEM 2021 · Ciências Humanas · Prova digital · Branca (prova `1001`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 153 | 0.025 | 0.047 | 0.051 | 0 | 6/6 |
-| ENEM 2021 · Ciências Humanas · Prova digital · Rosa (prova `1002`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 200 | 0.025 | 0.048 | 0.052 | 0 | 5/5 |
-| ENEM 2021 · Ciências Humanas · Segunda oportunidade · Azul (prova `1015`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 160 | 0.027 | 0.048 | 0.053 | 0 | 4/6 |
-| ENEM 2021 · Ciências Humanas · Segunda oportunidade · Amarela (prova `1016`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 160 | 0.024 | 0.047 | 0.052 | 0 | 4/5 |
-| ENEM 2021 · Ciências Humanas · Segunda oportunidade · Branca (prova `1017`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 143 | 0.025 | 0.046 | 0.050 | 0 | 5/5 |
-| ENEM 2021 · Ciências Humanas · Segunda oportunidade · Rosa (prova `1018`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 160 | 0.025 | 0.048 | 0.050 | 0 | 4/5 |
-| ENEM 2021 · Ciências Humanas · Especiais · Laranja adaptada ledor segunda oportunidade (prova `1022`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2021 · Ciências da Natureza · 1ª aplicação · Azul (prova `909`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 200 | 0.025 | 0.048 | 0.051 | 0 | 5/6 |
-| ENEM 2021 · Ciências da Natureza · 1ª aplicação · Amarela (prova `910`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 200 | 0.025 | 0.048 | 0.051 | 0 | 5/6 |
-| ENEM 2021 · Ciências da Natureza · 1ª aplicação · Cinza (prova `911`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 164 | 0.025 | 0.048 | 0.052 | 0 | 6/6 |
-| ENEM 2021 · Ciências da Natureza · 1ª aplicação · Rosa (prova `912`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 200 | 0.023 | 0.047 | 0.052 | 0 | 5/6 |
-| ENEM 2021 · Ciências da Natureza · Especiais · Laranja braille (prova `915`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2021 · Ciências da Natureza · Especiais · Laranja adaptada ledor (prova `916`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 61 | 0.032 | 0.047 | 0.051 | 0 | 5/5 |
-| ENEM 2021 · Ciências da Natureza · Especiais · Verde videoprova libras (prova `917`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 80 | 0.024 | 0.048 | 0.050 | 0 | 5/5 |
-| ENEM 2021 · Ciências da Natureza · Reaplicação · Azul (prova `989`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 83 | 0.028 | 0.049 | 0.050 | 0 | 5/5 |
-| ENEM 2021 · Ciências da Natureza · Reaplicação · Amarela (prova `990`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 83 | 0.026 | 0.048 | 0.055 | 0 | 5/5 |
-| ENEM 2021 · Ciências da Natureza · Reaplicação · Cinza (prova `991`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 80 | 0.025 | 0.048 | 0.056 | 0 | 6/6 |
-| ENEM 2021 · Ciências da Natureza · Reaplicação · Rosa (prova `992`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 78 | 0.026 | 0.049 | 0.052 | 0 | 5/5 |
-| ENEM 2021 · Ciências da Natureza · Especiais · Laranja adaptada ledor reaplicacao (prova `996`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2021 · Ciências da Natureza · Prova digital · Azul (prova `1011`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 160 | 0.025 | 0.047 | 0.050 | 0 | 4/6 |
-| ENEM 2021 · Ciências da Natureza · Prova digital · Amarela (prova `1012`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 127 | 0.026 | 0.046 | 0.051 | 0 | 5/5 |
-| ENEM 2021 · Ciências da Natureza · Prova digital · Rosa (prova `1013`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 129 | 0.027 | 0.047 | 0.052 | 0 | 5/5 |
-| ENEM 2021 · Ciências da Natureza · Prova digital · Cinza (prova `1014`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 132 | 0.023 | 0.048 | 0.051 | 0 | 5/5 |
-| ENEM 2021 · Ciências da Natureza · Segunda oportunidade · Azul (prova `1045`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 160 | 0.024 | 0.047 | 0.051 | 0 | 4/5 |
-| ENEM 2021 · Ciências da Natureza · Segunda oportunidade · Amarela (prova `1046`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 123 | 0.026 | 0.047 | 0.052 | 0 | 5/5 |
-| ENEM 2021 · Ciências da Natureza · Segunda oportunidade · Cinza (prova `1047`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 160 | 0.025 | 0.047 | 0.050 | 0 | 4/5 |
-| ENEM 2021 · Ciências da Natureza · Segunda oportunidade · Rosa (prova `1048`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 123 | 0.026 | 0.049 | 0.053 | 0 | 5/5 |
-| ENEM 2021 · Ciências da Natureza · Especiais · Laranja adaptada ledor segunda oportunidade (prova `1052`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2021 · Linguagens · 1ª aplicação · Azul (prova `889`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 360 | 0.025 | 0.048 | 0.052 | 0 | 5/6 |
-| ENEM 2021 · Linguagens · 1ª aplicação · Amarela (prova `890`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 367 | 0.026 | 0.049 | 0.051 | 0 | 5/6 |
-| ENEM 2021 · Linguagens · 1ª aplicação · Rosa (prova `891`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 360 | 0.025 | 0.048 | 0.050 | 0 | 5/6 |
-| ENEM 2021 · Linguagens · 1ª aplicação · Branca (prova `892`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 360 | 0.024 | 0.047 | 0.052 | 0 | 5/6 |
-| ENEM 2021 · Linguagens · Especiais · Laranja braille (prova `895`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2021 · Linguagens · Especiais · Laranja adaptada ledor (prova `896`) | `ok` | Sem validação suficiente | `erro_maximo_ate_2` | `linear` | holdout | 70 | 0.053 | 0.055 | 1.633 | 0 | 4/4 |
-| ENEM 2021 · Linguagens · Especiais · Verde videoprova libras (prova `897`) | `aviso_forte` | Estimativa confiável na maioria dos casos, com exceções | `erro_maximo_ate_15` | `monotonica_linear` | holdout | 142 | 0.203 | 0.120 | 10.577 | 2 | 4/4 |
-| ENEM 2021 · Linguagens · Reaplicação · Azul (prova `969`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 112 | 0.025 | 0.046 | 0.050 | 0 | 4/4 |
-| ENEM 2021 · Linguagens · Reaplicação · Amarela (prova `970`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 9 | 0.019 | 0.046 | 0.050 | 0 | 1/4 |
-| ENEM 2021 · Linguagens · Reaplicação · Rosa (prova `971`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 114 | 0.025 | 0.048 | 0.053 | 0 | 5/5 |
-| ENEM 2021 · Linguagens · Reaplicação · Branca (prova `972`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 110 | 0.025 | 0.046 | 0.050 | 0 | 4/4 |
-| ENEM 2021 · Linguagens · Especiais · Laranja adaptada ledor reaplicacao (prova `976`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2021 · Linguagens · Prova digital · Azul (prova `1003`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 245 | 0.024 | 0.045 | 0.052 | 0 | 5/5 |
-| ENEM 2021 · Linguagens · Prova digital · Amarela (prova `1004`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 246 | 0.025 | 0.047 | 0.051 | 0 | 5/5 |
-| ENEM 2021 · Linguagens · Prova digital · Branca (prova `1005`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 248 | 0.025 | 0.048 | 0.051 | 0 | 5/5 |
-| ENEM 2021 · Linguagens · Prova digital · Rosa (prova `1006`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 292 | 0.025 | 0.047 | 0.050 | 0 | 4/5 |
-| ENEM 2021 · Linguagens · Segunda oportunidade · Azul (prova `1025`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 320 | 0.024 | 0.048 | 0.053 | 0 | 4/5 |
-| ENEM 2021 · Linguagens · Segunda oportunidade · Amarela (prova `1026`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 320 | 0.025 | 0.046 | 0.050 | 0 | 4/5 |
-| ENEM 2021 · Linguagens · Segunda oportunidade · Rosa (prova `1027`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 320 | 0.025 | 0.048 | 0.051 | 0 | 4/5 |
-| ENEM 2021 · Linguagens · Segunda oportunidade · Branca (prova `1028`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 242 | 0.025 | 0.048 | 0.052 | 0 | 5/5 |
-| ENEM 2021 · Linguagens · Especiais · Laranja adaptada ledor segunda oportunidade (prova `1032`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2021 · Matemática · 1ª aplicação · Azul (prova `899`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 210 | 0.028 | 0.051 | 0.095 | 0 | 7/7 |
-| ENEM 2021 · Matemática · 1ª aplicação · Amarela (prova `900`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 280 | 0.027 | 0.065 | 0.085 | 0 | 7/7 |
-| ENEM 2021 · Matemática · 1ª aplicação · Rosa (prova `901`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 210 | 0.028 | 0.064 | 0.093 | 0 | 7/7 |
-| ENEM 2021 · Matemática · 1ª aplicação · Cinza (prova `902`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 280 | 0.026 | 0.050 | 0.089 | 0 | 7/7 |
-| ENEM 2021 · Matemática · Especiais · Laranja braille (prova `905`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2021 · Matemática · Especiais · Laranja adaptada ledor (prova `906`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 68 | 0.028 | 0.049 | 0.052 | 0 | 6/6 |
-| ENEM 2021 · Matemática · Especiais · Verde videoprova libras (prova `907`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 80 | 0.023 | 0.048 | 0.052 | 0 | 2/6 |
-| ENEM 2021 · Matemática · Reaplicação · Azul (prova `979`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 90 | 0.026 | 0.048 | 0.050 | 0 | 7/7 |
-| ENEM 2021 · Matemática · Reaplicação · Amarela (prova `980`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 94 | 0.025 | 0.047 | 0.053 | 0 | 7/7 |
-| ENEM 2021 · Matemática · Reaplicação · Rosa (prova `981`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 92 | 0.025 | 0.047 | 0.049 | 0 | 7/7 |
-| ENEM 2021 · Matemática · Reaplicação · Cinza (prova `982`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 87 | 0.025 | 0.049 | 0.057 | 0 | 7/7 |
-| ENEM 2021 · Matemática · Especiais · Laranja adaptada ledor reaplicacao (prova `986`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2021 · Matemática · Prova digital · Azul (prova `1007`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 170 | 0.026 | 0.048 | 0.073 | 0 | 7/7 |
-| ENEM 2021 · Matemática · Prova digital · Amarela (prova `1008`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 200 | 0.025 | 0.047 | 0.052 | 0 | 5/7 |
-| ENEM 2021 · Matemática · Prova digital · Rosa (prova `1009`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 164 | 0.025 | 0.047 | 0.079 | 0 | 7/7 |
-| ENEM 2021 · Matemática · Prova digital · Cinza (prova `1010`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 170 | 0.027 | 0.048 | 0.105 | 0 | 7/7 |
-| ENEM 2021 · Matemática · Segunda oportunidade · Azul (prova `1035`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 200 | 0.027 | 0.046 | 0.050 | 0 | 5/6 |
-| ENEM 2021 · Matemática · Segunda oportunidade · Amarela (prova `1036`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 161 | 0.024 | 0.047 | 0.050 | 0 | 7/7 |
-| ENEM 2021 · Matemática · Segunda oportunidade · Cinza (prova `1037`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 161 | 0.026 | 0.049 | 0.051 | 0 | 7/7 |
-| ENEM 2021 · Matemática · Segunda oportunidade · Rosa (prova `1038`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 200 | 0.026 | 0.046 | 0.051 | 0 | 5/7 |
-| ENEM 2021 · Matemática · Especiais · Laranja adaptada ledor segunda oportunidade (prova `1042`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2022 · Ciências Humanas · 1ª aplicação · Azul (prova `1055`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 200 | 0.026 | 0.048 | 0.053 | 0 | 5/6 |
-| ENEM 2022 · Ciências Humanas · 1ª aplicação · Amarela (prova `1056`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 200 | 0.023 | 0.047 | 0.052 | 0 | 5/6 |
-| ENEM 2022 · Ciências Humanas · 1ª aplicação · Branca (prova `1057`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 159 | 0.025 | 0.047 | 0.063 | 0 | 6/6 |
-| ENEM 2022 · Ciências Humanas · 1ª aplicação · Rosa (prova `1058`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 155 | 0.029 | 0.048 | 0.062 | 0 | 6/6 |
-| ENEM 2022 · Ciências Humanas · Especiais · Laranja adaptada ledor (prova `1062`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 73 | 0.025 | 0.047 | 0.048 | 0 | 5/5 |
-| ENEM 2022 · Ciências Humanas · Especiais · Verde videoprova libras (prova `1063`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 95 | 0.024 | 0.049 | 0.051 | 0 | 4/4 |
-| ENEM 2022 · Ciências Humanas · Reaplicação · Azul (prova `1135`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 54 | 0.026 | 0.048 | 0.050 | 0 | 5/5 |
-| ENEM 2022 · Ciências Humanas · Reaplicação · Amarela (prova `1136`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 52 | 0.023 | 0.046 | 0.047 | 0 | 5/5 |
-| ENEM 2022 · Ciências Humanas · Reaplicação · Branca (prova `1137`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 53 | 0.026 | 0.049 | 0.056 | 0 | 6/6 |
-| ENEM 2022 · Ciências Humanas · Reaplicação · Rosa (prova `1138`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 44 | 0.026 | 0.049 | 0.052 | 0 | 5/5 |
-| ENEM 2022 · Ciências Humanas · Prova digital · Azul (prova `1175`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 160 | 0.026 | 0.049 | 0.053 | 0 | 4/6 |
-| ENEM 2022 · Ciências Humanas · Prova digital · Amarela (prova `1176`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 133 | 0.028 | 0.049 | 0.052 | 0 | 5/5 |
-| ENEM 2022 · Ciências Humanas · Prova digital · Branca (prova `1177`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 160 | 0.025 | 0.048 | 0.052 | 0 | 4/5 |
-| ENEM 2022 · Ciências Humanas · Prova digital · Rosa (prova `1178`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 131 | 0.025 | 0.049 | 0.053 | 0 | 6/6 |
-| ENEM 2022 · Ciências da Natureza · 1ª aplicação · Azul (prova `1085`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 161 | 0.026 | 0.047 | 0.051 | 0 | 6/6 |
-| ENEM 2022 · Ciências da Natureza · 1ª aplicação · Amarela (prova `1086`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 200 | 0.027 | 0.048 | 0.051 | 0 | 5/6 |
-| ENEM 2022 · Ciências da Natureza · 1ª aplicação · Cinza (prova `1087`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 200 | 0.025 | 0.047 | 0.051 | 0 | 5/6 |
-| ENEM 2022 · Ciências da Natureza · 1ª aplicação · Rosa (prova `1088`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 162 | 0.025 | 0.047 | 0.051 | 0 | 6/6 |
-| ENEM 2022 · Ciências da Natureza · Especiais · Laranja adaptada ledor (prova `1092`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 40 | 0.025 | 0.048 | 0.050 | 0 | 1/4 |
-| ENEM 2022 · Ciências da Natureza · Especiais · Verde videoprova libras (prova `1093`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 90 | 0.028 | 0.048 | 0.051 | 0 | 5/5 |
-| ENEM 2022 · Ciências da Natureza · Reaplicação · Azul (prova `1165`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 94 | 0.022 | 0.045 | 0.047 | 0 | 6/6 |
-| ENEM 2022 · Ciências da Natureza · Reaplicação · Amarela (prova `1166`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 92 | 0.024 | 0.047 | 0.049 | 0 | 5/5 |
-| ENEM 2022 · Ciências da Natureza · Reaplicação · Cinza (prova `1167`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 92 | 0.023 | 0.047 | 0.053 | 0 | 5/5 |
-| ENEM 2022 · Ciências da Natureza · Reaplicação · Rosa (prova `1168`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 91 | 0.024 | 0.046 | 0.053 | 0 | 5/5 |
-| ENEM 2022 · Ciências da Natureza · Prova digital · Azul (prova `1187`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 160 | 0.026 | 0.050 | 0.055 | 0 | 4/5 |
-| ENEM 2022 · Ciências da Natureza · Prova digital · Amarela (prova `1188`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 129 | 0.025 | 0.048 | 0.051 | 0 | 6/6 |
-| ENEM 2022 · Ciências da Natureza · Prova digital · Rosa (prova `1189`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 160 | 0.023 | 0.048 | 0.053 | 0 | 4/5 |
-| ENEM 2022 · Ciências da Natureza · Prova digital · Cinza (prova `1190`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 127 | 0.024 | 0.046 | 0.051 | 0 | 5/5 |
-| ENEM 2022 · Linguagens · 1ª aplicação · Azul (prova `1065`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 297 | 0.025 | 0.047 | 0.051 | 0 | 6/6 |
-| ENEM 2022 · Linguagens · 1ª aplicação · Amarela (prova `1066`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 293 | 0.026 | 0.047 | 0.050 | 0 | 5/5 |
-| ENEM 2022 · Linguagens · 1ª aplicação · Rosa (prova `1067`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 293 | 0.025 | 0.047 | 0.051 | 0 | 5/5 |
-| ENEM 2022 · Linguagens · 1ª aplicação · Branca (prova `1068`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 293 | 0.025 | 0.048 | 0.050 | 0 | 5/5 |
-| ENEM 2022 · Linguagens · Especiais · Laranja adaptada ledor (prova `1072`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 74 | 0.026 | 0.049 | 0.054 | 0 | 5/5 |
-| ENEM 2022 · Linguagens · Especiais · Verde videoprova libras (prova `1073`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 87 | 0.024 | 0.050 | 0.055 | 0 | 2/4 |
-| ENEM 2022 · Linguagens · Reaplicação · Azul (prova `1145`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 56 | 0.025 | 0.048 | 0.051 | 0 | 5/5 |
-| ENEM 2022 · Linguagens · Reaplicação · Amarela (prova `1146`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 55 | 0.027 | 0.049 | 0.050 | 0 | 5/5 |
-| ENEM 2022 · Linguagens · Reaplicação · Rosa (prova `1147`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 48 | 0.027 | 0.049 | 0.050 | 0 | 4/4 |
-| ENEM 2022 · Linguagens · Reaplicação · Branca (prova `1148`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 54 | 0.023 | 0.047 | 0.053 | 0 | 5/5 |
-| ENEM 2022 · Linguagens · Prova digital · Azul (prova `1179`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 245 | 0.024 | 0.047 | 0.051 | 0 | 5/5 |
-| ENEM 2022 · Linguagens · Prova digital · Amarela (prova `1180`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 282 | 0.025 | 0.048 | 0.053 | 0 | 4/5 |
-| ENEM 2022 · Linguagens · Prova digital · Branca (prova `1181`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 282 | 0.025 | 0.049 | 0.052 | 0 | 4/5 |
-| ENEM 2022 · Linguagens · Prova digital · Rosa (prova `1182`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 320 | 0.025 | 0.048 | 0.053 | 0 | 4/5 |
-| ENEM 2022 · Matemática · 1ª aplicação · Azul (prova `1075`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 280 | 0.027 | 0.060 | 0.092 | 0 | 7/7 |
-| ENEM 2022 · Matemática · 1ª aplicação · Amarela (prova `1076`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 280 | 0.025 | 0.055 | 0.094 | 0 | 7/7 |
-| ENEM 2022 · Matemática · 1ª aplicação · Rosa (prova `1077`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 210 | 0.031 | 0.071 | 0.088 | 0 | 7/7 |
-| ENEM 2022 · Matemática · 1ª aplicação · Cinza (prova `1078`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 210 | 0.032 | 0.064 | 0.110 | 0 | 7/7 |
-| ENEM 2022 · Matemática · Especiais · Laranja adaptada ledor (prova `1082`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 73 | 0.025 | 0.046 | 0.053 | 0 | 6/6 |
-| ENEM 2022 · Matemática · Especiais · Verde videoprova libras (prova `1083`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 86 | 0.026 | 0.048 | 0.051 | 0 | 3/6 |
-| ENEM 2022 · Matemática · Reaplicação · Azul (prova `1155`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 106 | 0.025 | 0.048 | 0.050 | 0 | 7/7 |
-| ENEM 2022 · Matemática · Reaplicação · Amarela (prova `1156`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 112 | 0.023 | 0.047 | 0.050 | 0 | 7/7 |
-| ENEM 2022 · Matemática · Reaplicação · Rosa (prova `1157`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 104 | 0.023 | 0.047 | 0.051 | 0 | 7/7 |
-| ENEM 2022 · Matemática · Reaplicação · Cinza (prova `1158`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 114 | 0.025 | 0.047 | 0.089 | 0 | 7/7 |
-| ENEM 2022 · Matemática · Prova digital · Azul (prova `1183`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 174 | 0.026 | 0.048 | 0.081 | 0 | 7/7 |
-| ENEM 2022 · Matemática · Prova digital · Amarela (prova `1184`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 200 | 0.024 | 0.049 | 0.050 | 0 | 5/7 |
-| ENEM 2022 · Matemática · Prova digital · Rosa (prova `1185`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 169 | 0.026 | 0.046 | 0.201 | 0 | 7/7 |
-| ENEM 2022 · Matemática · Prova digital · Cinza (prova `1186`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 200 | 0.025 | 0.048 | 0.052 | 0 | 5/7 |
-| ENEM 2023 · Ciências Humanas · 1ª aplicação · Azul (prova `1191`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 163 | 0.025 | 0.047 | 0.051 | 0 | 6/6 |
-| ENEM 2023 · Ciências Humanas · 1ª aplicação · Amarela (prova `1192`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 162 | 0.025 | 0.046 | 0.054 | 0 | 6/6 |
-| ENEM 2023 · Ciências Humanas · 1ª aplicação · Branca (prova `1193`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 200 | 0.026 | 0.048 | 0.052 | 0 | 5/6 |
-| ENEM 2023 · Ciências Humanas · 1ª aplicação · Rosa (prova `1194`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 200 | 0.024 | 0.047 | 0.052 | 0 | 5/6 |
-| ENEM 2023 · Ciências Humanas · Especiais · Rosa ampliada (prova `1195`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 160 | 0.026 | 0.047 | 0.050 | 0 | 4/5 |
-| ENEM 2023 · Ciências Humanas · Especiais · Rosa superampliada (prova `1196`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 100 | 0.026 | 0.050 | 0.052 | 0 | 5/5 |
-| ENEM 2023 · Ciências Humanas · Especiais · Laranja braille (prova `1197`) | `nao_calibrado` | Sem validação suficiente | `holdout_insuficiente` | `monotonica_linear` | holdout | 29 | 0.029 | 0.045 | 0.051 | 0 | 4/4 |
-| ENEM 2023 · Ciências Humanas · Especiais · Laranja adaptada ledor (prova `1198`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 101 | 0.024 | 0.047 | 0.049 | 0 | 5/5 |
-| ENEM 2023 · Ciências Humanas · Especiais · Verde videoprova libras (prova `1199`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 101 | 0.027 | 0.047 | 0.052 | 0 | 5/5 |
-| ENEM 2023 · Ciências Humanas · Reaplicação · Azul (prova `1271`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 120 | 0.025 | 0.046 | 0.049 | 0 | 3/5 |
-| ENEM 2023 · Ciências Humanas · Reaplicação · Amarela (prova `1272`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 125 | 0.027 | 0.048 | 0.052 | 0 | 5/5 |
-| ENEM 2023 · Ciências Humanas · Reaplicação · Branca (prova `1273`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 120 | 0.026 | 0.049 | 0.052 | 0 | 3/5 |
-| ENEM 2023 · Ciências Humanas · Reaplicação · Rosa (prova `1274`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 116 | 0.024 | 0.047 | 0.050 | 0 | 5/5 |
-| ENEM 2023 · Ciências da Natureza · 1ª aplicação · Azul (prova `1221`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 180 | 0.025 | 0.046 | 0.053 | 0 | 6/6 |
-| ENEM 2023 · Ciências da Natureza · 1ª aplicação · Amarela (prova `1222`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 235 | 0.024 | 0.048 | 0.055 | 0 | 6/6 |
-| ENEM 2023 · Ciências da Natureza · 1ª aplicação · Rosa (prova `1223`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 180 | 0.025 | 0.047 | 0.052 | 0 | 6/6 |
-| ENEM 2023 · Ciências da Natureza · 1ª aplicação · Cinza (prova `1224`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 180 | 0.026 | 0.048 | 0.051 | 0 | 6/6 |
-| ENEM 2023 · Ciências da Natureza · Especiais · Rosa ampliada (prova `1225`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 160 | 0.025 | 0.047 | 0.054 | 0 | 4/5 |
-| ENEM 2023 · Ciências da Natureza · Especiais · Rosa superampliada (prova `1226`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 88 | 0.028 | 0.049 | 0.053 | 0 | 5/5 |
-| ENEM 2023 · Ciências da Natureza · Especiais · Laranja braille (prova `1227`) | `nao_calibrado` | Sem validação suficiente | `holdout_insuficiente` | `linear` | holdout | 26 | 0.026 | 0.043 | 0.050 | 0 | 3/3 |
-| ENEM 2023 · Ciências da Natureza · Especiais · Laranja adaptada ledor (prova `1228`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 92 | 0.030 | 0.048 | 0.051 | 0 | 4/4 |
-| ENEM 2023 · Ciências da Natureza · Especiais · Verde videoprova libras (prova `1229`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 80 | 0.024 | 0.052 | 0.056 | 0 | 2/5 |
-| ENEM 2023 · Ciências da Natureza · Reaplicação · Azul (prova `1301`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 111 | 0.022 | 0.046 | 0.050 | 0 | 5/5 |
-| ENEM 2023 · Ciências da Natureza · Reaplicação · Amarela (prova `1302`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 114 | 0.025 | 0.049 | 0.054 | 0 | 5/5 |
-| ENEM 2023 · Ciências da Natureza · Reaplicação · Cinza (prova `1303`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 80 | 0.027 | 0.046 | 0.052 | 0 | 2/5 |
-| ENEM 2023 · Ciências da Natureza · Reaplicação · Rosa (prova `1304`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 80 | 0.025 | 0.049 | 0.050 | 0 | 2/5 |
-| ENEM 2023 · Linguagens · 1ª aplicação · Azul (prova `1201`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 301 | 0.024 | 0.047 | 0.059 | 0 | 6/6 |
-| ENEM 2023 · Linguagens · 1ª aplicação · Amarela (prova `1202`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 360 | 0.025 | 0.046 | 0.051 | 0 | 5/5 |
-| ENEM 2023 · Linguagens · 1ª aplicação · Rosa (prova `1203`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 382 | 0.027 | 0.049 | 0.054 | 0 | 5/6 |
-| ENEM 2023 · Linguagens · 1ª aplicação · Branca (prova `1204`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 301 | 0.025 | 0.048 | 0.055 | 0 | 6/6 |
-| ENEM 2023 · Linguagens · Especiais · Rosa ampliada (prova `1205`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 239 | 0.025 | 0.047 | 0.050 | 0 | 4/5 |
-| ENEM 2023 · Linguagens · Especiais · Rosa superampliada (prova `1206`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 132 | 0.026 | 0.047 | 0.050 | 0 | 4/4 |
-| ENEM 2023 · Linguagens · Especiais · Laranja braille (prova `1207`) | `nao_calibrado` | Sem validação suficiente | `holdout_insuficiente` | `linear` | holdout | 29 | 0.025 | 0.048 | 0.049 | 0 | 4/4 |
-| ENEM 2023 · Linguagens · Especiais · Laranja adaptada ledor (prova `1208`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 128 | 0.026 | 0.048 | 0.057 | 0 | 4/4 |
-| ENEM 2023 · Linguagens · Especiais · Verde videoprova libras (prova `1209`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 159 | 0.026 | 0.048 | 0.051 | 0 | 4/4 |
-| ENEM 2023 · Linguagens · Reaplicação · Azul (prova `1281`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 190 | 0.027 | 0.047 | 0.053 | 0 | 5/5 |
-| ENEM 2023 · Linguagens · Reaplicação · Amarela (prova `1282`) | `erro_alto` | Estimativa confiável na maioria dos casos, com exceções | `erro_maximo_acima_15` | `linear` | holdout | 181 | 0.144 | 0.048 | 21.535 | 1 | 6/6 |
-| ENEM 2023 · Linguagens · Reaplicação · Rosa (prova `1283`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 178 | 0.026 | 0.047 | 0.052 | 0 | 5/5 |
-| ENEM 2023 · Linguagens · Reaplicação · Branca (prova `1284`) | `erro_alto` | Estimativa confiável na maioria dos casos, com exceções | `erro_maximo_acima_15` | `linear` | holdout | 183 | 0.145 | 0.048 | 21.540 | 1 | 6/6 |
-| ENEM 2023 · Matemática · 1ª aplicação · Azul (prova `1211`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 210 | 0.026 | 0.057 | 0.070 | 0 | 7/7 |
-| ENEM 2023 · Matemática · 1ª aplicação · Amarela (prova `1212`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 280 | 0.029 | 0.066 | 0.078 | 0 | 7/7 |
-| ENEM 2023 · Matemática · 1ª aplicação · Rosa (prova `1213`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 280 | 0.028 | 0.063 | 0.078 | 0 | 7/7 |
-| ENEM 2023 · Matemática · 1ª aplicação · Cinza (prova `1214`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 210 | 0.027 | 0.059 | 0.095 | 0 | 7/7 |
-| ENEM 2023 · Matemática · Especiais · Rosa ampliada (prova `1215`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 192 | 0.026 | 0.048 | 0.051 | 0 | 5/7 |
-| ENEM 2023 · Matemática · Especiais · Rosa superampliada (prova `1216`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 115 | 0.025 | 0.048 | 0.051 | 0 | 7/7 |
-| ENEM 2023 · Matemática · Especiais · Laranja braille (prova `1217`) | `nao_calibrado` | Sem validação suficiente | `holdout_insuficiente` | `linear` | holdout | 29 | 0.026 | 0.052 | 0.055 | 0 | 5/5 |
-| ENEM 2023 · Matemática · Especiais · Laranja adaptada ledor (prova `1218`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 88 | 0.023 | 0.046 | 0.050 | 0 | 6/6 |
-| ENEM 2023 · Matemática · Especiais · Verde videoprova libras (prova `1219`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 80 | 0.027 | 0.047 | 0.051 | 0 | 2/7 |
-| ENEM 2023 · Matemática · Reaplicação · Azul (prova `1291`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 143 | 0.026 | 0.045 | 0.052 | 0 | 6/6 |
-| ENEM 2023 · Matemática · Reaplicação · Amarela (prova `1292`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 148 | 0.026 | 0.048 | 0.051 | 0 | 7/7 |
-| ENEM 2023 · Matemática · Reaplicação · Rosa (prova `1293`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 150 | 0.025 | 0.046 | 0.050 | 0 | 7/7 |
-| ENEM 2023 · Matemática · Reaplicação · Cinza (prova `1294`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 141 | 0.025 | 0.047 | 0.051 | 0 | 4/7 |
-| ENEM 2024 · Ciências Humanas · Reaplicação · Azul (prova `1343`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2024 · Ciências Humanas · Reaplicação · Amarela (prova `1344`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2024 · Ciências Humanas · Reaplicação · Branca (prova `1345`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2024 · Ciências Humanas · Reaplicação · Verde (prova `1346`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2024 · Ciências Humanas · Especiais · Verde ampliada reaplicacao (prova `1347`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2024 · Ciências Humanas · Especiais · Verde superampliada reaplicacao (prova `1348`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2024 · Ciências Humanas · Especiais · Laranja adaptada ledor reaplicacao (prova `1350`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2024 · Ciências Humanas · 1ª aplicação · Azul (prova `1383`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 183 | 0.024 | 0.046 | 0.053 | 0 | 6/6 |
-| ENEM 2024 · Ciências Humanas · 1ª aplicação · Amarela (prova `1384`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 200 | 0.025 | 0.048 | 0.054 | 0 | 5/6 |
-| ENEM 2024 · Ciências Humanas · 1ª aplicação · Branca (prova `1385`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 180 | 0.023 | 0.047 | 0.052 | 0 | 6/6 |
-| ENEM 2024 · Ciências Humanas · 1ª aplicação · Verde (prova `1386`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 180 | 0.023 | 0.046 | 0.056 | 0 | 6/6 |
-| ENEM 2024 · Ciências Humanas · Especiais · Verde ampliada (prova `1387`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 129 | 0.025 | 0.046 | 0.057 | 0 | 5/5 |
-| ENEM 2024 · Ciências Humanas · Especiais · Verde superampliada (prova `1388`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 80 | 0.023 | 0.045 | 0.054 | 0 | 2/5 |
-| ENEM 2024 · Ciências Humanas · Especiais · Laranja adaptada ledor (prova `1390`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 108 | 0.027 | 0.048 | 0.050 | 0 | 5/5 |
-| ENEM 2024 · Ciências Humanas · Especiais · Roxa videoprova libras (prova `1391`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 89 | 0.024 | 0.048 | 0.051 | 0 | 3/4 |
-| ENEM 2024 · Ciências Humanas · Especiais · Roxa videoprova libras ampliada (prova `1392`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2024 · Ciências Humanas · Especiais · Roxa videoprova libras superampliada (prova `1393`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2024 · Ciências da Natureza · Reaplicação · Azul (prova `1373`) | `nao_calibrado` | Sem validação suficiente | `holdout_insuficiente` | `linear` | holdout | 14 | 0.023 | 0.045 | 0.048 | 0 | 5/5 |
-| ENEM 2024 · Ciências da Natureza · Reaplicação · Amarela (prova `1374`) | `nao_calibrado` | Sem validação suficiente | `holdout_insuficiente` | `linear` | holdout | 14 | 0.025 | 0.047 | 0.053 | 0 | 5/5 |
-| ENEM 2024 · Ciências da Natureza · Reaplicação · Cinza (prova `1375`) | `nao_calibrado` | Sem validação suficiente | `holdout_insuficiente` | `linear` | holdout | 15 | 0.027 | 0.042 | 0.049 | 0 | 4/4 |
-| ENEM 2024 · Ciências da Natureza · Reaplicação · Verde (prova `1376`) | `nao_calibrado` | Sem validação suficiente | `holdout_insuficiente` | `monotonica_linear` | holdout | 14 | 0.033 | 0.064 | 0.074 | 0 | 5/5 |
-| ENEM 2024 · Ciências da Natureza · Especiais · Verde ampliada reaplicacao (prova `1377`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2024 · Ciências da Natureza · Especiais · Verde superampliada reaplicacao (prova `1378`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2024 · Ciências da Natureza · Especiais · Laranja adaptada ledor reaplicacao (prova `1380`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2024 · Ciências da Natureza · 1ª aplicação · Azul (prova `1419`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 200 | 0.024 | 0.047 | 0.050 | 0 | 5/6 |
-| ENEM 2024 · Ciências da Natureza · 1ª aplicação · Amarela (prova `1420`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 165 | 0.025 | 0.048 | 0.051 | 0 | 6/6 |
-| ENEM 2024 · Ciências da Natureza · 1ª aplicação · Verde (prova `1421`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 200 | 0.025 | 0.047 | 0.051 | 0 | 5/6 |
-| ENEM 2024 · Ciências da Natureza · 1ª aplicação · Cinza (prova `1422`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 165 | 0.025 | 0.047 | 0.069 | 0 | 6/6 |
-| ENEM 2024 · Ciências da Natureza · Especiais · Verde ampliada (prova `1423`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 160 | 0.027 | 0.048 | 0.053 | 0 | 4/5 |
-| ENEM 2024 · Ciências da Natureza · Especiais · Verde superampliada (prova `1424`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 97 | 0.023 | 0.048 | 0.051 | 0 | 5/5 |
-| ENEM 2024 · Ciências da Natureza · Especiais · Laranja adaptada ledor (prova `1426`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 120 | 0.027 | 0.047 | 0.052 | 0 | 3/5 |
-| ENEM 2024 · Ciências da Natureza · Especiais · Roxa videoprova libras (prova `1427`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 95 | 0.024 | 0.045 | 0.049 | 0 | 4/4 |
-| ENEM 2024 · Ciências da Natureza · Especiais · Roxa videoprova libras ampliada (prova `1428`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2024 · Linguagens · Reaplicação · Azul (prova `1353`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2024 · Linguagens · Reaplicação · Amarela (prova `1354`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2024 · Linguagens · Reaplicação · Verde (prova `1355`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2024 · Linguagens · Reaplicação · Branca (prova `1356`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2024 · Linguagens · Especiais · Verde ampliada reaplicacao (prova `1357`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2024 · Linguagens · Especiais · Verde superampliada reaplicacao (prova `1358`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2024 · Linguagens · Especiais · Laranja adaptada ledor reaplicacao (prova `1360`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2024 · Linguagens · 1ª aplicação · Azul (prova `1395`) | `aviso_forte` | Estimativa confiável na maioria dos casos, com exceções | `erro_maximo_ate_15` | `linear` | holdout | 297 | 0.053 | 0.058 | 8.019 | 1 | 5/5 |
-| ENEM 2024 · Linguagens · 1ª aplicação · Amarela (prova `1396`) | `aviso_forte` | Estimativa confiável na maioria dos casos, com exceções | `erro_maximo_ate_15` | `linear` | holdout | 300 | 0.054 | 0.059 | 8.023 | 1 | 5/5 |
-| ENEM 2024 · Linguagens · 1ª aplicação · Verde (prova `1397`) | `aviso_forte` | Estimativa confiável na maioria dos casos, com exceções | `erro_maximo_ate_15` | `linear` | holdout | 297 | 0.055 | 0.060 | 8.019 | 1 | 5/5 |
-| ENEM 2024 · Linguagens · 1ª aplicação · Branca (prova `1398`) | `aviso_forte` | Estimativa confiável na maioria dos casos, com exceções | `erro_maximo_ate_15` | `linear` | holdout | 300 | 0.054 | 0.057 | 8.021 | 1 | 5/5 |
-| ENEM 2024 · Linguagens · Especiais · Verde ampliada (prova `1399`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 222 | 0.025 | 0.047 | 0.056 | 0 | 5/5 |
-| ENEM 2024 · Linguagens · Especiais · Verde superampliada (prova `1400`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 136 | 0.029 | 0.049 | 0.057 | 0 | 4/4 |
-| ENEM 2024 · Linguagens · Especiais · Laranja adaptada ledor (prova `1402`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 186 | 0.025 | 0.047 | 0.051 | 0 | 4/4 |
-| ENEM 2024 · Linguagens · Especiais · Roxa videoprova libras (prova `1403`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 163 | 0.025 | 0.047 | 0.052 | 0 | 4/4 |
-| ENEM 2024 · Linguagens · Especiais · Roxa videoprova libras ampliada (prova `1404`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2024 · Linguagens · Especiais · Roxa videoprova libras superampliada (prova `1405`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2024 · Matemática · Reaplicação · Azul (prova `1363`) | `nao_calibrado` | Sem validação suficiente | `holdout_insuficiente` | `linear` | holdout | 17 | 0.022 | 0.047 | 0.055 | 0 | 6/6 |
-| ENEM 2024 · Matemática · Reaplicação · Amarela (prova `1364`) | `nao_calibrado` | Sem validação suficiente | `holdout_insuficiente` | `linear` | holdout | 14 | 0.024 | 0.044 | 0.047 | 0 | 6/6 |
-| ENEM 2024 · Matemática · Reaplicação · Verde (prova `1365`) | `nao_calibrado` | Sem validação suficiente | `holdout_insuficiente` | `linear` | holdout | 13 | 0.025 | 0.037 | 0.037 | 0 | 6/6 |
-| ENEM 2024 · Matemática · Reaplicação · Cinza (prova `1366`) | `nao_calibrado` | Sem validação suficiente | `holdout_insuficiente` | `monotonica_linear` | holdout | 17 | 0.068 | 0.261 | 0.559 | 0 | 5/5 |
-| ENEM 2024 · Matemática · Especiais · Verde ampliada reaplicacao (prova `1367`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2024 · Matemática · Especiais · Verde superampliada reaplicacao (prova `1368`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2024 · Matemática · Especiais · Laranja adaptada ledor reaplicacao (prova `1370`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2024 · Matemática · 1ª aplicação · Azul (prova `1407`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 210 | 0.030 | 0.060 | 0.079 | 0 | 7/7 |
-| ENEM 2024 · Matemática · 1ª aplicação · Amarela (prova `1408`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 210 | 0.028 | 0.053 | 0.094 | 0 | 7/7 |
-| ENEM 2024 · Matemática · 1ª aplicação · Verde (prova `1409`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 280 | 0.024 | 0.047 | 0.081 | 0 | 7/7 |
-| ENEM 2024 · Matemática · 1ª aplicação · Cinza (prova `1410`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 210 | 0.027 | 0.060 | 0.090 | 0 | 7/7 |
-| ENEM 2024 · Matemática · Especiais · Verde ampliada (prova `1411`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 160 | 0.025 | 0.047 | 0.051 | 0 | 4/7 |
-| ENEM 2024 · Matemática · Especiais · Verde superampliada (prova `1412`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 40 | 0.028 | 0.047 | 0.052 | 0 | 1/6 |
-| ENEM 2024 · Matemática · Especiais · Laranja adaptada ledor (prova `1414`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 109 | 0.025 | 0.045 | 0.049 | 0 | 6/6 |
-| ENEM 2024 · Matemática · Especiais · Roxa videoprova libras (prova `1415`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 108 | 0.024 | 0.049 | 0.052 | 0 | 6/6 |
-| ENEM 2024 · Matemática · Especiais · Roxa videoprova libras ampliada (prova `1416`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2025 · Ciências Humanas · 1ª aplicação · Azul (prova `1447`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 166 | 0.025 | 0.047 | 0.051 | 0 | 6/6 |
-| ENEM 2025 · Ciências Humanas · 1ª aplicação · Amarela (prova `1448`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 165 | 0.026 | 0.048 | 0.052 | 0 | 6/6 |
-| ENEM 2025 · Ciências Humanas · 1ª aplicação · Branca (prova `1449`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 200 | 0.024 | 0.048 | 0.051 | 0 | 5/6 |
-| ENEM 2025 · Ciências Humanas · 1ª aplicação · Verde (prova `1450`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 200 | 0.024 | 0.046 | 0.051 | 0 | 5/6 |
-| ENEM 2025 · Ciências Humanas · Especiais · Laranja ampliada (prova `1451`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 128 | 0.026 | 0.048 | 0.050 | 0 | 5/5 |
-| ENEM 2025 · Ciências Humanas · Especiais · Laranja superampliada (prova `1452`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 96 | 0.027 | 0.046 | 0.049 | 0 | 5/5 |
-| ENEM 2025 · Ciências Humanas · Especiais · Laranja adaptada ledor (prova `1454`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 50 | 0.027 | 0.051 | 0.053 | 0 | 5/5 |
-| ENEM 2025 · Ciências Humanas · Especiais · Roxa videoprova libras (prova `1455`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 101 | 0.023 | 0.048 | 0.052 | 0 | 3/5 |
-| ENEM 2025 · Ciências Humanas · Especiais · Laranja atendimento especializado (prova `1495`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 129 | 0.024 | 0.047 | 0.052 | 0 | 6/6 |
-| ENEM 2025 · Ciências Humanas · Reaplicação · Azul (prova `1539`) | `nao_calibrado` | Sem validação suficiente | `holdout_insuficiente` | `linear` | holdout | 25 | 0.028 | 0.048 | 0.052 | 0 | 5/5 |
-| ENEM 2025 · Ciências Humanas · Reaplicação · Amarela (prova `1540`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2025 · Ciências Humanas · Reaplicação · Branca (prova `1541`) | `nao_calibrado` | Sem validação suficiente | `holdout_insuficiente` | `linear` | holdout | 23 | 0.028 | 0.047 | 0.052 | 0 | 5/5 |
-| ENEM 2025 · Ciências Humanas · Reaplicação · Verde (prova `1542`) | `nao_calibrado` | Sem validação suficiente | `holdout_insuficiente` | `monotonica_linear` | holdout | 25 | 0.023 | 0.053 | 0.071 | 0 | 6/6 |
-| ENEM 2025 · Ciências Humanas · Segunda oportunidade · Azul (prova `1583`) | `aviso_forte` | Estimativa confiável na maioria dos casos, com exceções | `erro_maximo_ate_15` | `monotonica_linear` | holdout | 152 | 0.109 | 0.048 | 12.743 | 1 | 6/6 |
-| ENEM 2025 · Ciências Humanas · Segunda oportunidade · Amarela (prova `1584`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 171 | 0.027 | 0.048 | 0.051 | 0 | 5/5 |
-| ENEM 2025 · Ciências Humanas · Segunda oportunidade · Branca (prova `1585`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 160 | 0.026 | 0.048 | 0.051 | 0 | 4/6 |
-| ENEM 2025 · Ciências Humanas · Segunda oportunidade · Verde (prova `1586`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 160 | 0.026 | 0.048 | 0.050 | 0 | 4/5 |
-| ENEM 2025 · Ciências Humanas · Segunda oportunidade · Laranja ampliada (prova `1587`) | `nao_calibrado` | Sem validação suficiente | `holdout_insuficiente` | `monotonica_linear` | holdout | 22 | 0.026 | 0.045 | 0.048 | 0 | 4/4 |
-| ENEM 2025 · Ciências Humanas · Segunda oportunidade · Laranja atendimento especializado (prova `1631`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 91 | 0.023 | 0.046 | 0.049 | 0 | 4/4 |
-| ENEM 2025 · Ciências da Natureza · 1ª aplicação · Azul (prova `1483`) | `aviso_forte` | Estimativa confiável na maioria dos casos, com exceções | `erro_maximo_ate_15` | `monotonica_linear` | holdout | 180 | 0.128 | 0.051 | 6.224 | 3 | 6/6 |
-| ENEM 2025 · Ciências da Natureza · 1ª aplicação · Amarela (prova `1484`) | `aviso_forte` | Estimativa confiável na maioria dos casos, com exceções | `erro_maximo_ate_15` | `monotonica_linear` | holdout | 180 | 0.094 | 0.049 | 6.194 | 2 | 6/6 |
-| ENEM 2025 · Ciências da Natureza · 1ª aplicação · Verde (prova `1485`) | `aviso_forte` | Estimativa confiável na maioria dos casos, com exceções | `erro_maximo_ate_15` | `monotonica_linear` | holdout | 180 | 0.197 | 0.050 | 6.129 | 5 | 6/6 |
-| ENEM 2025 · Ciências da Natureza · 1ª aplicação · Cinza (prova `1486`) | `aviso_forte` | Estimativa confiável na maioria dos casos, com exceções | `erro_maximo_ate_15` | `monotonica_linear` | holdout | 180 | 0.062 | 0.065 | 6.300 | 1 | 6/6 |
-| ENEM 2025 · Ciências da Natureza · Especiais · Laranja ampliada (prova `1487`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 124 | 0.023 | 0.049 | 0.053 | 0 | 5/5 |
-| ENEM 2025 · Ciências da Natureza · Especiais · Laranja superampliada (prova `1488`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 89 | 0.027 | 0.048 | 0.053 | 0 | 4/4 |
-| ENEM 2025 · Ciências da Natureza · Especiais · Laranja adaptada ledor (prova `1490`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 46 | 0.024 | 0.043 | 0.049 | 0 | 4/4 |
-| ENEM 2025 · Ciências da Natureza · Especiais · Roxa videoprova libras (prova `1491`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 80 | 0.023 | 0.046 | 0.050 | 0 | 2/5 |
-| ENEM 2025 · Ciências da Natureza · Especiais · Laranja atendimento especializado (prova `1498`) | `aviso_forte` | Estimativa confiável na maioria dos casos, com exceções | `erro_maximo_ate_15` | `linear` | holdout | 127 | 0.076 | 0.049 | 6.506 | 1 | 6/6 |
-| ENEM 2025 · Ciências da Natureza · Reaplicação · Azul (prova `1569`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 39 | 0.025 | 0.046 | 0.054 | 0 | 5/5 |
-| ENEM 2025 · Ciências da Natureza · Reaplicação · Amarela (prova `1570`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 36 | 0.026 | 0.050 | 0.052 | 0 | 5/5 |
-| ENEM 2025 · Ciências da Natureza · Reaplicação · Cinza (prova `1571`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 35 | 0.028 | 0.050 | 0.054 | 0 | 5/5 |
-| ENEM 2025 · Ciências da Natureza · Reaplicação · Verde (prova `1572`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 38 | 0.025 | 0.052 | 0.061 | 0 | 5/5 |
-| ENEM 2025 · Ciências da Natureza · Segunda oportunidade · Azul (prova `1619`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 160 | 0.025 | 0.047 | 0.052 | 0 | 4/6 |
-| ENEM 2025 · Ciências da Natureza · Segunda oportunidade · Amarela (prova `1620`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 160 | 0.025 | 0.048 | 0.050 | 0 | 4/5 |
-| ENEM 2025 · Ciências da Natureza · Segunda oportunidade · Verde (prova `1621`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 160 | 0.025 | 0.048 | 0.050 | 0 | 4/6 |
-| ENEM 2025 · Ciências da Natureza · Segunda oportunidade · Cinza (prova `1622`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | confirmação | 160 | 0.026 | 0.047 | 0.051 | 0 | 4/5 |
-| ENEM 2025 · Ciências da Natureza · Segunda oportunidade · Laranja ampliada (prova `1623`) | `nao_calibrado` | Sem validação suficiente | `holdout_insuficiente` | `linear` | holdout | 18 | 0.026 | 0.049 | 0.054 | 0 | 4/4 |
-| ENEM 2025 · Ciências da Natureza · Segunda oportunidade · Laranja atendimento especializado (prova `1634`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 88 | 0.027 | 0.046 | 0.053 | 0 | 5/5 |
-| ENEM 2025 · Linguagens · 1ª aplicação · Azul (prova `1459`) | `aviso_forte` | Estimativa confiável na maioria dos casos, com exceções | `erro_maximo_ate_15` | `linear` | holdout | 300 | 0.052 | 0.055 | 7.547 | 1 | 5/5 |
-| ENEM 2025 · Linguagens · 1ª aplicação · Amarela (prova `1460`) | `aviso_forte` | Estimativa confiável na maioria dos casos, com exceções | `erro_maximo_ate_15` | `linear` | holdout | 300 | 0.051 | 0.058 | 7.548 | 1 | 5/5 |
-| ENEM 2025 · Linguagens · 1ª aplicação · Verde (prova `1461`) | `aviso_forte` | Estimativa confiável na maioria dos casos, com exceções | `erro_maximo_ate_15` | `linear` | holdout | 300 | 0.077 | 0.057 | 7.545 | 2 | 5/5 |
-| ENEM 2025 · Linguagens · 1ª aplicação · Branca (prova `1462`) | `aviso_leve` | Estimativa confiável na maioria dos casos, com exceções | `erro_maximo_ate_5` | `monotonica_linear` | confirmação | 395 | 0.213 | 0.805 | 4.812 | 6 | 5/5 |
-| ENEM 2025 · Linguagens · Especiais · Laranja ampliada (prova `1463`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 239 | 0.025 | 0.048 | 0.071 | 0 | 5/5 |
-| ENEM 2025 · Linguagens · Especiais · Laranja superampliada (prova `1464`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 145 | 0.024 | 0.047 | 0.051 | 0 | 4/4 |
-| ENEM 2025 · Linguagens · Especiais · Laranja adaptada ledor (prova `1466`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 54 | 0.025 | 0.051 | 0.053 | 0 | 5/5 |
-| ENEM 2025 · Linguagens · Especiais · Roxa videoprova libras (prova `1467`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 171 | 0.024 | 0.049 | 0.052 | 0 | 5/5 |
-| ENEM 2025 · Linguagens · Especiais · Laranja atendimento especializado (prova `1496`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 243 | 0.026 | 0.049 | 0.057 | 0 | 5/5 |
-| ENEM 2025 · Linguagens · Reaplicação · Azul (prova `1549`) | `nao_calibrado` | Sem validação suficiente | `holdout_insuficiente` | `linear` | holdout | 27 | 0.027 | 0.053 | 0.063 | 0 | 5/5 |
-| ENEM 2025 · Linguagens · Reaplicação · Amarela (prova `1550`) | `sem_participantes` | Sem validação suficiente | `sem_participantes_validos` | `linear` | holdout | — | — | — | — | — | — |
-| ENEM 2025 · Linguagens · Reaplicação · Verde (prova `1551`) | `nao_calibrado` | Sem validação suficiente | `holdout_insuficiente` | `monotonica_linear` | holdout | 27 | 0.034 | 0.072 | 0.086 | 0 | 5/5 |
-| ENEM 2025 · Linguagens · Reaplicação · Branca (prova `1552`) | `nao_calibrado` | Sem validação suficiente | `holdout_insuficiente` | `linear` | holdout | 27 | 0.026 | 0.050 | 0.064 | 0 | 4/4 |
-| ENEM 2025 · Linguagens · Segunda oportunidade · Azul (prova `1595`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 246 | 0.023 | 0.047 | 0.050 | 0 | 5/5 |
-| ENEM 2025 · Linguagens · Segunda oportunidade · Amarela (prova `1596`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 246 | 0.026 | 0.048 | 0.051 | 0 | 5/5 |
-| ENEM 2025 · Linguagens · Segunda oportunidade · Verde (prova `1597`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 320 | 0.024 | 0.048 | 0.052 | 0 | 4/5 |
-| ENEM 2025 · Linguagens · Segunda oportunidade · Branca (prova `1598`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 247 | 0.025 | 0.048 | 0.053 | 0 | 5/5 |
-| ENEM 2025 · Linguagens · Segunda oportunidade · Laranja ampliada (prova `1599`) | `nao_calibrado` | Sem validação suficiente | `holdout_insuficiente` | `monotonica_linear` | holdout | 22 | 0.019 | 0.045 | 0.047 | 0 | 4/4 |
-| ENEM 2025 · Linguagens · Segunda oportunidade · Laranja atendimento especializado (prova `1632`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 108 | 0.026 | 0.047 | 0.050 | 0 | 4/4 |
-| ENEM 2025 · Matemática · 1ª aplicação · Azul (prova `1471`) | `aviso_forte` | Estimativa confiável na maioria dos casos, com exceções | `erro_maximo_ate_15` | `monotonica_linear` | holdout | 210 | 0.086 | 0.055 | 12.600 | 1 | 7/7 |
-| ENEM 2025 · Matemática · 1ª aplicação · Amarela (prova `1472`) | `aviso_forte` | Estimativa confiável na maioria dos casos, com exceções | `erro_maximo_ate_15` | `linear` | holdout | 210 | 0.093 | 0.082 | 12.612 | 1 | 7/7 |
-| ENEM 2025 · Matemática · 1ª aplicação · Verde (prova `1473`) | `aviso_forte` | Estimativa confiável na maioria dos casos, com exceções | `erro_maximo_ate_15` | `monotonica_linear` | holdout | 210 | 0.088 | 0.062 | 12.600 | 1 | 7/7 |
-| ENEM 2025 · Matemática · 1ª aplicação · Cinza (prova `1474`) | `aviso_forte` | Estimativa confiável na maioria dos casos, com exceções | `erro_maximo_ate_15` | `monotonica_linear` | holdout | 210 | 0.087 | 0.054 | 12.600 | 1 | 7/7 |
-| ENEM 2025 · Matemática · Especiais · Laranja ampliada (prova `1475`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 159 | 0.024 | 0.048 | 0.051 | 0 | 7/7 |
-| ENEM 2025 · Matemática · Especiais · Laranja superampliada (prova `1476`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 115 | 0.024 | 0.047 | 0.058 | 0 | 7/7 |
-| ENEM 2025 · Matemática · Especiais · Laranja adaptada ledor (prova `1478`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 48 | 0.027 | 0.048 | 0.052 | 0 | 5/5 |
-| ENEM 2025 · Matemática · Especiais · Roxa videoprova libras (prova `1479`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 102 | 0.026 | 0.050 | 0.055 | 0 | 6/6 |
-| ENEM 2025 · Matemática · Especiais · Laranja atendimento especializado (prova `1497`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | holdout | 169 | 0.026 | 0.048 | 0.127 | 0 | 7/7 |
-| ENEM 2025 · Matemática · Reaplicação · Azul (prova `1559`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 38 | 0.030 | 0.049 | 0.051 | 0 | 7/7 |
-| ENEM 2025 · Matemática · Reaplicação · Amarela (prova `1560`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 35 | 0.025 | 0.049 | 0.050 | 0 | 6/6 |
-| ENEM 2025 · Matemática · Reaplicação · Verde (prova `1561`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 40 | 0.025 | 0.047 | 0.053 | 0 | 7/7 |
-| ENEM 2025 · Matemática · Reaplicação · Cinza (prova `1562`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 36 | 0.028 | 0.047 | 0.049 | 0 | 7/7 |
-| ENEM 2025 · Matemática · Segunda oportunidade · Azul (prova `1607`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 184 | 0.027 | 0.049 | 0.103 | 0 | 7/7 |
-| ENEM 2025 · Matemática · Segunda oportunidade · Amarela (prova `1608`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 185 | 0.028 | 0.048 | 0.135 | 0 | 7/7 |
-| ENEM 2025 · Matemática · Segunda oportunidade · Verde (prova `1609`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `monotonica_linear` | confirmação | 200 | 0.029 | 0.063 | 0.095 | 0 | 5/7 |
-| ENEM 2025 · Matemática · Segunda oportunidade · Cinza (prova `1610`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 185 | 0.025 | 0.048 | 0.122 | 0 | 7/7 |
-| ENEM 2025 · Matemática · Segunda oportunidade · Laranja ampliada (prova `1611`) | `nao_calibrado` | Sem validação suficiente | `holdout_insuficiente` | `linear` | diagnóstico de treino/seleção | 60 | 0.024 | 0.047 | 0.050 | 0 | 5/5 |
-| ENEM 2025 · Matemática · Segunda oportunidade · Laranja atendimento especializado (prova `1633`) | `ok` | Boa calibração verificada | `erro_maximo_ate_2` | `linear` | holdout | 85 | 0.023 | 0.045 | 0.050 | 0 | 6/6 |
+| Prova | Situação | Status | Participantes | Diferença média | Até 2 pontos | Acima de 2 |
+|---|---|---|---:|---:|---:|---:|
+| ENEM 2009 · Ciências Humanas · 1ª aplicação · Azul (prova `53`) | Boa calibração verificada | `ok` | 672.170 | 0,025 | 100% | 0 |
+| ENEM 2009 · Ciências Humanas · 1ª aplicação · Amarela (prova `54`) | Boa calibração verificada | `ok` | 638.427 | 0,025 | 100% | 0 |
+| ENEM 2009 · Ciências Humanas · 1ª aplicação · Branca (prova `55`) | Boa calibração verificada | `ok` | 632.001 | 0,025 | 100% | 0 |
+| ENEM 2009 · Ciências Humanas · 1ª aplicação · Rosa (prova `56`) | Boa calibração verificada | `ok` | 612.995 | 0,025 | 100% | 0 |
+| ENEM 2009 · Ciências Humanas · Reaplicação · Azul (prova `69`) | Boa calibração verificada | `ok` | 1.673 | 0,025 | 100% | 0 |
+| ENEM 2009 · Ciências Humanas · Reaplicação · Amarela (prova `70`) | Boa calibração verificada | `ok` | 1.564 | 0,025 | 100% | 0 |
+| ENEM 2009 · Ciências Humanas · Reaplicação · Branca (prova `71`) | Boa calibração verificada | `ok` | 1.492 | 0,025 | 100% | 0 |
+| ENEM 2009 · Ciências Humanas · Reaplicação · Rosa (prova `72`) | Boa calibração verificada | `ok` | 1.443 | 0,026 | 100% | 0 |
+| ENEM 2009 · Ciências Humanas · Especiais · Branca adaptada ledor (prova `82`) | Sem validação suficiente | `sem_itens` | — | — | — | — |
+| ENEM 2009 · Ciências da Natureza · 1ª aplicação · Azul (prova `49`) | Boa calibração verificada | `ok` | 672.170 | 0,025 | 100% | 0 |
+| ENEM 2009 · Ciências da Natureza · 1ª aplicação · Amarela (prova `50`) | Boa calibração verificada | `ok` | 638.427 | 0,025 | 100% | 0 |
+| ENEM 2009 · Ciências da Natureza · 1ª aplicação · Branca (prova `51`) | Boa calibração verificada | `ok` | 632.001 | 0,025 | 100% | 0 |
+| ENEM 2009 · Ciências da Natureza · 1ª aplicação · Rosa (prova `52`) | Boa calibração verificada | `ok` | 612.995 | 0,025 | 100% | 0 |
+| ENEM 2009 · Ciências da Natureza · Reaplicação · Azul (prova `65`) | Boa calibração verificada | `ok` | 1.673 | 0,025 | 100% | 0 |
+| ENEM 2009 · Ciências da Natureza · Reaplicação · Amarela (prova `66`) | Boa calibração verificada | `ok` | 1.564 | 0,024 | 100% | 0 |
+| ENEM 2009 · Ciências da Natureza · Reaplicação · Branca (prova `67`) | Boa calibração verificada | `ok` | 1.492 | 0,025 | 100% | 0 |
+| ENEM 2009 · Ciências da Natureza · Reaplicação · Rosa (prova `68`) | Boa calibração verificada | `ok` | 1.443 | 0,025 | 100% | 0 |
+| ENEM 2009 · Ciências da Natureza · Especiais · Branca adaptada ledor (prova `81`) | Sem validação suficiente | `sem_itens` | — | — | — | — |
+| ENEM 2009 · Linguagens · 1ª aplicação · Amarela (prova `57`) | Boa calibração verificada | `ok` | 632.831 | 0,025 | 100% | 0 |
+| ENEM 2009 · Linguagens · 1ª aplicação · Cinza (prova `58`) | Boa calibração verificada | `ok` | 614.683 | 0,025 | 100% | 0 |
+| ENEM 2009 · Linguagens · 1ª aplicação · Azul (prova `59`) | Boa calibração verificada | `ok` | 605.603 | 0,025 | 100% | 0 |
+| ENEM 2009 · Linguagens · 1ª aplicação · Rosa (prova `60`) | Boa calibração verificada | `ok` | 582.468 | 0,025 | 100% | 0 |
+| ENEM 2009 · Linguagens · Reaplicação · Amarela (prova `73`) | Boa calibração verificada | `ok` | 1.556 | 0,025 | 100% | 0 |
+| ENEM 2009 · Linguagens · Reaplicação · Cinza (prova `74`) | Boa calibração verificada | `ok` | 1.439 | 0,025 | 100% | 0 |
+| ENEM 2009 · Linguagens · Reaplicação · Azul (prova `75`) | Boa calibração verificada | `ok` | 1.438 | 0,025 | 100% | 0 |
+| ENEM 2009 · Linguagens · Reaplicação · Rosa (prova `76`) | Boa calibração verificada | `ok` | 1.371 | 0,025 | 100% | 0 |
+| ENEM 2009 · Linguagens · Especiais · Cinza adaptada ledor (prova `83`) | Sem validação suficiente | `sem_itens` | — | — | — | — |
+| ENEM 2009 · Matemática · 1ª aplicação · Amarela (prova `61`) | Boa calibração verificada | `ok` | 632.832 | 0,025 | 100% | 0 |
+| ENEM 2009 · Matemática · 1ª aplicação · Cinza (prova `62`) | Boa calibração verificada | `ok` | 614.684 | 0,025 | 100% | 0 |
+| ENEM 2009 · Matemática · 1ª aplicação · Azul (prova `63`) | Boa calibração verificada | `ok` | 605.603 | 0,025 | 100% | 0 |
+| ENEM 2009 · Matemática · 1ª aplicação · Rosa (prova `64`) | Boa calibração verificada | `ok` | 582.468 | 0,025 | 100% | 0 |
+| ENEM 2009 · Matemática · Reaplicação · Amarela (prova `77`) | Boa calibração verificada | `ok` | 1.556 | 0,025 | 100% | 0 |
+| ENEM 2009 · Matemática · Reaplicação · Cinza (prova `78`) | Boa calibração verificada | `ok` | 1.439 | 0,025 | 100% | 0 |
+| ENEM 2009 · Matemática · Reaplicação · Azul (prova `79`) | Boa calibração verificada | `ok` | 1.438 | 0,025 | 100% | 0 |
+| ENEM 2009 · Matemática · Reaplicação · Rosa (prova `80`) | Boa calibração verificada | `ok` | 1.371 | 0,025 | 100% | 0 |
+| ENEM 2009 · Matemática · Especiais · Cinza adaptada ledor (prova `84`) | Sem validação suficiente | `sem_itens` | — | — | — | — |
+| ENEM 2010 · Ciências Humanas · 1ª aplicação · Azul (prova `85`) | Boa calibração verificada | `ok` | 884.564 | 0,025 | 100% | 0 |
+| ENEM 2010 · Ciências Humanas · 1ª aplicação · Amarela (prova `86`) | Boa calibração verificada | `ok` | 818.158 | 0,025 | 99,99% | 2 |
+| ENEM 2010 · Ciências Humanas · 1ª aplicação · Branca (prova `87`) | Boa calibração verificada | `ok` | 852.571 | 0,025 | 100% | 0 |
+| ENEM 2010 · Ciências Humanas · 1ª aplicação · Rosa (prova `88`) | Boa calibração verificada | `ok` | 815.107 | 0,026 | 99,99% | 2 |
+| ENEM 2010 · Ciências Humanas · Reaplicação · Azul (prova `101`) | Boa calibração verificada | `ok` | 1.324 | 0,025 | 100% | 0 |
+| ENEM 2010 · Ciências Humanas · Reaplicação · Amarela (prova `102`) | Boa calibração verificada | `ok` | 1.127 | 0,025 | 100% | 0 |
+| ENEM 2010 · Ciências Humanas · Reaplicação · Branca (prova `103`) | Boa calibração verificada | `ok` | 1.151 | 0,025 | 100% | 0 |
+| ENEM 2010 · Ciências Humanas · Reaplicação · Rosa (prova `104`) | Boa calibração verificada | `ok` | 1.080 | 0,024 | 100% | 0 |
+| ENEM 2010 · Ciências da Natureza · 1ª aplicação · Azul (prova `89`) | Boa calibração verificada | `ok` | 884.564 | 0,025 | 100% | 0 |
+| ENEM 2010 · Ciências da Natureza · 1ª aplicação · Amarela (prova `90`) | Boa calibração verificada | `ok` | 818.158 | 0,025 | 99,99% | 2 |
+| ENEM 2010 · Ciências da Natureza · 1ª aplicação · Branca (prova `91`) | Boa calibração verificada | `ok` | 852.571 | 0,025 | 100% | 0 |
+| ENEM 2010 · Ciências da Natureza · 1ª aplicação · Rosa (prova `92`) | Boa calibração verificada | `ok` | 815.107 | 0,026 | 99,99% | 2 |
+| ENEM 2010 · Ciências da Natureza · Reaplicação · Azul (prova `105`) | Boa calibração verificada | `ok` | 1.324 | 0,025 | 100% | 0 |
+| ENEM 2010 · Ciências da Natureza · Reaplicação · Amarela (prova `106`) | Boa calibração verificada | `ok` | 1.127 | 0,025 | 100% | 0 |
+| ENEM 2010 · Ciências da Natureza · Reaplicação · Branca (prova `107`) | Boa calibração verificada | `ok` | 1.151 | 0,025 | 100% | 0 |
+| ENEM 2010 · Ciências da Natureza · Reaplicação · Rosa (prova `108`) | Boa calibração verificada | `ok` | 1.080 | 0,024 | 100% | 0 |
+| ENEM 2010 · Linguagens · 1ª aplicação · Amarela (prova `93`) | Boa calibração verificada | `ok` | 840.825 | 0,025 | 100% | 0 |
+| ENEM 2010 · Linguagens · 1ª aplicação · Cinza (prova `94`) | Boa calibração verificada | `ok` | 809.296 | 0,025 | 100% | 0 |
+| ENEM 2010 · Linguagens · 1ª aplicação · Azul (prova `95`) | Boa calibração verificada | `ok` | 819.013 | 0,025 | 100% | 0 |
+| ENEM 2010 · Linguagens · 1ª aplicação · Rosa (prova `96`) | Boa calibração verificada | `ok` | 778.269 | 0,025 | 100% | 0 |
+| ENEM 2010 · Linguagens · Reaplicação · Amarela (prova `109`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2010 · Linguagens · Reaplicação · Cinza (prova `110`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2010 · Linguagens · Reaplicação · Azul (prova `111`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2010 · Linguagens · Reaplicação · Rosa (prova `112`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2010 · Matemática · 1ª aplicação · Amarela (prova `97`) | Precisa para quase todos | `erro_raro` | 840.825 | 0,037 | 99,90% | 761 |
+| ENEM 2010 · Matemática · 1ª aplicação · Cinza (prova `98`) | Boa calibração verificada | `ok` | 809.296 | 0,025 | 100% | 0 |
+| ENEM 2010 · Matemática · 1ª aplicação · Azul (prova `99`) | Boa calibração verificada | `ok` | 819.013 | 0,025 | 100% | 0 |
+| ENEM 2010 · Matemática · 1ª aplicação · Rosa (prova `100`) | Boa calibração verificada | `ok` | 778.269 | 0,025 | 100% | 0 |
+| ENEM 2010 · Matemática · Reaplicação · Amarela (prova `113`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2010 · Matemática · Reaplicação · Cinza (prova `114`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2010 · Matemática · Reaplicação · Azul (prova `115`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2010 · Matemática · Reaplicação · Rosa (prova `116`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2011 · Ciências Humanas · 1ª aplicação · Azul (prova `117`) | Precisa para quase todos | `erro_raro` | 1.038.191 | 0,027 | 99,97% | 210 |
+| ENEM 2011 · Ciências Humanas · 1ª aplicação · Amarela (prova `118`) | Precisa para quase todos | `erro_raro` | 983.317 | 0,027 | 99,97% | 241 |
+| ENEM 2011 · Ciências Humanas · 1ª aplicação · Branca (prova `119`) | Precisa para quase todos | `erro_raro` | 1.007.247 | 0,030 | 99,91% | 894 |
+| ENEM 2011 · Ciências Humanas · 1ª aplicação · Rosa (prova `120`) | Precisa para quase todos | `erro_raro` | 953.900 | 0,027 | 99,97% | 212 |
+| ENEM 2011 · Ciências da Natureza · 1ª aplicação · Azul (prova `121`) | Precisa para quase todos | `erro_raro` | 1.038.191 | 0,034 | 99,97% | 216 |
+| ENEM 2011 · Ciências da Natureza · 1ª aplicação · Amarela (prova `122`) | Precisa para quase todos | `erro_raro` | 983.317 | 0,035 | 99,97% | 243 |
+| ENEM 2011 · Ciências da Natureza · 1ª aplicação · Branca (prova `123`) | Precisa para quase todos | `erro_raro` | 1.007.247 | 0,048 | 99,82% | 1.792 |
+| ENEM 2011 · Ciências da Natureza · 1ª aplicação · Rosa (prova `124`) | Precisa para quase todos | `erro_raro` | 953.900 | 0,034 | 99,97% | 204 |
+| ENEM 2011 · Linguagens · 1ª aplicação · Amarela (prova `125`) | Precisa para quase todos | `erro_raro` | 1.005.964 | 0,026 | 99,98% | 143 |
+| ENEM 2011 · Linguagens · 1ª aplicação · Cinza (prova `126`) | Precisa para quase todos | `erro_raro` | 958.723 | 0,033 | 99,87% | 1.231 |
+| ENEM 2011 · Linguagens · 1ª aplicação · Azul (prova `127`) | Precisa para quase todos | `erro_raro` | 978.571 | 0,026 | 99,98% | 162 |
+| ENEM 2011 · Linguagens · 1ª aplicação · Rosa (prova `128`) | Precisa para quase todos | `erro_raro` | 925.633 | 0,026 | 99,98% | 133 |
+| ENEM 2011 · Matemática · 1ª aplicação · Amarela (prova `129`) | Precisa para quase todos | `erro_raro` | 1.005.964 | 0,028 | 99,97% | 232 |
+| ENEM 2011 · Matemática · 1ª aplicação · Cinza (prova `130`) | Precisa para quase todos | `erro_raro` | 958.723 | 0,043 | 99,80% | 1.871 |
+| ENEM 2011 · Matemática · 1ª aplicação · Azul (prova `131`) | Precisa para quase todos | `erro_raro` | 978.571 | 0,028 | 99,97% | 245 |
+| ENEM 2011 · Matemática · 1ª aplicação · Rosa (prova `132`) | Precisa para quase todos | `erro_raro` | 925.633 | 0,028 | 99,97% | 231 |
+| ENEM 2012 · Ciências Humanas · 1ª aplicação · Azul (prova `137`) | Boa calibração verificada | `ok` | 1.101.221 | 0,025 | 100% | 0 |
+| ENEM 2012 · Ciências Humanas · 1ª aplicação · Amarela (prova `138`) | Boa calibração verificada | `ok` | 1.037.685 | 0,025 | 100% | 0 |
+| ENEM 2012 · Ciências Humanas · 1ª aplicação · Branca (prova `139`) | Precisa para quase todos | `erro_raro` | 1.070.411 | 0,026 | 99,98% | 163 |
+| ENEM 2012 · Ciências Humanas · 1ª aplicação · Rosa (prova `140`) | Boa calibração verificada | `ok` | 1.009.248 | 0,025 | 100% | 0 |
+| ENEM 2012 · Ciências Humanas · Especiais · Branca ledor (prova `154`) | Precisa para quase todos | `erro_raro` | 233 | 0,240 | 96,99% | 7 |
+| ENEM 2012 · Ciências da Natureza · 1ª aplicação · Azul (prova `141`) | Boa calibração verificada | `ok` | 1.101.221 | 0,025 | 100% | 0 |
+| ENEM 2012 · Ciências da Natureza · 1ª aplicação · Amarela (prova `142`) | Boa calibração verificada | `ok` | 1.037.685 | 0,025 | 100% | 0 |
+| ENEM 2012 · Ciências da Natureza · 1ª aplicação · Branca (prova `143`) | Precisa para quase todos | `erro_raro` | 1.070.411 | 0,031 | 99,94% | 591 |
+| ENEM 2012 · Ciências da Natureza · 1ª aplicação · Rosa (prova `144`) | Boa calibração verificada | `ok` | 1.009.248 | 0,025 | 100% | 0 |
+| ENEM 2012 · Ciências da Natureza · Especiais · Branca ledor (prova `153`) | Precisa para quase todos | `erro_raro` | 233 | 0,289 | 97,85% | 5 |
+| ENEM 2012 · Linguagens · 1ª aplicação · Amarela (prova `145`) | Boa calibração verificada | `ok` | 1.067.089 | 0,025 | 100% | 0 |
+| ENEM 2012 · Linguagens · 1ª aplicação · Cinza (prova `146`) | Boa calibração verificada | `ok` | 1.013.485 | 0,025 | 100% | 0 |
+| ENEM 2012 · Linguagens · 1ª aplicação · Azul (prova `147`) | Boa calibração verificada | `ok` | 1.037.857 | 0,025 | 100% | 0 |
+| ENEM 2012 · Linguagens · 1ª aplicação · Rosa (prova `148`) | Boa calibração verificada | `ok` | 975.025 | 0,025 | 100% | 0 |
+| ENEM 2012 · Linguagens · Especiais · Cinza ledor (prova `155`) | Boa calibração verificada | `ok` | 425 | 0,025 | 100% | 0 |
+| ENEM 2012 · Matemática · 1ª aplicação · Amarela (prova `149`) | Boa calibração verificada | `ok` | 1.067.089 | 0,025 | 100% | 0 |
+| ENEM 2012 · Matemática · 1ª aplicação · Cinza (prova `150`) | Precisa para quase todos | `erro_raro` | 1.013.485 | 0,038 | 99,93% | 682 |
+| ENEM 2012 · Matemática · 1ª aplicação · Azul (prova `151`) | Boa calibração verificada | `ok` | 1.037.858 | 0,025 | 100% | 0 |
+| ENEM 2012 · Matemática · 1ª aplicação · Rosa (prova `152`) | Boa calibração verificada | `ok` | 975.027 | 0,025 | 100% | 0 |
+| ENEM 2012 · Matemática · Especiais · Cinza ledor (prova `156`) | Boa calibração verificada | `ok` | 425 | 0,027 | 100% | 0 |
+| ENEM 2013 · Ciências Humanas · 1ª aplicação · Azul (prova `167`) | Boa calibração verificada | `ok` | 1.357.730 | 0,025 | 100% | 0 |
+| ENEM 2013 · Ciências Humanas · 1ª aplicação · Amarela (prova `168`) | Boa calibração verificada | `ok` | 1.278.255 | 0,025 | 100% | 0 |
+| ENEM 2013 · Ciências Humanas · 1ª aplicação · Branca (prova `169`) | Boa calibração verificada | `ok` | 1.320.542 | 0,025 | 100% | 0 |
+| ENEM 2013 · Ciências Humanas · 1ª aplicação · Rosa (prova `170`) | Boa calibração verificada | `ok` | 1.243.695 | 0,025 | 100% | 0 |
+| ENEM 2013 · Ciências Humanas · Especiais · Branca adaptada ledor (prova `187`) | Boa calibração verificada | `ok` | 964 | 0,025 | 100% | 0 |
+| ENEM 2013 · Ciências da Natureza · 1ª aplicação · Azul (prova `171`) | Boa calibração verificada | `ok` | 1.357.730 | 0,025 | 100% | 0 |
+| ENEM 2013 · Ciências da Natureza · 1ª aplicação · Amarela (prova `172`) | Boa calibração verificada | `ok` | 1.278.255 | 0,025 | 100% | 0 |
+| ENEM 2013 · Ciências da Natureza · 1ª aplicação · Branca (prova `173`) | Boa calibração verificada | `ok` | 1.320.543 | 0,025 | 100% | 0 |
+| ENEM 2013 · Ciências da Natureza · 1ª aplicação · Rosa (prova `174`) | Boa calibração verificada | `ok` | 1.243.695 | 0,025 | 100% | 0 |
+| ENEM 2013 · Ciências da Natureza · Especiais · Branca adaptada ledor (prova `188`) | Boa calibração verificada | `ok` | 964 | 0,026 | 100% | 0 |
+| ENEM 2013 · Linguagens · 1ª aplicação · Amarela (prova `175`) | Boa calibração verificada | `ok` | 1.310.604 | 0,025 | 99,99% | 1 |
+| ENEM 2013 · Linguagens · 1ª aplicação · Cinza (prova `176`) | Boa calibração verificada | `ok` | 1.243.422 | 0,025 | 100% | 0 |
+| ENEM 2013 · Linguagens · 1ª aplicação · Azul (prova `177`) | Boa calibração verificada | `ok` | 1.275.464 | 0,025 | 100% | 0 |
+| ENEM 2013 · Linguagens · 1ª aplicação · Rosa (prova `178`) | Boa calibração verificada | `ok` | 1.196.631 | 0,025 | 100% | 0 |
+| ENEM 2013 · Linguagens · Especiais · Cinza adaptada ledor (prova `189`) | Boa calibração verificada | `ok` | 956 | 0,025 | 100% | 0 |
+| ENEM 2013 · Matemática · 1ª aplicação · Amarela (prova `179`) | Boa calibração verificada | `ok` | 1.310.604 | 0,025 | 99,99% | 1 |
+| ENEM 2013 · Matemática · 1ª aplicação · Cinza (prova `180`) | Boa calibração verificada | `ok` | 1.243.422 | 0,025 | 100% | 0 |
+| ENEM 2013 · Matemática · 1ª aplicação · Azul (prova `181`) | Boa calibração verificada | `ok` | 1.275.464 | 0,025 | 100% | 0 |
+| ENEM 2013 · Matemática · 1ª aplicação · Rosa (prova `182`) | Boa calibração verificada | `ok` | 1.196.631 | 0,025 | 100% | 0 |
+| ENEM 2013 · Matemática · Especiais · Cinza adaptada ledor (prova `190`) | Boa calibração verificada | `ok` | 956 | 0,107 | 100% | 0 |
+| ENEM 2014 · Ciências Humanas · 1ª aplicação · Azul (prova `195`) | Boa calibração verificada | `ok` | 1.606.864 | 0,025 | 100% | 0 |
+| ENEM 2014 · Ciências Humanas · 1ª aplicação · Amarela (prova `196`) | Boa calibração verificada | `ok` | 1.519.502 | 0,025 | 100% | 0 |
+| ENEM 2014 · Ciências Humanas · 1ª aplicação · Branca (prova `197`) | Boa calibração verificada | `ok` | 1.559.762 | 0,025 | 100% | 0 |
+| ENEM 2014 · Ciências Humanas · 1ª aplicação · Rosa (prova `198`) | Boa calibração verificada | `ok` | 1.473.873 | 0,025 | 100% | 0 |
+| ENEM 2014 · Ciências Humanas · Especiais · Branca adaptada (prova `215`) | Boa calibração verificada | `ok` | 1.118 | 0,025 | 100% | 0 |
+| ENEM 2014 · Ciências da Natureza · 1ª aplicação · Azul (prova `199`) | Boa calibração verificada | `ok` | 1.606.456 | 0,025 | 100% | 0 |
+| ENEM 2014 · Ciências da Natureza · 1ª aplicação · Amarela (prova `200`) | Boa calibração verificada | `ok` | 1.519.144 | 0,025 | 100% | 0 |
+| ENEM 2014 · Ciências da Natureza · 1ª aplicação · Branca (prova `201`) | Boa calibração verificada | `ok` | 1.559.347 | 0,025 | 100% | 0 |
+| ENEM 2014 · Ciências da Natureza · 1ª aplicação · Rosa (prova `202`) | Boa calibração verificada | `ok` | 1.473.610 | 0,025 | 100% | 0 |
+| ENEM 2014 · Ciências da Natureza · Especiais · Branca adaptada (prova `216`) | Boa calibração verificada | `ok` | 1.117 | 0,025 | 100% | 0 |
+| ENEM 2014 · Linguagens · 1ª aplicação · Amarela (prova `203`) | Boa calibração verificada | `ok` | 1.554.961 | 0,025 | 100% | 0 |
+| ENEM 2014 · Linguagens · 1ª aplicação · Cinza (prova `204`) | Boa calibração verificada | `ok` | 1.479.340 | 0,025 | 100% | 0 |
+| ENEM 2014 · Linguagens · 1ª aplicação · Azul (prova `205`) | Boa calibração verificada | `ok` | 1.513.182 | 0,025 | 100% | 0 |
+| ENEM 2014 · Linguagens · 1ª aplicação · Rosa (prova `206`) | Boa calibração verificada | `ok` | 1.424.245 | 0,025 | 100% | 0 |
+| ENEM 2014 · Linguagens · Reaplicação · Cinza (prova `213`) | Boa calibração verificada | `ok` | 955 | 0,026 | 100% | 0 |
+| ENEM 2014 · Linguagens · Especiais · Cinza adaptada (prova `217`) | Boa calibração verificada | `ok` | 1.087 | 0,025 | 100% | 0 |
+| ENEM 2014 · Matemática · 1ª aplicação · Amarela (prova `207`) | Boa calibração verificada | `ok` | 1.554.058 | 0,025 | 100% | 0 |
+| ENEM 2014 · Matemática · 1ª aplicação · Cinza (prova `208`) | Boa calibração verificada | `ok` | 1.478.598 | 0,025 | 100% | 0 |
+| ENEM 2014 · Matemática · 1ª aplicação · Azul (prova `209`) | Boa calibração verificada | `ok` | 1.512.389 | 0,025 | 100% | 0 |
+| ENEM 2014 · Matemática · 1ª aplicação · Rosa (prova `210`) | Boa calibração verificada | `ok` | 1.423.505 | 0,025 | 100% | 0 |
+| ENEM 2014 · Matemática · Reaplicação · Cinza (prova `214`) | Boa calibração verificada | `ok` | 955 | 0,026 | 100% | 0 |
+| ENEM 2014 · Matemática · Especiais · Cinza adaptada (prova `218`) | Boa calibração verificada | `ok` | 1.084 | 0,024 | 100% | 0 |
+| ENEM 2015 · Ciências Humanas · 1ª aplicação · Azul (prova `231`) | Boa calibração verificada | `ok` | 1.500.270 | 0,025 | 100% | 0 |
+| ENEM 2015 · Ciências Humanas · 1ª aplicação · Amarela (prova `232`) | Boa calibração verificada | `ok` | 1.413.753 | 0,025 | 100% | 0 |
+| ENEM 2015 · Ciências Humanas · 1ª aplicação · Branca (prova `233`) | Boa calibração verificada | `ok` | 1.460.365 | 0,025 | 100% | 0 |
+| ENEM 2015 · Ciências Humanas · 1ª aplicação · Rosa (prova `234`) | Boa calibração verificada | `ok` | 1.372.893 | 0,025 | 100% | 0 |
+| ENEM 2015 · Ciências Humanas · Especiais · Branca adaptada (prova `251`) | Boa calibração verificada | `ok` | 3.111 | 0,025 | 100% | 0 |
+| ENEM 2015 · Ciências Humanas · Reaplicação · Azul (prova `271`) | Boa calibração verificada | `ok` | 932 | 0,026 | 100% | 0 |
+| ENEM 2015 · Ciências Humanas · Reaplicação · Amarela (prova `272`) | Boa calibração verificada | `ok` | 859 | 0,026 | 100% | 0 |
+| ENEM 2015 · Ciências Humanas · Reaplicação · Branca (prova `273`) | Boa calibração verificada | `ok` | 865 | 0,025 | 100% | 0 |
+| ENEM 2015 · Ciências Humanas · Reaplicação · Rosa (prova `274`) | Boa calibração verificada | `ok` | 824 | 0,024 | 100% | 0 |
+| ENEM 2015 · Ciências da Natureza · 1ª aplicação · Azul (prova `235`) | Boa calibração verificada | `ok` | 1.499.931 | 0,025 | 100% | 0 |
+| ENEM 2015 · Ciências da Natureza · 1ª aplicação · Amarela (prova `236`) | Boa calibração verificada | `ok` | 1.413.458 | 0,025 | 100% | 0 |
+| ENEM 2015 · Ciências da Natureza · 1ª aplicação · Branca (prova `237`) | Boa calibração verificada | `ok` | 1.460.153 | 0,025 | 100% | 0 |
+| ENEM 2015 · Ciências da Natureza · 1ª aplicação · Rosa (prova `238`) | Boa calibração verificada | `ok` | 1.372.723 | 0,025 | 100% | 0 |
+| ENEM 2015 · Ciências da Natureza · Especiais · Branca adaptada (prova `252`) | Boa calibração verificada | `ok` | 3.108 | 0,025 | 100% | 0 |
+| ENEM 2015 · Ciências da Natureza · Reaplicação · Azul (prova `275`) | Boa calibração verificada | `ok` | 932 | 0,025 | 100% | 0 |
+| ENEM 2015 · Ciências da Natureza · Reaplicação · Amarela (prova `276`) | Boa calibração verificada | `ok` | 859 | 0,025 | 100% | 0 |
+| ENEM 2015 · Ciências da Natureza · Reaplicação · Branca (prova `277`) | Boa calibração verificada | `ok` | 866 | 0,185 | 99,88% | 1 |
+| ENEM 2015 · Ciências da Natureza · Reaplicação · Rosa (prova `278`) | Boa calibração verificada | `ok` | 824 | 0,025 | 100% | 0 |
+| ENEM 2015 · Linguagens · 1ª aplicação · Amarela (prova `239`) | Boa calibração verificada | `ok` | 1.469.354 | 0,025 | 99,99% | 1 |
+| ENEM 2015 · Linguagens · 1ª aplicação · Cinza (prova `240`) | Boa calibração verificada | `ok` | 1.385.832 | 0,025 | 100% | 0 |
+| ENEM 2015 · Linguagens · 1ª aplicação · Azul (prova `241`) | Boa calibração verificada | `ok` | 1.428.039 | 0,025 | 100% | 0 |
+| ENEM 2015 · Linguagens · 1ª aplicação · Rosa (prova `242`) | Boa calibração verificada | `ok` | 1.331.831 | 0,025 | 100% | 0 |
+| ENEM 2015 · Linguagens · Especiais · Cinza adaptada (prova `253`) | Boa calibração verificada | `ok` | 3.016 | 0,025 | 100% | 0 |
+| ENEM 2015 · Linguagens · Reaplicação · Amarela (prova `279`) | Boa calibração verificada | `ok` | 1.038 | 0,025 | 100% | 0 |
+| ENEM 2015 · Linguagens · Reaplicação · Cinza (prova `280`) | Boa calibração verificada | `ok` | 963 | 0,024 | 100% | 0 |
+| ENEM 2015 · Linguagens · Reaplicação · Azul (prova `281`) | Boa calibração verificada | `ok` | 978 | 0,025 | 100% | 0 |
+| ENEM 2015 · Linguagens · Reaplicação · Rosa (prova `282`) | Boa calibração verificada | `ok` | 911 | 0,026 | 100% | 0 |
+| ENEM 2015 · Matemática · 1ª aplicação · Amarela (prova `243`) | Boa calibração verificada | `ok` | 1.468.772 | 0,025 | 100% | 0 |
+| ENEM 2015 · Matemática · 1ª aplicação · Cinza (prova `244`) | Boa calibração verificada | `ok` | 1.385.347 | 0,025 | 100% | 0 |
+| ENEM 2015 · Matemática · 1ª aplicação · Azul (prova `245`) | Boa calibração verificada | `ok` | 1.427.502 | 0,025 | 100% | 0 |
+| ENEM 2015 · Matemática · 1ª aplicação · Rosa (prova `246`) | Boa calibração verificada | `ok` | 1.331.249 | 0,025 | 100% | 0 |
+| ENEM 2015 · Matemática · Especiais · Cinza adaptada (prova `254`) | Boa calibração verificada | `ok` | 3.007 | 0,025 | 100% | 0 |
+| ENEM 2015 · Matemática · Reaplicação · Amarela (prova `283`) | Boa calibração verificada | `ok` | 1.038 | 0,025 | 100% | 0 |
+| ENEM 2015 · Matemática · Reaplicação · Cinza (prova `284`) | Boa calibração verificada | `ok` | 963 | 0,025 | 100% | 0 |
+| ENEM 2015 · Matemática · Reaplicação · Azul (prova `285`) | Boa calibração verificada | `ok` | 977 | 0,024 | 100% | 0 |
+| ENEM 2015 · Matemática · Reaplicação · Rosa (prova `286`) | Boa calibração verificada | `ok` | 911 | 0,024 | 100% | 0 |
+| ENEM 2016 · Ciências Humanas · 1ª aplicação · Azul (prova `295`) | Boa calibração verificada | `ok` | 1.534.656 | 0,025 | 100% | 0 |
+| ENEM 2016 · Ciências Humanas · 1ª aplicação · Amarela (prova `296`) | Boa calibração verificada | `ok` | 1.433.033 | 0,025 | 100% | 0 |
+| ENEM 2016 · Ciências Humanas · 1ª aplicação · Branca (prova `297`) | Boa calibração verificada | `ok` | 1.483.334 | 0,025 | 100% | 0 |
+| ENEM 2016 · Ciências Humanas · 1ª aplicação · Rosa (prova `298`) | Boa calibração verificada | `ok` | 1.385.470 | 0,025 | 100% | 0 |
+| ENEM 2016 · Ciências Humanas · Especiais · Branca adaptada (prova `308`) | Boa calibração verificada | `ok` | 1.064 | 0,025 | 100% | 0 |
+| ENEM 2016 · Ciências Humanas · Reaplicação · Azul (prova `336`) | Boa calibração verificada | `ok` | 128 | 0,028 | 100% | 0 |
+| ENEM 2016 · Ciências Humanas · Reaplicação · Amarela (prova `337`) | Sem validação suficiente | `nao_calibrado` | 118 | 0,027 | 100% | 0 |
+| ENEM 2016 · Ciências Humanas · Reaplicação · Branca (prova `338`) | Sem validação suficiente | `nao_calibrado` | 108 | 0,027 | 100% | 0 |
+| ENEM 2016 · Ciências Humanas · Reaplicação · Rosa (prova `339`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2016 · Ciências Humanas · 2ª reaplicação · Azul (prova `356`) | Boa calibração verificada | `ok` | 42.341 | 0,025 | 100% | 0 |
+| ENEM 2016 · Ciências Humanas · 2ª reaplicação · Amarela (prova `357`) | Boa calibração verificada | `ok` | 38.584 | 0,025 | 100% | 0 |
+| ENEM 2016 · Ciências Humanas · 2ª reaplicação · Branca (prova `358`) | Boa calibração verificada | `ok` | 41.206 | 0,025 | 100% | 0 |
+| ENEM 2016 · Ciências Humanas · 2ª reaplicação · Rosa (prova `359`) | Boa calibração verificada | `ok` | 37.309 | 0,025 | 100% | 0 |
+| ENEM 2016 · Ciências Humanas · Especiais · Branca adaptada reaplicacao 2 (prova `360`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2016 · Ciências da Natureza · 1ª aplicação · Azul (prova `291`) | Boa calibração verificada | `ok` | 1.534.326 | 0,025 | 100% | 0 |
+| ENEM 2016 · Ciências da Natureza · 1ª aplicação · Amarela (prova `292`) | Boa calibração verificada | `ok` | 1.432.723 | 0,025 | 100% | 0 |
+| ENEM 2016 · Ciências da Natureza · 1ª aplicação · Branca (prova `293`) | Boa calibração verificada | `ok` | 1.483.031 | 0,025 | 100% | 0 |
+| ENEM 2016 · Ciências da Natureza · 1ª aplicação · Rosa (prova `294`) | Boa calibração verificada | `ok` | 1.385.223 | 0,025 | 100% | 0 |
+| ENEM 2016 · Ciências da Natureza · Especiais · Branca adaptada (prova `307`) | Boa calibração verificada | `ok` | 1.063 | 0,024 | 100% | 0 |
+| ENEM 2016 · Ciências da Natureza · Reaplicação · Azul (prova `331`) | Boa calibração verificada | `ok` | 128 | 0,026 | 100% | 0 |
+| ENEM 2016 · Ciências da Natureza · Reaplicação · Amarela (prova `332`) | Sem validação suficiente | `nao_calibrado` | 118 | 0,026 | 100% | 0 |
+| ENEM 2016 · Ciências da Natureza · Reaplicação · Branca (prova `333`) | Sem validação suficiente | `nao_calibrado` | 108 | 0,027 | 100% | 0 |
+| ENEM 2016 · Ciências da Natureza · Reaplicação · Rosa (prova `334`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2016 · Ciências da Natureza · 2ª reaplicação · Azul (prova `351`) | Boa calibração verificada | `ok` | 42.332 | 0,025 | 100% | 0 |
+| ENEM 2016 · Ciências da Natureza · 2ª reaplicação · Amarela (prova `352`) | Boa calibração verificada | `ok` | 38.584 | 0,025 | 100% | 0 |
+| ENEM 2016 · Ciências da Natureza · 2ª reaplicação · Branca (prova `353`) | Boa calibração verificada | `ok` | 41.196 | 0,025 | 100% | 0 |
+| ENEM 2016 · Ciências da Natureza · 2ª reaplicação · Rosa (prova `354`) | Boa calibração verificada | `ok` | 37.307 | 0,025 | 100% | 0 |
+| ENEM 2016 · Ciências da Natureza · Especiais · Branca adaptada reaplicacao 2 (prova `355`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2016 · Linguagens · 1ª aplicação · Azul (prova `299`) | Boa calibração verificada | `ok` | 1.446.560 | 0,025 | 100% | 0 |
+| ENEM 2016 · Linguagens · 1ª aplicação · Amarela (prova `300`) | Boa calibração verificada | `ok` | 1.495.532 | 0,025 | 100% | 0 |
+| ENEM 2016 · Linguagens · 1ª aplicação · Rosa (prova `301`) | Boa calibração verificada | `ok` | 1.340.585 | 0,025 | 100% | 0 |
+| ENEM 2016 · Linguagens · 1ª aplicação · Cinza (prova `302`) | Boa calibração verificada | `ok` | 1.402.371 | 0,025 | 100% | 0 |
+| ENEM 2016 · Linguagens · Especiais · Cinza adaptada (prova `309`) | Boa calibração verificada | `ok` | 745 | 0,025 | 100% | 0 |
+| ENEM 2016 · Linguagens · Reaplicação · Azul (prova `341`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2016 · Linguagens · Reaplicação · Amarela (prova `342`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2016 · Linguagens · Reaplicação · Rosa (prova `343`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2016 · Linguagens · Reaplicação · Cinza adaptada (prova `344`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2016 · Linguagens · 2ª reaplicação · Azul (prova `361`) | Boa calibração verificada | `ok` | 39.831 | 0,025 | 100% | 0 |
+| ENEM 2016 · Linguagens · 2ª reaplicação · Amarela (prova `362`) | Boa calibração verificada | `ok` | 41.158 | 0,025 | 100% | 0 |
+| ENEM 2016 · Linguagens · 2ª reaplicação · Rosa (prova `363`) | Boa calibração verificada | `ok` | 36.202 | 0,025 | 100% | 0 |
+| ENEM 2016 · Linguagens · 2ª reaplicação · Cinza (prova `364`) | Boa calibração verificada | `ok` | 38.059 | 0,025 | 100% | 0 |
+| ENEM 2016 · Linguagens · Especiais · Cinza adaptada reaplicacao 2 (prova `365`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2016 · Matemática · 1ª aplicação · Azul (prova `303`) | Boa calibração verificada | `ok` | 1.446.082 | 0,025 | 100% | 0 |
+| ENEM 2016 · Matemática · 1ª aplicação · Amarela (prova `304`) | Boa calibração verificada | `ok` | 1.495.043 | 0,025 | 100% | 0 |
+| ENEM 2016 · Matemática · 1ª aplicação · Rosa (prova `305`) | Boa calibração verificada | `ok` | 1.340.182 | 0,025 | 100% | 0 |
+| ENEM 2016 · Matemática · 1ª aplicação · Cinza (prova `306`) | Boa calibração verificada | `ok` | 1.402.045 | 0,025 | 100% | 0 |
+| ENEM 2016 · Matemática · Especiais · Cinza adaptada (prova `310`) | Boa calibração verificada | `ok` | 744 | 0,026 | 100% | 0 |
+| ENEM 2016 · Matemática · Reaplicação · Azul (prova `346`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2016 · Matemática · Reaplicação · Amarela (prova `347`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2016 · Matemática · Reaplicação · Rosa (prova `348`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2016 · Matemática · Reaplicação · Cinza (prova `349`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2016 · Matemática · 2ª reaplicação · Azul (prova `366`) | Boa calibração verificada | `ok` | 39.820 | 0,025 | 100% | 0 |
+| ENEM 2016 · Matemática · 2ª reaplicação · Amarela (prova `367`) | Boa calibração verificada | `ok` | 41.141 | 0,025 | 100% | 0 |
+| ENEM 2016 · Matemática · 2ª reaplicação · Rosa (prova `368`) | Boa calibração verificada | `ok` | 36.192 | 0,025 | 100% | 0 |
+| ENEM 2016 · Matemática · 2ª reaplicação · Cinza (prova `369`) | Boa calibração verificada | `ok` | 38.044 | 0,025 | 100% | 0 |
+| ENEM 2016 · Matemática · Especiais · Cinza adaptada reaplicacao 2 (prova `370`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2017 · Ciências Humanas · 1ª aplicação · Azul (prova `395`) | Boa calibração verificada | `ok` | 1.177.818 | 0,025 | 99,99% | 1 |
+| ENEM 2017 · Ciências Humanas · 1ª aplicação · Amarela (prova `396`) | Boa calibração verificada | `ok` | 1.170.887 | 0,025 | 100% | 0 |
+| ENEM 2017 · Ciências Humanas · 1ª aplicação · Branca (prova `397`) | Boa calibração verificada | `ok` | 1.171.123 | 0,025 | 100% | 0 |
+| ENEM 2017 · Ciências Humanas · 1ª aplicação · Rosa (prova `398`) | Boa calibração verificada | `ok` | 1.169.622 | 0,025 | 100% | 0 |
+| ENEM 2017 · Ciências Humanas · Especiais · Laranja adaptada ledor (prova `408`) | Boa calibração verificada | `ok` | 585 | 0,024 | 100% | 0 |
+| ENEM 2017 · Ciências Humanas · Especiais · Verde videoprova libras (prova `412`) | Boa calibração verificada | `ok` | 2.488 | 0,025 | 100% | 0 |
+| ENEM 2017 · Ciências Humanas · Reaplicação · Azul (prova `435`) | Boa calibração verificada | `ok` | 275 | 0,025 | 100% | 0 |
+| ENEM 2017 · Ciências Humanas · Reaplicação · Amarela (prova `436`) | Boa calibração verificada | `ok` | 248 | 0,025 | 100% | 0 |
+| ENEM 2017 · Ciências Humanas · Reaplicação · Branca (prova `437`) | Boa calibração verificada | `ok` | 242 | 0,025 | 100% | 0 |
+| ENEM 2017 · Ciências Humanas · Reaplicação · Rosa (prova `438`) | Boa calibração verificada | `ok` | 267 | 0,025 | 100% | 0 |
+| ENEM 2017 · Ciências da Natureza · 1ª aplicação · Azul (prova `391`) | Boa calibração verificada | `ok` | 1.106.975 | 0,025 | 100% | 0 |
+| ENEM 2017 · Ciências da Natureza · 1ª aplicação · Amarela (prova `392`) | Boa calibração verificada | `ok` | 1.112.964 | 0,025 | 99,99% | 1 |
+| ENEM 2017 · Ciências da Natureza · 1ª aplicação · Cinza (prova `393`) | Boa calibração verificada | `ok` | 1.107.091 | 0,025 | 100% | 0 |
+| ENEM 2017 · Ciências da Natureza · 1ª aplicação · Rosa (prova `394`) | Boa calibração verificada | `ok` | 1.106.892 | 0,025 | 100% | 0 |
+| ENEM 2017 · Ciências da Natureza · Especiais · Laranja adaptada ledor (prova `407`) | Boa calibração verificada | `ok` | 563 | 0,025 | 100% | 0 |
+| ENEM 2017 · Ciências da Natureza · Especiais · Verde videoprova libras (prova `411`) | Boa calibração verificada | `ok` | 2.416 | 0,025 | 100% | 0 |
+| ENEM 2017 · Ciências da Natureza · Reaplicação · Amarela (prova `431`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2017 · Ciências da Natureza · Reaplicação · Cinza (prova `432`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2017 · Ciências da Natureza · Reaplicação · Azul (prova `433`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2017 · Ciências da Natureza · Reaplicação · Rosa (prova `434`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2017 · Linguagens · 1ª aplicação · Azul (prova `399`) | Boa calibração verificada | `ok` | 1.178.908 | 0,025 | 99,99% | 1 |
+| ENEM 2017 · Linguagens · 1ª aplicação · Amarela (prova `400`) | Boa calibração verificada | `ok` | 1.171.973 | 0,025 | 100% | 0 |
+| ENEM 2017 · Linguagens · 1ª aplicação · Rosa (prova `401`) | Boa calibração verificada | `ok` | 1.170.725 | 0,025 | 100% | 0 |
+| ENEM 2017 · Linguagens · 1ª aplicação · Branca (prova `402`) | Boa calibração verificada | `ok` | 1.172.146 | 0,025 | 100% | 0 |
+| ENEM 2017 · Linguagens · Especiais · Laranja adaptada ledor (prova `409`) | Boa calibração verificada | `ok` | 586 | 0,026 | 100% | 0 |
+| ENEM 2017 · Linguagens · Especiais · Verde videoprova libras (prova `413`) | Boa calibração verificada | `ok` | 2.493 | 0,025 | 100% | 0 |
+| ENEM 2017 · Linguagens · Reaplicação · Azul (prova `439`) | Boa calibração verificada | `ok` | 275 | 0,024 | 100% | 0 |
+| ENEM 2017 · Linguagens · Reaplicação · Amarela (prova `440`) | Boa calibração verificada | `ok` | 248 | 0,024 | 100% | 0 |
+| ENEM 2017 · Linguagens · Reaplicação · Branca (prova `441`) | Boa calibração verificada | `ok` | 242 | 0,026 | 100% | 0 |
+| ENEM 2017 · Linguagens · Reaplicação · Rosa (prova `442`) | Boa calibração verificada | `ok` | 267 | 0,026 | 100% | 0 |
+| ENEM 2017 · Matemática · 1ª aplicação · Azul (prova `403`) | Boa calibração verificada | `ok` | 1.106.909 | 0,025 | 100% | 0 |
+| ENEM 2017 · Matemática · 1ª aplicação · Amarela (prova `404`) | Boa calibração verificada | `ok` | 1.112.905 | 0,025 | 99,99% | 1 |
+| ENEM 2017 · Matemática · 1ª aplicação · Rosa (prova `405`) | Boa calibração verificada | `ok` | 1.106.832 | 0,025 | 100% | 0 |
+| ENEM 2017 · Matemática · 1ª aplicação · Cinza (prova `406`) | Boa calibração verificada | `ok` | 1.107.056 | 0,025 | 100% | 0 |
+| ENEM 2017 · Matemática · Especiais · Laranja adaptada ledor (prova `410`) | Boa calibração verificada | `ok` | 563 | 0,025 | 100% | 0 |
+| ENEM 2017 · Matemática · Especiais · Verde videoprova libras (prova `414`) | Boa calibração verificada | `ok` | 2.415 | 0,025 | 100% | 0 |
+| ENEM 2017 · Matemática · Reaplicação · Amarela (prova `443`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2017 · Matemática · Reaplicação · Cinza (prova `444`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2017 · Matemática · Reaplicação · Azul (prova `445`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2017 · Matemática · Reaplicação · Rosa (prova `446`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2018 · Ciências Humanas · 1ª aplicação · Azul (prova `451`) | Boa calibração verificada | `ok` | 1.039.583 | 0,025 | 100% | 0 |
+| ENEM 2018 · Ciências Humanas · 1ª aplicação · Amarela (prova `452`) | Boa calibração verificada | `ok` | 1.032.395 | 0,025 | 100% | 0 |
+| ENEM 2018 · Ciências Humanas · 1ª aplicação · Branca (prova `453`) | Boa calibração verificada | `ok` | 1.032.554 | 0,025 | 100% | 0 |
+| ENEM 2018 · Ciências Humanas · 1ª aplicação · Rosa (prova `454`) | Boa calibração verificada | `ok` | 1.031.826 | 0,025 | 100% | 0 |
+| ENEM 2018 · Ciências Humanas · Especiais · Laranja adaptada ledor (prova `464`) | Boa calibração verificada | `ok` | 563 | 0,026 | 100% | 0 |
+| ENEM 2018 · Ciências Humanas · Especiais · Verde videoprova libras (prova `468`) | Boa calibração verificada | `ok` | 2.160 | 0,025 | 100% | 0 |
+| ENEM 2018 · Ciências Humanas · Reaplicação · Azul (prova `491`) | Boa calibração verificada | `ok` | 282 | 0,025 | 100% | 0 |
+| ENEM 2018 · Ciências Humanas · Reaplicação · Amarela (prova `492`) | Boa calibração verificada | `ok` | 299 | 0,026 | 100% | 0 |
+| ENEM 2018 · Ciências Humanas · Reaplicação · Branca (prova `493`) | Boa calibração verificada | `ok` | 253 | 0,025 | 100% | 0 |
+| ENEM 2018 · Ciências Humanas · Reaplicação · Rosa (prova `494`) | Boa calibração verificada | `ok` | 289 | 0,025 | 100% | 0 |
+| ENEM 2018 · Ciências da Natureza · 1ª aplicação · Azul (prova `447`) | Boa calibração verificada | `ok` | 973.247 | 0,025 | 100% | 0 |
+| ENEM 2018 · Ciências da Natureza · 1ª aplicação · Amarela (prova `448`) | Boa calibração verificada | `ok` | 981.301 | 0,025 | 100% | 0 |
+| ENEM 2018 · Ciências da Natureza · 1ª aplicação · Cinza (prova `449`) | Boa calibração verificada | `ok` | 974.107 | 0,025 | 100% | 0 |
+| ENEM 2018 · Ciências da Natureza · 1ª aplicação · Rosa (prova `450`) | Boa calibração verificada | `ok` | 973.116 | 0,025 | 100% | 0 |
+| ENEM 2018 · Ciências da Natureza · Especiais · Laranja adaptada ledor (prova `463`) | Boa calibração verificada | `ok` | 545 | 0,024 | 100% | 0 |
+| ENEM 2018 · Ciências da Natureza · Especiais · Verde videoprova libras (prova `467`) | Boa calibração verificada | `ok` | 2.052 | 0,025 | 100% | 0 |
+| ENEM 2018 · Ciências da Natureza · Reaplicação · Amarela (prova `487`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2018 · Ciências da Natureza · Reaplicação · Cinza (prova `488`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2018 · Ciências da Natureza · Reaplicação · Azul (prova `489`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2018 · Ciências da Natureza · Reaplicação · Rosa (prova `490`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2018 · Linguagens · 1ª aplicação · Azul (prova `455`) | Boa calibração verificada | `ok` | 1.040.556 | 0,025 | 100% | 0 |
+| ENEM 2018 · Linguagens · 1ª aplicação · Amarela (prova `456`) | Boa calibração verificada | `ok` | 1.033.414 | 0,025 | 100% | 0 |
+| ENEM 2018 · Linguagens · 1ª aplicação · Rosa (prova `457`) | Boa calibração verificada | `ok` | 1.032.842 | 0,025 | 100% | 0 |
+| ENEM 2018 · Linguagens · 1ª aplicação · Branca (prova `458`) | Boa calibração verificada | `ok` | 1.033.578 | 0,025 | 100% | 0 |
+| ENEM 2018 · Linguagens · Especiais · Laranja adaptada ledor (prova `465`) | Boa calibração verificada | `ok` | 565 | 0,025 | 100% | 0 |
+| ENEM 2018 · Linguagens · Especiais · Verde videoprova libras (prova `469`) | Boa calibração verificada | `ok` | 2.163 | 0,025 | 100% | 0 |
+| ENEM 2018 · Linguagens · Reaplicação · Azul (prova `495`) | Boa calibração verificada | `ok` | 282 | 0,025 | 100% | 0 |
+| ENEM 2018 · Linguagens · Reaplicação · Amarela (prova `496`) | Boa calibração verificada | `ok` | 299 | 0,026 | 100% | 0 |
+| ENEM 2018 · Linguagens · Reaplicação · Branca (prova `497`) | Boa calibração verificada | `ok` | 253 | 0,024 | 100% | 0 |
+| ENEM 2018 · Linguagens · Reaplicação · Rosa (prova `498`) | Boa calibração verificada | `ok` | 289 | 0,025 | 100% | 0 |
+| ENEM 2018 · Matemática · 1ª aplicação · Azul (prova `459`) | Boa calibração verificada | `ok` | 973.200 | 0,025 | 100% | 0 |
+| ENEM 2018 · Matemática · 1ª aplicação · Amarela (prova `460`) | Boa calibração verificada | `ok` | 981.291 | 0,025 | 100% | 0 |
+| ENEM 2018 · Matemática · 1ª aplicação · Rosa (prova `461`) | Boa calibração verificada | `ok` | 973.088 | 0,025 | 100% | 0 |
+| ENEM 2018 · Matemática · 1ª aplicação · Cinza (prova `462`) | Boa calibração verificada | `ok` | 974.038 | 0,025 | 100% | 0 |
+| ENEM 2018 · Matemática · Especiais · Laranja adaptada ledor (prova `466`) | Boa calibração verificada | `ok` | 544 | 0,025 | 100% | 0 |
+| ENEM 2018 · Matemática · Especiais · Verde videoprova libras (prova `470`) | Boa calibração verificada | `ok` | 2.052 | 0,024 | 100% | 0 |
+| ENEM 2018 · Matemática · Reaplicação · Amarela (prova `499`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2018 · Matemática · Reaplicação · Cinza (prova `500`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2018 · Matemática · Reaplicação · Azul (prova `501`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2018 · Matemática · Reaplicação · Rosa (prova `502`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2019 · Ciências Humanas · 1ª aplicação · Azul (prova `507`) | Boa calibração verificada | `ok` | 976.707 | 0,025 | 100% | 0 |
+| ENEM 2019 · Ciências Humanas · 1ª aplicação · Amarela (prova `508`) | Boa calibração verificada | `ok` | 985.002 | 0,025 | 100% | 0 |
+| ENEM 2019 · Ciências Humanas · 1ª aplicação · Branca (prova `509`) | Boa calibração verificada | `ok` | 976.733 | 0,025 | 100% | 0 |
+| ENEM 2019 · Ciências Humanas · 1ª aplicação · Rosa (prova `510`) | Boa calibração verificada | `ok` | 975.976 | 0,025 | 100% | 0 |
+| ENEM 2019 · Ciências Humanas · Especiais · Laranja adaptada ledor (prova `520`) | Boa calibração verificada | `ok` | 529 | 0,024 | 100% | 0 |
+| ENEM 2019 · Ciências Humanas · Especiais · Verde videoprova libras (prova `524`) | Boa calibração verificada | `ok` | 2.199 | 0,025 | 100% | 0 |
+| ENEM 2019 · Ciências Humanas · Reaplicação · Azul (prova `547`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2019 · Ciências Humanas · Reaplicação · Amarela (prova `548`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2019 · Ciências Humanas · Reaplicação · Branca (prova `549`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2019 · Ciências Humanas · Reaplicação · Rosa (prova `550`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2019 · Ciências Humanas · Especiais · Laranja adaptada ledor reaplicacao (prova `564`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2019 · Ciências da Natureza · 1ª aplicação · Azul (prova `503`) | Boa calibração verificada | `ok` | 924.324 | 0,025 | 100% | 0 |
+| ENEM 2019 · Ciências da Natureza · 1ª aplicação · Amarela (prova `504`) | Boa calibração verificada | `ok` | 925.371 | 0,025 | 100% | 0 |
+| ENEM 2019 · Ciências da Natureza · 1ª aplicação · Cinza (prova `505`) | Boa calibração verificada | `ok` | 933.374 | 0,025 | 100% | 0 |
+| ENEM 2019 · Ciências da Natureza · 1ª aplicação · Rosa (prova `506`) | Boa calibração verificada | `ok` | 924.066 | 0,025 | 100% | 0 |
+| ENEM 2019 · Ciências da Natureza · Especiais · Laranja adaptada ledor (prova `519`) | Boa calibração verificada | `ok` | 505 | 0,025 | 100% | 0 |
+| ENEM 2019 · Ciências da Natureza · Especiais · Verde videoprova libras (prova `523`) | Boa calibração verificada | `ok` | 2.089 | 0,025 | 100% | 0 |
+| ENEM 2019 · Ciências da Natureza · Reaplicação · Amarela (prova `543`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2019 · Ciências da Natureza · Reaplicação · Cinza (prova `544`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2019 · Ciências da Natureza · Reaplicação · Azul (prova `545`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2019 · Ciências da Natureza · Reaplicação · Rosa (prova `546`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2019 · Linguagens · 1ª aplicação · Azul (prova `511`) | Boa calibração verificada | `ok` | 977.379 | 0,025 | 100% | 0 |
+| ENEM 2019 · Linguagens · 1ª aplicação · Amarela (prova `512`) | Boa calibração verificada | `ok` | 985.717 | 0,025 | 100% | 0 |
+| ENEM 2019 · Linguagens · 1ª aplicação · Rosa (prova `513`) | Boa calibração verificada | `ok` | 976.678 | 0,025 | 100% | 0 |
+| ENEM 2019 · Linguagens · 1ª aplicação · Branca (prova `514`) | Boa calibração verificada | `ok` | 977.450 | 0,025 | 100% | 0 |
+| ENEM 2019 · Linguagens · Especiais · Laranja adaptada ledor (prova `521`) | Boa calibração verificada | `ok` | 532 | 0,025 | 100% | 0 |
+| ENEM 2019 · Linguagens · Especiais · Verde videoprova libras (prova `525`) | Boa calibração verificada | `ok` | 2.203 | 0,025 | 100% | 0 |
+| ENEM 2019 · Linguagens · Reaplicação · Azul (prova `551`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2019 · Linguagens · Reaplicação · Amarela (prova `552`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2019 · Linguagens · Reaplicação · Branca (prova `553`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2019 · Linguagens · Reaplicação · Rosa (prova `554`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2019 · Linguagens · Especiais · Laranja adaptada ledor reaplicacao (prova `565`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2019 · Matemática · 1ª aplicação · Azul (prova `515`) | Boa calibração verificada | `ok` | 924.293 | 0,026 | 100% | 0 |
+| ENEM 2019 · Matemática · 1ª aplicação · Amarela (prova `516`) | Boa calibração verificada | `ok` | 925.354 | 0,026 | 100% | 0 |
+| ENEM 2019 · Matemática · 1ª aplicação · Rosa (prova `517`) | Boa calibração verificada | `ok` | 924.015 | 0,026 | 100% | 0 |
+| ENEM 2019 · Matemática · 1ª aplicação · Cinza (prova `518`) | Boa calibração verificada | `ok` | 933.333 | 0,026 | 100% | 0 |
+| ENEM 2019 · Matemática · Especiais · Laranja adaptada ledor (prova `522`) | Boa calibração verificada | `ok` | 505 | 0,027 | 100% | 0 |
+| ENEM 2019 · Matemática · Especiais · Verde videoprova libras (prova `526`) | Boa calibração verificada | `ok` | 2.088 | 0,026 | 100% | 0 |
+| ENEM 2019 · Matemática · Reaplicação · Amarela (prova `555`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2019 · Matemática · Reaplicação · Cinza (prova `556`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2019 · Matemática · Reaplicação · Azul (prova `557`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2019 · Matemática · Reaplicação · Rosa (prova `558`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2020 · Ciências Humanas · 1ª aplicação · Azul (prova `567`) | Boa calibração verificada | `ok` | 662.454 | 0,025 | 100% | 0 |
+| ENEM 2020 · Ciências Humanas · 1ª aplicação · Amarela (prova `568`) | Boa calibração verificada | `ok` | 662.624 | 0,025 | 100% | 0 |
+| ENEM 2020 · Ciências Humanas · 1ª aplicação · Branca (prova `569`) | Boa calibração verificada | `ok` | 662.457 | 0,025 | 100% | 0 |
+| ENEM 2020 · Ciências Humanas · 1ª aplicação · Rosa (prova `570`) | Boa calibração verificada | `ok` | 669.695 | 0,025 | 100% | 0 |
+| ENEM 2020 · Ciências Humanas · Especiais · Rosa ampliada (prova `571`) | Sem validação suficiente | `sem_itens` | — | — | — | — |
+| ENEM 2020 · Ciências Humanas · Especiais · Rosa superampliada (prova `572`) | Sem validação suficiente | `sem_itens` | — | — | — | — |
+| ENEM 2020 · Ciências Humanas · Especiais · Laranja adaptada ledor (prova `574`) | Boa calibração verificada | `ok` | 376 | 0,026 | 100% | 0 |
+| ENEM 2020 · Ciências Humanas · Especiais · Verde videoprova libras (prova `575`) | Boa calibração verificada | `ok` | 1.195 | 0,025 | 100% | 0 |
+| ENEM 2020 · Ciências Humanas · Reaplicação · Azul (prova `647`) | Boa calibração verificada | `ok` | 15.289 | 0,025 | 100% | 0 |
+| ENEM 2020 · Ciências Humanas · Reaplicação · Amarela (prova `648`) | Boa calibração verificada | `ok` | 15.474 | 0,025 | 100% | 0 |
+| ENEM 2020 · Ciências Humanas · Reaplicação · Branca (prova `649`) | Boa calibração verificada | `ok` | 15.438 | 0,025 | 100% | 0 |
+| ENEM 2020 · Ciências Humanas · Reaplicação · Rosa (prova `650`) | Boa calibração verificada | `ok` | 15.477 | 0,025 | 100% | 0 |
+| ENEM 2020 · Ciências Humanas · Especiais · Laranja adaptada ledor reaplicacao (prova `654`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2020 · Ciências Humanas · Prova digital · Azul (prova `687`) | Boa calibração verificada | `ok` | 7.185 | 0,025 | 100% | 0 |
+| ENEM 2020 · Ciências Humanas · Prova digital · Amarela (prova `688`) | Boa calibração verificada | `ok` | 7.078 | 0,025 | 100% | 0 |
+| ENEM 2020 · Ciências Humanas · Prova digital · Branca (prova `689`) | Boa calibração verificada | `ok` | 7.191 | 0,025 | 100% | 0 |
+| ENEM 2020 · Ciências Humanas · Prova digital · Rosa (prova `690`) | Boa calibração verificada | `ok` | 7.140 | 0,025 | 100% | 0 |
+| ENEM 2020 · Ciências da Natureza · 1ª aplicação · Azul (prova `597`) | Boa calibração verificada | `ok` | 624.559 | 0,025 | 100% | 0 |
+| ENEM 2020 · Ciências da Natureza · 1ª aplicação · Amarela (prova `598`) | Boa calibração verificada | `ok` | 624.870 | 0,025 | 100% | 0 |
+| ENEM 2020 · Ciências da Natureza · 1ª aplicação · Cinza (prova `599`) | Boa calibração verificada | `ok` | 624.680 | 0,025 | 100% | 0 |
+| ENEM 2020 · Ciências da Natureza · 1ª aplicação · Rosa (prova `600`) | Boa calibração verificada | `ok` | 632.392 | 0,025 | 100% | 0 |
+| ENEM 2020 · Ciências da Natureza · Especiais · Rosa ampliada (prova `601`) | Sem validação suficiente | `sem_itens` | — | — | — | — |
+| ENEM 2020 · Ciências da Natureza · Especiais · Rosa superampliada (prova `602`) | Sem validação suficiente | `sem_itens` | — | — | — | — |
+| ENEM 2020 · Ciências da Natureza · Especiais · Laranja adaptada ledor (prova `604`) | Boa calibração verificada | `ok` | 360 | 0,024 | 100% | 0 |
+| ENEM 2020 · Ciências da Natureza · Especiais · Verde videoprova libras (prova `605`) | Boa calibração verificada | `ok` | 1.160 | 0,026 | 100% | 0 |
+| ENEM 2020 · Ciências da Natureza · Reaplicação · Azul (prova `677`) | Boa calibração verificada | `ok` | 15.642 | 0,025 | 100% | 0 |
+| ENEM 2020 · Ciências da Natureza · Reaplicação · Amarela (prova `678`) | Boa calibração verificada | `ok` | 15.503 | 0,025 | 100% | 0 |
+| ENEM 2020 · Ciências da Natureza · Reaplicação · Cinza (prova `679`) | Boa calibração verificada | `ok` | 15.571 | 0,025 | 100% | 0 |
+| ENEM 2020 · Ciências da Natureza · Reaplicação · Rosa (prova `680`) | Boa calibração verificada | `ok` | 15.580 | 0,025 | 100% | 0 |
+| ENEM 2020 · Ciências da Natureza · Especiais · Laranja adaptada ledor reaplicacao (prova `684`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2020 · Ciências da Natureza · Prova digital · Azul (prova `699`) | Boa calibração verificada | `ok` | 6.642 | 0,025 | 100% | 0 |
+| ENEM 2020 · Ciências da Natureza · Prova digital · Amarela (prova `700`) | Boa calibração verificada | `ok` | 6.538 | 0,025 | 100% | 0 |
+| ENEM 2020 · Ciências da Natureza · Prova digital · Rosa (prova `701`) | Boa calibração verificada | `ok` | 6.583 | 0,025 | 100% | 0 |
+| ENEM 2020 · Ciências da Natureza · Prova digital · Cinza (prova `702`) | Boa calibração verificada | `ok` | 6.655 | 0,025 | 100% | 0 |
+| ENEM 2020 · Linguagens · 1ª aplicação · Azul (prova `577`) | Boa calibração verificada | `ok` | 663.103 | 0,025 | 100% | 0 |
+| ENEM 2020 · Linguagens · 1ª aplicação · Amarela (prova `578`) | Boa calibração verificada | `ok` | 663.261 | 0,025 | 100% | 0 |
+| ENEM 2020 · Linguagens · 1ª aplicação · Rosa (prova `579`) | Boa calibração verificada | `ok` | 670.334 | 0,025 | 100% | 0 |
+| ENEM 2020 · Linguagens · 1ª aplicação · Branca (prova `580`) | Boa calibração verificada | `ok` | 663.075 | 0,025 | 100% | 0 |
+| ENEM 2020 · Linguagens · Especiais · Rosa ampliada (prova `581`) | Sem validação suficiente | `sem_itens` | — | — | — | — |
+| ENEM 2020 · Linguagens · Especiais · Rosa superampliada (prova `582`) | Sem validação suficiente | `sem_itens` | — | — | — | — |
+| ENEM 2020 · Linguagens · Especiais · Laranja adaptada ledor (prova `584`) | Boa calibração verificada | `ok` | 379 | 0,025 | 100% | 0 |
+| ENEM 2020 · Linguagens · Especiais · Verde videoprova libras (prova `585`) | Boa calibração verificada | `ok` | 1.201 | 0,026 | 100% | 0 |
+| ENEM 2020 · Linguagens · Reaplicação · Azul (prova `657`) | Boa calibração verificada | `ok` | 15.308 | 0,025 | 100% | 0 |
+| ENEM 2020 · Linguagens · Reaplicação · Amarela (prova `658`) | Boa calibração verificada | `ok` | 15.486 | 0,025 | 100% | 0 |
+| ENEM 2020 · Linguagens · Reaplicação · Rosa (prova `659`) | Boa calibração verificada | `ok` | 15.499 | 0,025 | 100% | 0 |
+| ENEM 2020 · Linguagens · Reaplicação · Branca (prova `660`) | Boa calibração verificada | `ok` | 15.460 | 0,025 | 100% | 0 |
+| ENEM 2020 · Linguagens · Especiais · Laranja adaptada ledor reaplicacao (prova `664`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2020 · Linguagens · Prova digital · Azul (prova `691`) | Boa calibração verificada | `ok` | 7.210 | 0,025 | 100% | 0 |
+| ENEM 2020 · Linguagens · Prova digital · Amarela (prova `692`) | Boa calibração verificada | `ok` | 7.102 | 0,025 | 100% | 0 |
+| ENEM 2020 · Linguagens · Prova digital · Branca (prova `693`) | Boa calibração verificada | `ok` | 7.208 | 0,025 | 100% | 0 |
+| ENEM 2020 · Linguagens · Prova digital · Rosa (prova `694`) | Boa calibração verificada | `ok` | 7.165 | 0,025 | 100% | 0 |
+| ENEM 2020 · Matemática · 1ª aplicação · Azul (prova `587`) | Boa calibração verificada | `ok` | 624.507 | 0,025 | 100% | 0 |
+| ENEM 2020 · Matemática · 1ª aplicação · Amarela (prova `588`) | Boa calibração verificada | `ok` | 624.814 | 0,025 | 100% | 0 |
+| ENEM 2020 · Matemática · 1ª aplicação · Rosa (prova `589`) | Boa calibração verificada | `ok` | 632.351 | 0,025 | 100% | 0 |
+| ENEM 2020 · Matemática · 1ª aplicação · Cinza (prova `590`) | Boa calibração verificada | `ok` | 624.627 | 0,025 | 100% | 0 |
+| ENEM 2020 · Matemática · Especiais · Rosa ampliada (prova `591`) | Sem validação suficiente | `sem_itens` | — | — | — | — |
+| ENEM 2020 · Matemática · Especiais · Rosa superampliada (prova `592`) | Sem validação suficiente | `sem_itens` | — | — | — | — |
+| ENEM 2020 · Matemática · Especiais · Laranja adaptada ledor (prova `594`) | Boa calibração verificada | `ok` | 360 | 0,023 | 100% | 0 |
+| ENEM 2020 · Matemática · Especiais · Verde videoprova libras (prova `595`) | Boa calibração verificada | `ok` | 1.158 | 0,026 | 100% | 0 |
+| ENEM 2020 · Matemática · Reaplicação · Azul (prova `667`) | Boa calibração verificada | `ok` | 15.641 | 0,025 | 100% | 0 |
+| ENEM 2020 · Matemática · Reaplicação · Amarela (prova `668`) | Boa calibração verificada | `ok` | 15.501 | 0,025 | 100% | 0 |
+| ENEM 2020 · Matemática · Reaplicação · Rosa (prova `669`) | Boa calibração verificada | `ok` | 15.580 | 0,025 | 100% | 0 |
+| ENEM 2020 · Matemática · Reaplicação · Cinza (prova `670`) | Boa calibração verificada | `ok` | 15.571 | 0,025 | 100% | 0 |
+| ENEM 2020 · Matemática · Especiais · Laranja adaptada ledor reaplicacao (prova `674`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2020 · Matemática · Prova digital · Azul (prova `695`) | Boa calibração verificada | `ok` | 6.643 | 0,025 | 100% | 0 |
+| ENEM 2020 · Matemática · Prova digital · Amarela (prova `696`) | Boa calibração verificada | `ok` | 6.538 | 0,025 | 100% | 0 |
+| ENEM 2020 · Matemática · Prova digital · Rosa (prova `697`) | Boa calibração verificada | `ok` | 6.583 | 0,025 | 100% | 0 |
+| ENEM 2020 · Matemática · Prova digital · Cinza (prova `698`) | Boa calibração verificada | `ok` | 6.653 | 0,025 | 100% | 0 |
+| ENEM 2021 · Ciências Humanas · 1ª aplicação · Azul (prova `879`) | Boa calibração verificada | `ok` | 562.486 | 0,025 | 100% | 0 |
+| ENEM 2021 · Ciências Humanas · 1ª aplicação · Amarela (prova `880`) | Boa calibração verificada | `ok` | 570.110 | 0,025 | 100% | 0 |
+| ENEM 2021 · Ciências Humanas · 1ª aplicação · Branca (prova `881`) | Boa calibração verificada | `ok` | 562.890 | 0,025 | 100% | 0 |
+| ENEM 2021 · Ciências Humanas · 1ª aplicação · Rosa (prova `882`) | Boa calibração verificada | `ok` | 562.941 | 0,025 | 100% | 0 |
+| ENEM 2021 · Ciências Humanas · Especiais · Laranja braille (prova `885`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2021 · Ciências Humanas · Especiais · Laranja adaptada ledor (prova `886`) | Boa calibração verificada | `ok` | 321 | 0,025 | 100% | 0 |
+| ENEM 2021 · Ciências Humanas · Especiais · Verde videoprova libras (prova `887`) | Boa calibração verificada | `ok` | 911 | 0,025 | 100% | 0 |
+| ENEM 2021 · Ciências Humanas · Reaplicação · Azul (prova `959`) | Boa calibração verificada | `ok` | 552 | 0,026 | 100% | 0 |
+| ENEM 2021 · Ciências Humanas · Reaplicação · Amarela (prova `960`) | Boa calibração verificada | `ok` | 559 | 0,024 | 100% | 0 |
+| ENEM 2021 · Ciências Humanas · Reaplicação · Branca (prova `961`) | Boa calibração verificada | `ok` | 544 | 0,026 | 100% | 0 |
+| ENEM 2021 · Ciências Humanas · Reaplicação · Rosa (prova `962`) | Boa calibração verificada | `ok` | 528 | 0,025 | 100% | 0 |
+| ENEM 2021 · Ciências Humanas · Especiais · Laranja adaptada ledor reaplicacao (prova `966`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2021 · Ciências Humanas · Prova digital · Azul (prova `999`) | Boa calibração verificada | `ok` | 9.151 | 0,025 | 100% | 0 |
+| ENEM 2021 · Ciências Humanas · Prova digital · Amarela (prova `1000`) | Boa calibração verificada | `ok` | 9.276 | 0,025 | 100% | 0 |
+| ENEM 2021 · Ciências Humanas · Prova digital · Branca (prova `1001`) | Boa calibração verificada | `ok` | 9.191 | 0,025 | 100% | 0 |
+| ENEM 2021 · Ciências Humanas · Prova digital · Rosa (prova `1002`) | Boa calibração verificada | `ok` | 9.126 | 0,025 | 100% | 0 |
+| ENEM 2021 · Ciências Humanas · Segunda oportunidade · Azul (prova `1015`) | Boa calibração verificada | `ok` | 18.691 | 0,025 | 100% | 0 |
+| ENEM 2021 · Ciências Humanas · Segunda oportunidade · Amarela (prova `1016`) | Boa calibração verificada | `ok` | 19.074 | 0,025 | 100% | 0 |
+| ENEM 2021 · Ciências Humanas · Segunda oportunidade · Branca (prova `1017`) | Boa calibração verificada | `ok` | 18.737 | 0,025 | 100% | 0 |
+| ENEM 2021 · Ciências Humanas · Segunda oportunidade · Rosa (prova `1018`) | Boa calibração verificada | `ok` | 18.659 | 0,025 | 100% | 0 |
+| ENEM 2021 · Ciências Humanas · Especiais · Laranja adaptada ledor segunda oportunidade (prova `1022`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2021 · Ciências da Natureza · 1ª aplicação · Azul (prova `909`) | Boa calibração verificada | `ok` | 533.837 | 0,025 | 100% | 0 |
+| ENEM 2021 · Ciências da Natureza · 1ª aplicação · Amarela (prova `910`) | Boa calibração verificada | `ok` | 540.436 | 0,025 | 100% | 0 |
+| ENEM 2021 · Ciências da Natureza · 1ª aplicação · Cinza (prova `911`) | Boa calibração verificada | `ok` | 534.679 | 0,025 | 100% | 0 |
+| ENEM 2021 · Ciências da Natureza · 1ª aplicação · Rosa (prova `912`) | Boa calibração verificada | `ok` | 534.446 | 0,025 | 100% | 0 |
+| ENEM 2021 · Ciências da Natureza · Especiais · Laranja braille (prova `915`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2021 · Ciências da Natureza · Especiais · Laranja adaptada ledor (prova `916`) | Boa calibração verificada | `ok` | 310 | 0,026 | 100% | 0 |
+| ENEM 2021 · Ciências da Natureza · Especiais · Verde videoprova libras (prova `917`) | Boa calibração verificada | `ok` | 874 | 0,025 | 100% | 0 |
+| ENEM 2021 · Ciências da Natureza · Reaplicação · Azul (prova `989`) | Boa calibração verificada | `ok` | 430 | 0,026 | 100% | 0 |
+| ENEM 2021 · Ciências da Natureza · Reaplicação · Amarela (prova `990`) | Boa calibração verificada | `ok` | 449 | 0,026 | 100% | 0 |
+| ENEM 2021 · Ciências da Natureza · Reaplicação · Cinza (prova `991`) | Boa calibração verificada | `ok` | 421 | 0,026 | 100% | 0 |
+| ENEM 2021 · Ciências da Natureza · Reaplicação · Rosa (prova `992`) | Boa calibração verificada | `ok` | 431 | 0,025 | 100% | 0 |
+| ENEM 2021 · Ciências da Natureza · Especiais · Laranja adaptada ledor reaplicacao (prova `996`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2021 · Ciências da Natureza · Prova digital · Azul (prova `1011`) | Boa calibração verificada | `ok` | 8.581 | 0,025 | 100% | 0 |
+| ENEM 2021 · Ciências da Natureza · Prova digital · Amarela (prova `1012`) | Boa calibração verificada | `ok` | 8.507 | 0,025 | 100% | 0 |
+| ENEM 2021 · Ciências da Natureza · Prova digital · Rosa (prova `1013`) | Boa calibração verificada | `ok` | 8.469 | 0,025 | 100% | 0 |
+| ENEM 2021 · Ciências da Natureza · Prova digital · Cinza (prova `1014`) | Boa calibração verificada | `ok` | 8.615 | 0,025 | 100% | 0 |
+| ENEM 2021 · Ciências da Natureza · Segunda oportunidade · Azul (prova `1045`) | Boa calibração verificada | `ok` | 16.081 | 0,025 | 100% | 0 |
+| ENEM 2021 · Ciências da Natureza · Segunda oportunidade · Amarela (prova `1046`) | Boa calibração verificada | `ok` | 16.487 | 0,025 | 100% | 0 |
+| ENEM 2021 · Ciências da Natureza · Segunda oportunidade · Cinza (prova `1047`) | Boa calibração verificada | `ok` | 16.224 | 0,025 | 100% | 0 |
+| ENEM 2021 · Ciências da Natureza · Segunda oportunidade · Rosa (prova `1048`) | Boa calibração verificada | `ok` | 16.174 | 0,025 | 100% | 0 |
+| ENEM 2021 · Ciências da Natureza · Especiais · Laranja adaptada ledor segunda oportunidade (prova `1052`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2021 · Linguagens · 1ª aplicação · Azul (prova `889`) | Boa calibração verificada | `ok` | 563.051 | 0,025 | 100% | 0 |
+| ENEM 2021 · Linguagens · 1ª aplicação · Amarela (prova `890`) | Boa calibração verificada | `ok` | 570.642 | 0,025 | 100% | 0 |
+| ENEM 2021 · Linguagens · 1ª aplicação · Rosa (prova `891`) | Boa calibração verificada | `ok` | 563.492 | 0,025 | 100% | 0 |
+| ENEM 2021 · Linguagens · 1ª aplicação · Branca (prova `892`) | Boa calibração verificada | `ok` | 563.456 | 0,025 | 100% | 0 |
+| ENEM 2021 · Linguagens · Especiais · Laranja braille (prova `895`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2021 · Linguagens · Especiais · Laranja adaptada ledor (prova `896`) | Boa calibração verificada | `ok` | 324 | 0,035 | 100% | 0 |
+| ENEM 2021 · Linguagens · Especiais · Verde videoprova libras (prova `897`) | Boa calibração verificada | `ok` | 915 | 0,032 | 100% | 0 |
+| ENEM 2021 · Linguagens · Reaplicação · Azul (prova `969`) | Boa calibração verificada | `ok` | 552 | 0,026 | 100% | 0 |
+| ENEM 2021 · Linguagens · Reaplicação · Amarela (prova `970`) | Boa calibração verificada | `ok` | 559 | 0,026 | 100% | 0 |
+| ENEM 2021 · Linguagens · Reaplicação · Rosa (prova `971`) | Boa calibração verificada | `ok` | 529 | 0,025 | 100% | 0 |
+| ENEM 2021 · Linguagens · Reaplicação · Branca (prova `972`) | Boa calibração verificada | `ok` | 544 | 0,025 | 100% | 0 |
+| ENEM 2021 · Linguagens · Especiais · Laranja adaptada ledor reaplicacao (prova `976`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2021 · Linguagens · Prova digital · Azul (prova `1003`) | Boa calibração verificada | `ok` | 9.173 | 0,025 | 100% | 0 |
+| ENEM 2021 · Linguagens · Prova digital · Amarela (prova `1004`) | Boa calibração verificada | `ok` | 9.306 | 0,025 | 100% | 0 |
+| ENEM 2021 · Linguagens · Prova digital · Branca (prova `1005`) | Boa calibração verificada | `ok` | 9.215 | 0,025 | 100% | 0 |
+| ENEM 2021 · Linguagens · Prova digital · Rosa (prova `1006`) | Boa calibração verificada | `ok` | 9.142 | 0,025 | 100% | 0 |
+| ENEM 2021 · Linguagens · Segunda oportunidade · Azul (prova `1025`) | Boa calibração verificada | `ok` | 18.711 | 0,025 | 100% | 0 |
+| ENEM 2021 · Linguagens · Segunda oportunidade · Amarela (prova `1026`) | Boa calibração verificada | `ok` | 19.094 | 0,025 | 100% | 0 |
+| ENEM 2021 · Linguagens · Segunda oportunidade · Rosa (prova `1027`) | Boa calibração verificada | `ok` | 18.676 | 0,025 | 100% | 0 |
+| ENEM 2021 · Linguagens · Segunda oportunidade · Branca (prova `1028`) | Boa calibração verificada | `ok` | 18.750 | 0,025 | 100% | 0 |
+| ENEM 2021 · Linguagens · Especiais · Laranja adaptada ledor segunda oportunidade (prova `1032`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2021 · Matemática · 1ª aplicação · Azul (prova `899`) | Boa calibração verificada | `ok` | 533.833 | 0,025 | 100% | 0 |
+| ENEM 2021 · Matemática · 1ª aplicação · Amarela (prova `900`) | Boa calibração verificada | `ok` | 540.430 | 0,025 | 100% | 0 |
+| ENEM 2021 · Matemática · 1ª aplicação · Rosa (prova `901`) | Boa calibração verificada | `ok` | 534.425 | 0,025 | 100% | 0 |
+| ENEM 2021 · Matemática · 1ª aplicação · Cinza (prova `902`) | Boa calibração verificada | `ok` | 534.657 | 0,025 | 100% | 0 |
+| ENEM 2021 · Matemática · Especiais · Laranja braille (prova `905`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2021 · Matemática · Especiais · Laranja adaptada ledor (prova `906`) | Boa calibração verificada | `ok` | 309 | 0,027 | 100% | 0 |
+| ENEM 2021 · Matemática · Especiais · Verde videoprova libras (prova `907`) | Boa calibração verificada | `ok` | 874 | 0,025 | 100% | 0 |
+| ENEM 2021 · Matemática · Reaplicação · Azul (prova `979`) | Boa calibração verificada | `ok` | 430 | 0,025 | 100% | 0 |
+| ENEM 2021 · Matemática · Reaplicação · Amarela (prova `980`) | Boa calibração verificada | `ok` | 449 | 0,025 | 100% | 0 |
+| ENEM 2021 · Matemática · Reaplicação · Rosa (prova `981`) | Boa calibração verificada | `ok` | 430 | 0,025 | 100% | 0 |
+| ENEM 2021 · Matemática · Reaplicação · Cinza (prova `982`) | Boa calibração verificada | `ok` | 421 | 0,026 | 100% | 0 |
+| ENEM 2021 · Matemática · Especiais · Laranja adaptada ledor reaplicacao (prova `986`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2021 · Matemática · Prova digital · Azul (prova `1007`) | Boa calibração verificada | `ok` | 8.582 | 0,025 | 100% | 0 |
+| ENEM 2021 · Matemática · Prova digital · Amarela (prova `1008`) | Boa calibração verificada | `ok` | 8.507 | 0,025 | 100% | 0 |
+| ENEM 2021 · Matemática · Prova digital · Rosa (prova `1009`) | Boa calibração verificada | `ok` | 8.470 | 0,025 | 100% | 0 |
+| ENEM 2021 · Matemática · Prova digital · Cinza (prova `1010`) | Boa calibração verificada | `ok` | 8.615 | 0,025 | 100% | 0 |
+| ENEM 2021 · Matemática · Segunda oportunidade · Azul (prova `1035`) | Boa calibração verificada | `ok` | 16.077 | 0,025 | 100% | 0 |
+| ENEM 2021 · Matemática · Segunda oportunidade · Amarela (prova `1036`) | Boa calibração verificada | `ok` | 16.485 | 0,025 | 100% | 0 |
+| ENEM 2021 · Matemática · Segunda oportunidade · Cinza (prova `1037`) | Boa calibração verificada | `ok` | 16.172 | 0,025 | 100% | 0 |
+| ENEM 2021 · Matemática · Segunda oportunidade · Rosa (prova `1038`) | Boa calibração verificada | `ok` | 16.225 | 0,025 | 100% | 0 |
+| ENEM 2021 · Matemática · Especiais · Laranja adaptada ledor segunda oportunidade (prova `1042`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2022 · Ciências Humanas · 1ª aplicação · Azul (prova `1055`) | Boa calibração verificada | `ok` | 612.124 | 0,025 | 100% | 0 |
+| ENEM 2022 · Ciências Humanas · 1ª aplicação · Amarela (prova `1056`) | Boa calibração verificada | `ok` | 611.101 | 0,025 | 100% | 0 |
+| ENEM 2022 · Ciências Humanas · 1ª aplicação · Branca (prova `1057`) | Boa calibração verificada | `ok` | 619.997 | 0,025 | 100% | 0 |
+| ENEM 2022 · Ciências Humanas · 1ª aplicação · Rosa (prova `1058`) | Boa calibração verificada | `ok` | 611.385 | 0,025 | 100% | 0 |
+| ENEM 2022 · Ciências Humanas · Especiais · Laranja adaptada ledor (prova `1062`) | Boa calibração verificada | `ok` | 348 | 0,024 | 100% | 0 |
+| ENEM 2022 · Ciências Humanas · Especiais · Verde videoprova libras (prova `1063`) | Boa calibração verificada | `ok` | 993 | 0,024 | 100% | 0 |
+| ENEM 2022 · Ciências Humanas · Reaplicação · Azul (prova `1135`) | Boa calibração verificada | `ok` | 243 | 0,026 | 100% | 0 |
+| ENEM 2022 · Ciências Humanas · Reaplicação · Amarela (prova `1136`) | Boa calibração verificada | `ok` | 244 | 0,026 | 100% | 0 |
+| ENEM 2022 · Ciências Humanas · Reaplicação · Branca (prova `1137`) | Boa calibração verificada | `ok` | 237 | 0,025 | 100% | 0 |
+| ENEM 2022 · Ciências Humanas · Reaplicação · Rosa (prova `1138`) | Boa calibração verificada | `ok` | 213 | 0,024 | 100% | 0 |
+| ENEM 2022 · Ciências Humanas · Prova digital · Azul (prova `1175`) | Boa calibração verificada | `ok` | 7.970 | 0,025 | 100% | 0 |
+| ENEM 2022 · Ciências Humanas · Prova digital · Amarela (prova `1176`) | Boa calibração verificada | `ok` | 8.009 | 0,025 | 100% | 0 |
+| ENEM 2022 · Ciências Humanas · Prova digital · Branca (prova `1177`) | Boa calibração verificada | `ok` | 8.007 | 0,025 | 100% | 0 |
+| ENEM 2022 · Ciências Humanas · Prova digital · Rosa (prova `1178`) | Boa calibração verificada | `ok` | 8.098 | 0,025 | 100% | 0 |
+| ENEM 2022 · Ciências da Natureza · 1ª aplicação · Azul (prova `1085`) | Boa calibração verificada | `ok` | 578.660 | 0,025 | 100% | 0 |
+| ENEM 2022 · Ciências da Natureza · 1ª aplicação · Amarela (prova `1086`) | Boa calibração verificada | `ok` | 578.571 | 0,025 | 100% | 0 |
+| ENEM 2022 · Ciências da Natureza · 1ª aplicação · Cinza (prova `1087`) | Boa calibração verificada | `ok` | 586.074 | 0,025 | 100% | 0 |
+| ENEM 2022 · Ciências da Natureza · 1ª aplicação · Rosa (prova `1088`) | Boa calibração verificada | `ok` | 578.576 | 0,025 | 100% | 0 |
+| ENEM 2022 · Ciências da Natureza · Especiais · Laranja adaptada ledor (prova `1092`) | Boa calibração verificada | `ok` | 339 | 0,025 | 100% | 0 |
+| ENEM 2022 · Ciências da Natureza · Especiais · Verde videoprova libras (prova `1093`) | Boa calibração verificada | `ok` | 949 | 0,026 | 100% | 0 |
+| ENEM 2022 · Ciências da Natureza · Reaplicação · Azul (prova `1165`) | Boa calibração verificada | `ok` | 513 | 0,024 | 100% | 0 |
+| ENEM 2022 · Ciências da Natureza · Reaplicação · Amarela (prova `1166`) | Boa calibração verificada | `ok` | 533 | 0,024 | 100% | 0 |
+| ENEM 2022 · Ciências da Natureza · Reaplicação · Cinza (prova `1167`) | Boa calibração verificada | `ok` | 540 | 0,024 | 100% | 0 |
+| ENEM 2022 · Ciências da Natureza · Reaplicação · Rosa (prova `1168`) | Boa calibração verificada | `ok` | 501 | 0,026 | 100% | 0 |
+| ENEM 2022 · Ciências da Natureza · Prova digital · Azul (prova `1187`) | Boa calibração verificada | `ok` | 7.420 | 0,025 | 100% | 0 |
+| ENEM 2022 · Ciências da Natureza · Prova digital · Amarela (prova `1188`) | Boa calibração verificada | `ok` | 7.345 | 0,025 | 100% | 0 |
+| ENEM 2022 · Ciências da Natureza · Prova digital · Rosa (prova `1189`) | Boa calibração verificada | `ok` | 7.497 | 0,025 | 100% | 0 |
+| ENEM 2022 · Ciências da Natureza · Prova digital · Cinza (prova `1190`) | Boa calibração verificada | `ok` | 7.363 | 0,025 | 100% | 0 |
+| ENEM 2022 · Linguagens · 1ª aplicação · Azul (prova `1065`) | Boa calibração verificada | `ok` | 612.768 | 0,025 | 100% | 0 |
+| ENEM 2022 · Linguagens · 1ª aplicação · Amarela (prova `1066`) | Boa calibração verificada | `ok` | 611.745 | 0,025 | 100% | 0 |
+| ENEM 2022 · Linguagens · 1ª aplicação · Rosa (prova `1067`) | Boa calibração verificada | `ok` | 611.993 | 0,025 | 100% | 0 |
+| ENEM 2022 · Linguagens · 1ª aplicação · Branca (prova `1068`) | Boa calibração verificada | `ok` | 620.713 | 0,025 | 100% | 0 |
+| ENEM 2022 · Linguagens · Especiais · Laranja adaptada ledor (prova `1072`) | Boa calibração verificada | `ok` | 348 | 0,025 | 100% | 0 |
+| ENEM 2022 · Linguagens · Especiais · Verde videoprova libras (prova `1073`) | Boa calibração verificada | `ok` | 1.001 | 0,025 | 100% | 0 |
+| ENEM 2022 · Linguagens · Reaplicação · Azul (prova `1145`) | Boa calibração verificada | `ok` | 243 | 0,026 | 100% | 0 |
+| ENEM 2022 · Linguagens · Reaplicação · Amarela (prova `1146`) | Boa calibração verificada | `ok` | 244 | 0,026 | 100% | 0 |
+| ENEM 2022 · Linguagens · Reaplicação · Rosa (prova `1147`) | Boa calibração verificada | `ok` | 213 | 0,027 | 100% | 0 |
+| ENEM 2022 · Linguagens · Reaplicação · Branca (prova `1148`) | Boa calibração verificada | `ok` | 237 | 0,024 | 100% | 0 |
+| ENEM 2022 · Linguagens · Prova digital · Azul (prova `1179`) | Boa calibração verificada | `ok` | 7.993 | 0,025 | 100% | 0 |
+| ENEM 2022 · Linguagens · Prova digital · Amarela (prova `1180`) | Boa calibração verificada | `ok` | 8.030 | 0,025 | 100% | 0 |
+| ENEM 2022 · Linguagens · Prova digital · Branca (prova `1181`) | Boa calibração verificada | `ok` | 8.029 | 0,025 | 100% | 0 |
+| ENEM 2022 · Linguagens · Prova digital · Rosa (prova `1182`) | Boa calibração verificada | `ok` | 8.116 | 0,025 | 100% | 0 |
+| ENEM 2022 · Matemática · 1ª aplicação · Azul (prova `1075`) | Boa calibração verificada | `ok` | 578.652 | 0,025 | 100% | 0 |
+| ENEM 2022 · Matemática · 1ª aplicação · Amarela (prova `1076`) | Boa calibração verificada | `ok` | 578.571 | 0,025 | 100% | 0 |
+| ENEM 2022 · Matemática · 1ª aplicação · Rosa (prova `1077`) | Boa calibração verificada | `ok` | 578.574 | 0,025 | 100% | 0 |
+| ENEM 2022 · Matemática · 1ª aplicação · Cinza (prova `1078`) | Boa calibração verificada | `ok` | 586.061 | 0,025 | 100% | 0 |
+| ENEM 2022 · Matemática · Especiais · Laranja adaptada ledor (prova `1082`) | Boa calibração verificada | `ok` | 339 | 0,025 | 100% | 0 |
+| ENEM 2022 · Matemática · Especiais · Verde videoprova libras (prova `1083`) | Boa calibração verificada | `ok` | 947 | 0,025 | 100% | 0 |
+| ENEM 2022 · Matemática · Reaplicação · Azul (prova `1155`) | Boa calibração verificada | `ok` | 512 | 0,025 | 100% | 0 |
+| ENEM 2022 · Matemática · Reaplicação · Amarela (prova `1156`) | Boa calibração verificada | `ok` | 533 | 0,024 | 100% | 0 |
+| ENEM 2022 · Matemática · Reaplicação · Rosa (prova `1157`) | Boa calibração verificada | `ok` | 501 | 0,024 | 100% | 0 |
+| ENEM 2022 · Matemática · Reaplicação · Cinza (prova `1158`) | Boa calibração verificada | `ok` | 540 | 0,026 | 100% | 0 |
+| ENEM 2022 · Matemática · Prova digital · Azul (prova `1183`) | Boa calibração verificada | `ok` | 7.419 | 0,025 | 100% | 0 |
+| ENEM 2022 · Matemática · Prova digital · Amarela (prova `1184`) | Boa calibração verificada | `ok` | 7.343 | 0,025 | 100% | 0 |
+| ENEM 2022 · Matemática · Prova digital · Rosa (prova `1185`) | Boa calibração verificada | `ok` | 7.498 | 0,025 | 100% | 0 |
+| ENEM 2022 · Matemática · Prova digital · Cinza (prova `1186`) | Boa calibração verificada | `ok` | 7.362 | 0,025 | 100% | 0 |
+| ENEM 2023 · Ciências Humanas · 1ª aplicação · Azul (prova `1191`) | Boa calibração verificada | `ok` | 699.719 | 0,025 | 100% | 0 |
+| ENEM 2023 · Ciências Humanas · 1ª aplicação · Amarela (prova `1192`) | Boa calibração verificada | `ok` | 700.099 | 0,025 | 100% | 0 |
+| ENEM 2023 · Ciências Humanas · 1ª aplicação · Branca (prova `1193`) | Boa calibração verificada | `ok` | 700.119 | 0,025 | 100% | 0 |
+| ENEM 2023 · Ciências Humanas · 1ª aplicação · Rosa (prova `1194`) | Boa calibração verificada | `ok` | 705.756 | 0,025 | 100% | 0 |
+| ENEM 2023 · Ciências Humanas · Especiais · Rosa ampliada (prova `1195`) | Boa calibração verificada | `ok` | 3.456 | 0,025 | 100% | 0 |
+| ENEM 2023 · Ciências Humanas · Especiais · Rosa superampliada (prova `1196`) | Boa calibração verificada | `ok` | 675 | 0,025 | 100% | 0 |
+| ENEM 2023 · Ciências Humanas · Especiais · Laranja braille (prova `1197`) | Sem validação suficiente | `nao_calibrado` | 124 | 0,027 | 100% | 0 |
+| ENEM 2023 · Ciências Humanas · Especiais · Laranja adaptada ledor (prova `1198`) | Boa calibração verificada | `ok` | 701 | 0,025 | 100% | 0 |
+| ENEM 2023 · Ciências Humanas · Especiais · Verde videoprova libras (prova `1199`) | Boa calibração verificada | `ok` | 1.260 | 0,025 | 100% | 0 |
+| ENEM 2023 · Ciências Humanas · Reaplicação · Azul (prova `1271`) | Boa calibração verificada | `ok` | 1.272 | 0,025 | 100% | 0 |
+| ENEM 2023 · Ciências Humanas · Reaplicação · Amarela (prova `1272`) | Boa calibração verificada | `ok` | 1.286 | 0,025 | 100% | 0 |
+| ENEM 2023 · Ciências Humanas · Reaplicação · Branca (prova `1273`) | Boa calibração verificada | `ok` | 1.294 | 0,025 | 100% | 0 |
+| ENEM 2023 · Ciências Humanas · Reaplicação · Rosa (prova `1274`) | Boa calibração verificada | `ok` | 1.270 | 0,025 | 100% | 0 |
+| ENEM 2023 · Ciências da Natureza · 1ª aplicação · Azul (prova `1221`) | Boa calibração verificada | `ok` | 664.106 | 0,025 | 100% | 0 |
+| ENEM 2023 · Ciências da Natureza · 1ª aplicação · Amarela (prova `1222`) | Boa calibração verificada | `ok` | 664.730 | 0,025 | 100% | 0 |
+| ENEM 2023 · Ciências da Natureza · 1ª aplicação · Rosa (prova `1223`) | Boa calibração verificada | `ok` | 670.653 | 0,025 | 100% | 0 |
+| ENEM 2023 · Ciências da Natureza · 1ª aplicação · Cinza (prova `1224`) | Boa calibração verificada | `ok` | 665.290 | 0,025 | 100% | 0 |
+| ENEM 2023 · Ciências da Natureza · Especiais · Rosa ampliada (prova `1225`) | Boa calibração verificada | `ok` | 3.278 | 0,025 | 100% | 0 |
+| ENEM 2023 · Ciências da Natureza · Especiais · Rosa superampliada (prova `1226`) | Boa calibração verificada | `ok` | 635 | 0,025 | 100% | 0 |
+| ENEM 2023 · Ciências da Natureza · Especiais · Laranja braille (prova `1227`) | Sem validação suficiente | `nao_calibrado` | 120 | 0,027 | 100% | 0 |
+| ENEM 2023 · Ciências da Natureza · Especiais · Laranja adaptada ledor (prova `1228`) | Boa calibração verificada | `ok` | 663 | 0,026 | 100% | 0 |
+| ENEM 2023 · Ciências da Natureza · Especiais · Verde videoprova libras (prova `1229`) | Boa calibração verificada | `ok` | 1.204 | 0,024 | 100% | 0 |
+| ENEM 2023 · Ciências da Natureza · Reaplicação · Azul (prova `1301`) | Boa calibração verificada | `ok` | 1.295 | 0,024 | 100% | 0 |
+| ENEM 2023 · Ciências da Natureza · Reaplicação · Amarela (prova `1302`) | Boa calibração verificada | `ok` | 1.293 | 0,025 | 100% | 0 |
+| ENEM 2023 · Ciências da Natureza · Reaplicação · Cinza (prova `1303`) | Boa calibração verificada | `ok` | 1.312 | 0,025 | 100% | 0 |
+| ENEM 2023 · Ciências da Natureza · Reaplicação · Rosa (prova `1304`) | Boa calibração verificada | `ok` | 1.301 | 0,025 | 100% | 0 |
+| ENEM 2023 · Linguagens · 1ª aplicação · Azul (prova `1201`) | Boa calibração verificada | `ok` | 700.577 | 0,025 | 100% | 0 |
+| ENEM 2023 · Linguagens · 1ª aplicação · Amarela (prova `1202`) | Boa calibração verificada | `ok` | 700.945 | 0,025 | 100% | 0 |
+| ENEM 2023 · Linguagens · 1ª aplicação · Rosa (prova `1203`) | Boa calibração verificada | `ok` | 706.633 | 0,025 | 100% | 0 |
+| ENEM 2023 · Linguagens · 1ª aplicação · Branca (prova `1204`) | Boa calibração verificada | `ok` | 700.963 | 0,025 | 100% | 0 |
+| ENEM 2023 · Linguagens · Especiais · Rosa ampliada (prova `1205`) | Boa calibração verificada | `ok` | 3.463 | 0,025 | 100% | 0 |
+| ENEM 2023 · Linguagens · Especiais · Rosa superampliada (prova `1206`) | Boa calibração verificada | `ok` | 679 | 0,026 | 100% | 0 |
+| ENEM 2023 · Linguagens · Especiais · Laranja braille (prova `1207`) | Sem validação suficiente | `nao_calibrado` | 125 | 0,027 | 100% | 0 |
+| ENEM 2023 · Linguagens · Especiais · Laranja adaptada ledor (prova `1208`) | Boa calibração verificada | `ok` | 702 | 0,025 | 100% | 0 |
+| ENEM 2023 · Linguagens · Especiais · Verde videoprova libras (prova `1209`) | Boa calibração verificada | `ok` | 1.266 | 0,024 | 100% | 0 |
+| ENEM 2023 · Linguagens · Reaplicação · Azul (prova `1281`) | Boa calibração verificada | `ok` | 1.272 | 0,025 | 100% | 0 |
+| ENEM 2023 · Linguagens · Reaplicação · Amarela (prova `1282`) | Boa calibração verificada | `ok` | 1.287 | 0,025 | 100% | 0 |
+| ENEM 2023 · Linguagens · Reaplicação · Rosa (prova `1283`) | Boa calibração verificada | `ok` | 1.269 | 0,025 | 100% | 0 |
+| ENEM 2023 · Linguagens · Reaplicação · Branca (prova `1284`) | Boa calibração verificada | `ok` | 1.293 | 0,026 | 100% | 0 |
+| ENEM 2023 · Matemática · 1ª aplicação · Azul (prova `1211`) | Boa calibração verificada | `ok` | 664.077 | 0,025 | 100% | 0 |
+| ENEM 2023 · Matemática · 1ª aplicação · Amarela (prova `1212`) | Boa calibração verificada | `ok` | 664.709 | 0,025 | 100% | 0 |
+| ENEM 2023 · Matemática · 1ª aplicação · Rosa (prova `1213`) | Boa calibração verificada | `ok` | 670.627 | 0,025 | 100% | 0 |
+| ENEM 2023 · Matemática · 1ª aplicação · Cinza (prova `1214`) | Boa calibração verificada | `ok` | 665.276 | 0,025 | 100% | 0 |
+| ENEM 2023 · Matemática · Especiais · Rosa ampliada (prova `1215`) | Boa calibração verificada | `ok` | 3.277 | 0,025 | 100% | 0 |
+| ENEM 2023 · Matemática · Especiais · Rosa superampliada (prova `1216`) | Boa calibração verificada | `ok` | 635 | 0,025 | 100% | 0 |
+| ENEM 2023 · Matemática · Especiais · Laranja braille (prova `1217`) | Sem validação suficiente | `nao_calibrado` | 120 | 0,026 | 100% | 0 |
+| ENEM 2023 · Matemática · Especiais · Laranja adaptada ledor (prova `1218`) | Boa calibração verificada | `ok` | 663 | 0,025 | 100% | 0 |
+| ENEM 2023 · Matemática · Especiais · Verde videoprova libras (prova `1219`) | Boa calibração verificada | `ok` | 1.204 | 0,025 | 100% | 0 |
+| ENEM 2023 · Matemática · Reaplicação · Azul (prova `1291`) | Boa calibração verificada | `ok` | 1.295 | 0,025 | 100% | 0 |
+| ENEM 2023 · Matemática · Reaplicação · Amarela (prova `1292`) | Boa calibração verificada | `ok` | 1.293 | 0,025 | 100% | 0 |
+| ENEM 2023 · Matemática · Reaplicação · Rosa (prova `1293`) | Boa calibração verificada | `ok` | 1.301 | 0,025 | 100% | 0 |
+| ENEM 2023 · Matemática · Reaplicação · Cinza (prova `1294`) | Boa calibração verificada | `ok` | 1.312 | 0,025 | 100% | 0 |
+| ENEM 2024 · Ciências Humanas · Reaplicação · Azul (prova `1343`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2024 · Ciências Humanas · Reaplicação · Amarela (prova `1344`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2024 · Ciências Humanas · Reaplicação · Branca (prova `1345`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2024 · Ciências Humanas · Reaplicação · Verde (prova `1346`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2024 · Ciências Humanas · Especiais · Verde ampliada reaplicacao (prova `1347`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2024 · Ciências Humanas · Especiais · Verde superampliada reaplicacao (prova `1348`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2024 · Ciências Humanas · Especiais · Laranja adaptada ledor reaplicacao (prova `1350`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2024 · Ciências Humanas · 1ª aplicação · Azul (prova `1383`) | Boa calibração verificada | `ok` | 786.613 | 0,025 | 100% | 0 |
+| ENEM 2024 · Ciências Humanas · 1ª aplicação · Amarela (prova `1384`) | Boa calibração verificada | `ok` | 785.986 | 0,025 | 100% | 0 |
+| ENEM 2024 · Ciências Humanas · 1ª aplicação · Branca (prova `1385`) | Boa calibração verificada | `ok` | 786.457 | 0,025 | 100% | 0 |
+| ENEM 2024 · Ciências Humanas · 1ª aplicação · Verde (prova `1386`) | Boa calibração verificada | `ok` | 795.652 | 0,025 | 100% | 0 |
+| ENEM 2024 · Ciências Humanas · Especiais · Verde ampliada (prova `1387`) | Boa calibração verificada | `ok` | 3.479 | 0,025 | 100% | 0 |
+| ENEM 2024 · Ciências Humanas · Especiais · Verde superampliada (prova `1388`) | Boa calibração verificada | `ok` | 740 | 0,025 | 100% | 0 |
+| ENEM 2024 · Ciências Humanas · Especiais · Laranja adaptada ledor (prova `1390`) | Boa calibração verificada | `ok` | 1.400 | 0,024 | 100% | 0 |
+| ENEM 2024 · Ciências Humanas · Especiais · Roxa videoprova libras (prova `1391`) | Boa calibração verificada | `ok` | 1.278 | 0,024 | 100% | 0 |
+| ENEM 2024 · Ciências Humanas · Especiais · Roxa videoprova libras ampliada (prova `1392`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2024 · Ciências Humanas · Especiais · Roxa videoprova libras superampliada (prova `1393`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2024 · Ciências da Natureza · Reaplicação · Azul (prova `1373`) | Sem validação suficiente | `nao_calibrado` | 58 | 0,024 | 100% | 0 |
+| ENEM 2024 · Ciências da Natureza · Reaplicação · Amarela (prova `1374`) | Sem validação suficiente | `nao_calibrado` | 59 | 0,026 | 100% | 0 |
+| ENEM 2024 · Ciências da Natureza · Reaplicação · Cinza (prova `1375`) | Sem validação suficiente | `nao_calibrado` | 64 | 0,024 | 100% | 0 |
+| ENEM 2024 · Ciências da Natureza · Reaplicação · Verde (prova `1376`) | Sem validação suficiente | `nao_calibrado` | 53 | 0,027 | 100% | 0 |
+| ENEM 2024 · Ciências da Natureza · Especiais · Verde ampliada reaplicacao (prova `1377`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2024 · Ciências da Natureza · Especiais · Verde superampliada reaplicacao (prova `1378`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2024 · Ciências da Natureza · Especiais · Laranja adaptada ledor reaplicacao (prova `1380`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2024 · Ciências da Natureza · 1ª aplicação · Azul (prova `1419`) | Boa calibração verificada | `ok` | 746.693 | 0,025 | 100% | 0 |
+| ENEM 2024 · Ciências da Natureza · 1ª aplicação · Amarela (prova `1420`) | Boa calibração verificada | `ok` | 747.490 | 0,025 | 100% | 0 |
+| ENEM 2024 · Ciências da Natureza · 1ª aplicação · Verde (prova `1421`) | Boa calibração verificada | `ok` | 756.231 | 0,025 | 100% | 0 |
+| ENEM 2024 · Ciências da Natureza · 1ª aplicação · Cinza (prova `1422`) | Boa calibração verificada | `ok` | 747.141 | 0,025 | 100% | 0 |
+| ENEM 2024 · Ciências da Natureza · Especiais · Verde ampliada (prova `1423`) | Boa calibração verificada | `ok` | 3.281 | 0,025 | 100% | 0 |
+| ENEM 2024 · Ciências da Natureza · Especiais · Verde superampliada (prova `1424`) | Boa calibração verificada | `ok` | 700 | 0,025 | 100% | 0 |
+| ENEM 2024 · Ciências da Natureza · Especiais · Laranja adaptada ledor (prova `1426`) | Boa calibração verificada | `ok` | 1.318 | 0,025 | 100% | 0 |
+| ENEM 2024 · Ciências da Natureza · Especiais · Roxa videoprova libras (prova `1427`) | Boa calibração verificada | `ok` | 1.224 | 0,024 | 100% | 0 |
+| ENEM 2024 · Ciências da Natureza · Especiais · Roxa videoprova libras ampliada (prova `1428`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2024 · Linguagens · Reaplicação · Azul (prova `1353`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2024 · Linguagens · Reaplicação · Amarela (prova `1354`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2024 · Linguagens · Reaplicação · Verde (prova `1355`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2024 · Linguagens · Reaplicação · Branca (prova `1356`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2024 · Linguagens · Especiais · Verde ampliada reaplicacao (prova `1357`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2024 · Linguagens · Especiais · Verde superampliada reaplicacao (prova `1358`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2024 · Linguagens · Especiais · Laranja adaptada ledor reaplicacao (prova `1360`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2024 · Linguagens · 1ª aplicação · Azul (prova `1395`) | Boa calibração verificada | `ok` | 787.712 | 0,025 | 100% | 0 |
+| ENEM 2024 · Linguagens · 1ª aplicação · Amarela (prova `1396`) | Boa calibração verificada | `ok` | 787.101 | 0,025 | 100% | 0 |
+| ENEM 2024 · Linguagens · 1ª aplicação · Verde (prova `1397`) | Boa calibração verificada | `ok` | 796.821 | 0,025 | 100% | 0 |
+| ENEM 2024 · Linguagens · 1ª aplicação · Branca (prova `1398`) | Boa calibração verificada | `ok` | 787.422 | 0,025 | 100% | 0 |
+| ENEM 2024 · Linguagens · Especiais · Verde ampliada (prova `1399`) | Boa calibração verificada | `ok` | 3.497 | 0,025 | 100% | 0 |
+| ENEM 2024 · Linguagens · Especiais · Verde superampliada (prova `1400`) | Boa calibração verificada | `ok` | 743 | 0,025 | 100% | 0 |
+| ENEM 2024 · Linguagens · Especiais · Laranja adaptada ledor (prova `1402`) | Boa calibração verificada | `ok` | 1.407 | 0,025 | 100% | 0 |
+| ENEM 2024 · Linguagens · Especiais · Roxa videoprova libras (prova `1403`) | Boa calibração verificada | `ok` | 1.285 | 0,025 | 100% | 0 |
+| ENEM 2024 · Linguagens · Especiais · Roxa videoprova libras ampliada (prova `1404`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2024 · Linguagens · Especiais · Roxa videoprova libras superampliada (prova `1405`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2024 · Matemática · Reaplicação · Azul (prova `1363`) | Sem validação suficiente | `nao_calibrado` | 58 | 0,023 | 100% | 0 |
+| ENEM 2024 · Matemática · Reaplicação · Amarela (prova `1364`) | Sem validação suficiente | `nao_calibrado` | 59 | 0,024 | 100% | 0 |
+| ENEM 2024 · Matemática · Reaplicação · Verde (prova `1365`) | Sem validação suficiente | `nao_calibrado` | 53 | 0,025 | 100% | 0 |
+| ENEM 2024 · Matemática · Reaplicação · Cinza (prova `1366`) | Sem validação suficiente | `nao_calibrado` | 64 | 0,028 | 100% | 0 |
+| ENEM 2024 · Matemática · Especiais · Verde ampliada reaplicacao (prova `1367`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2024 · Matemática · Especiais · Verde superampliada reaplicacao (prova `1368`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2024 · Matemática · Especiais · Laranja adaptada ledor reaplicacao (prova `1370`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2024 · Matemática · 1ª aplicação · Azul (prova `1407`) | Boa calibração verificada | `ok` | 746.672 | 0,025 | 100% | 0 |
+| ENEM 2024 · Matemática · 1ª aplicação · Amarela (prova `1408`) | Boa calibração verificada | `ok` | 747.464 | 0,025 | 100% | 0 |
+| ENEM 2024 · Matemática · 1ª aplicação · Verde (prova `1409`) | Boa calibração verificada | `ok` | 756.180 | 0,025 | 100% | 0 |
+| ENEM 2024 · Matemática · 1ª aplicação · Cinza (prova `1410`) | Boa calibração verificada | `ok` | 747.100 | 0,025 | 100% | 0 |
+| ENEM 2024 · Matemática · Especiais · Verde ampliada (prova `1411`) | Boa calibração verificada | `ok` | 3.279 | 0,025 | 100% | 0 |
+| ENEM 2024 · Matemática · Especiais · Verde superampliada (prova `1412`) | Boa calibração verificada | `ok` | 699 | 0,026 | 100% | 0 |
+| ENEM 2024 · Matemática · Especiais · Laranja adaptada ledor (prova `1414`) | Boa calibração verificada | `ok` | 1.317 | 0,025 | 100% | 0 |
+| ENEM 2024 · Matemática · Especiais · Roxa videoprova libras (prova `1415`) | Boa calibração verificada | `ok` | 1.224 | 0,024 | 100% | 0 |
+| ENEM 2024 · Matemática · Especiais · Roxa videoprova libras ampliada (prova `1416`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2025 · Ciências Humanas · 1ª aplicação · Azul (prova `1447`) | Boa calibração verificada | `ok` | 839.976 | 0,025 | 100% | 0 |
+| ENEM 2025 · Ciências Humanas · 1ª aplicação · Amarela (prova `1448`) | Boa calibração verificada | `ok` | 840.715 | 0,025 | 100% | 0 |
+| ENEM 2025 · Ciências Humanas · 1ª aplicação · Branca (prova `1449`) | Boa calibração verificada | `ok` | 839.973 | 0,025 | 100% | 0 |
+| ENEM 2025 · Ciências Humanas · 1ª aplicação · Verde (prova `1450`) | Boa calibração verificada | `ok` | 839.621 | 0,025 | 100% | 0 |
+| ENEM 2025 · Ciências Humanas · Especiais · Laranja ampliada (prova `1451`) | Boa calibração verificada | `ok` | 4.103 | 0,025 | 100% | 0 |
+| ENEM 2025 · Ciências Humanas · Especiais · Laranja superampliada (prova `1452`) | Boa calibração verificada | `ok` | 801 | 0,025 | 100% | 0 |
+| ENEM 2025 · Ciências Humanas · Especiais · Laranja adaptada ledor (prova `1454`) | Boa calibração verificada | `ok` | 229 | 0,025 | 100% | 0 |
+| ENEM 2025 · Ciências Humanas · Especiais · Roxa videoprova libras (prova `1455`) | Boa calibração verificada | `ok` | 1.363 | 0,024 | 100% | 0 |
+| ENEM 2025 · Ciências Humanas · Especiais · Laranja atendimento especializado (prova `1495`) | Boa calibração verificada | `ok` | 15.036 | 0,025 | 100% | 0 |
+| ENEM 2025 · Ciências Humanas · Reaplicação · Azul (prova `1539`) | Sem validação suficiente | `nao_calibrado` | 110 | 0,024 | 100% | 0 |
+| ENEM 2025 · Ciências Humanas · Reaplicação · Amarela (prova `1540`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2025 · Ciências Humanas · Reaplicação · Branca (prova `1541`) | Sem validação suficiente | `nao_calibrado` | 101 | 0,026 | 100% | 0 |
+| ENEM 2025 · Ciências Humanas · Reaplicação · Verde (prova `1542`) | Sem validação suficiente | `nao_calibrado` | 100 | 0,023 | 100% | 0 |
+| ENEM 2025 · Ciências Humanas · Segunda oportunidade · Azul (prova `1583`) | Boa calibração verificada | `ok` | 16.394 | 0,025 | 100% | 0 |
+| ENEM 2025 · Ciências Humanas · Segunda oportunidade · Amarela (prova `1584`) | Boa calibração verificada | `ok` | 16.643 | 0,025 | 100% | 0 |
+| ENEM 2025 · Ciências Humanas · Segunda oportunidade · Branca (prova `1585`) | Boa calibração verificada | `ok` | 16.358 | 0,025 | 100% | 0 |
+| ENEM 2025 · Ciências Humanas · Segunda oportunidade · Verde (prova `1586`) | Boa calibração verificada | `ok` | 16.349 | 0,025 | 100% | 0 |
+| ENEM 2025 · Ciências Humanas · Segunda oportunidade · Laranja ampliada (prova `1587`) | Sem validação suficiente | `nao_calibrado` | 89 | 0,025 | 100% | 0 |
+| ENEM 2025 · Ciências Humanas · Segunda oportunidade · Laranja atendimento especializado (prova `1631`) | Boa calibração verificada | `ok` | 507 | 0,024 | 100% | 0 |
+| ENEM 2025 · Ciências da Natureza · 1ª aplicação · Azul (prova `1483`) | Boa calibração verificada | `ok` | 793.512 | 0,025 | 100% | 0 |
+| ENEM 2025 · Ciências da Natureza · 1ª aplicação · Amarela (prova `1484`) | Boa calibração verificada | `ok` | 794.214 | 0,025 | 100% | 0 |
+| ENEM 2025 · Ciências da Natureza · 1ª aplicação · Verde (prova `1485`) | Boa calibração verificada | `ok` | 793.404 | 0,025 | 100% | 0 |
+| ENEM 2025 · Ciências da Natureza · 1ª aplicação · Cinza (prova `1486`) | Boa calibração verificada | `ok` | 795.051 | 0,025 | 100% | 0 |
+| ENEM 2025 · Ciências da Natureza · Especiais · Laranja ampliada (prova `1487`) | Boa calibração verificada | `ok` | 3.848 | 0,025 | 100% | 0 |
+| ENEM 2025 · Ciências da Natureza · Especiais · Laranja superampliada (prova `1488`) | Boa calibração verificada | `ok` | 751 | 0,024 | 100% | 0 |
+| ENEM 2025 · Ciências da Natureza · Especiais · Laranja adaptada ledor (prova `1490`) | Boa calibração verificada | `ok` | 220 | 0,024 | 100% | 0 |
+| ENEM 2025 · Ciências da Natureza · Especiais · Roxa videoprova libras (prova `1491`) | Boa calibração verificada | `ok` | 1.314 | 0,025 | 100% | 0 |
+| ENEM 2025 · Ciências da Natureza · Especiais · Laranja atendimento especializado (prova `1498`) | Boa calibração verificada | `ok` | 14.392 | 0,025 | 100% | 0 |
+| ENEM 2025 · Ciências da Natureza · Reaplicação · Azul (prova `1569`) | Boa calibração verificada | `ok` | 166 | 0,026 | 100% | 0 |
+| ENEM 2025 · Ciências da Natureza · Reaplicação · Amarela (prova `1570`) | Boa calibração verificada | `ok` | 168 | 0,025 | 100% | 0 |
+| ENEM 2025 · Ciências da Natureza · Reaplicação · Cinza (prova `1571`) | Boa calibração verificada | `ok` | 158 | 0,024 | 100% | 0 |
+| ENEM 2025 · Ciências da Natureza · Reaplicação · Verde (prova `1572`) | Boa calibração verificada | `ok` | 173 | 0,026 | 100% | 0 |
+| ENEM 2025 · Ciências da Natureza · Segunda oportunidade · Azul (prova `1619`) | Boa calibração verificada | `ok` | 15.273 | 0,025 | 100% | 0 |
+| ENEM 2025 · Ciências da Natureza · Segunda oportunidade · Amarela (prova `1620`) | Boa calibração verificada | `ok` | 15.440 | 0,025 | 100% | 0 |
+| ENEM 2025 · Ciências da Natureza · Segunda oportunidade · Verde (prova `1621`) | Boa calibração verificada | `ok` | 15.306 | 0,025 | 100% | 0 |
+| ENEM 2025 · Ciências da Natureza · Segunda oportunidade · Cinza (prova `1622`) | Boa calibração verificada | `ok` | 15.605 | 0,025 | 100% | 0 |
+| ENEM 2025 · Ciências da Natureza · Segunda oportunidade · Laranja ampliada (prova `1623`) | Sem validação suficiente | `nao_calibrado` | 78 | 0,026 | 100% | 0 |
+| ENEM 2025 · Ciências da Natureza · Segunda oportunidade · Laranja atendimento especializado (prova `1634`) | Boa calibração verificada | `ok` | 488 | 0,025 | 100% | 0 |
+| ENEM 2025 · Linguagens · 1ª aplicação · Azul (prova `1459`) | Boa calibração verificada | `ok` | 841.585 | 0,025 | 100% | 0 |
+| ENEM 2025 · Linguagens · 1ª aplicação · Amarela (prova `1460`) | Boa calibração verificada | `ok` | 842.374 | 0,025 | 100% | 0 |
+| ENEM 2025 · Linguagens · 1ª aplicação · Verde (prova `1461`) | Boa calibração verificada | `ok` | 841.178 | 0,025 | 100% | 0 |
+| ENEM 2025 · Linguagens · 1ª aplicação · Branca (prova `1462`) | Boa calibração verificada | `ok` | 841.562 | 0,025 | 100% | 0 |
+| ENEM 2025 · Linguagens · Especiais · Laranja ampliada (prova `1463`) | Boa calibração verificada | `ok` | 4.118 | 0,025 | 100% | 0 |
+| ENEM 2025 · Linguagens · Especiais · Laranja superampliada (prova `1464`) | Boa calibração verificada | `ok` | 803 | 0,025 | 100% | 0 |
+| ENEM 2025 · Linguagens · Especiais · Laranja adaptada ledor (prova `1466`) | Boa calibração verificada | `ok` | 234 | 0,024 | 100% | 0 |
+| ENEM 2025 · Linguagens · Especiais · Roxa videoprova libras (prova `1467`) | Boa calibração verificada | `ok` | 1.369 | 0,026 | 100% | 0 |
+| ENEM 2025 · Linguagens · Especiais · Laranja atendimento especializado (prova `1496`) | Boa calibração verificada | `ok` | 15.137 | 0,025 | 100% | 0 |
+| ENEM 2025 · Linguagens · Reaplicação · Azul (prova `1549`) | Sem validação suficiente | `nao_calibrado` | 110 | 0,026 | 100% | 0 |
+| ENEM 2025 · Linguagens · Reaplicação · Amarela (prova `1550`) | Sem validação suficiente | `sem_participantes` | — | — | — | — |
+| ENEM 2025 · Linguagens · Reaplicação · Verde (prova `1551`) | Sem validação suficiente | `nao_calibrado` | 100 | 0,026 | 100% | 0 |
+| ENEM 2025 · Linguagens · Reaplicação · Branca (prova `1552`) | Sem validação suficiente | `nao_calibrado` | 101 | 0,026 | 100% | 0 |
+| ENEM 2025 · Linguagens · Segunda oportunidade · Azul (prova `1595`) | Boa calibração verificada | `ok` | 16.436 | 0,025 | 100% | 0 |
+| ENEM 2025 · Linguagens · Segunda oportunidade · Amarela (prova `1596`) | Boa calibração verificada | `ok` | 16.692 | 0,025 | 100% | 0 |
+| ENEM 2025 · Linguagens · Segunda oportunidade · Verde (prova `1597`) | Boa calibração verificada | `ok` | 16.396 | 0,025 | 100% | 0 |
+| ENEM 2025 · Linguagens · Segunda oportunidade · Branca (prova `1598`) | Boa calibração verificada | `ok` | 16.399 | 0,025 | 100% | 0 |
+| ENEM 2025 · Linguagens · Segunda oportunidade · Laranja ampliada (prova `1599`) | Sem validação suficiente | `nao_calibrado` | 89 | 0,024 | 100% | 0 |
+| ENEM 2025 · Linguagens · Segunda oportunidade · Laranja atendimento especializado (prova `1632`) | Boa calibração verificada | `ok` | 511 | 0,024 | 100% | 0 |
+| ENEM 2025 · Matemática · 1ª aplicação · Azul (prova `1471`) | Boa calibração verificada | `ok` | 793.491 | 0,025 | 100% | 0 |
+| ENEM 2025 · Matemática · 1ª aplicação · Amarela (prova `1472`) | Boa calibração verificada | `ok` | 794.204 | 0,025 | 100% | 0 |
+| ENEM 2025 · Matemática · 1ª aplicação · Verde (prova `1473`) | Boa calibração verificada | `ok` | 793.389 | 0,025 | 100% | 0 |
+| ENEM 2025 · Matemática · 1ª aplicação · Cinza (prova `1474`) | Boa calibração verificada | `ok` | 795.018 | 0,025 | 100% | 0 |
+| ENEM 2025 · Matemática · Especiais · Laranja ampliada (prova `1475`) | Boa calibração verificada | `ok` | 3.847 | 0,025 | 100% | 0 |
+| ENEM 2025 · Matemática · Especiais · Laranja superampliada (prova `1476`) | Boa calibração verificada | `ok` | 751 | 0,025 | 100% | 0 |
+| ENEM 2025 · Matemática · Especiais · Laranja adaptada ledor (prova `1478`) | Boa calibração verificada | `ok` | 220 | 0,027 | 100% | 0 |
+| ENEM 2025 · Matemática · Especiais · Roxa videoprova libras (prova `1479`) | Boa calibração verificada | `ok` | 1.311 | 0,025 | 100% | 0 |
+| ENEM 2025 · Matemática · Especiais · Laranja atendimento especializado (prova `1497`) | Boa calibração verificada | `ok` | 14.365 | 0,025 | 100% | 0 |
+| ENEM 2025 · Matemática · Reaplicação · Azul (prova `1559`) | Boa calibração verificada | `ok` | 166 | 0,025 | 100% | 0 |
+| ENEM 2025 · Matemática · Reaplicação · Amarela (prova `1560`) | Boa calibração verificada | `ok` | 168 | 0,024 | 100% | 0 |
+| ENEM 2025 · Matemática · Reaplicação · Verde (prova `1561`) | Boa calibração verificada | `ok` | 173 | 0,026 | 100% | 0 |
+| ENEM 2025 · Matemática · Reaplicação · Cinza (prova `1562`) | Boa calibração verificada | `ok` | 158 | 0,026 | 100% | 0 |
+| ENEM 2025 · Matemática · Segunda oportunidade · Azul (prova `1607`) | Boa calibração verificada | `ok` | 15.273 | 0,025 | 100% | 0 |
+| ENEM 2025 · Matemática · Segunda oportunidade · Amarela (prova `1608`) | Boa calibração verificada | `ok` | 15.439 | 0,025 | 100% | 0 |
+| ENEM 2025 · Matemática · Segunda oportunidade · Verde (prova `1609`) | Boa calibração verificada | `ok` | 15.303 | 0,025 | 100% | 0 |
+| ENEM 2025 · Matemática · Segunda oportunidade · Cinza (prova `1610`) | Boa calibração verificada | `ok` | 15.602 | 0,025 | 100% | 0 |
+| ENEM 2025 · Matemática · Segunda oportunidade · Laranja ampliada (prova `1611`) | Sem validação suficiente | `nao_calibrado` | 78 | 0,024 | 100% | 0 |
+| ENEM 2025 · Matemática · Segunda oportunidade · Laranja atendimento especializado (prova `1633`) | Boa calibração verificada | `ok` | 487 | 0,025 | 100% | 0 |

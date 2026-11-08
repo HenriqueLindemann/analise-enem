@@ -14,15 +14,18 @@ from scipy.optimize import least_squares, linear_sum_assignment
 from scipy.special import expit
 
 
+from tri_enem import CalculadorTRI
+from tri_enem.coeficientes import obter_transformacao
+
 ESCALAS = {
-    "MT": (129.63, 500.0), "CN": (113.13, 501.16),
-    "CH": (112.32, 501.47), "LC": (108.08, 500.0),
+    area: (obter_transformacao(area=area)["slope"], obter_transformacao(area=area)["intercept"])
+    for area in ("CN", "CH", "LC", "MT")
 }
 
 
 def quadratura_grade():
-    pontos = np.linspace(-4.0, 4.0, 41)
-    return pontos, np.exp(-pontos ** 2 / 2)
+    """A mesma grade do motor."""
+    return CalculadorTRI.quadratura()
 
 
 def probabilidades(parametros, pontos):

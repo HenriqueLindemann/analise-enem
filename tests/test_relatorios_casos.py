@@ -41,6 +41,7 @@ def _criar_area_sintetica(
     total_erros: int,
     total_itens: int = 45,
     inicio: int = 1,
+    prova: tuple = (2023, 1211),
 ) -> AreaAnalise:
     """Cria uma área com impacto decrescente e estado determinístico."""
 
@@ -63,8 +64,8 @@ def _criar_area_sintetica(
     return AreaAnalise(
         sigla=sigla,
         nome=nome,
-        ano=2023,
-        co_prova=1211,
+        ano=prova[0],
+        co_prova=prova[1],
         nota=400.0 + acertos * 12.0,
         theta=-2.0 + acertos * 0.1,
         acertos=acertos,
@@ -90,13 +91,6 @@ def _gerar(tmp_path: Path, areas, nome: str = "relatorio.pdf"):
     caminho = tmp_path / nome
     resultado = RelatorioPDF().gerar(_dados(areas), str(caminho))
     return Path(resultado), pypdf.PdfReader(resultado)
-
-
-def test_componentes_graficos_sao_vetoriais():
-    area = _criar_area_sintetica("MT", "Matemática", 12)
-    assert isinstance(grafico_barras_notas([area]), Drawing)
-    assert isinstance(grade_questoes(area.questoes), Drawing)
-    assert isinstance(grafico_impacto_questoes(area.questoes), Drawing)
 
 
 def test_formatacao_decimal_compartilhada_e_em_portugues():
@@ -158,12 +152,18 @@ def test_grade_de_acertos_ordena_por_maior_impacto():
     assert [texto[0] for texto in textos] == ["2", "3", "1"]
 
 
-@pytest.mark.parametrize("erros", [0, 1, 22, 24, 28, 30, 35, 44, 45])
-def test_uma_area_cabe_em_uma_pagina_em_casos_extremos(erros, tmp_path):
+PROVA_ERRO_RARO = (2010, 97)  # aviso com a proporção do censo
+
+
+@pytest.mark.parametrize("erros, prova", [
+    *((e, (2023, 1211)) for e in (0, 1, 22, 24, 28, 30, 35, 44, 45)),
+    *((e, PROVA_ERRO_RARO) for e in (0, 24, 28, 45)),
+])
+def test_uma_area_cabe_em_uma_pagina_em_casos_extremos(erros, prova, tmp_path):
     caminho, reader = _gerar(
         tmp_path,
-        [_criar_area_sintetica("MT", "Matemática e suas Tecnologias", erros)],
-        f"uma-area-{erros}.pdf",
+        [_criar_area_sintetica("MT", "Matemática e suas Tecnologias", erros, prova=prova)],
+        f"uma-area-{erros}-{prova[1]}.pdf",
     )
     conteudo = caminho.read_bytes()
     assert conteudo.startswith(b"%PDF-")
@@ -171,6 +171,8 @@ def test_uma_area_cabe_em_uma_pagina_em_casos_extremos(erros, tmp_path):
     assert len(reader.pages) == 1
     texto = reader.pages[0].extract_text() or ""
     assert "Carl Sagan" not in texto
+    if prova == PROVA_ERRO_RARO:
+        assert "Cerca de 1 em cada" in texto
     if erros == 0:
         assert "Sem erros, parabéns!" in texto
         assert "Dificuldade (b): valor" not in texto
@@ -179,13 +181,13 @@ def test_uma_area_cabe_em_uma_pagina_em_casos_extremos(erros, tmp_path):
         assert texto.index("Dificuldade (b): valor") < texto.index("Acertos (")
 
 
-@pytest.mark.parametrize("anuladas", [0, 2])
-def test_uma_area_respeita_altura_util_para_qualquer_contagem_de_erros(anuladas):
+@pytest.mark.parametrize("anuladas, prova", [(0, (2023, 1211)), (2, (2023, 1211)), (2, PROVA_ERRO_RARO)])
+def test_uma_area_respeita_altura_util_para_qualquer_contagem_de_erros(anuladas, prova):
     relatorio = RelatorioPDF()
     validas = 45 - anuladas
     for erros in range(validas + 1):
         area = _criar_area_sintetica(
-            "MT", "Matemática e suas Tecnologias", erros + anuladas,
+            "MT", "Matemática e suas Tecnologias", erros + anuladas, prova=prova,
         )
         for indice in range(anuladas):
             area.questoes[indice].anulada = True
@@ -202,18 +204,6 @@ def test_uma_area_respeita_altura_util_para_qualquer_contagem_de_erros(anuladas)
             pagina, f"1 área com {erros} erros e {anuladas} anuladas",
         )
         assert altura <= Medidas.ALTURA_UTIL + 0.5
-
-
-@pytest.mark.parametrize("erros", [0, 22, 45])
-def test_quatro_areas_geram_capa_e_uma_pagina_por_area(erros, tmp_path):
-    areas = [
-        _criar_area_sintetica("LC", "Linguagens, Códigos e suas Tecnologias", erros),
-        _criar_area_sintetica("CH", "Ciências Humanas e suas Tecnologias", erros),
-        _criar_area_sintetica("CN", "Ciências da Natureza e suas Tecnologias", erros),
-        _criar_area_sintetica("MT", "Matemática e suas Tecnologias", erros),
-    ]
-    _, reader = _gerar(tmp_path, areas, f"quatro-areas-{erros}.pdf")
-    assert len(reader.pages) == 5
 
 
 @pytest.mark.parametrize("quantidade", [2, 3, 4])

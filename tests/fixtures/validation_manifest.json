@@ -1,7 +1,7 @@
 {
   "schema_version": 3,
   "algorithm_version": "item-association-v1",
-  "generated_at": "2026-10-04T23:12:08+00:00",
+  "generated_at": "2026-11-08T21:06:33+00:00",
   "git_commit": "3466eabbba457f1a7ddcc0dba3a3c2119861a600",
   "hash_key": "enem-tri-v3",
   "seed": "enem-tri-v3",
@@ -116,11 +116,9 @@
     "mapped_proofs": 762,
     "holdout_cases": 101552,
     "status": {
-      "aviso_forte": 31,
-      "aviso_leve": 3,
-      "erro_alto": 11,
+      "erro_raro": 22,
       "nao_calibrado": 26,
-      "ok": 579,
+      "ok": 602,
       "sem_itens": 12,
       "sem_participantes": 100
     },
@@ -40241,5 +40239,40 @@
       "2025,MT,1611"
     ],
     "objective": "mae_ponderado_por_frequencia_de_faixa_idioma"
+  },
+  "model": {
+    "name": "escala-fixa-grade40-v1",
+    "scale": {
+      "CH": {
+        "slope": 112.31003020959106,
+        "intercept": 501.4890202562871,
+        "n_treino": 69981
+      },
+      "CN": {
+        "slope": 113.10230229714048,
+        "intercept": 501.1434183693156,
+        "n_treino": 67064
+      },
+      "LC": {
+        "slope": 108.08598586473641,
+        "intercept": 499.9779752472922,
+        "n_treino": 110979
+      },
+      "MT": {
+        "slope": 129.64617239487688,
+        "intercept": 500.01939362754257,
+        "n_treino": 80996
+      }
+    },
+    "quadrature": {
+      "tipo": "grade",
+      "pontos": 40,
+      "limite": 4.0
+    },
+    "inconsistent_records_sha256": "d788f5854634fcbb8a2820a72ca5c19454d798f8082fb7c0e0f887ce4c922935",
+    "excluded_from_holdout": [
+      "8ae3f145b2848e962d7bfab0",
+      "8cc51336eb85dd78974bf191"
+    ]
   }
 }

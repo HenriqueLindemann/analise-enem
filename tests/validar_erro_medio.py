@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
-"""Reproduz os modelos atuais e separa confirmação nova de censo exploratório."""
+"""Confere a confirmação do erro médio: identidades, métricas ponderadas e hashes."""
 from __future__ import annotations
 
-from collections import Counter, defaultdict
+from collections import defaultdict
 import argparse
 import gzip
 import json
@@ -13,10 +13,12 @@ import sys
 import numpy as np
 
 ROOT=Path(__file__).resolve().parents[1]
+sys.path.insert(0,str(ROOT))
 sys.path.insert(0,str(ROOT/'src'))
-from tri_enem import CalculadorTRI
-from tri_enem.calibracao_modelos import aplicar_modelo, faixa_nota
-from validar_confirmacao_residual import avaliar,comparar,ler_fixture,sha256,assinatura
+from tri_enem.calibracao_modelos import faixa_nota
+from tools.avaliar_catalogo import (assinatura, avaliar, carregar_inconsistentes, ler_fixture,
+                                    metricas_ponderadas, notas_casos, calculador, pesos_estrato, sha256)
+from validar_confirmacao_residual import comparar
 
 
 def validar(catalogo_path=None, fixtures_dir=None, cache_dir=None):
@@ -24,7 +26,8 @@ def validar(catalogo_path=None, fixtures_dir=None, cache_dir=None):
     fixture=fixtures_dir/'mean_error_confirmation.jsonl.gz'
     mp=fixtures_dir/'mean_error_confirmation_manifest.json'
     cp=catalogo_path or ROOT/'src/tri_enem/coeficientes_data.json'
-    manifest=json.loads(mp.read_text());catalogo=json.loads(cp.read_text())['por_prova']
+    manifest=json.loads(mp.read_text());catalogo_completo=json.loads(cp.read_text())
+    catalogo=catalogo_completo['por_prova']
     failures=[]
     for path,expected in ((fixture,manifest['fixture_sha256']),(cp,manifest['catalogo_sha256']),
                          (fixtures_dir/'validation_manifest.json',manifest['primary_manifest_sha256'])):
@@ -39,7 +42,7 @@ def validar(catalogo_path=None, fixtures_dir=None, cache_dir=None):
                 or len(r['case_id'])!=24 or any(c not in '0123456789abcdef' for c in r['case_id'])):
             failures.append('campos, identidade, nota ou faixa inválidos')
     keys={f"{r['ano']},{r['area']},{r['co_prova']}" for r in rows}
-    if keys!=set(manifest['models']) or keys!=set(manifest['por_prova']):failures.append('cobertura divergente')
+    if keys!=set(manifest['por_prova']):failures.append('cobertura divergente')
     previous=set()
     for name in ('validation_holdout','reconstruction_confirmation','residual_confirmation'):
         previous.update(r['case_id'] for r in ler_fixture(fixtures_dir/f'{name}.jsonl.gz'))
@@ -54,44 +57,27 @@ def validar(catalogo_path=None, fixtures_dir=None, cache_dir=None):
                 failures.append('confirmação nova sobreposta ou rotulada incorretamente')
         elif r['split']!='exploratoria_media' or r['case_id'] not in holdout:
             failures.append('censo exploratório rotulado incorretamente')
-    calc=CalculadorTRI()
+    inconsistentes=carregar_inconsistentes()
     counts={(k,li,b):n for k,li,b,n in manifest['counts']}
     if len(counts)!=len(manifest['counts']) or any(not isinstance(n,int) or n<=0 for n in counts.values()):
         failures.append('contagens de frequência inválidas')
+    calc=calculador(catalogo_completo)
     for key in sorted(keys):
-        for field,expected in manifest['models'][key].items():
-            if catalogo[key].get(field)!=expected:failures.append(f'{key}: modelo atual diverge: {field}')
-        result=avaliar({key:catalogo[key]},grouped[key])
+        cases=[r for r in grouped[key] if r['case_id'] not in inconsistentes]
+        result=avaliar(catalogo_completo,grouped[key],inconsistentes)
         expected=manifest['por_prova'][key]
         comparar(result['por_prova'][key],expected['after'],key,failures)
         if assinatura(r['case_id'] for r in grouped[key])!=expected['case_ids_sha256']:
             failures.append(f'{key}: comparação pareada com identidades diferentes')
-        by_language=defaultdict(list)
-        for r in grouped[key]:by_language[r['tp_lingua']].append(r)
-        errors,weights=[],[]
-        for lingua,cases in sorted(by_language.items(),key=lambda kv:str(kv[0])):
-            ano,area,code=key.split(',')
-            itens,u=calc.preparar_respostas_batch(int(ano),area,int(code),[r['respostas'] for r in cases],lingua)
-            theta=calc.estimar_theta_eap_batch(u,itens)
-            errors.extend(abs(aplicar_modelo(theta,catalogo[key]['transformacao'])-np.array([r['nota_oficial'] for r in cases])).tolist())
-            sample_counts=Counter(r['faixa'] for r in cases)
-            weights.extend(counts[(key,lingua,r['faixa'])]/sample_counts[r['faixa']] for r in cases)
-        e,w=np.asarray(errors),np.asarray(weights)
-        order=np.argsort(e)
-        quantile=min(np.searchsorted(np.cumsum(w[order]),.95*w.sum()),len(w)-1)
-        weighted={'n':len(e),'mae':float(np.average(e,weights=w)),
-            'erro_p95':float(e[order[quantile]]),'erro_maximo':float(e.max()),
-            'acima_2':int((e>2+1e-12).sum()),'fracao_acima_2':float(np.average(e>2+1e-12,weights=w))}
+        errors=notas_casos(calc,cases)-np.array([r['nota_oficial'] for r in cases])
+        weighted=metricas_ponderadas(errors,pesos_estrato(cases,counts))
         comparar(weighted,expected['after_weighted'],f'{key}.ponderado',failures)
-        comparar(catalogo[key]['desempenho_tipico'],weighted,f'{key}.desempenho_tipico',failures)
-        if catalogo[key]['desempenho_tipico']['independente']!=expected['independente']:
-            failures.append(f'{key}: independência apresentada diverge')
-        comparar(catalogo[key]['desempenho_tipico']['intervalo_melhora_media_95'],
-                 expected['mean_improvement_ci95'],f'{key}.intervalo',failures)
         if expected['independente']:
             comparar(catalogo[key].get('validacao_media'),
-                     {**expected['after'],'origem':'confirmacao_erro_medio','independente':True},
+                     {**expected['after'],'origem':'confirmacao_erro_medio'},
                      f'{key}.validacao_media',failures)
+        elif 'validacao_media' in catalogo[key]:
+            failures.append(f'{key}: censo exploratório publicado como confirmação')
     if manifest['models_refitted'] or manifest['overlapping_independent_cases']:
         failures.append('estado de confirmação inválido')
     if cache_dir is not None:
@@ -113,9 +99,6 @@ def validar(catalogo_path=None, fixtures_dir=None, cache_dir=None):
         frozen=json.loads(frozen_path.read_text())
         if (sha256(frozen_path)!=manifest['frozen_sha256'] or not frozen['models_frozen']
                 or frozen['holdout_consulted']):failures.append('congelamento divergente')
-        for key in keys:
-            if frozen['por_prova'][key]['transformacao']!=catalogo[key]['transformacao']:
-                failures.append(f'{key}: modelo diverge do congelamento original')
     return failures
 
 

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
-"""Recalibra todas as provas e publica um catálogo v3 validado.
+"""Recalibra todas as provas e publica um catálogo v4 validado.
 
 O script faz uma passagem pelos microdados oficiais, retém deterministicamente
-uma amostra estratificada por prova/faixa/idioma, ajusta modelos sem reutilizar
+uma amostra estratificada por prova/faixa/idioma, ajusta a escala sem reutilizar
 o holdout e só substitui os artefatos versionados após validar as invariantes.
 """
 
@@ -20,7 +20,7 @@ import os
 import subprocess
 import sys
 import tempfile
-from collections import Counter, defaultdict
+from collections import defaultdict
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -31,33 +31,24 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
+sys.path.insert(0, str(ROOT))
 
 from tri_enem import CalculadorTRI, MapeadorProvas  # noqa: E402
 from tri_enem.calibracao_modelos import (  # noqa: E402
     ROTULOS_FAIXAS,
     classificar_validacao,
     faixa_nota,
-    metricas_modelo,
-    reajustar_modelo,
-    selecionar_modelo,
     ranking_erro_medio,
 )
-from tri_enem.precisao import (  # noqa: E402
-    classificar_perfil_validacao, validacao_para_apresentacao,
-)
+from tools.relatorio_validacao import gerar_relatorio  # noqa: E402,F401
 
 AREAS = ("CN", "CH", "LC", "MT")
 CAP_ESTRATO = 160
-SCHEMA_VERSION = 3
+SCHEMA_VERSION = 4
 ALGORITHM_VERSION = "stratified-v3.2"
+MODELO = "escala-fixa-grade40-v1"
 HASH_KEY = "enem-tri-v3"
 IDENTITY_ALGORITHM = "pandas-null-object-v1"
-FALLBACK_AREA = {
-    "MT": (129.63, 500.0),
-    "CN": (113.13, 501.16),
-    "CH": (112.32, 501.47),
-    "LC": (108.08, 500.0),
-}
 
 
 @dataclass(frozen=True)
@@ -589,47 +580,16 @@ def dividir_amostra(
     return por_prova
 
 
-def _calcular_thetas(
-    calc: CalculadorTRI, casos: Sequence[Caso]
-) -> Tuple[np.ndarray, np.ndarray, List[str], List[Caso]]:
-    thetas: List[float] = []
-    notas: List[float] = []
-    faixas: List[str] = []
-    validos: List[Caso] = []
-    grupos: Dict[Tuple[int, str, int, int | None], List[Caso]] = defaultdict(list)
-    for caso in casos:
-        grupos[(caso.ano, caso.area, caso.co_prova, caso.tp_lingua)].append(caso)
-
-    for (ano, area, prova, lingua), grupo in grupos.items():
-        respostas_validas = []
-        casos_validos = []
-        itens = None
-        for caso in grupo:
-            try:
-                itens, binaria, _ = calc._preparar_calculo(
-                    ano, area, prova, caso.respostas, lingua
-                )
-            except (TypeError, ValueError, FileNotFoundError):
-                continue
-            respostas_validas.append(binaria)
-            casos_validos.append(caso)
-        if not casos_validos or itens is None:
-            continue
-        theta_grupo = calc.estimar_theta_eap_batch(respostas_validas, itens)
-        thetas.extend(theta_grupo.tolist())
-        notas.extend(caso.nota_oficial for caso in casos_validos)
-        faixas.extend(caso.faixa for caso in casos_validos)
-        validos.extend(casos_validos)
-    return np.asarray(thetas), np.asarray(notas), faixas, validos
+def _publicos(casos: Sequence[Caso], split: str) -> List[Dict[str, Any]]:
+    return [caso.publico(split) for caso in casos]
 
 
-def _transformacao_publica(modelo: Dict[str, Any]) -> Dict[str, Any]:
-    permitidas = {
-        "tipo", "slope", "intercept", "theta_knots", "score_knots",
-        "n_nos_solicitados",
-        "ancoras_extremos",
-    }
-    return {key: value for key, value in modelo.items() if key in permitidas}
+def _calculador_catalogo(calc: CalculadorTRI, catalogo: Dict[str, Any],
+                         reconstrucoes: Dict[str, Any]) -> CalculadorTRI:
+    novo = CalculadorTRI(itens_path=str(calc.base_path), reconstrucoes=reconstrucoes,
+                         catalogo=catalogo)
+    novo._cache_df_itens = calc._cache_df_itens
+    return novo
 
 
 def calibrar_catalogo(
@@ -640,249 +600,107 @@ def calibrar_catalogo(
     splits: Dict[str, Dict[str, List[Caso]]],
     timestamp: str,
     candidatos_reconstrucao: Dict[str, List[Dict[str, Any]]] | None = None,
-    extremos_estimadores: Dict[tuple, Dict[str, Any]] | None = None,
 ) -> Tuple[Dict[str, Any], List[Dict[str, Any]]]:
-    if extremos_estimadores is None and calc._usar_ancoras_catalogo:
-        from tri_enem.coeficientes import obter_transformacao
-        extremos_estimadores = {}
-        for ano, area, codigo in provas:
-            extremos = obter_transformacao(ano, area, codigo).get("ancoras_extremos")
-            if extremos:
-                extremos_estimadores[(f"{ano},{area},{codigo}", "vigente")] = extremos
-    entradas: Dict[str, Any] = {}
-    holdout_publico: List[Dict[str, Any]] = []
+    """Escala por área no treino; reconstruções pela seleção; holdout só avalia.
+
+    As notas de gabarito do catálogo empacotado são preservadas: vêm do censo
+    (``levantar_notas_gabarito.py``), não da amostra.
+    """
+    from tri_enem.coeficientes import obter_catalogo
+    from tools.avaliar_catalogo import (
+        ajustar_escala, carregar_inconsistentes, metricas, metricas_ponderadas,
+        notas_casos, pesos_estrato,
+    )
+
+    empacotado = obter_catalogo()
+    inconsistentes = carregar_inconsistentes()
+    treino = [c for partes in splits.values() for c in _publicos(partes["treino"], "treino")]
+    escala = ajustar_escala(calc, treino, inconsistentes)
+    catalogo: Dict[str, Any] = {
+        "schema_version": SCHEMA_VERSION,
+        "por_prova": {},
+        "metadata": {
+            "versao": "4.0",
+            "modelo": MODELO,
+            "quadratura": {"tipo": "grade", "pontos": calc.N_QUADRATURA,
+                           "limite": calc.LIMITE_QUADRATURA},
+            "escala": escala,
+            "ultima_calibracao": timestamp,
+        },
+    }
+    notas_gabarito = {
+        chave: info["nota_gabarito"]
+        for chave, info in empacotado.get("por_prova", {}).items()
+        if "nota_gabarito" in info
+    }
+    contexto = {"metadata": catalogo["metadata"], "por_prova": {
+        chave: {"nota_gabarito": valor} for chave, valor in notas_gabarito.items()}}
     faixas_por_prova: Dict[str, set[str]] = defaultdict(set)
     for (prova_key, _, faixa), n in amostra.contagens.items():
         if n:
             faixas_por_prova[prova_key].add(faixa)
-
-    modelos_para_area: Dict[Tuple[int, str], List[Tuple[float, float]]] = defaultdict(list)
-    pendentes_fallback: List[str] = []
-    dados_fallback: Dict[
-        str, Tuple[np.ndarray, np.ndarray, List[str], List[Caso]]
-    ] = {}
-
+    holdout_publico: List[Dict[str, Any]] = []
     for (ano, area, codigo), prova in sorted(provas.items()):
         key = f"{ano},{area},{codigo}"
-        base = {
-            "ano": ano,
-            "area": area,
-            "prova": codigo,
-            "tipo_aplicacao": prova.tipo_aplicacao,
-            "cor": prova.cor,
-            "slope": None,
-            "intercept": None,
-            "transformacao": None,
-            "calibracao": {"n_treino": 0, "n_selecao": 0},
+        base: Dict[str, Any] = {
+            "ano": ano, "area": area, "prova": codigo,
+            "tipo_aplicacao": prova.tipo_aplicacao, "cor": prova.cor,
             "validacao": None,
-            "qualidade": {
-                "status": "nao_calibrado",
-                "motivo": "sem_amostra",
-                "validado_em": timestamp,
-            },
+            "qualidade": {"status": "nao_calibrado", "motivo": "sem_amostra",
+                          "validado_em": timestamp},
         }
-        if key in calc.reconstrucoes:
-            base["reconstrucao_itens"] = calc.reconstrucoes[key]
+        if key in notas_gabarito:
+            base["nota_gabarito"] = notas_gabarito[key]
+        catalogo["por_prova"][key] = base
         if key in itens_problemas:
-            base["qualidade"] = {
-                "status": "sem_itens",
-                "motivo": itens_problemas[key],
-                "validado_em": timestamp,
-            }
-            entradas[key] = base
+            base["qualidade"].update(status="sem_itens", motivo=itens_problemas[key])
             continue
-
-        prova_splits = splits.get(key)
-        if not prova_splits:
-            base["qualidade"] = {
-                "status": "sem_participantes",
-                "motivo": "sem_participantes_validos",
-                "validado_em": timestamp,
-            }
-            entradas[key] = base
-            pendentes_fallback.append(key)
-            dados_fallback[key] = (
-                np.asarray([]),
-                np.asarray([]),
-                [],
-                [],
-            )
+        partes = splits.get(key)
+        if not partes:
+            base["qualidade"].update(status="sem_participantes", motivo="sem_participantes_validos")
             continue
-
-        x_train, y_train, _, casos_train = _calcular_thetas(
-            calc, prova_splits["treino"]
-        )
-        x_sel, y_sel, _, casos_sel = _calcular_thetas(
-            calc, prova_splits["selecao"]
-        )
-        calc_prova = calc
-        escolha = None
-        avaliados_estimadores = []
-        if len(x_train) >= 10 and len(x_sel) >= 1:
-            contagens_selecao = Counter(c.estrato for c in casos_sel)
-            pesos_selecao = [amostra.contagens[c.estrato] / contagens_selecao[c.estrato]
-                             for c in casos_sel]
-            escolha = selecionar_modelo(x_train, y_train, x_sel, y_sel,
-                (extremos_estimadores or {}).get((key, "vigente")), pesos_selecao)
-            m = escolha["metricas_selecao"]
-            ranking = ranking_erro_medio(m, escolha['modelo']['complexidade'])
-            avaliados_estimadores.append({"estimador": "vigente", **m})
-            for reconstrucao in (candidatos_reconstrucao or {}).get(key, []):
-                candidato = CalculadorTRI(itens_path=str(calc.base_path), reconstrucoes={key: reconstrucao})
-                candidato._cache_df_itens = calc._cache_df_itens
-                xt, yt, _, ct = _calcular_thetas(candidato, prova_splits["treino"])
-                xs, ys, _, cs = _calcular_thetas(candidato, prova_splits["selecao"])
-                if ([c.case_id for c in ct] != [c.case_id for c in casos_train]
-                        or [c.case_id for c in cs] != [c.case_id for c in casos_sel]):
-                    raise RuntimeError(f"{key}: candidato alterou a cobertura dos splits")
-                origem = reconstrucao.get("origem", reconstrucao.get("quadratura"))
-                alternativa = selecionar_modelo(xt, yt, xs, ys,
-                    (extremos_estimadores or {}).get((key, origem)), pesos_selecao)
-                m = alternativa["metricas_selecao"]
-                avaliados_estimadores.append({
-                    "estimador": reconstrucao.get("origem", reconstrucao.get("quadratura")),
-                    **m,
-                })
-                ordem = ranking_erro_medio(m, alternativa['modelo']['complexidade'])
-                if ordem < ranking:
-                    ranking, escolha, calc_prova = ordem, alternativa, candidato
-                    x_train, y_train, casos_train = xt, yt, ct
-                    x_sel, y_sel, casos_sel = xs, ys, cs
-            if key in calc_prova.reconstrucoes:
-                base["reconstrucao_itens"] = calc_prova.reconstrucoes[key]
-        # O holdout só é calculado depois da escolha do estimador e do modelo.
-        x_test, y_test, faixas_test, casos_test = _calcular_thetas(
-            calc_prova, prova_splits["holdout"]
-        )
-        base["calibracao"] = {
-            "n_treino": len(casos_train),
-            "n_selecao": len(casos_sel),
-            "objetivo_selecao": "menor_erro_absoluto_medio_ponderado",
-        }
-        if len(x_train) < 10 or len(x_sel) < 1:
-            base["qualidade"] = {
-                "status": "nao_calibrado",
-                "motivo": "amostra_calibracao_insuficiente",
-                "validado_em": timestamp,
+        selecao = [c for c in _publicos(partes["selecao"], "selecao")
+                   if c["case_id"] not in inconsistentes]
+        alternativas = [calc.reconstrucoes.get(key)] + list((candidatos_reconstrucao or {}).get(key, []))
+        escolhida, ranking = None, None
+        for reconstrucao in alternativas:
+            reconstrucoes = {**calc.reconstrucoes}
+            reconstrucoes.pop(key, None)
+            if reconstrucao:
+                reconstrucoes[key] = reconstrucao
+            candidato = _calculador_catalogo(calc, contexto, reconstrucoes)
+            if not selecao:
+                escolhida = reconstrucao
+                break
+            erros = notas_casos(candidato, selecao) - np.asarray([c["nota_oficial"] for c in selecao])
+            m = metricas_ponderadas(erros, pesos_estrato(selecao, amostra.contagens))
+            ordem = ranking_erro_medio(m)
+            if ranking is None or ordem < ranking:
+                escolhida, ranking = reconstrucao, ordem
+        if escolhida:
+            base["reconstrucao_itens"] = escolhida
+        reconstrucoes = {**calc.reconstrucoes}
+        reconstrucoes.pop(key, None)
+        if escolhida:
+            reconstrucoes[key] = escolhida
+        holdout = _publicos(partes["holdout"], "holdout")
+        holdout_publico.extend(holdout)
+        avaliados = [c for c in holdout if c["case_id"] not in inconsistentes]
+        if avaliados:
+            calc_prova = _calculador_catalogo(calc, contexto, reconstrucoes)
+            erros = notas_casos(calc_prova, avaliados) - np.asarray([c["nota_oficial"] for c in avaliados])
+            base["validacao"] = {
+                **metricas(erros, [c["faixa"] for c in avaliados]),
+                "faixas_existentes": sorted(faixas_por_prova[key]),
             }
-            entradas[key] = base
-            pendentes_fallback.append(key)
-            dados_fallback[key] = (x_test, y_test, faixas_test, casos_test)
-            continue
-
-        selecionado = escolha or selecionar_modelo(x_train, y_train, x_sel, y_sel)
-        modelo = reajustar_modelo(
-            selecionado["modelo"],
-            np.concatenate([x_train, x_sel]),
-            np.concatenate([y_train, y_sel]),
-        )
-        transformacao = _transformacao_publica(modelo)
-        base["slope"] = float(modelo["slope"])
-        base["intercept"] = float(modelo["intercept"])
-        base["transformacao"] = transformacao
-        base["calibracao"]["modelo_selecionado"] = transformacao["tipo"]
-        base["calibracao"]["metricas_selecao"] = selecionado["metricas_selecao"]
-        if candidatos_reconstrucao is not None:
-            base["calibracao"]["estimadores_avaliados"] = avaliados_estimadores
-        modelos_para_area[(ano, area)].append(
-            (float(modelo["slope"]), float(modelo["intercept"]))
-        )
-
-        metricas = None
-        if len(x_test):
-            metricas = metricas_modelo(x_test, y_test, modelo, faixas_test)
-            metricas["faixas_existentes"] = sorted(faixas_por_prova[key])
-            for caso in casos_test:
-                holdout_publico.append(caso.publico("holdout"))
+            base["teste"] = dict(base["validacao"])
         status, motivo = classificar_validacao(
-            metricas, sorted(faixas_por_prova[key])
-        )
-        base["validacao"] = metricas
-        base["qualidade"] = {
-            "status": status,
-            "motivo": motivo,
-            "validado_em": timestamp,
-        }
-        entradas[key] = base
-        print(
-            f"{key}: {status}; modelo={transformacao['tipo']}; "
-            f"n={metricas['n'] if metricas else 0}; "
-            f"max={metricas['erro_maximo'] if metricas else float('nan'):.3f}",
-            flush=True,
-        )
-
-    por_area = {}
-    for (ano, area), valores in sorted(modelos_para_area.items()):
-        por_area[f"{ano},{area}"] = {
-            "slope": float(np.median([v[0] for v in valores])),
-            "intercept": float(np.median([v[1] for v in valores])),
-            "n_provas": len(valores),
-        }
-
-    # Materializa o fallback na entrada da prova. Assim toda prova calculável
-    # declara o modelo efetivamente usado, sem depender de uma fonte de status
-    # paralela.
-    for key in pendentes_fallback:
-        ano, area, _ = key.split(",")
-        modelo_area = por_area.get(f"{ano},{area}")
-        if modelo_area is None:
-            slope, intercept = FALLBACK_AREA[area]
-            modelo_area = {"slope": slope, "intercept": intercept}
-            origem = "area_padrao"
-        else:
-            origem = "area_ano"
-        modelo = {
-            "tipo": "linear",
-            "slope": float(modelo_area["slope"]),
-            "intercept": float(modelo_area["intercept"]),
-        }
-        entradas[key]["slope"] = modelo["slope"]
-        entradas[key]["intercept"] = modelo["intercept"]
-        entradas[key]["transformacao"] = {**modelo, "origem": origem}
-        entradas[key]["qualidade"]["fallback"] = origem
-        x_test, y_test, faixas_test, casos_test = dados_fallback[key]
-        if len(x_test):
-            metricas = metricas_modelo(
-                x_test, y_test, {**modelo, "complexidade": 2}, faixas_test
-            )
-            metricas["faixas_existentes"] = sorted(faixas_por_prova[key])
-            entradas[key]["validacao"] = metricas
-            for caso in casos_test:
-                holdout_publico.append(caso.publico("holdout"))
-            status, motivo = classificar_validacao(
-                metricas, sorted(faixas_por_prova[key])
-            )
-            entradas[key]["qualidade"].update({
-                "status": status,
-                "motivo": motivo,
-            })
-
-    metadata: Dict[str, Any] = {
-        "versao": "3.0",
-        "ultima_calibracao": timestamp,
-    }
-    for area in AREAS:
-        valores = [
-            item for key, item in por_area.items() if key.endswith(f",{area}")
-        ]
-        if valores:
-            metadata[area] = {
-                "slope_medio": float(np.median([v["slope"] for v in valores])),
-                "intercept_medio": float(
-                    np.median([v["intercept"] for v in valores])
-                ),
-                "n_anos": len(valores),
-            }
-    return {
-        "schema_version": SCHEMA_VERSION,
-        "por_prova": entradas,
-        "por_area": por_area,
-        "metadata": metadata,
-    }, sorted(
+            base.get("teste"), sorted(faixas_por_prova[key]), base.get("censo"))
+        base["qualidade"].update(status=status, motivo=motivo)
+        print(f"{key}: {status}; n={len(avaliados)}", flush=True)
+    return catalogo, sorted(
         holdout_publico,
-        key=lambda item: (
-            item["ano"], item["area"], item["co_prova"], item["case_id"]
-        ),
+        key=lambda item: (item["ano"], item["area"], item["co_prova"], item["case_id"]),
     )
 
 
@@ -1017,326 +835,6 @@ def validar_artefatos(
         if caso["case_id"] in ids:
             raise RuntimeError(f"Caso duplicado no holdout: {caso['case_id']}")
         ids.add(caso["case_id"])
-
-
-def gerar_relatorio(catalogo: Dict[str, Any], manifesto: Dict[str, Any]) -> str:
-    nomes_areas = {
-        "CH": "Ciências Humanas",
-        "CN": "Ciências da Natureza",
-        "LC": "Linguagens",
-        "MT": "Matemática",
-    }
-    nomes_aplicacoes = {
-        "1a_aplicacao": "1ª aplicação",
-        "digital": "Prova digital",
-        "reaplicacao": "Reaplicação",
-        "reaplicacao_2": "2ª reaplicação",
-        "segunda_oportunidade": "Segunda oportunidade",
-    }
-    nomes_perfis = {
-        "calibracao_verificada": "Boa calibração verificada",
-        "boa_na_maioria_com_excecoes": (
-            "Estimativa confiável na maioria dos casos, com exceções"
-        ),
-        "estimativa": "Estimativa com variação relevante",
-        "sem_validacao": "Sem validação suficiente",
-    }
-
-    def rotulo_prova(
-        chave: str, info: Dict[str, Any], incluir_ano: bool = True
-    ) -> str:
-        ano, area, codigo = chave.split(",")
-        partes = []
-        if incluir_ano:
-            partes.append(f"ENEM {ano}")
-        partes.append(nomes_areas.get(area, area))
-        aplicacao = str(info.get("tipo_aplicacao") or "").strip()
-        if aplicacao:
-            partes.append(
-                nomes_aplicacoes.get(
-                    aplicacao, aplicacao.replace("_", " ").capitalize()
-                )
-            )
-        cor = str(info.get("cor") or "").strip()
-        if cor:
-            partes.append(cor.replace("_", " ").capitalize())
-        return " · ".join(partes) + f" (prova `{codigo}`)"
-
-    def linhas_lista_provas(chaves: Sequence[str]) -> List[str]:
-        por_ano: Dict[str, List[str]] = defaultdict(list)
-        for chave in chaves:
-            ano = chave.split(",")[0]
-            por_ano[ano].append(
-                rotulo_prova(
-                    chave, catalogo["por_prova"][chave], incluir_ano=False
-                )
-            )
-        return [
-            f"- **ENEM {ano}:** " + "; ".join(provas_ano)
-            for ano, provas_ano in sorted(por_ano.items())
-        ] or ["Nenhuma."]
-
-    status_ordenados = (
-        "ok", "aviso_leve", "aviso_forte", "erro_alto",
-        "nao_calibrado", "sem_participantes", "sem_itens",
-    )
-    contagem = defaultdict(int)
-    contagem_perfis = defaultdict(int)
-    metricas = []
-    grupos_ano: Dict[str, List[Tuple[str, Dict[str, Any]]]] = defaultdict(list)
-    grupos_area: Dict[str, List[Tuple[str, Dict[str, Any]]]] = defaultdict(list)
-    provas_por_status: Dict[str, List[str]] = defaultdict(list)
-    provas_por_perfil: Dict[str, List[str]] = defaultdict(list)
-    for info in catalogo["por_prova"].values():
-        status = info["qualidade"]["status"]
-        validacao = validacao_para_apresentacao(info)
-        contagem[status] += 1
-        perfil = classificar_perfil_validacao(
-            status,
-            validacao.get("erro_p95"),
-            validacao.get("acima_2"),
-            validacao.get("n"),
-            (info.get("desempenho_tipico") or {}).get("independente"),
-        )
-        contagem_perfis[perfil] += 1
-        if validacao:
-            metricas.append(info.get("validacao") or validacao)
-    for chave, info in catalogo["por_prova"].items():
-        ano, area, _ = chave.split(",")
-        status = info["qualidade"]["status"]
-        validacao = validacao_para_apresentacao(info)
-        perfil = classificar_perfil_validacao(
-            status,
-            validacao.get("erro_p95"),
-            validacao.get("acima_2"),
-            validacao.get("n"),
-            (info.get("desempenho_tipico") or {}).get("independente"),
-        )
-        grupos_ano[ano].append((chave, info))
-        grupos_area[area].append((chave, info))
-        provas_por_status[status].append(chave)
-        provas_por_perfil[perfil].append(chave)
-    linhas = [
-        "# Validação das notas TRI",
-        "",
-        "Relatório gerado automaticamente a partir do holdout estratificado de "
-        "participantes reais dos microdados públicos do INEP.",
-        "",
-        f"- Provas catalogadas: **{len(catalogo['por_prova'])}**",
-        f"- Casos no holdout: **{manifesto['coverage']['holdout_cases']}**",
-        f"- Geração: `{manifesto['generated_at']}`",
-        "",
-        "## Como interpretar este relatório",
-        "",
-        "- **Boa calibração verificada:** a prova foi conferida com casos reais "
-        "e atendeu integralmente ao critério estrito do projeto.",
-        "- **Estimativa confiável na maioria dos casos, com exceções:** o erro "
-        "típico foi baixo, mas casos atípicos impedem a garantia estrita.",
-        "- **Estimativa com variação relevante:** as diferenças não ficaram "
-        "limitadas a poucas exceções; a nota exige mais cautela.",
-        "- **Sem validação suficiente:** faltam participantes, faixas ou "
-        "parâmetros públicos, ou a única evidência são casos já usados na "
-        "pesquisa.",
-        "",
-        "As mensagens da interface usam esses perfis em linguagem simples. As "
-        "seções seguintes preservam códigos, métricas e limites para auditoria.",
-        "O status descreve o erro observado; a interface também considera a "
-        "origem da evidência. Modelos apoiados apenas em casos já usados na "
-        "pesquisa retornam `confiavel=False`, mesmo com status técnico `ok`. "
-        "Veja o [método](SCORE_RECALCULATION.md#precisão-na-api-e-na-interface).",
-        "",
-        "## Status",
-        "",
-        "| Status | Provas |",
-        "|---|---:|",
-    ]
-    for status, n in sorted(contagem.items()):
-        linhas.append(f"| `{status}` | {n} |")
-
-    def estatisticas_grupo(
-        itens: Sequence[Tuple[str, Dict[str, Any]]]
-    ) -> Tuple[Counter, int, int, float | None]:
-        status_grupo = Counter(
-            (info.get("qualidade") or {}).get("status")
-            for _, info in itens
-        )
-        validacoes = [
-            info["validacao"] for _, info in itens if info.get("validacao")
-        ]
-        n_casos = sum(int(m["n"]) for m in validacoes)
-        n_ate_2 = n_casos - sum(int(m["acima_2"]) for m in validacoes)
-        mae_mediano = (
-            float(np.median([m["mae"] for m in validacoes]))
-            if validacoes
-            else None
-        )
-        return status_grupo, n_casos, n_ate_2, mae_mediano
-
-    linhas.extend([
-        "",
-        "## Estatísticas por ano",
-        "",
-        "| Ano | Provas | ok | leve | forte | alto | não calibrado | sem participantes | sem itens | Casos | Até 2 pts | MAE mediano |",
-        "|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
-    ])
-    for ano, itens in sorted(grupos_ano.items()):
-        s, n_casos, n_ate_2, mae_mediano = estatisticas_grupo(itens)
-        percentual = (
-            f"{100 * n_ate_2 / n_casos:.2f}%" if n_casos else "—"
-        )
-        mae_texto = f"{mae_mediano:.3f}" if mae_mediano is not None else "—"
-        linhas.append(
-            f"| {ano} | {len(itens)} | {s['ok']} | {s['aviso_leve']} | "
-            f"{s['aviso_forte']} | {s['erro_alto']} | {s['nao_calibrado']} | "
-            f"{s['sem_participantes']} | {s['sem_itens']} | {n_casos} | "
-            f"{percentual} | {mae_texto} |"
-        )
-
-    linhas.extend([
-        "",
-        "## Estatísticas por área",
-        "",
-        "| Área | Provas | ok | leve | forte | alto | não calibrado | sem participantes | sem itens | Casos | Até 2 pts | MAE mediano |",
-        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
-    ])
-    for area, itens in sorted(grupos_area.items()):
-        s, n_casos, n_ate_2, mae_mediano = estatisticas_grupo(itens)
-        percentual = (
-            f"{100 * n_ate_2 / n_casos:.2f}%" if n_casos else "—"
-        )
-        mae_texto = f"{mae_mediano:.3f}" if mae_mediano is not None else "—"
-        linhas.append(
-            f"| {area} | {len(itens)} | {s['ok']} | {s['aviso_leve']} | "
-            f"{s['aviso_forte']} | {s['erro_alto']} | {s['nao_calibrado']} | "
-            f"{s['sem_participantes']} | {s['sem_itens']} | {n_casos} | "
-            f"{percentual} | {mae_texto} |"
-        )
-
-    if metricas:
-        total_casos = sum(int(m["n"]) for m in metricas)
-        total_acima_2 = sum(int(m["acima_2"]) for m in metricas)
-        dentro_2 = total_casos - total_acima_2
-        linhas.extend([
-            "",
-            "## Métricas agregadas",
-            "",
-            f"- MAE mediano por prova: **{np.median([m['mae'] for m in metricas]):.2f} pontos**",
-            f"- Maior erro observado: **{max(m['erro_maximo'] for m in metricas):.2f} pontos**",
-            f"- Casos com erro absoluto de até 2 pontos: "
-            f"**{dentro_2}/{total_casos} ({100 * dentro_2 / total_casos:.2f}%)**",
-            "",
-            "Uma prova só recebe `ok` quando os casos do holdout e de uma "
-            "eventual confirmação ficam em até 2 pontos da nota oficial e "
-            "a cobertura mínima do holdout é satisfeita.",
-        ])
-    linhas.extend([
-        "",
-        "## Perfis usados na apresentação",
-        "",
-        "O status permanece estrito e auditável. O perfil serve apenas para "
-        "evitar que poucas exceções ocultem o desempenho típico da calibração.",
-        "",
-        "| Perfil | Provas |",
-        "|---|---:|",
-    ])
-    for perfil, n in sorted(contagem_perfis.items()):
-        linhas.append(
-            f"| {nomes_perfis.get(perfil, perfil)} (`{perfil}`) | {n} |"
-        )
-
-    linhas.extend(["", "## Listas de provas por status"])
-    for status in status_ordenados:
-        provas_status = sorted(
-            provas_por_status.get(status, []),
-            key=lambda chave: (
-                int(chave.split(",")[0]),
-                chave.split(",")[1],
-                int(chave.split(",")[2]),
-            ),
-        )
-        linhas.extend([
-            "",
-            f"### `{status}` ({len(provas_status)})",
-            "",
-            *linhas_lista_provas(provas_status),
-        ])
-
-    linhas.extend(["", "## Listas de provas por perfil de apresentação"])
-    for perfil, provas_perfil in sorted(provas_por_perfil.items()):
-        provas_perfil = sorted(
-            provas_perfil,
-            key=lambda chave: (
-                int(chave.split(",")[0]),
-                chave.split(",")[1],
-                int(chave.split(",")[2]),
-            ),
-        )
-        linhas.extend([
-            "",
-            f"### {nomes_perfis.get(perfil, perfil)} "
-            f"(`{perfil}`, {len(provas_perfil)})",
-            "",
-            *linhas_lista_provas(provas_perfil),
-        ])
-
-    linhas.extend([
-        "",
-        "## Detalhamento por prova",
-        "",
-        "Os agregados acima usam o holdout original. A tabela abaixo mostra, "
-        "para cada prova, a amostra com maior erro máximo, sem misturar suas "
-        "métricas. A confirmação pode piorar o status, nunca promovê-lo.",
-        "",
-        "| Prova | Status | Perfil | Motivo | Modelo | Amostra | n | MAE | p95 | Máximo | >2 | Faixas |",
-        "|---|---|---|---|---|---|---:|---:|---:|---:|---:|---:|",
-    ])
-
-    def numero(valor: Any, casas: int = 3) -> str:
-        return "—" if valor is None else f"{float(valor):.{casas}f}"
-
-    def ordem_prova(item: tuple[str, Any]) -> tuple[int, str, int]:
-        ano, area, prova = item[0].split(",")
-        return int(ano), area, int(prova)
-
-    for chave, info in sorted(
-        catalogo["por_prova"].items(), key=ordem_prova
-    ):
-        qualidade = info.get("qualidade") or {}
-        status = qualidade.get("status", "desconhecido")
-        validacao = validacao_para_apresentacao(info)
-        transformacao = info.get("transformacao") or {}
-        perfil = classificar_perfil_validacao(
-            status,
-            validacao.get("erro_p95"),
-            validacao.get("acima_2"),
-            validacao.get("n"),
-            (info.get("desempenho_tipico") or {}).get("independente"),
-        )
-        faixas_cobertas = set(validacao.get("faixas_cobertas", []))
-        faixas_existentes = set(validacao.get("faixas_existentes", []))
-        cobertura = (
-            f"{len(faixas_cobertas)}/{len(faixas_existentes)}"
-            if faixas_existentes
-            else "—"
-        )
-        motivo = str(qualidade.get("motivo") or "—").replace("|", "/")
-        amostra = next((rotulo for campo, rotulo in (
-            ("validacao_confirmacao", "confirmação"),
-            ("validacao_residual", "confirmação residual"),
-            ("validacao_media", "confirmação do erro médio"),
-            ("diagnostico_calibracao", "diagnóstico de treino/seleção"),
-        ) if validacao is info.get(campo)), "holdout")
-        linhas.append(
-            f"| {rotulo_prova(chave, info)} | `{status}` | "
-            f"{nomes_perfis.get(perfil, perfil)} | `{motivo}` | "
-            f"`{transformacao.get('tipo') or '—'}` | "
-            f"{amostra} | "
-            f"{validacao.get('n', '—')} | {numero(validacao.get('mae'))} | "
-            f"{numero(validacao.get('erro_p95'))} | "
-            f"{numero(validacao.get('erro_maximo'))} | "
-            f"{validacao.get('acima_2', '—')} | {cobertura} |"
-        )
-    return "\n".join(linhas) + "\n"
 
 
 def publicar_atomico(

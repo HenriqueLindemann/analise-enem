@@ -100,19 +100,18 @@
   "after": {
     "total": {
       "n": 1144,
-      "mae": 0.026891725189362465,
-      "erro_p95": 0.04735789292399772,
-      "erro_maximo": 1.6236362501109056,
+      "mae": 0.026801186939858026,
+      "erro_p95": 0.04704319238284711,
+      "erro_maximo": 1.6267301522207163,
       "acima_2": 0
     },
     "por_prova": {
       "2009,CH,72": {
         "n": 104,
-        "mae": 0.025448846732688733,
-        "erro_p95": 0.04723579348749354,
-        "erro_maximo": 0.04945334122226086,
+        "mae": 0.02542473335590227,
+        "erro_p95": 0.046813860311377194,
+        "erro_maximo": 0.04963473619159231,
         "acima_2": 0,
-        "r_squared": 0.9999998158018619,
         "faixas_cobertas": [
           "400_500",
           "500_600",
@@ -121,11 +120,10 @@
       },
       "2011,LC,126": {
         "n": 400,
-        "mae": 0.030006449969939127,
-        "erro_p95": 0.04833258077106847,
-        "erro_maximo": 1.6236362501109056,
+        "mae": 0.02960527763937847,
+        "erro_p95": 0.04778800003839478,
+        "erro_maximo": 1.6267301522207163,
         "acima_2": 0,
-        "r_squared": 0.9999995109591705,
         "faixas_cobertas": [
           "400_500",
           "500_600",
@@ -136,11 +134,10 @@
       },
       "2011,LC,128": {
         "n": 400,
-        "mae": 0.025247283634168553,
-        "erro_p95": 0.04693459165825402,
-        "erro_maximo": 0.05178427706982802,
+        "mae": 0.025250421962304728,
+        "erro_p95": 0.04709328256811886,
+        "erro_maximo": 0.049796214694424634,
         "acima_2": 0,
-        "r_squared": 0.9999999463430956,
         "faixas_cobertas": [
           "400_500",
           "500_600",
@@ -151,11 +148,10 @@
       },
       "2016,MT,367": {
         "n": 240,
-        "mae": 0.02506650047828316,
-        "erro_p95": 0.04657547209038455,
-        "erro_maximo": 0.04999432070042076,
+        "mae": 0.025308773956293606,
+        "erro_p95": 0.046086186234947486,
+        "erro_maximo": 0.04934133880362879,
         "acima_2": 0,
-        "r_squared": 0.9999999693851227,
         "faixas_cobertas": [
           "400_500",
           "500_600",
@@ -166,7 +162,9 @@
         ]
       }
     },
-    "case_ids_sha256": "10fba95ea2a4a29aa45feeae00e3163d2e6665681bd4455a9674e90315e68921"
+    "case_ids_sha256": "10fba95ea2a4a29aa45feeae00e3163d2e6665681bd4455a9674e90315e68921",
+    "excluded_inconsistent": [],
+    "model": "escala-fixa-grade40-v1"
   },
   "published_proofs": [
     "2009,CH,72",
@@ -176,7 +174,7 @@
   ],
   "published_catalogo_sha256": "167255ae2e5729b2f8abc542308d83808a71cc84cae9c51cfc1b08c68ae9067d",
   "fixture_sha256": "531ddf9ac6c469d95f573ed347971d2a8ed6f84ac0243b64b2fa4e2aa0ad2d61",
-  "primary_manifest_sha256": "50ec56aedb7d24f7a971bc0a1ccddd110451d7e065ca49f0bcf7f7b1402f741e",
+  "primary_manifest_sha256": "f2c5c6d0686036f339723903967d5360da7cf0e96d71f354f3e5a99de80560b8",
   "primary_fixture_sha256": "a7f3ca8ad6c0ca4053c0661c5d9ef7aaa4bcea466cba8e73d54cd097aea568ac",
   "secondary_fixture_sha256": "4db1c5c75874bc0557d38a7506e7d793c7a614760dff4bb5d5f4e5f988fa0f51",
   "frozen_models": {
@@ -670,5 +668,5 @@
     "models_sha256": "0a0b49af59560190dc670dca35fc5370f58ee32232592dfda3060e08a38b6022",
     "suite_models": "current_only"
   },
-  "current_catalogo_sha256": "22fe4e26ece072471d25cfb1efa583c9c053c5373dec1c5c85fa6fcf7fe7b535"
+  "current_catalogo_sha256": "9a9447f2305043b3afe26cd098318fb3113269f16b991054d1238bc4a9124c7b"
 }

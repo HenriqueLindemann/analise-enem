@@ -7,8 +7,8 @@ import json
 import sys
 from pathlib import Path
 
-import numpy as np
 import pytest
+
 
 import _utils
 
@@ -16,11 +16,8 @@ _utils.add_src_to_path()
 sys.path.insert(0, str(_utils.ROOT))
 
 from tri_enem.calibracao_modelos import (  # noqa: E402
-    ajustar_monotonica,
-    aplicar_modelo,
     classificar_validacao,
     faixa_nota,
-    reajustar_modelo,
 )
 from tools.recalibrar_validacao import (  # noqa: E402
     AmostraEstratificada,
@@ -45,33 +42,7 @@ def _caso(indice: int, nota: float | None = None, rank: int | None = None) -> Ca
     )
 
 
-def test_transformacao_e_extrapolacao_sao_monotonicas():
-    theta = np.linspace(-3, 3, 200)
-    nota = 500 + 100 * theta + 12 * np.sin(theta * 2)
-    modelo = ajustar_monotonica(theta, nota, 17)
-    grade = np.linspace(-6, 6, 1000)
-    calculadas = aplicar_modelo(grade, modelo)
-    assert np.all(np.diff(calculadas) >= -1e-12)
-
-
-def test_reajuste_preserva_extremos_exclusivos_da_calibracao():
-    theta_cal = np.linspace(-2, 2, 100)
-    modelo = ajustar_monotonica(theta_cal, 500 + 100 * theta_cal, 9)
-    combinado = np.concatenate([theta_cal, [-4, 4]])
-    reajustado = reajustar_modelo(
-        modelo, combinado, 500 + 100 * combinado
-    )
-    assert reajustado["theta_knots"][0] == pytest.approx(-2)
-    assert reajustado["theta_knots"][-1] == pytest.approx(2)
-
-
-def test_notas_acima_de_mil_tem_faixa_e_nao_sao_cortadas():
-    modelo = {
-        "tipo": "monotonica_linear",
-        "theta_knots": [-2.0, 2.0],
-        "score_knots": [300.0, 1000.0],
-    }
-    assert aplicar_modelo([3.0], modelo)[0] > 1000
+def test_notas_acima_de_mil_tem_faixa_propria():
     assert faixa_nota(1000.01) == "acima_1000"
 
 
@@ -118,6 +89,17 @@ def test_discrepancia_de_2_01_nunca_recebe_ok():
     assert status == "aviso_leve"
 
 
+@pytest.mark.parametrize("n, erro_maximo, acima_2, esperado", [
+    (30, 0.05, 5, "erro_raro"), (30, 0.05, 2, "ok"), (30, 8.0, 761, "erro_raro"),
+    (29, 0.05, 0, "nao_calibrado"),
+])
+def test_censo_decide_so_provas_verificadas_pelo_teste(n, erro_maximo, acima_2, esperado):
+    metricas = {"n": n, "erro_maximo": erro_maximo, "faixas_cobertas": ["500_600", "600_700"]}
+    censo = {"n": 800000, "acima_2": acima_2}
+    status, _ = classificar_validacao(metricas, ["500_600", "600_700"], censo)
+    assert status == esperado
+
+
 def test_relatorio_combina_resumo_humano_e_metricas_por_prova():
     catalogo = json.loads(
         Path(
@@ -130,10 +112,11 @@ def test_relatorio_combina_resumo_humano_e_metricas_por_prova():
         ).read_text(encoding="utf-8")
     )
     relatorio = gerar_relatorio(catalogo, manifesto)
-    assert "## Como interpretar este relatório" in relatorio
-    assert "## Estatísticas por ano" in relatorio
-    assert "## Estatísticas por área" in relatorio
-    assert "## Listas de provas por status" in relatorio
-    assert "## Detalhamento por prova" in relatorio
+    secoes = [linha for linha in relatorio.splitlines() if linha.startswith("## ")]
+    assert secoes == [
+        "## Resumo", "## Sua prova", "## Provas com falhas conhecidas",
+        "## Provas sem validação", "## Como a validação é feita",
+        "## Detalhamento por prova",
+    ]
     assert "ENEM 2020 · Linguagens · Prova digital · Branca" in relatorio
-    assert "| Status | Perfil | Motivo | Modelo | Amostra | n | MAE | p95 |" in relatorio
+    assert "| Prova | Situação | Status | Participantes | Diferença média |" in relatorio

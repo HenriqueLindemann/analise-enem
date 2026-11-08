@@ -1,0 +1,181 @@
+[
+ {
+  "case_id": "8cc51336eb85dd78974bf191",
+  "amostra": "validation_holdout",
+  "ano": 2010,
+  "area": "CH",
+  "co_prova": 101,
+  "tp_lingua": null,
+  "respostas": "EACEBECEDAADADCCABBEBCBBBAECDBABEEACBEACCECDD",
+  "nota_oficial": 630.1,
+  "reproduz": {
+   "area": "CN",
+   "co_prova": 90,
+   "nota_oficial": 525.4
+  },
+  "motivo": "Respostas de CH e CN trocadas no registro: esta string reproduz a nota oficial de CN do participante como prova 90."
+ },
+ {
+  "case_id": "36ffaaae87faf16931c72e63",
+  "amostra": "treino",
+  "ano": 2010,
+  "area": "CN",
+  "co_prova": 105,
+  "tp_lingua": null,
+  "respostas": "EAABADCBABDEAEDECBEDBCCDDECECAEDBCEDADBEAEAAD",
+  "nota_oficial": 525.4,
+  "reproduz": {
+   "area": "CH",
+   "co_prova": 86,
+   "nota_oficial": 630.1
+  },
+  "motivo": "Respostas de CN e CH trocadas no registro: esta string reproduz a nota oficial de CH do participante como prova 86."
+ },
+ {
+  "case_id": "8ae3f145b2848e962d7bfab0",
+  "amostra": "validation_holdout",
+  "ano": 2015,
+  "area": "CH",
+  "co_prova": 273,
+  "tp_lingua": null,
+  "respostas": "AEACEBEDADDDCBBDADBCBDBCDECBDEEEAECDEABABDDDA",
+  "nota_oficial": 563.3,
+  "reproduz": {
+   "area": "CH",
+   "co_prova": 272,
+   "nota_oficial": 563.3
+  },
+  "motivo": "Código de prova trocado: as respostas reproduzem a nota oficial como prova 272."
+ },
+ {
+  "case_id": "7b5eec1d2262bc3c7a73e2dc",
+  "amostra": "treino",
+  "ano": 2015,
+  "area": "CH",
+  "co_prova": 273,
+  "tp_lingua": null,
+  "respostas": "ACDEBDEBACADBCBADBAEADDECEBCDAACECCDDBCCBCAEA",
+  "nota_oficial": 414.1,
+  "reproduz": {
+   "area": "CH",
+   "co_prova": 271,
+   "nota_oficial": 414.1
+  },
+  "motivo": "Código de prova trocado: as respostas reproduzem a nota oficial como prova 271."
+ },
+ {
+  "case_id": "0f0ae8df7cdc2c56d2a4e02a",
+  "amostra": "reconstruction_confirmation",
+  "ano": 2015,
+  "area": "CN",
+  "co_prova": 277,
+  "tp_lingua": null,
+  "respostas": "CBDADBEBEDCCEBCACDEBACCAAABCEDDBACBDDBBEABCBE",
+  "nota_oficial": 500.6,
+  "reproduz": {
+   "area": "CN",
+   "co_prova": 276,
+   "nota_oficial": 500.6
+  },
+  "motivo": "Código de prova trocado: as respostas reproduzem a nota oficial como prova 276."
+ },
+ {
+  "case_id": null,
+  "amostra": "censo",
+  "ano": 2012,
+  "area": "LC",
+  "co_prova": 147,
+  "tp_lingua": 1,
+  "respostas": "EDDBCACAABCCACAEBADDABEDCDADDCAAEDDBCCCBDBCBE",
+  "nota_oficial": 477.0,
+  "reproduz": {
+   "area": "LC",
+   "co_prova": 147,
+   "tp_lingua": 0,
+   "nota_oficial": 477.0
+  },
+  "motivo": "Idioma trocado no registro: as respostas reproduzem a nota oficial em inglês."
+ },
+ {
+  "case_id": null,
+  "amostra": "censo",
+  "ano": 2012,
+  "area": "LC",
+  "co_prova": 148,
+  "tp_lingua": 0,
+  "respostas": "EDACDAEBACDAEDBDBADC.ECBCCDEDDECDBCBCCAAEAEBE",
+  "nota_oficial": 400.4,
+  "reproduz": {
+   "area": "LC",
+   "co_prova": 148,
+   "tp_lingua": 1,
+   "nota_oficial": 400.4
+  },
+  "motivo": "Idioma trocado no registro: as respostas reproduzem a nota oficial em espanhol."
+ },
+ {
+  "case_id": null,
+  "amostra": "censo",
+  "ano": 2013,
+  "area": "CH",
+  "co_prova": 167,
+  "tp_lingua": null,
+  "respostas": "CCCAEDABDABCBBADEADBDBAAABBCACAEBDCACDCBBDDEE",
+  "nota_oficial": 402.6,
+  "reproduz": {
+   "area": "CH",
+   "co_prova": 168,
+   "nota_oficial": 402.6
+  },
+  "motivo": "Código de prova trocado: as respostas reproduzem a nota oficial como prova 168."
+ },
+ {
+  "case_id": null,
+  "amostra": "censo",
+  "ano": 2013,
+  "area": "CN",
+  "co_prova": 171,
+  "tp_lingua": null,
+  "respostas": "AABBAAECCEADADCCAAAEDBBECDCCCDCCBDBAAABBBCEAD",
+  "nota_oficial": 511.1,
+  "reproduz": {
+   "area": "CN",
+   "co_prova": 172,
+   "nota_oficial": 511.1
+  },
+  "motivo": "Código de prova trocado: as respostas reproduzem a nota oficial como prova 172."
+ },
+ {
+  "case_id": null,
+  "amostra": "censo",
+  "ano": 2014,
+  "area": "LC",
+  "co_prova": 203,
+  "tp_lingua": 1,
+  "respostas": "BDADBCCCAADBECDCDABADCADBAEBBDCAAABDCEEABEDBA",
+  "nota_oficial": 454.0,
+  "reproduz": {
+   "area": "LC",
+   "co_prova": 203,
+   "tp_lingua": 0,
+   "nota_oficial": 454.0
+  },
+  "motivo": "Idioma trocado no registro: as respostas reproduzem a nota oficial em inglês."
+ },
+ {
+  "case_id": null,
+  "amostra": "censo",
+  "ano": 2015,
+  "area": "MT",
+  "co_prova": 243,
+  "tp_lingua": null,
+  "respostas": "DDEDCBCEAADEABEBCCCDBEAAAACECBEDAACBACBDDBDEC",
+  "nota_oficial": 803.7,
+  "reproduz": {
+   "area": "MT",
+   "co_prova": 246,
+   "nota_oficial": 803.7
+  },
+  "motivo": "Código de prova trocado: as respostas reproduzem a nota oficial como prova 246."
+ }
+]

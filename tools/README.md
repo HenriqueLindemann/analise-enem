@@ -1,67 +1,41 @@
 # Ferramentas de desenvolvimento
 
-Os scripts desta pasta preparam dados e pesquisam a calibração; a API e a
-interface usam somente o catálogo incluído no pacote. O
-[método](../docs/SCORE_RECALCULATION.md) descreve o modelo, a evidência e os
-limites conhecidos.
+Preparam dados e mantêm o catálogo. A API e a interface usam só o catálogo
+incluído no pacote. O [método](../docs/SCORE_RECALCULATION.md) explica o
+modelo e a validação. Os microdados do INEP são apenas lidos.
 
-`perfil_streamlit.py` mede o app offline, com as dependências web instaladas,
-sem alterar dados ou fixtures. Use `--repo /caminho/do/repo` para comparar
-cópias com as mesmas dependências, em processos separados.
-
-`validar_otimizacao.py --referencia <commit>` compara o motor atual com o
-motor anterior nas quatro fixtures completas e nos extremos de cada grupo
-prova/idioma do holdout. Não recalibra modelos. Os relatórios de equivalência,
-desempenho e validação da versão 6.1.0 ficam em
-`resultados/investigacao/otimizacao_6_1_0/`, ignorados pelo Git.
-
-Instale as dependências de desenvolvimento (inclui SciPy). Os microdados
-originais são apenas lidos. Defina `OPENBLAS_NUM_THREADS=1` ao usar
-`--workers`, para não multiplicar threads entre processos.
-
-## Itens e recalibração
-
-O gerador de itens exige 2009–2025, valida os dados e publica os CSVs
-normalizados com um manifesto SHA-256:
+## Atualizar o catálogo
 
 ```bash
-python tools/gerar_dados_itens.py --microdados-dir /caminho/MICRODADOS_ENEM
+M=/caminho/MICRODADOS_ENEM
+python tools/levantar_notas_gabarito.py --microdados-dir $M --saida notas.json
+python tools/levantar_censo.py --microdados-dir $M --saida censo.json --processos 3
+python tools/atualizar_catalogo.py --notas-gabarito notas.json --censo censo.json
 ```
 
-Para reajustar as escalas mantendo as reconstruções e âncoras do catálogo:
+1. `levantar_notas_gabarito.py`: nota oficial de quem acerta todos os itens.
+2. `levantar_censo.py`: compara a nota calculada com a oficial de todos os
+   participantes. Cada processo trata um ano (cerca de 1 GB de RAM).
+3. `atualizar_catalogo.py`: grava notas de gabarito e censo, recalcula as
+   métricas das amostras e o status, atualiza manifestos e chama
+   `relatorio_validacao.py`, que gera `docs/VALIDATION_REPORT.md`.
+   `--cache-dir` reajusta também a escala por área. O censo precisa ter sido
+   gerado com o mesmo modelo do catálogo.
 
-```bash
-OPENBLAS_NUM_THREADS=1 python tools/recalibrar_validacao.py \
-  --microdados-dir /caminho/MICRODADOS_ENEM --workers 3
-```
+Depois, regenere `tests/fixtures/golden_notas.json` se as notas mudarem e rode
+a verificação de [tests/README.md](../tests/README.md).
 
-O comando cobre as provas mapeadas, separa treino, seleção e holdout,
-escolhe pelo MAE ponderado e só publica catálogo, fixture primária, manifesto
-e `docs/VALIDATION_REPORT.md` depois de validar as invariantes.
-`--nao-publicar` permite inspecionar os candidatos.
+## Outras ferramentas
 
-Para pesquisar também associações de itens, gabaritos e quadratura:
+- `gerar_dados_itens.py --microdados-dir $M`: publica os CSVs de itens
+  normalizados, com manifesto SHA-256.
+- `recalibrar_validacao.py` e `fechar_gap_validacao.py`: reamostragem
+  completa e pesquisa de reconstrução de itens (associação e gabarito). Use
+  `OPENBLAS_NUM_THREADS=1` com `--workers`.
+- `reconstruir_associacao_itens.py`: pesquisa a associação curva/posição de
+  uma prova.
+- `avaliar_catalogo.py`: avaliação compartilhada por ferramentas e validadores.
+- `perfil_streamlit.py`: mede o desempenho do app.
+- `gerar_imagem_readme.py`: imagem de exemplo do README.
 
-```bash
-OPENBLAS_NUM_THREADS=1 python tools/fechar_gap_validacao.py \
-  --microdados-dir /caminho/MICRODADOS_ENEM --workers 3 --nao-publicar
-```
-
-Depois de mudar modelos, regenere `tests/fixtures/golden_notas.json` e
-reavalie as confirmações (veja [tests/README.md](../tests/README.md)).
-Atualizar apenas hashes não valida um cálculo novo.
-
-## Mudanças de modelo
-
-Um modelo novo é escolhido em treino/seleção e congelado antes de ser
-avaliado. A confirmação usa casos novos, amostrados depois de excluir todos
-os anteriores (`amostrar_microdados(..., excluir_case_ids=...)`); uma amostra
-já examinada é apenas exploratória. Ao incorporar, as métricas são
-recalculadas nos mesmos casos, sem reajuste, e a nova fixture passa a ser
-conferida por um validador em `tests/`.
-
-`gerar_imagem_readme.py` gera a imagem de exemplo do README.
-
-Caches e resultados de pesquisa ficam em `resultados/investigacao/`, ignorado
-pelo Git. A documentação versionada fica restrita ao método e ao relatório
-gerado.
+Caches de pesquisa ficam em `resultados/investigacao/`, ignorado pelo Git.

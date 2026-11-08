@@ -1,17 +1,18 @@
 # Módulo TRI ENEM
 
 Este é o módulo principal para cálculo de notas do ENEM usando TRI. Os
-parâmetros dos itens e o catálogo de transformação são incluídos no pacote.
+parâmetros dos itens e o catálogo são incluídos no pacote.
 
-O catálogo também registra, por prova, correções de associação entre curvas
-e posições, gabaritos, exclusões e quadratura, validadas contra participantes
-reais; os CSVs oficiais não são alterados. `CalculadorTRI(reconstrucoes={})`
-calcula com a interpretação direta dos CSVs, e itens externos em
-`itens_path` não recebem essas correções implicitamente.
+O catálogo registra a escala de cada área e, por prova, a nota oficial de
+gabarito e correções de associação entre curvas e posições, gabaritos e
+exclusões, validadas contra participantes reais; os CSVs oficiais não são
+alterados. `CalculadorTRI(reconstrucoes={})` calcula com a interpretação
+direta dos CSVs, e itens externos em `itens_path` não recebem as correções
+nem as notas de gabarito implicitamente.
 
-`verificar_precisao_prova()` informa status, métricas e `confiavel`. Este só
-é `True` com status `ok` e evidência em casos não usados na pesquisa. Veja o
-[método](../../docs/SCORE_RECALCULATION.md#status-de-precisão).
+`verificar_precisao_prova()` informa status, `confiavel` (status `ok`) e as
+métricas da comparação com todos os participantes. Veja o
+[método](../../docs/SCORE_RECALCULATION.md#validação).
 
 ## Arquivos
 
@@ -21,9 +22,9 @@ calcula com a interpretação direta dos CSVs, e itens externos em
 | `calculador.py` | **CalculadorTRI** - Motor de cálculo com ML3 + EAP |
 | `mapeador_provas.py` | Resolve ano, área, aplicação e cor para o código da prova |
 | `posicoes.py` | Normalização de posições no caderno e ordem das áreas |
-| `calibracao_modelos.py` | Ajuste, seleção e avaliação dos modelos de escala |
-| `coeficientes.py` | Carrega e aplica o catálogo `coeficientes_data.json` |
-| `coeficientes_data.json` | Modelos, métricas do holdout e status por prova |
+| `calibracao_modelos.py` | Faixas de nota e status de precisão |
+| `coeficientes.py` | Escala por área e leitura do catálogo `coeficientes_data.json` |
+| `coeficientes_data.json` | Escala, reconstruções, notas de gabarito, métricas e status por prova |
 | `precisao.py` | Converte o status e as métricas em mensagens para o usuário |
 | `tradutor.py` | Tratamento especial para LC (múltiplas línguas) |
 | `config.py` | Configurações compartilhadas e nomes das áreas |

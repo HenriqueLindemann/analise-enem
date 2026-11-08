@@ -1,0 +1,62 @@
+name: Testes
+
+# A suite roda offline: os parametros TRI empacotados em
+# src/tri_enem/data/itens/ e o holdout oficial comprimido em tests/fixtures/
+# sao versionados. Nao ha download nem dependencia do diretorio atual.
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      OPENBLAS_NUM_THREADS: 1
+    strategy:
+      fail-fast: false
+      matrix:
+        # Piso declarado no pyproject e a versão estável mais nova.
+        python-version: ['3.10', '3.13']
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Instalar dependencias
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt \
+                      -r requirements-dev.txt \
+                      -r streamlit_app/requirements.txt
+
+      - name: Rodar a suite
+        run: pytest -q
+
+      - name: Validar holdout oficial completo
+        run: python tests/validar_holdout.py
+
+      - name: Validar confirmacao independente
+        run: python tests/validar_confirmacao.py
+
+      - name: Validar confirmacao residual pareada
+        run: python tests/validar_confirmacao_residual.py
+
+      - name: Validar erro medio dos modelos atuais
+        run: python tests/validar_erro_medio.py
+
+      - name: Construir e instalar o wheel
+        run: |
+          python -m build --wheel
+          python -m pip install --force-reinstall --no-deps dist/*.whl
+
+      - name: Testar wheel fora do repositorio
+        working-directory: /tmp
+        run: python "$GITHUB_WORKSPACE/tests/smoke_instalacao.py"

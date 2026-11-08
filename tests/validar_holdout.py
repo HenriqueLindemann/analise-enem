@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
-"""Valida o holdout real contra o catálogo v3 e retorna erro em divergências."""
+"""Valida holdout, teste somado e status do catálogo; retorna erro em divergências."""
 
 from __future__ import annotations
 
@@ -19,12 +19,12 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "src"))
 
-from tri_enem import (  # noqa: E402
-    CalculadorTRI,
-    MapeadorProvas,
-    aplicar_transformacao,
+from tri_enem import MapeadorProvas  # noqa: E402
+from tri_enem.calibracao_modelos import classificar_validacao  # noqa: E402
+from tools.avaliar_catalogo import (  # noqa: E402
+    avaliar, calculador, carregar_inconsistentes, casos_teste, notas_casos,
+    verificar_inconsistentes,
 )
-from tri_enem.calibracao_modelos import classificar_validacao, evidencia_adicional_mais_adversa  # noqa: E402
 
 ITEM_MANIFEST = ROOT / "src" / "tri_enem" / "data" / "itens" / "manifest.json"
 HOLDOUT_FIELDS = {
@@ -93,10 +93,13 @@ def validar(
     relatorio_path: Path | None = None,
 ) -> list[str]:
     catalogo = json.loads(catalogo_path.read_text(encoding="utf-8"))
-    if catalogo.get("schema_version") != 3:
-        return ["coeficientes_data.json não usa schema_version=3"]
+    if catalogo.get("schema_version") != 4:
+        return ["coeficientes_data.json não usa schema_version=4"]
     casos = carregar_holdout(holdout_path)
     falhas = []
+    escala = (catalogo.get("metadata") or {}).get("escala") or {}
+    if set(escala) != {"CN", "CH", "LC", "MT"}:
+        falhas.append("catálogo sem escala para as quatro áreas")
     mapeador = MapeadorProvas()
     esperadas = {
         f"{prova.ano},{prova.area},{prova.codigo}"
@@ -111,21 +114,19 @@ def validar(
             f"sobram={sorted(encontradas - esperadas)[:5]}"
         )
     status_validos = {
-        "ok", "aviso_leve", "aviso_forte", "erro_alto",
+        "ok", "aviso_leve", "aviso_forte", "erro_alto", "erro_raro",
         "nao_calibrado", "sem_participantes", "sem_itens",
     }
     for chave, info in catalogo.get("por_prova", {}).items():
         qualidade = info.get("qualidade") or {}
         status = qualidade.get("status")
-        validacao = info.get("validacao") or {}
+        teste = info.get("teste") or {}
         if status not in status_validos:
             falhas.append(f"{chave}: status inválido {status!r}")
         if not qualidade.get("motivo"):
             falhas.append(f"{chave}: prova sem motivo catalogado")
-        if status != "sem_itens" and not info.get("transformacao"):
-            falhas.append(f"{chave}: prova calculável sem transformação")
-        if status == "ok" and float(
-            validacao.get("erro_maximo", math.inf)
+        if status == "ok" and not info.get("censo") and float(
+            teste.get("erro_maximo", math.inf)
         ) > 2.0 + 1e-12:
             falhas.append(f"{chave}: ok com erro máximo >2")
 
@@ -173,32 +174,20 @@ def validar(
         )
         grupos[chave].append(caso)
 
-    calc = CalculadorTRI(reconstrucoes={
-        key: info["reconstrucao_itens"] for key, info in catalogo["por_prova"].items()
-        if "reconstrucao_itens" in info
-    })
+    inconsistentes = carregar_inconsistentes()
+    falhas.extend(verificar_inconsistentes(catalogo, casos, inconsistentes))
+    ids_holdout = {
+        r["case_id"] for r in inconsistentes.values() if r["amostra"] == "validation_holdout"
+    }
+    if not ids_holdout <= ids:
+        falhas.append("registro inconsistente do holdout ausente da fixture")
+    calc = calculador(catalogo)
     erros_por_prova = defaultdict(list)
     faixas_por_prova = defaultdict(list)
     for (ano, area, prova, lingua), grupo in sorted(grupos.items()):
+        grupo = [caso for caso in grupo if caso["case_id"] not in inconsistentes]
         try:
-            itens, respostas = calc.preparar_respostas_batch(
-                ano,
-                area,
-                prova,
-                [caso["respostas"] for caso in grupo],
-                lingua,
-            )
-            thetas = calc.estimar_theta_eap_batch(respostas, itens)
-            info = catalogo["por_prova"].get(f"{ano},{area},{prova}") or {}
-            transformacao = info.get("transformacao")
-            if not transformacao:
-                transformacao = {
-                    "tipo": "linear",
-                    **catalogo["por_area"][f"{ano},{area}"],
-                }
-            notas = np.asarray([
-                aplicar_transformacao(theta, transformacao) for theta in thetas
-            ])
+            notas = notas_casos(calc, grupo)
         except Exception as exc:
             falhas.append(f"{ano}/{area}/{prova}/{lingua}: cálculo falhou: {exc}")
             continue
@@ -234,18 +223,28 @@ def validar(
                     f"{chave}: {metrica} recalculado={valor:.12f} "
                     f"!= catálogo={validacao[metrica]:.12f}"
                 )
-        metricas_status = {
-            **validacao,
-            "faixas_cobertas": sorted(set(faixas_por_prova[chave])),
-        }
-        esperado, _ = classificar_validacao(
-            metricas_status, validacao.get("faixas_existentes", []),
-            evidencia_adicional_mais_adversa(info),
-        )
-        if esperado != status:
-            falhas.append(f"{chave}: status={status}, esperado={esperado}")
-        if status == "ok" and calculadas["erro_maximo"] > 2.0 + 1e-12:
-            falhas.append(f"{chave}: ok com erro máximo >2")
+
+    teste = avaliar(catalogo, casos_teste(holdout_path.parent), carregar_inconsistentes())["por_prova"]
+    for chave, info in catalogo["por_prova"].items():
+        status = (info.get("qualidade") or {}).get("status")
+        if status in ("sem_itens", "sem_participantes"):
+            continue
+        publicado, esperado = info.get("teste"), teste.get(chave)
+        if (publicado is None) != (esperado is None):
+            falhas.append(f"{chave}: teste publicado diverge das fixtures")
+            continue
+        if esperado:
+            for campo in ("n", "acima_2", "faixas_cobertas"):
+                if publicado.get(campo) != esperado[campo]:
+                    falhas.append(f"{chave}: teste.{campo} diverge das fixtures")
+            for campo in ("mae", "erro_p95", "erro_maximo"):
+                if not math.isclose(float(publicado.get(campo, math.nan)), esperado[campo],
+                                    rel_tol=0, abs_tol=1e-8):
+                    falhas.append(f"{chave}: teste.{campo} diverge das fixtures")
+        faixas = (info.get("validacao") or {}).get("faixas_existentes", [])
+        status_esperado, _ = classificar_validacao(esperado and {**esperado}, faixas, info.get("censo"))
+        if status_esperado != status:
+            falhas.append(f"{chave}: status={status}, esperado={status_esperado}")
 
     if manifesto_path is not None:
         try:

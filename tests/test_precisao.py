@@ -8,6 +8,7 @@ nota não é confiável nunca deve ser exibida sem aviso.
 """
 
 import json
+import re
 from pathlib import Path
 
 import pytest
@@ -21,7 +22,7 @@ from tri_enem import (  # noqa: E402
     verificar_precisao_prova,
 )
 import tri_enem.precisao as precisao_module  # noqa: E402
-from tri_enem.precisao import SEVERIDADE_POR_STATUS  # noqa: E402
+from tri_enem.precisao import SEVERIDADE_POR_STATUS, formatar_aviso_curto  # noqa: E402
 
 DADOS = Path(_utils.SRC_DIR) / "tri_enem" / "coeficientes_data.json"
 
@@ -39,42 +40,22 @@ def _chaves_por_status(dados, alvo):
     ]
 
 
-def test_resumo_para_usuario_e_curto_e_sem_codigos_internos():
+@pytest.mark.parametrize("formato, sep", [("texto", "; "), ("reportlab", " · ")])
+def test_resumo_traz_participantes_media_e_percentual(formato, sep):
     resumo = formatar_resumo_validacao({
-        "n_validacao": 300,
-        "mae": 0.38,
-        "erro_p95": 1.82,
-        "erro_maximo": 6.51,
-        "n_acima_2": 6,
-        "perfil": "boa_na_maioria_com_excecoes",
-        "status": "aviso_forte",
-    })
-
-    assert resumo == (
-        "Validada em 300 resultados oficiais. · "
-        "Erro absoluto médio: 0,38 ponto · "
-        "95% das estimativas diferiram até 1,82 pontos · "
-        "Maior diferença observada: 6,51 pontos"
-    )
-    assert "MAE" not in resumo
-    assert "p95" not in resumo
+        "n_validacao": 1005964, "mae": 0.0312, "percentual_ate_2": 99.98,
+        "status": "erro_raro",
+    }, formato=formato)
+    assert resumo == sep.join([
+        "Conferida com 1.005.964 participantes", "diferença média de 0,03 ponto",
+        "99,98% até 2 pontos",
+    ]) + "."
 
 
-def test_resumo_para_pdf_cabe_em_uma_linha_e_mantem_as_metricas():
-    resumo = formatar_resumo_validacao({
-        "n_validacao": 300,
-        "mae": 0.38,
-        "erro_p95": 1.82,
-        "erro_maximo": 6.51,
-    }, formato="reportlab")
-
-    assert resumo == (
-        "300 resultados oficiais · "
-        "erro absoluto médio: 0,38 ponto · "
-        "95% das estimativas: diferença de até 1,82 pontos · "
-        "maior diferença observada: 6,51 pontos"
-    )
-    assert "<br" not in resumo
+def test_percentual_nunca_arredonda_para_100():
+    from tri_enem.precisao import formatar_percentual
+    assert formatar_percentual(100.0) == "100%"
+    assert formatar_percentual(99.99) == "99,99%"
 
 
 def test_resumo_pdf_mais_longo_permanece_em_uma_linha_a4():
@@ -83,10 +64,9 @@ def test_resumo_pdf_mais_longo_permanece_em_uma_linha_a4():
     from tri_enem.relatorios.estilos import Medidas
 
     resumo = formatar_resumo_validacao({
-        "n_validacao": 210,
+        "n_validacao": 99999999,
         "mae": 38.09,
-        "erro_p95": 118.28,
-        "erro_maximo": 167.42,
+        "percentual_ate_2": 99.99,
     }, formato="reportlab")
 
     assert stringWidth(
@@ -123,9 +103,10 @@ class TestInvarianteNaoSilenciar:
                 sem_sev.append(chave)
         assert not sem_sev, f"provas sem severidade: {sem_sev[:10]}"
 
-    def test_erro_alto_sempre_avisa(self, dados):
-        chaves = _chaves_por_status(dados, "erro_alto")
-        assert chaves, "fixture sem provas erro_alto"
+    def test_status_com_erro_sempre_avisa(self, dados):
+        chaves = [c for s in ("aviso_leve", "aviso_forte", "erro_alto", "erro_raro")
+                  for c in _chaves_por_status(dados, s)]
+        assert chaves, "catálogo sem provas com aviso"
         for chave in chaves:
             r = _consultar(chave)
             assert r["aviso"], f"{chave} sem aviso"
@@ -158,12 +139,19 @@ class TestMensagens:
     def test_existem_avisos(self, avisos):
         assert avisos
 
-    def test_sem_jargao_tecnico(self, avisos):
-        proibidos = ["MAE", "R²", "slope", "intercept", "theta", "θ",
-                     "calibração parcial", "Falha:"]
-        for aviso in avisos:
-            for termo in proibidos:
-                assert termo not in aviso, f"jargão {termo!r} em: {aviso}"
+    def test_sem_jargao_tecnico(self, dados, avisos):
+        """Vale para o aviso e para a frase curta exibida ao lado da nota."""
+        frases = set(avisos) | {
+            formatar_aviso_curto(_consultar(chave), formato="texto")
+            for chave in _todas_chaves(dados)
+        }
+        proibidos = re.compile(
+            r"MAE|R²|slope|intercept|theta|θ|Falha:|p95|holdout|amostra|censo"
+            r"|status|erro_raro|perfil|\bteste\b",
+            re.IGNORECASE,
+        )
+        for frase in frases:
+            assert not proibidos.search(frase), f"jargão em: {frase}"
 
     def test_sem_emoji(self, avisos):
         for aviso in avisos:
@@ -192,22 +180,19 @@ class TestClassificacao:
             assert r["severidade"] == "sucesso"
             assert r["perfil"] == "calibracao_verificada"
 
-    def test_perfil_intermediario_nao_esconde_excecoes(self, dados):
-        encontrados = []
-        for chave in _todas_chaves(dados):
+    def test_erro_raro_avisa_com_a_proporcao_do_censo(self, dados):
+        from tri_enem.precisao import formatar_aviso_curto
+
+        chaves = _chaves_por_status(dados, "erro_raro")
+        assert chaves
+        for chave in chaves:
             r = _consultar(chave)
-            if r["perfil"] != "boa_na_maioria_com_excecoes":
-                continue
-            encontrados.append(chave)
             assert r["confiavel"] is False
             assert r["severidade"] == "atencao"
-            assert "maioria dos casos" in r["aviso"].lower()
-            assert "confiável" in r["aviso"].lower()
-            assert "exceções" in r["aviso"].lower()
-            assert not any(
-                caractere.isdigit() for caractere in r["aviso"]
-            ), r["aviso"]
-        assert encontrados
+            assert r["perfil"] == "boa_na_maioria_com_excecoes"
+            texto = formatar_aviso_curto(r, formato="texto")
+            assert texto.startswith("Nota precisa para quase todos nesta prova. Cerca de 1 em cada ")
+            assert texto.endswith(" participantes teve diferença acima de 2 pontos."), texto
 
     def test_severidade_coerente_com_status(self, dados):
         for chave in _todas_chaves(dados):
@@ -244,9 +229,10 @@ class TestClassificacao:
         [
             {"schema_version": 2, "por_prova": {}},
             {"schema_version": "inválido", "por_prova": {}},
-            {"schema_version": 3, "por_prova": []},
+            {"schema_version": 3, "por_prova": {}},
+            {"schema_version": 4, "por_prova": []},
             {
-                "schema_version": 3,
+                "schema_version": 4,
                 "por_prova": {
                     "2023,MT,1211": {
                         "qualidade": {"status": "ok"},
@@ -310,6 +296,21 @@ class TestFormatarAvisoCurto:
         from tri_enem.precisao import formatar_aviso_curto
         res = formatar_aviso_curto({"status": "ok", "aviso": "qualquer", "severidade": "sucesso"}, formato="texto")
         assert res == "Estimativa com alta confiabilidade nesta prova."
+
+    @pytest.mark.parametrize("n, acima, cada", [
+        (840825, 761, "1.100"), (958723, 1871, "510"), (233, 7, "33"), (1070411, 5, "210.000"),
+    ])
+    def test_erro_raro_arredonda_e_cabe_em_uma_linha_do_pdf(self, n, acima, cada):
+        pytest.importorskip("reportlab")
+        from reportlab.pdfbase.pdfmetrics import stringWidth
+        from tri_enem.precisao import formatar_aviso_curto
+        from tri_enem.relatorios.estilos import Medidas
+
+        precisao = {"status": "erro_raro", "severidade": "atencao",
+                    "n_validacao": n, "n_acima_2": acima}
+        texto = formatar_aviso_curto(precisao, formato="texto")
+        assert f" 1 em cada {cada} participantes " in texto
+        assert stringWidth(texto, "Helvetica-Bold", 8.2) <= Medidas.LARGURA_UTIL
 
     def test_boa_com_excecoes(self):
         from tri_enem.precisao import formatar_aviso_curto

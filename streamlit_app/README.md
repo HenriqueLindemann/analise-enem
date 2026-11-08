@@ -94,8 +94,8 @@ O aplicativo inclui otimizações completas para motores de busca e compartilham
 - **Download de relatório PDF** com detalhamento vetorial completo.
 
 O cálculo usa a mesma API e o mesmo catálogo do pacote. A mensagem de
-precisão distingue boa validação, exceções e evidência insuficiente; “Mais
-detalhes sobre a precisão” mostra as métricas e a origem da evidência.
+precisão distingue provas verificadas, com falhas raras e não verificadas.
+“Mais detalhes sobre a precisão” mostra a comparação com todos os participantes.
 
 Consulte o [método](../docs/SCORE_RECALCULATION.md) e as
 [métricas por prova](../docs/VALIDATION_REPORT.md).

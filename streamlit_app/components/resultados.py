@@ -13,7 +13,7 @@ from typing import Dict, List
 from tri_enem import MapeadorProvas, normalizar_posicoes_resultados
 from tri_enem.formatacao import formatar_numero
 from tri_enem.precisao import formatar_aviso_curto as _formatar_aviso_curto_tri
-from tri_enem.precisao import formatar_desempenho_tipico
+from tri_enem.precisao import formatar_percentual
 
 from ..config import AREAS_ENEM
 from .graficos import grafico_impacto, grade_questoes
@@ -237,70 +237,40 @@ def formatar_aviso_curto(resultado: Dict) -> str:
     return _formatar_aviso_curto_tri(resultado, formato="html")
 
 
+def formatar_inteiro(valor: int) -> str:
+    return f"{int(valor):,}".replace(",", ".")
+
+
 def exibir_aviso_acuracia(resultado: Dict):
-    """
-    Exibe a mensagem curta de calibração e expander nativo com métricas detalhadas.
-    """
+    """Frase curta de confiabilidade e, recolhida, a comparação com todos os participantes."""
     frase = formatar_aviso_curto(resultado)
     if not frase:
         return
 
     st.markdown(frase, unsafe_allow_html=True)
 
-    n_validacao = resultado.get('n_validacao')
-    mae = resultado.get('mae_validacao') if resultado.get('mae_validacao') is not None else resultado.get('mae')
-    erro_p95 = resultado.get('erro_p95')
-    erro_maximo = resultado.get('erro_maximo')
-    n_acima_2 = resultado.get('n_acima_2')
+    n = resultado.get('n_validacao')
+    mae = resultado.get('mae_validacao')
+    acima_2 = resultado.get('n_acima_2')
     percentual_ate_2 = resultado.get('percentual_ate_2')
-    modelo = resultado.get('modelo_nota')
-    status = resultado.get('status_precisao')
     co_prova = resultado.get('co_prova')
     aviso = resultado.get('aviso_precisao')
 
     with st.expander("Mais detalhes sobre a precisão", expanded=False):
-        if n_validacao:
-            diagnostico = resultado.get('origem_metricas') == 'diagnostico_calibracao'
-            tipico = resultado.get('desempenho_tipico')
-            exploratoria = isinstance(tipico, dict) and tipico.get('independente') is False
-            verbo = "Observada" if diagnostico or exploratoria else "Validada"
-            st.caption(f"{verbo} em {n_validacao} resultados oficiais.")
+        if n:
+            st.caption(
+                "Comparamos a nota calculada com a oficial de todos os "
+                "participantes desta prova."
+            )
             c1, c2, c3, c4 = st.columns(4)
-            c1.metric("Resultados oficiais", f"{n_validacao}")
-            c1.caption("observados no ajuste" if diagnostico else "resultados examinados" if exploratoria else "usados na validação")
-
-            mae_str = f"{formatar_numero(mae, 2)} pts" if mae is not None else "—"
-            c2.metric("Erro absoluto médio", mae_str)
-            c2.caption("diferença média para nota oficial")
-
-            p95_str = f"até {formatar_numero(erro_p95, 2)} pts" if erro_p95 is not None else "—"
-            c3.metric("95% das estimativas", p95_str)
-            c3.caption("diferença para a nota oficial")
-
-            max_str = f"{formatar_numero(erro_maximo, 2)} pts" if erro_maximo is not None else "—"
-            c4.metric("Maior diferença", max_str)
-            c4.caption("maior valor observado")
-
-            info_items = []
-            if percentual_ate_2 is not None:
-                casos_ok = n_validacao - (n_acima_2 or 0)
-                pct_str = f"{formatar_numero(percentual_ate_2)}%"
-                info_items.append(f"**{pct_str} dos casos** com erro ≤ 2,0 pts ({casos_ok}/{n_validacao})")
-            if co_prova:
-                info_items.append(f"Prova {co_prova}")
-            if modelo:
-                info_items.append(f"Ajuste TRI: {modelo}")
-            info_items.append("Microdados oficiais do INEP")
-            st.caption(" · ".join(info_items))
-            explicacao = formatar_desempenho_tipico(tipico)
-            if explicacao:
-                st.caption(explicacao)
-        else:
-            if status == 'sem_participantes':
-                st.caption("Prova sem participantes suficientes nos microdados do INEP. Aplicado ajuste médio.")
-            elif status == 'nao_calibrado':
-                st.caption("Amostra insuficiente para validação completa. Calculado como estimativa padrão.")
-            elif status == 'sem_itens':
-                st.caption("Parâmetros dos itens indisponíveis nos dados públicos.")
-            elif aviso:
-                st.caption(aviso)
+            c1.metric("Participantes", formatar_inteiro(n))
+            c2.metric("Diferença média",
+                      f"{formatar_numero(mae, 2)} pts" if mae is not None else "—")
+            c3.metric("Até 2 pontos",
+                      formatar_percentual(percentual_ate_2) if percentual_ate_2 is not None else "—")
+            c4.metric("Acima de 2 pontos",
+                      formatar_inteiro(acima_2) if acima_2 is not None else "—")
+            rodape = [f"Prova {co_prova}"] if co_prova else []
+            st.caption(" · ".join(rodape + ["Microdados oficiais do INEP"]))
+        elif aviso:
+            st.caption(aviso)

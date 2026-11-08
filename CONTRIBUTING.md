@@ -31,19 +31,19 @@ Os testes e o validador usam apenas artefatos versionados. Não é necessário
 baixar os microdados brutos do INEP para uma mudança comum de código ou
 documentação.
 
-Se a alteração afetar cálculo, seleção de itens, transformação de escala,
-mapeamento ou mensagens de precisão, inclua um teste de regressão apropriado.
-A integração contínua também instala o wheel e executa um smoke test fora do
-checkout.
+Se a alteração afetar cálculo, seleção de itens, escala, mapeamento ou
+mensagens de precisão, inclua um teste de regressão.
+A integração contínua (`.github/workflows/testes.yml`) roda a suíte e os
+validadores, instala o wheel e executa um smoke test fora do checkout.
 
 ## Dados e artefatos gerados
 
 - Os parâmetros de itens ficam somente em
   `src/tri_enem/data/itens/<ano>/` e são reproduzidos por
   `tools/gerar_dados_itens.py`.
-- O catálogo `src/tri_enem/coeficientes_data.json`, o holdout, o manifesto e
+- O catálogo `src/tri_enem/coeficientes_data.json`, os manifestos e
   `docs/VALIDATION_REPORT.md` são publicados juntos por
-  `tools/recalibrar_validacao.py`.
+  `tools/atualizar_catalogo.py`.
 - Não edite `docs/VALIDATION_REPORT.md` manualmente: ele é validado contra os
   demais artefatos.
 - Microdados brutos e extratos de participantes não devem ser commitados.
@@ -51,9 +51,8 @@ checkout.
   experimentos e notas de pesquisa ficam em `resultados/investigacao/`,
   evitando novos Markdown redundantes em `docs/`.
 
-Consulte [`tests/README.md`](tests/README.md) e
-[`tools/README.md`](tools/README.md) antes de recalibrar. Esse fluxo requer os
-microdados oficiais completos e é diferente da suíte offline usual.
+Atualizar o catálogo exige os microdados completos; veja
+[`tools/README.md`](tools/README.md).
 
 ## Acordo de Licença para Contribuidores (CLA)
 

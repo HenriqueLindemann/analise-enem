@@ -5,12 +5,12 @@
     "co_prova": 69,
     "respostas": "BCADDEBEECCEABBDECBEDCDCBDCADECACDEACDBCEDACD",
     "tp_lingua": null,
-    "nota": 461.86512069227456,
-    "theta": -0.35280652649784805,
+    "nota": 461.86530105516954,
+    "theta": -0.35280659374031376,
     "acertos": 13,
     "total_itens": 45,
     "nota_oficial": 461.9,
-    "erro": -0.034879307725418585
+    "erro": -0.03469894483043845
   },
   {
     "ano": 2009,
@@ -18,12 +18,12 @@
     "co_prova": 53,
     "respostas": "AACBAABAEBDDDBEEDEBBEEEDCDEECCCAADDEABBDDEDCD",
     "tp_lingua": null,
-    "nota": 626.2553637498396,
-    "theta": 1.1109006852535188,
+    "nota": 626.2543093512146,
+    "theta": 1.1109006814626678,
     "acertos": 26,
     "total_itens": 45,
     "nota_oficial": 626.3,
-    "erro": -0.044636250160351665
+    "erro": -0.045690648785353005
   },
   {
     "ano": 2009,
@@ -31,12 +31,12 @@
     "co_prova": 50,
     "respostas": "CCBEDCDBEDBEDEBCBAAECEECABDEDABEDACAEBABBADEB",
     "tp_lingua": null,
-    "nota": 432.32334824905195,
-    "theta": -0.6084855599353253,
+    "nota": 432.32230057637696,
+    "theta": -0.6084855603746505,
     "acertos": 11,
     "total_itens": 43,
     "nota_oficial": 432.3,
-    "erro": 0.023348249051935
+    "erro": 0.022300576376949266
   },
   {
     "ano": 2009,
@@ -44,12 +44,12 @@
     "co_prova": 51,
     "respostas": "DCCBBDDCECBDAECBCECBEBCDDBCEBADAECCDCBCDAEBCD",
     "tp_lingua": null,
-    "nota": 571.7876401379214,
-    "theta": 0.6246029775299717,
+    "nota": 571.78745314809,
+    "theta": 0.6246029775165808,
     "acertos": 20,
     "total_itens": 43,
     "nota_oficial": 571.8,
-    "erro": -0.012359862078596962
+    "erro": -0.012546851909974066
   },
   {
     "ano": 2009,
@@ -57,12 +57,12 @@
     "co_prova": 58,
     "respostas": "ADADAACDCCCCCADDEBBCACCEAEEDECDBBBBEBEACECDDE",
     "tp_lingua": null,
-    "nota": 569.7822588301185,
-    "theta": 0.6458433150529945,
+    "nota": 569.7845866683836,
+    "theta": 0.6458433150478027,
     "acertos": 26,
     "total_itens": 44,
     "nota_oficial": 569.8,
-    "erro": -0.017741169881446694
+    "erro": -0.015413331616400683
   },
   {
     "ano": 2009,
@@ -70,12 +70,12 @@
     "co_prova": 59,
     "respostas": "AAECDCDDCECCCACDDBCCCDDDAEDCECADDDDACEEEDDBAD",
     "tp_lingua": null,
-    "nota": 652.4081759215402,
-    "theta": 1.4102302064494474,
+    "nota": 652.4040974084105,
+    "theta": 1.4102302064568402,
     "acertos": 32,
     "total_itens": 44,
     "nota_oficial": 652.4,
-    "erro": 0.008175921540214404
+    "erro": 0.004097408410530079
   },
   {
     "ano": 2009,
@@ -83,12 +83,12 @@
     "co_prova": 61,
     "respostas": "AABDCCEADCABAEDACCDDAEBEBDABECDBEBCDBBECDCDDD",
     "tp_lingua": null,
-    "nota": 691.728113889182,
-    "theta": 1.4787598842185448,
+    "nota": 691.734980943198,
+    "theta": 1.4787601035511277,
     "acertos": 16,
     "total_itens": 43,
     "nota_oficial": 691.7,
-    "erro": 0.02811388918200919
+    "erro": 0.034980943197979286
   },
   {
     "ano": 2009,
@@ -96,12 +96,12 @@
     "co_prova": 63,
     "respostas": "DCCDDACEEBDCDBDBCDEDCBABCDEDCBAAABCCBADCCDEEE",
     "tp_lingua": null,
-    "nota": 419.014639106006,
-    "theta": -0.6248209997528725,
+    "nota": 419.0136391549688,
+    "theta": -0.6248217974831224,
     "acertos": 8,
     "total_itens": 43,
     "nota_oficial": 419.0,
-    "erro": 0.014639106005972735
+    "erro": 0.013639154968814182
   },
   {
     "ano": 2010,
@@ -109,12 +109,12 @@
     "co_prova": 104,
     "respostas": "CADBBBDDAEEEDEEAAEBCDAACDAAAEAABEABCCAEDBDEBB",
     "tp_lingua": 0,
-    "nota": 541.8705173025135,
-    "theta": 0.3595470065513821,
+    "nota": 541.8697554264911,
+    "theta": 0.35954700657497995,
     "acertos": 23,
     "total_itens": 44,
     "nota_oficial": 541.9,
-    "erro": -0.029482697486514553
+    "erro": -0.03024457350886678
   },
   {
     "ano": 2010,
@@ -122,12 +122,12 @@
     "co_prova": 87,
     "respostas": "AABBEBDBBADEDBBDCDEBDCBCBAEEECDBDEDAAACDABECD",
     "tp_lingua": 0,
-    "nota": 546.9505365558207,
-    "theta": 0.4047693397305697,
+    "nota": 546.9486770253965,
+    "theta": 0.40476933969542467,
     "acertos": 19,
     "total_itens": 42,
     "nota_oficial": 546.9,
-    "erro": 0.05053655582071315
+    "erro": 0.04867702539650054
   },
   {
     "ano": 2010,
@@ -135,12 +135,12 @@
     "co_prova": 106,
     "respostas": "CABCEDADCEEAEADCACDCBEBBBBCCDCDDDD.BCCDDDDCCC",
     "tp_lingua": 1,
-    "nota": 511.70446832033196,
-    "theta": 0.0933659069074878,
+    "nota": 511.7033127240405,
+    "theta": 0.09336586559469022,
     "acertos": 18,
     "total_itens": 45,
     "nota_oficial": 511.7,
-    "erro": 0.004468320331966424
+    "erro": 0.003312724040483772
   },
   {
     "ano": 2010,
@@ -148,12 +148,12 @@
     "co_prova": 105,
     "respostas": "DEACDEACDCEECAECCAEBBECEBADACBACADADCCADDCEAA",
     "tp_lingua": 0,
-    "nota": 523.7318695795749,
-    "theta": 0.1997016590397762,
+    "nota": 523.7301186777862,
+    "theta": 0.1997015078360754,
     "acertos": 15,
     "total_itens": 45,
     "nota_oficial": 523.7,
-    "erro": 0.031869579574845375
+    "erro": 0.03011867778616306
   },
   {
     "ano": 2010,
@@ -161,12 +161,12 @@
     "co_prova": 96,
     "respostas": "EAADCAEAECAAACCDBDACCCCCBCABAACDECDEBEEDEBAAA",
     "tp_lingua": 0,
-    "nota": 563.6383231074918,
-    "theta": 0.5889648224070954,
+    "nota": 563.6368668942864,
+    "theta": 0.5889652681399401,
     "acertos": 26,
     "total_itens": 42,
     "nota_oficial": 563.6,
-    "erro": 0.038323107491805786
+    "erro": 0.03686689428639056
   },
   {
     "ano": 2010,
@@ -174,12 +174,12 @@
     "co_prova": 94,
     "respostas": "EEECBBEEB*ECABEDAEACCCCCCCACDBCDDABABCEEBEECB",
     "tp_lingua": 1,
-    "nota": 431.4411992377361,
-    "theta": -0.6341008168497249,
+    "nota": 431.44056319636263,
+    "theta": -0.634100817997814,
     "acertos": 10,
     "total_itens": 42,
     "nota_oficial": 431.4,
-    "erro": 0.041199237736122996
+    "erro": 0.04056319636265471
   },
   {
     "ano": 2010,
@@ -187,12 +187,12 @@
     "co_prova": 99,
     "respostas": "CEEDBDACCABDEDBBCDCABDDABEDBCBCDBDDBABEDBEDCD",
     "tp_lingua": 0,
-    "nota": 676.7802962967705,
-    "theta": 1.3633103707818355,
+    "nota": 676.767361895488,
+    "theta": 1.3633103469465007,
     "acertos": 26,
     "total_itens": 42,
     "nota_oficial": 676.8,
-    "erro": -0.01970370322942472
+    "erro": -0.032638104511988786
   },
   {
     "ano": 2010,
@@ -200,12 +200,12 @@
     "co_prova": 99,
     "respostas": "CCDEADDCDABCCDACEACEAAEBCCBABACABCBCDBAABBCBD",
     "tp_lingua": 1,
-    "nota": 521.0423357732574,
-    "theta": 0.1621464506691845,
+    "nota": 521.041059096756,
+    "theta": 0.16214644120140764,
     "acertos": 14,
     "total_itens": 42,
     "nota_oficial": 521.0,
-    "erro": 0.042335773257377696
+    "erro": 0.0410590967560438
   },
   {
     "ano": 2011,
@@ -213,12 +213,12 @@
     "co_prova": 118,
     "respostas": "EBECCACEABABDABEDECEECDCBBCBDBBCEDBABEDBBCAAE",
     "tp_lingua": 1,
-    "nota": 503.27281191585143,
-    "theta": 0.015889022286151216,
+    "nota": 503.2735156425517,
+    "theta": 0.015889011719918196,
     "acertos": 22,
     "total_itens": 45,
     "nota_oficial": 503.3,
-    "erro": -0.027188084148576763
+    "erro": -0.026484357448339324
   },
   {
     "ano": 2011,
@@ -226,12 +226,12 @@
     "co_prova": 120,
     "respostas": "BEEDACEDCAEDEDAEEEEBECCEECDDCDCADCEDADBBEEAAE",
     "tp_lingua": 0,
-    "nota": 426.2169661076414,
-    "theta": -0.6702477731826354,
+    "nota": 426.21345746820066,
+    "theta": -0.6702479079349232,
     "acertos": 15,
     "total_itens": 45,
     "nota_oficial": 426.2,
-    "erro": 0.0169661076413945
+    "erro": 0.013457468200670064
   },
   {
     "ano": 2011,
@@ -239,12 +239,12 @@
     "co_prova": 124,
     "respostas": "CCAABBCEAECABEACBCDDCCEDECEEAEABAECEEDBCEABCD",
     "tp_lingua": 1,
-    "nota": 436.2097304841949,
-    "theta": -0.5736109858027716,
+    "nota": 436.2666946260826,
+    "theta": -0.5736109913376474,
     "acertos": 10,
     "total_itens": 44,
     "nota_oficial": 436.2,
-    "erro": 0.009730484194903966
+    "erro": 0.06669462608260801
   },
   {
     "ano": 2011,
@@ -252,12 +252,12 @@
     "co_prova": 121,
     "respostas": "DCEEBCADBEAAEEBBBEACEDDEDABDBBEAEBBBDCDBCBDCB",
     "tp_lingua": 0,
-    "nota": 566.0222770581508,
-    "theta": 0.5737598971828718,
+    "nota": 566.0369835923341,
+    "theta": 0.573759896173742,
     "acertos": 22,
     "total_itens": 44,
     "nota_oficial": 566.0,
-    "erro": 0.02227705815084846
+    "erro": 0.03698359233408155
   },
   {
     "ano": 2011,
@@ -265,12 +265,12 @@
     "co_prova": 127,
     "respostas": "EEDBDEDECDADDCAACBEDACBBDDCEEABAAEBCDCBABCEEE",
     "tp_lingua": 0,
-    "nota": 680.85221349345,
-    "theta": 1.6734573850286443,
+    "nota": 680.8552666131648,
+    "theta": 1.6734573859762947,
     "acertos": 39,
     "total_itens": 45,
     "nota_oficial": 680.9,
-    "erro": -0.04778650654998273
+    "erro": -0.04473338683521888
   },
   {
     "ano": 2011,
@@ -278,12 +278,12 @@
     "co_prova": 127,
     "respostas": "EEDBDCDEBBADDCAABBEDACBBDDCAEAEAAEBDDBBACECAD",
     "tp_lingua": 0,
-    "nota": 585.9911935060419,
-    "theta": 0.7958094778639843,
+    "nota": 585.9907289524107,
+    "theta": 0.7957808129978908,
     "acertos": 31,
     "total_itens": 45,
     "nota_oficial": 586.0,
-    "erro": -0.008806493958104511
+    "erro": -0.009271047589322734
   },
   {
     "ano": 2011,
@@ -291,12 +291,12 @@
     "co_prova": 131,
     "respostas": "ECEACECBEEDDDBAEBEABDDDADACBEADBDCEDCCBBBEEBD",
     "tp_lingua": 1,
-    "nota": 531.8718681696258,
-    "theta": 0.2456247277810354,
+    "nota": 531.8632719501171,
+    "theta": 0.24562143050073523,
     "acertos": 15,
     "total_itens": 45,
     "nota_oficial": 531.9,
-    "erro": -0.028131830374150013
+    "erro": -0.03672804988286771
   },
   {
     "ano": 2011,
@@ -304,12 +304,12 @@
     "co_prova": 131,
     "respostas": "CBBDBBDDAAEBCCBDEEDABCCAACACCEDEDAADDDABADCAB",
     "tp_lingua": 1,
-    "nota": 440.7097721529305,
-    "theta": -0.4574497970107284,
+    "nota": 440.72510013989347,
+    "theta": -0.45735475558083016,
     "acertos": 13,
     "total_itens": 45,
     "nota_oficial": 440.7,
-    "erro": 0.009772152930509037
+    "erro": 0.02510013989348181
   },
   {
     "ano": 2012,
@@ -317,12 +317,12 @@
     "co_prova": 139,
     "respostas": "AABDEADEEABABDBEDBBDABBDECEABEADABEEADADEACCA",
     "tp_lingua": 1,
-    "nota": 547.2903044339746,
-    "theta": 0.4078480373378983,
+    "nota": 547.2944454506769,
+    "theta": 0.40784803555754057,
     "acertos": 19,
     "total_itens": 45,
     "nota_oficial": 547.3,
-    "erro": -0.009695566025357039
+    "erro": -0.005554549323051106
   },
   {
     "ano": 2012,
@@ -330,12 +330,12 @@
     "co_prova": 138,
     "respostas": "AEDECEEAAABDEDDBEEEEDACBBEBCCAABDCEBDDCAEEEDA",
     "tp_lingua": 1,
-    "nota": 549.0998732146886,
-    "theta": 0.4239166207203409,
+    "nota": 549.0991074845789,
+    "theta": 0.4239166095801295,
     "acertos": 20,
     "total_itens": 45,
     "nota_oficial": 549.1,
-    "erro": -0.00012678531140863925
+    "erro": -0.000892515421128337
   },
   {
     "ano": 2012,
@@ -343,12 +343,12 @@
     "co_prova": 141,
     "respostas": "ABAAAEEADCDBEBECEAADCCAEEEACCEDDDBDBDAECEAABA",
     "tp_lingua": 0,
-    "nota": 465.138851078622,
-    "theta": -0.3183539543697203,
+    "nota": 465.13680876400156,
+    "theta": -0.31835434711769234,
     "acertos": 12,
     "total_itens": 45,
     "nota_oficial": 465.1,
-    "erro": 0.03885107862197401
+    "erro": 0.036808764001534655
   },
   {
     "ano": 2012,
@@ -356,12 +356,12 @@
     "co_prova": 142,
     "respostas": "BEDAACDAEEDAAEEEEEAEECBBDDCAACEECADDBBAACDECA",
     "tp_lingua": 0,
-    "nota": 535.0735500118478,
-    "theta": 0.29997654476674807,
+    "nota": 535.071491923824,
+    "theta": 0.2999768604654321,
     "acertos": 15,
     "total_itens": 45,
     "nota_oficial": 535.1,
-    "erro": -0.026449988152194237
+    "erro": -0.02850807617596729
   },
   {
     "ano": 2012,
@@ -369,12 +369,12 @@
     "co_prova": 146,
     "respostas": "ADEEBAAABEBDDBEAEEDCCDBCAACADDBAABBDEDACDADAE",
     "tp_lingua": 1,
-    "nota": 532.6022135423749,
-    "theta": 0.3018349395874868,
+    "nota": 532.602102424583,
+    "theta": 0.3018349411006724,
     "acertos": 22,
     "total_itens": 45,
     "nota_oficial": 532.6,
-    "erro": 0.0022135423748750327
+    "erro": 0.002102424582972162
   },
   {
     "ano": 2012,
@@ -382,12 +382,12 @@
     "co_prova": 155,
     "respostas": "BBDBAACBADAEDDBCEBDABCCBCCEEADEBACBEABDCEABCA",
     "tp_lingua": 1,
-    "nota": 510.12177919801053,
-    "theta": 0.09385682019299775,
+    "nota": 510.1225914026505,
+    "theta": 0.09385690544613001,
     "acertos": 20,
     "total_itens": 45,
     "nota_oficial": 510.1,
-    "erro": 0.021779198010506207
+    "erro": 0.022591402650505188
   },
   {
     "ano": 2012,
@@ -395,12 +395,12 @@
     "co_prova": 150,
     "respostas": "ABCDBCBDCBACDABBC*DBCACDABCBDEEDCBCBEDBCCBBCB",
     "tp_lingua": 1,
-    "nota": 291.94466101505463,
-    "theta": -1.604876204567026,
+    "nota": 291.95205929727194,
+    "theta": -1.6048860563082283,
     "acertos": 8,
     "total_itens": 45,
     "nota_oficial": 292.0,
-    "erro": -0.055338984945365155
+    "erro": -0.04794070272805584
   },
   {
     "ano": 2012,
@@ -408,12 +408,12 @@
     "co_prova": 156,
     "respostas": "CCAECADCCDACABEACBDDEEBCCEADABDDEBBADCAACABCE",
     "tp_lingua": 0,
-    "nota": 448.56825122002823,
-    "theta": -0.3968574212487347,
+    "nota": 448.5683029999395,
+    "theta": -0.396857768163746,
     "acertos": 9,
     "total_itens": 45,
     "nota_oficial": 448.6,
-    "erro": -0.031748779971792374
+    "erro": -0.03169700006054654
   },
   {
     "ano": 2013,
@@ -421,12 +421,12 @@
     "co_prova": 167,
     "respostas": "EBEBABDBBCCDDAEEEBBABDDECBBAEACABCEDCACADACCA",
     "tp_lingua": 0,
-    "nota": 648.7120859910391,
-    "theta": 1.3108343837141259,
+    "nota": 648.7088672242681,
+    "theta": 1.310834363531395,
     "acertos": 28,
     "total_itens": 45,
     "nota_oficial": 648.7,
-    "erro": 0.01208599103904362
+    "erro": 0.008867224268101381
   },
   {
     "ano": 2013,
@@ -434,12 +434,12 @@
     "co_prova": 170,
     "respostas": "DBBDADCAAEBBCBDACDABCACBEEBEDADEEEBDCBECACDAA",
     "tp_lingua": 1,
-    "nota": 388.007287260235,
-    "theta": -1.0102384424247115,
+    "nota": 388.02877632222373,
+    "theta": -1.0102414158586355,
     "acertos": 12,
     "total_itens": 45,
     "nota_oficial": 388.0,
-    "erro": 0.007287260234988935
+    "erro": 0.028776322223734496
   },
   {
     "ano": 2013,
@@ -447,12 +447,12 @@
     "co_prova": 174,
     "respostas": "ACEAEADECEBCAAABDADDDBEECCCABBEDAECCAEBBBECAC",
     "tp_lingua": 1,
-    "nota": 480.97891842911474,
-    "theta": -0.17826967696164037,
+    "nota": 480.9806936153979,
+    "theta": -0.17826979950369626,
     "acertos": 11,
     "total_itens": 45,
     "nota_oficial": 481.0,
-    "erro": -0.02108157088525786
+    "erro": -0.01930638460208911
   },
   {
     "ano": 2013,
@@ -460,12 +460,12 @@
     "co_prova": 174,
     "respostas": "ACEDAEBCCEBEADBEBACCDACAEBBEDBCDCADADBDACAADD",
     "tp_lingua": 0,
-    "nota": 346.46475603553165,
-    "theta": -1.3675759880615166,
+    "nota": 346.4666324534152,
+    "theta": -1.3675830002959286,
     "acertos": 6,
     "total_itens": 45,
     "nota_oficial": 346.5,
-    "erro": -0.035243964468349986
+    "erro": -0.03336754658482732
   },
   {
     "ano": 2013,
@@ -473,12 +473,12 @@
     "co_prova": 175,
     "respostas": "BADBBDECDDBABCDECEBDABBACEDEEACBDBCBBCAECECAE",
     "tp_lingua": 0,
-    "nota": 351.31838536336795,
-    "theta": -1.375368947922872,
+    "nota": 351.31971242285374,
+    "theta": -1.3753703741988899,
     "acertos": 7,
     "total_itens": 45,
     "nota_oficial": 351.3,
-    "erro": 0.0183853633679405
+    "erro": 0.019712422853729095
   },
   {
     "ano": 2013,
@@ -486,12 +486,12 @@
     "co_prova": 189,
     "respostas": "CEABCCCAECADAEBABDDEBEADEDDCEBDEBACEECBEBECAA",
     "tp_lingua": 1,
-    "nota": 480.7635387869129,
-    "theta": -0.17776264627749344,
+    "nota": 480.76432038281865,
+    "theta": -0.17776268320777844,
     "acertos": 17,
     "total_itens": 45,
     "nota_oficial": 480.8,
-    "erro": -0.03646121308713646
+    "erro": -0.03567961718135848
   },
   {
     "ano": 2013,
@@ -499,12 +499,12 @@
     "co_prova": 180,
     "respostas": "CABECACABBBBADEBCBBDCACBDEDDEABACACABCACCDBAA",
     "tp_lingua": 1,
-    "nota": 495.5790684194073,
-    "theta": -0.03421971441132269,
+    "nota": 495.58292006234717,
+    "theta": -0.03421985765752324,
     "acertos": 9,
     "total_itens": 44,
     "nota_oficial": 495.6,
-    "erro": -0.02093158059273037
+    "erro": -0.017079937652852095
   },
   {
     "ano": 2013,
@@ -512,12 +512,12 @@
     "co_prova": 181,
     "respostas": "BDCCEDCCCABCADDCBECCDCBABDCCCABBBBBABEBDDCCBC",
     "tp_lingua": 1,
-    "nota": 610.5054240455468,
-    "theta": 0.8521662844185605,
+    "nota": 610.4994904847795,
+    "theta": 0.8521662831721408,
     "acertos": 13,
     "total_itens": 44,
     "nota_oficial": 610.5,
-    "erro": 0.005424045546760681
+    "erro": -0.0005095152205285558
   },
   {
     "ano": 2014,
@@ -525,12 +525,12 @@
     "co_prova": 195,
     "respostas": "EBAAAEADBCAADBDECCCEAEBACAEEBBADDABBDEECACEBA",
     "tp_lingua": 0,
-    "nota": 587.34735692107,
-    "theta": 0.7644695184875286,
+    "nota": 587.346678216531,
+    "theta": 0.7644700816126383,
     "acertos": 20,
     "total_itens": 45,
     "nota_oficial": 587.3,
-    "erro": 0.047356921069990676
+    "erro": 0.0466782165310633
   },
   {
     "ano": 2014,
@@ -538,12 +538,12 @@
     "co_prova": 196,
     "respostas": "DBCBBDBDAAABDAECACBCBEEDBBDCBBCBDDBCCCDCDCDEC",
     "tp_lingua": 0,
-    "nota": 548.0161474942357,
-    "theta": 0.4142647101630557,
+    "nota": 548.0151014801944,
+    "theta": 0.4142647022450365,
     "acertos": 18,
     "total_itens": 45,
     "nota_oficial": 548.0,
-    "erro": 0.01614749423572448
+    "erro": 0.015101480194402939
   },
   {
     "ano": 2014,
@@ -551,12 +551,12 @@
     "co_prova": 200,
     "respostas": "EAECBCBCADAEBBDEEABCDEEBCADCEDCDBEDABEDBDCADA",
     "tp_lingua": 1,
-    "nota": 595.9356147667112,
-    "theta": 0.8380943797650371,
+    "nota": 595.9337952584026,
+    "theta": 0.8380941410021464,
     "acertos": 17,
     "total_itens": 43,
     "nota_oficial": 595.9,
-    "erro": 0.03561476671120545
+    "erro": 0.033795258402619766
   },
   {
     "ano": 2014,
@@ -564,12 +564,12 @@
     "co_prova": 202,
     "respostas": "BCDCACABEACAABBCCBCABCCACABDBEBBACDDDACBBBCDD",
     "tp_lingua": 1,
-    "nota": 452.5100836014044,
-    "theta": -0.43000167262486955,
+    "nota": 452.509212581265,
+    "theta": -0.4300019080096146,
     "acertos": 11,
     "total_itens": 43,
     "nota_oficial": 452.5,
-    "erro": 0.010083601404403453
+    "erro": 0.009212581264989694
   },
   {
     "ano": 2014,
@@ -577,12 +577,12 @@
     "co_prova": 217,
     "respostas": "DBCADBAA.BBCDEDCBDBCBBAEEBCAEBDBBABADCCDCACBC",
     "tp_lingua": 1,
-    "nota": 594.1757184498149,
-    "theta": 0.8714805526483058,
+    "nota": 594.1733355569377,
+    "theta": 0.8714854155794607,
     "acertos": 27,
     "total_itens": 44,
     "nota_oficial": 594.2,
-    "erro": -0.02428155018515099
+    "erro": -0.02666444306237281
   },
   {
     "ano": 2014,
@@ -590,12 +590,12 @@
     "co_prova": 204,
     "respostas": "ADBEEBBDDBBCBEAABDBCBAAEEBBAECDBBAABDCBDDACAC",
     "tp_lingua": 1,
-    "nota": 534.463014869064,
-    "theta": 0.3190474977240928,
+    "nota": 534.4632545765656,
+    "theta": 0.31905412208045075,
     "acertos": 18,
     "total_itens": 44,
     "nota_oficial": 534.5,
-    "erro": -0.03698513093604561
+    "erro": -0.03674542343435405
   },
   {
     "ano": 2014,
@@ -603,12 +603,12 @@
     "co_prova": 210,
     "respostas": "CDCBDBDADDBBADDCBBABCBCCDADEDACBCCCACDBCCBBED",
     "tp_lingua": 1,
-    "nota": 338.5378913719832,
-    "theta": -1.245405221473659,
+    "nota": 338.5566543736428,
+    "theta": -1.245410768951326,
     "acertos": 7,
     "total_itens": 44,
     "nota_oficial": 338.6,
-    "erro": -0.062108628016801504
+    "erro": -0.0433456263572225
   },
   {
     "ano": 2014,
@@ -616,12 +616,12 @@
     "co_prova": 210,
     "respostas": "DDCDACCCDCDAEEBDAEADEACCDBAEEBBCADCEABBDEBABE",
     "tp_lingua": 1,
-    "nota": 478.17611113200945,
-    "theta": -0.16856796014859038,
+    "nota": 478.1651896580354,
+    "theta": -0.1685680615617681,
     "acertos": 9,
     "total_itens": 44,
     "nota_oficial": 478.2,
-    "erro": -0.0238888679905358
+    "erro": -0.034810341964600866
   },
   {
     "ano": 2015,
@@ -629,12 +629,12 @@
     "co_prova": 233,
     "respostas": "CBBDDEDEEABBECBEEAEACBCCDBABEDEDEEDEABDAEAABE",
     "tp_lingua": 0,
-    "nota": 589.2603468289792,
-    "theta": 0.7815098464424898,
+    "nota": 589.2600165939955,
+    "theta": 0.7815063015646211,
     "acertos": 23,
     "total_itens": 45,
     "nota_oficial": 589.3,
-    "erro": -0.039653171020745503
+    "erro": -0.039983406004466815
   },
   {
     "ano": 2015,
@@ -642,12 +642,12 @@
     "co_prova": 274,
     "respostas": "CDCACAEEEDAAEEADBBAACADCDABEEDAAAEBDEBAABDEAC",
     "tp_lingua": 1,
-    "nota": 446.8193747856287,
-    "theta": -0.48675762474497886,
+    "nota": 446.8212106807996,
+    "theta": -0.4867580346427418,
     "acertos": 14,
     "total_itens": 45,
     "nota_oficial": 446.8,
-    "erro": 0.019374785628713198
+    "erro": 0.02121068079958377
   },
   {
     "ano": 2015,
@@ -655,12 +655,12 @@
     "co_prova": 278,
     "respostas": "BADECCDCECEBADDBABCDABDBCAAEDCBCEACBDEDCDCBEA",
     "tp_lingua": 1,
-    "nota": 446.182786324437,
-    "theta": -0.48595185405580993,
+    "nota": 446.18108870445167,
+    "theta": -0.48595235064683157,
     "acertos": 12,
     "total_itens": 45,
     "nota_oficial": 446.2,
-    "erro": -0.01721367556297082
+    "erro": -0.01891129554832105
   },
   {
     "ano": 2015,
@@ -668,12 +668,12 @@
     "co_prova": 235,
     "respostas": "DCCCDEBBBAACBACEACEEBDCEDABDBBEDECBDEBDCDABED",
     "tp_lingua": 0,
-    "nota": 573.18651748273,
-    "theta": 0.6369615987169617,
+    "nota": 573.1851198331418,
+    "theta": 0.6369605215865497,
     "acertos": 15,
     "total_itens": 45,
     "nota_oficial": 573.2,
-    "erro": -0.013482517270063
+    "erro": -0.014880166858233679
   },
   {
     "ano": 2015,
@@ -681,12 +681,12 @@
     "co_prova": 279,
     "respostas": "ECAAC99999EEBEDBADCABAACEBEBCBEBBADEAEABCABAECCCDB",
     "tp_lingua": 0,
-    "nota": 509.958800015855,
-    "theta": 0.0923339549515609,
+    "nota": 509.95803480479066,
+    "theta": 0.0923344453737782,
     "acertos": 18,
     "total_itens": 45,
     "nota_oficial": 510.0,
-    "erro": -0.041199984145009694
+    "erro": -0.041965195209343165
   },
   {
     "ano": 2015,
@@ -694,12 +694,12 @@
     "co_prova": 239,
     "respostas": "ABCEB99999BDEBEBDBBCDACBAECBABCDBCBAAECAAACCBAEDBC",
     "tp_lingua": 0,
-    "nota": 476.49642246440084,
-    "theta": -0.2172547170807114,
+    "nota": 476.49581159138046,
+    "theta": -0.21725447076273485,
     "acertos": 14,
     "total_itens": 45,
     "nota_oficial": 476.5,
-    "erro": -0.003577535599163184
+    "erro": -0.004188408619540951
   },
   {
     "ano": 2015,
@@ -707,12 +707,12 @@
     "co_prova": 285,
     "respostas": "DBEADADCACBBDCDDAAECCDAEDBDDEACBADDABBCBCAAEA",
     "tp_lingua": 1,
-    "nota": 302.91147047411846,
-    "theta": -1.5203540377477942,
+    "nota": 302.91019346072716,
+    "theta": -1.520362664980647,
     "acertos": 7,
     "total_itens": 45,
     "nota_oficial": 302.9,
-    "erro": 0.011470474118482343
+    "erro": 0.010193460727180081
   },
   {
     "ano": 2015,
@@ -720,12 +720,12 @@
     "co_prova": 245,
     "respostas": "EAAEBECBABDCAAACDDABDDABABBDCBDEBEABCBECCCCCB",
     "tp_lingua": 1,
-    "nota": 494.0561393412383,
-    "theta": -0.04587960793053299,
+    "nota": 494.07126742283145,
+    "theta": -0.04587969004279054,
     "acertos": 12,
     "total_itens": 45,
     "nota_oficial": 494.1,
-    "erro": -0.043860658761730065
+    "erro": -0.028732577168568696
   },
   {
     "ano": 2016,
@@ -733,12 +733,12 @@
     "co_prova": 338,
     "respostas": "BACBDCBBCEABACEADDAEEBDCDACBEAACEBBEACEAAEBDA",
     "tp_lingua": 0,
-    "nota": 528.1318554332638,
-    "theta": 0.23717111934814203,
+    "nota": 528.1256831861975,
+    "theta": 0.23717082864461436,
     "acertos": 17,
     "total_itens": 45,
     "nota_oficial": 528.1,
-    "erro": 0.031855433263785926
+    "erro": 0.02568318619751153
   },
   {
     "ano": 2016,
@@ -746,12 +746,12 @@
     "co_prova": 336,
     "respostas": "CDBEDDDBBDBBABAEBCDBECCCDDEDDCCCDAAEAABDBDEAC",
     "tp_lingua": 1,
-    "nota": 580.0959347894099,
-    "theta": 0.699909235578052,
+    "nota": 580.095738791003,
+    "theta": 0.6999082663233319,
     "acertos": 21,
     "total_itens": 45,
     "nota_oficial": 580.1,
-    "erro": -0.004065210590169954
+    "erro": -0.004261208997036192
   },
   {
     "ano": 2016,
@@ -759,12 +759,12 @@
     "co_prova": 354,
     "respostas": "EEECEDDDDCEDEEEDCDEEBDDDEEDDDEBDDCDBBDCADEECC",
     "tp_lingua": 0,
-    "nota": 374.8074997390305,
-    "theta": -1.1170080121139754,
+    "nota": 374.80698559293586,
+    "theta": -1.1170102660197914,
     "acertos": 4,
     "total_itens": 45,
     "nota_oficial": 374.8,
-    "erro": 0.007499739030492947
+    "erro": 0.006985592935848217
   },
   {
     "ano": 2016,
@@ -772,12 +772,12 @@
     "co_prova": 331,
     "respostas": "BADBCCECBCDCBEDAECEDCDCDDDBDCDCEDEABBDECDDEAD",
     "tp_lingua": 1,
-    "nota": 407.2680043228727,
-    "theta": -0.8300496314412904,
+    "nota": 407.2626769461037,
+    "theta": -0.8300515508213973,
     "acertos": 9,
     "total_itens": 45,
     "nota_oficial": 407.3,
-    "erro": -0.03199567712732687
+    "erro": -0.03732305389632984
   },
   {
     "ano": 2016,
@@ -785,12 +785,12 @@
     "co_prova": 361,
     "respostas": "ECBDD99999DBCAEBECCBEAEDDEACBEDAEBCACBECEDEEDDAABD",
     "tp_lingua": 0,
-    "nota": 513.2267943186944,
-    "theta": 0.1225883342779541,
+    "nota": 513.2280664513743,
+    "theta": 0.12258842900007215,
     "acertos": 23,
     "total_itens": 44,
     "nota_oficial": 513.2,
-    "erro": 0.026794318694328467
+    "erro": 0.028066451374229473
   },
   {
     "ano": 2016,
@@ -798,12 +798,12 @@
     "co_prova": 363,
     "respostas": "99999DBBABEBDADCECBABBAEAECDEDACCCCECDEBCDDDBEDABB",
     "tp_lingua": 1,
-    "nota": 546.181366255855,
-    "theta": 0.4274627409938927,
+    "nota": 546.1806522011369,
+    "theta": 0.4274622337410591,
     "acertos": 24,
     "total_itens": 44,
     "nota_oficial": 546.2,
-    "erro": -0.018633744145063247
+    "erro": -0.01934779886312299
   },
   {
     "ano": 2016,
@@ -811,12 +811,12 @@
     "co_prova": 306,
     "respostas": "CEEEDBDADEBDCDBABACEDCBDABDBDDAEEDECAECCDACBA",
     "tp_lingua": 1,
-    "nota": 870.5176996683246,
-    "theta": 2.857696935853919,
+    "nota": 870.5089174640583,
+    "theta": 2.8576973542117163,
     "acertos": 36,
     "total_itens": 45,
     "nota_oficial": 870.5,
-    "erro": 0.017699668324553386
+    "erro": 0.008917464058299629
   },
   {
     "ano": 2016,
@@ -824,12 +824,12 @@
     "co_prova": 304,
     "respostas": "CBDCEEDCEAACCBAEABCDCBDADBBCBCCDEBABDEDABDCAC",
     "tp_lingua": 0,
-    "nota": 551.5312240928221,
-    "theta": 0.39758309755191873,
+    "nota": 551.5645179854578,
+    "theta": 0.39758307866520576,
     "acertos": 12,
     "total_itens": 45,
     "nota_oficial": 551.6,
-    "erro": -0.06877590717795101
+    "erro": -0.03548201454225364
   },
   {
     "ano": 2017,
@@ -837,12 +837,12 @@
     "co_prova": 396,
     "respostas": "CABDABBCEDBACCBACADBACBACBDACABCEADBECAEBADEB",
     "tp_lingua": 0,
-    "nota": 427.6265391571631,
-    "theta": -0.6576464884682911,
+    "nota": 427.62861423131386,
+    "theta": -0.6576474593332068,
     "acertos": 7,
     "total_itens": 43,
     "nota_oficial": 427.6,
-    "erro": 0.026539157163085747
+    "erro": 0.028614231313838445
   },
   {
     "ano": 2017,
@@ -850,12 +850,12 @@
     "co_prova": 436,
     "respostas": "ECCBBACCCBDACABCCEDCABCADEBADABACEBABACDBCBEA",
     "tp_lingua": 1,
-    "nota": 411.77857927264813,
-    "theta": -0.7987288313654013,
+    "nota": 411.7837359076646,
+    "theta": -0.7987290554656254,
     "acertos": 12,
     "total_itens": 45,
     "nota_oficial": 411.8,
-    "erro": -0.02142072735188094
+    "erro": -0.016264092335404712
   },
   {
     "ano": 2017,
@@ -863,12 +863,12 @@
     "co_prova": 393,
     "respostas": "CCDACEABAEEBBBDADECDDBADEEDEEBDABBEADBCBBADAA",
     "tp_lingua": 0,
-    "nota": 706.5188838515057,
-    "theta": 1.8158208301978898,
+    "nota": 706.5149904002872,
+    "theta": 1.8158036384743328,
     "acertos": 31,
     "total_itens": 44,
     "nota_oficial": 706.5,
-    "erro": 0.01888385150573413
+    "erro": 0.01499040028716081
   },
   {
     "ano": 2017,
@@ -876,12 +876,12 @@
     "co_prova": 407,
     "respostas": "ACCBDBECABCADEECECBEDECECBDCCBADEDDCCEDCCEEEE",
     "tp_lingua": 1,
-    "nota": 432.3379867253356,
-    "theta": -0.6083667684417148,
+    "nota": 432.33560637838286,
+    "theta": -0.608367916421029,
     "acertos": 10,
     "total_itens": 44,
     "nota_oficial": 432.3,
-    "erro": 0.03798672533559966
+    "erro": 0.035606378382851744
   },
   {
     "ano": 2017,
@@ -889,12 +889,12 @@
     "co_prova": 402,
     "respostas": "99999CCBBECDEAEEAAADDDBABDBAEABCAABDCAABEBDDDBCDBE",
     "tp_lingua": 1,
-    "nota": 571.1011405261117,
-    "theta": 0.6580224806073101,
+    "nota": 571.1017402364931,
+    "theta": 0.6580294792167446,
     "acertos": 23,
     "total_itens": 45,
     "nota_oficial": 571.1,
-    "erro": 0.0011405261117261034
+    "erro": 0.00174023649310584
   },
   {
     "ano": 2017,
@@ -902,12 +902,12 @@
     "co_prova": 400,
     "respostas": "EDDCD99999DCEADAEDBEDAADEEBBAEEDEDDABDABDACCEADBAC",
     "tp_lingua": 0,
-    "nota": 626.3954267365555,
-    "theta": 1.1696004040417851,
+    "nota": 626.3957161676302,
+    "theta": 1.169603440343716,
     "acertos": 33,
     "total_itens": 45,
     "nota_oficial": 626.4,
-    "erro": -0.004573263444513032
+    "erro": -0.00428383236976515
   },
   {
     "ano": 2017,
@@ -915,12 +915,12 @@
     "co_prova": 410,
     "respostas": "ADCCADCBDAAEBBCDCEABEBABCDBCAEDDCECACBDBCDCBE",
     "tp_lingua": 1,
-    "nota": 511.72935512334567,
-    "theta": 0.09031398735212175,
+    "nota": 511.728250259635,
+    "theta": 0.0903139399783399,
     "acertos": 10,
     "total_itens": 44,
     "nota_oficial": 511.7,
-    "erro": 0.029355123345681022
+    "erro": 0.028250259635001385
   },
   {
     "ano": 2017,
@@ -928,12 +928,12 @@
     "co_prova": 406,
     "respostas": "CECDCAEBBBABBAAEBEDBCDBDEABDADEAEDBCBBEABBCBD",
     "tp_lingua": 0,
-    "nota": 769.0857946900417,
-    "theta": 2.0754976700220604,
+    "nota": 769.0997814906954,
+    "theta": 2.0754981261119423,
     "acertos": 25,
     "total_itens": 44,
     "nota_oficial": 769.1,
-    "erro": -0.014205309958356338
+    "erro": -0.00021850930465916463
   },
   {
     "ano": 2018,
@@ -941,12 +941,12 @@
     "co_prova": 452,
     "respostas": "BABCCCBCBDAAEDCCBDDCBBAAEEDCEDACBBECCEBCCDEDB",
     "tp_lingua": 1,
-    "nota": 515.1680157288919,
-    "theta": 0.12180867693218693,
+    "nota": 515.1703199077416,
+    "theta": 0.12181725555520469,
     "acertos": 8,
     "total_itens": 45,
     "nota_oficial": 515.2,
-    "erro": -0.031984271108171924
+    "erro": -0.029680092258445256
   },
   {
     "ano": 2018,
@@ -954,12 +954,12 @@
     "co_prova": 464,
     "respostas": "EABCABBDEBBECDAEAEEAEEACBEEECAEAEBBADDCAEECEB",
     "tp_lingua": 1,
-    "nota": 620.5193127561403,
-    "theta": 1.060269526281201,
+    "nota": 620.5281891485131,
+    "theta": 1.0599157410079685,
     "acertos": 21,
     "total_itens": 45,
     "nota_oficial": 620.5,
-    "erro": 0.019312756140266174
+    "erro": 0.028189148513092732
   },
   {
     "ano": 2018,
@@ -967,12 +967,12 @@
     "co_prova": 448,
     "respostas": "ECBAEECCDABCDECEADDDBBEDACECEAADAECECBBADEACD",
     "tp_lingua": 1,
-    "nota": 562.4676299430445,
-    "theta": 0.542183606227128,
+    "nota": 562.4656024484908,
+    "theta": 0.5421833405130038,
     "acertos": 14,
     "total_itens": 43,
     "nota_oficial": 562.5,
-    "erro": -0.032370056955528526
+    "erro": -0.034397551509187
   },
   {
     "ano": 2018,
@@ -980,12 +980,12 @@
     "co_prova": 447,
     "respostas": "DCDBDCCACBDABDACAECDBBCBDADCBBECEDBBABEEEBCBE",
     "tp_lingua": 0,
-    "nota": 538.0728262651494,
-    "theta": 0.3265135003501864,
+    "nota": 538.0728649484731,
+    "theta": 0.3265136591308028,
     "acertos": 11,
     "total_itens": 43,
     "nota_oficial": 538.1,
-    "erro": -0.0271737348506349
+    "erro": -0.02713505152689777
   },
   {
     "ano": 2018,
@@ -993,12 +993,12 @@
     "co_prova": 496,
     "respostas": "BBEDD99999BBCECECDDACDEADCBCECCECDDEDCEEACBEEDBDEC",
     "tp_lingua": 0,
-    "nota": 534.2187126655531,
-    "theta": 0.31677789329941974,
+    "nota": 534.2151143897603,
+    "theta": 0.3167583555680745,
     "acertos": 19,
     "total_itens": 45,
     "nota_oficial": 534.2,
-    "erro": 0.018712665553039187
+    "erro": 0.015114389760242375
   },
   {
     "ano": 2018,
@@ -1006,12 +1006,12 @@
     "co_prova": 498,
     "respostas": "BCAAC99999EAEEBCCBCCBDAEADCBBCAACCAAAECBBEDCEDDCAD",
     "tp_lingua": 0,
-    "nota": 555.0686410804756,
-    "theta": 0.5096820670099974,
+    "nota": 555.0702047978465,
+    "theta": 0.5097074251559232,
     "acertos": 25,
     "total_itens": 45,
     "nota_oficial": 555.1,
-    "erro": -0.03135891952445036
+    "erro": -0.029795202153536593
   },
   {
     "ano": 2018,
@@ -1019,12 +1019,12 @@
     "co_prova": 462,
     "respostas": "BCDECAABCAEDBDECABCD*DCBBCDECAEADCDDACBEDCBAE",
     "tp_lingua": 0,
-    "nota": 481.63642554831847,
-    "theta": -0.14180397422057112,
+    "nota": 481.6350111717041,
+    "theta": -0.14180428250394655,
     "acertos": 7,
     "total_itens": 44,
     "nota_oficial": 481.6,
-    "erro": 0.03642554831844791
+    "erro": 0.03501117170407042
   },
   {
     "ano": 2018,
@@ -1032,12 +1032,12 @@
     "co_prova": 461,
     "respostas": "EEEDEECBCDCACDDCDABAEECBCDEDDAEBBAADDDBADDDBC",
     "tp_lingua": 0,
-    "nota": 690.311240499751,
-    "theta": 1.4679169251079416,
+    "nota": 690.3288245283882,
+    "theta": 1.4679139953411067,
     "acertos": 18,
     "total_itens": 44,
     "nota_oficial": 690.3,
-    "erro": 0.011240499751011157
+    "erro": 0.028824528388213366
   },
   {
     "ano": 2019,
@@ -1045,12 +1045,12 @@
     "co_prova": 508,
     "respostas": "ABCAADBDCECECCBAECBBBABCAEBEDBBCBBAACEBAECBBB",
     "tp_lingua": 0,
-    "nota": 554.5504934668638,
-    "theta": 0.4724672269249255,
+    "nota": 554.5519265482787,
+    "theta": 0.4724680973993734,
     "acertos": 17,
     "total_itens": 43,
     "nota_oficial": 554.6,
-    "erro": -0.049506533136195685
+    "erro": -0.048073451721279525
   },
   {
     "ano": 2019,
@@ -1058,12 +1058,12 @@
     "co_prova": 509,
     "respostas": "CECCCCACABBAAABAECEEDCDACCBABCCAACDECBDDBBDEB",
     "tp_lingua": 0,
-    "nota": 494.11824205761906,
-    "theta": -0.06562746142511901,
+    "nota": 494.1183882429831,
+    "theta": -0.06562754902255004,
     "acertos": 13,
     "total_itens": 43,
     "nota_oficial": 494.1,
-    "erro": 0.018242057619033858
+    "erro": 0.01838824298306463
   },
   {
     "ano": 2019,
@@ -1071,12 +1071,12 @@
     "co_prova": 523,
     "respostas": "AACEBBAAADDACACCADBADEBADDBBECDCAEBCDABABCCCA",
     "tp_lingua": 1,
-    "nota": 375.96978009442876,
-    "theta": -1.1066961845854917,
+    "nota": 375.97340219045554,
+    "theta": -1.1066973318546205,
     "acertos": 6,
     "total_itens": 44,
     "nota_oficial": 376.0,
-    "erro": -0.030219905571243544
+    "erro": -0.02659780954445523
   },
   {
     "ano": 2019,
@@ -1084,12 +1084,12 @@
     "co_prova": 505,
     "respostas": "ABACBDDDBBEECEACBDCBBDBCBACCAAEADBBCDABBDCBDE",
     "tp_lingua": 1,
-    "nota": 371.8189859528005,
-    "theta": -1.1434281853543302,
+    "nota": 371.81893500209674,
+    "theta": -1.1434292736805636,
     "acertos": 4,
     "total_itens": 44,
     "nota_oficial": 371.8,
-    "erro": 0.018985952800505856
+    "erro": 0.018935002096725384
   },
   {
     "ano": 2019,
@@ -1097,12 +1097,12 @@
     "co_prova": 525,
     "respostas": "99999ACBECADEAAEEECEBCBDBACABBCCBECDADAEBECCBECCAA",
     "tp_lingua": 1,
-    "nota": 384.2170635012599,
-    "theta": -1.071010611070914,
+    "nota": 384.21665890434383,
+    "theta": -1.071011338026904,
     "acertos": 5,
     "total_itens": 44,
     "nota_oficial": 384.2,
-    "erro": 0.01706350125988365
+    "erro": 0.016658904343842096
   },
   {
     "ano": 2019,
@@ -1110,12 +1110,12 @@
     "co_prova": 521,
     "respostas": "99999EABEDCBDADEEDABEAEBDBEBEACAADAEDEDBBDAEDCEABC",
     "tp_lingua": 1,
-    "nota": 399.45096798021297,
-    "theta": -0.9300887400061931,
+    "nota": 399.44836612382824,
+    "theta": -0.9300892092456015,
     "acertos": 10,
     "total_itens": 44,
     "nota_oficial": 399.4,
-    "erro": 0.050967980212988095
+    "erro": 0.04836612382825933
   },
   {
     "ano": 2019,
@@ -1123,12 +1123,12 @@
     "co_prova": 526,
     "respostas": "AAECADCECAEADEDADADABEBCADCABEDACBCEACEAACEDC",
     "tp_lingua": 1,
-    "nota": 430.2751990611842,
-    "theta": -0.5378878605416546,
+    "nota": 430.2841334273524,
+    "theta": -0.5378890784973597,
     "acertos": 12,
     "total_itens": 44,
     "nota_oficial": 430.3,
-    "erro": -0.024800938815815243
+    "erro": -0.015866572647610155
   },
   {
     "ano": 2019,
@@ -1136,12 +1136,12 @@
     "co_prova": 526,
     "respostas": "ACDCAECABCEBEDEDCBEAEBDBEEBABDBEEBBACCDEECDDA",
     "tp_lingua": 0,
-    "nota": 391.62431661271637,
-    "theta": -0.8360171789462945,
+    "nota": 391.6327321382154,
+    "theta": -0.8360189852670903,
     "acertos": 2,
     "total_itens": 44,
     "nota_oficial": 391.6,
-    "erro": 0.024316612716347663
+    "erro": 0.03273213821535137
   },
   {
     "ano": 2020,
@@ -1149,12 +1149,12 @@
     "co_prova": 567,
     "respostas": "ADACDAAEAABABAEAACBDEDCCDCAEBCEDCDCCBABCBACBB",
     "tp_lingua": 1,
-    "nota": 500.230688214239,
-    "theta": -0.011200740933832963,
+    "nota": 500.23106662227156,
+    "theta": -0.011200723850469826,
     "acertos": 12,
     "total_itens": 45,
     "nota_oficial": 500.2,
-    "erro": 0.030688214239035005
+    "erro": 0.031066622271566757
   },
   {
     "ano": 2020,
@@ -1162,12 +1162,12 @@
     "co_prova": 568,
     "respostas": "ABECBEACEDDAABABEBEACDD*CBADCBDACDDEBBBDADEAB",
     "tp_lingua": 1,
-    "nota": 506.1555438989109,
-    "theta": 0.04154132070865545,
+    "nota": 506.15452898639154,
+    "theta": 0.04154133625819263,
     "acertos": 11,
     "total_itens": 45,
     "nota_oficial": 506.2,
-    "erro": -0.04445610108911069
+    "erro": -0.04547101360844863
   },
   {
     "ano": 2020,
@@ -1175,12 +1175,12 @@
     "co_prova": 604,
     "respostas": "ACCECBCDBCEDCCECECCBCADCBCBDCADABCCBACAABCBAA",
     "tp_lingua": 1,
-    "nota": 428.19727905377147,
-    "theta": -0.6449601089964973,
+    "nota": 428.1969326589763,
+    "theta": -0.6449602194542026,
     "acertos": 11,
     "total_itens": 44,
     "nota_oficial": 428.2,
-    "erro": -0.0027209462285213704
+    "erro": -0.0030673410236659038
   },
   {
     "ano": 2020,
@@ -1188,12 +1188,12 @@
     "co_prova": 699,
     "respostas": "BCAABACCBDDCCCBDAABBBBABCDBDCDCDBCBABCBCBCCCC",
     "tp_lingua": 0,
-    "nota": 413.8597121671658,
-    "theta": -0.7717590232112091,
+    "nota": 413.8555038833717,
+    "theta": -0.7717607220463346,
     "acertos": 8,
     "total_itens": 45,
     "nota_oficial": 413.9,
-    "erro": -0.04028783283416715
+    "erro": -0.04449611662829511
   },
   {
     "ano": 2020,
@@ -1201,12 +1201,12 @@
     "co_prova": 580,
     "respostas": "99999BAAACABABBACCBCCADBADEAAABCADCCABAADEAEBABCBD",
     "tp_lingua": 1,
-    "nota": 491.05316328308925,
-    "theta": -0.08257704685482427,
+    "nota": 491.05255377648905,
+    "theta": -0.08257704640796643,
     "acertos": 14,
     "total_itens": 45,
     "nota_oficial": 491.1,
-    "erro": -0.04683671691077507
+    "erro": -0.04744622351097405
   },
   {
     "ano": 2020,
@@ -1214,12 +1214,12 @@
     "co_prova": 657,
     "respostas": "BEBCE99999CBABDCACDEBBDDECBEBEDADDAABCADBECDEDDBDD",
     "tp_lingua": 0,
-    "nota": 527.4538682505079,
-    "theta": 0.25419467608049884,
+    "nota": 527.4527577503949,
+    "theta": 0.25419375401253047,
     "acertos": 21,
     "total_itens": 45,
     "nota_oficial": 527.5,
-    "erro": -0.04613174949213317
+    "erro": -0.04724224960511947
   },
   {
     "ano": 2020,
@@ -1227,12 +1227,12 @@
     "co_prova": 667,
     "respostas": "BDACDBEBDBDDABBACBBDBDECBABCBBDBEBBCBDEACABDE",
     "tp_lingua": 1,
-    "nota": 458.93275364613487,
-    "theta": -0.3169145892515785,
+    "nota": 458.93256134979373,
+    "theta": -0.3169151199667227,
     "acertos": 11,
     "total_itens": 45,
     "nota_oficial": 458.9,
-    "erro": 0.03275364613489273
+    "erro": 0.03256134979375247
   },
   {
     "ano": 2020,
@@ -1240,12 +1240,12 @@
     "co_prova": 696,
     "respostas": "ECDDBBCCCCBDACDCBCCBDBBCBDDACCDCBCCADACEAEBCC",
     "tp_lingua": 0,
-    "nota": 473.1114584139391,
-    "theta": -0.20756900567128878,
+    "nota": 473.1087715901025,
+    "theta": -0.20756973800565112,
     "acertos": 9,
     "total_itens": 44,
     "nota_oficial": 473.1,
-    "erro": 0.011458413939067214
+    "erro": 0.008771590102469418
   },
   {
     "ano": 2021,
@@ -1253,12 +1253,12 @@
     "co_prova": 1016,
     "respostas": "EDBADDBBCCEBBADBCEAEBADBACCEECBDBCAABACCBDDAC",
     "tp_lingua": 1,
-    "nota": 443.46045911427433,
-    "theta": -0.5166668275699845,
+    "nota": 443.46211751628493,
+    "theta": -0.5166671456833677,
     "acertos": 16,
     "total_itens": 45,
     "nota_oficial": 443.5,
-    "erro": -0.03954088572567116
+    "erro": -0.03788248371506597
   },
   {
     "ano": 2021,
@@ -1266,12 +1266,12 @@
     "co_prova": 1017,
     "respostas": "CCBAAEBBDAAEDABDAAABCBDBACDCBBADECBCEABACBEEA",
     "tp_lingua": 1,
-    "nota": 509.8034175086193,
-    "theta": 0.0740355225416038,
+    "nota": 509.803951399871,
+    "theta": 0.07403551693527871,
     "acertos": 18,
     "total_itens": 45,
     "nota_oficial": 509.8,
-    "erro": 0.0034175086192931303
+    "erro": 0.003951399870970818
   },
   {
     "ano": 2021,
@@ -1279,12 +1279,12 @@
     "co_prova": 1046,
     "respostas": "BEEABBBCBADACACBBCCBEAEDBACEC.CBACDAEBCECACDA",
     "tp_lingua": 0,
-    "nota": 553.377412343108,
-    "theta": 0.46182248701788214,
+    "nota": 553.376561445549,
+    "theta": 0.461822102780961,
     "acertos": 20,
     "total_itens": 45,
     "nota_oficial": 553.4,
-    "erro": -0.022587656892028463
+    "erro": -0.023438554450990523
   },
   {
     "ano": 2021,
@@ -1292,12 +1292,12 @@
     "co_prova": 1014,
     "respostas": "CCADCDBEAEBCCDBCECBDCDAADABCDCDECEADBDDBAEBBD",
     "tp_lingua": 1,
-    "nota": 443.69114111330356,
-    "theta": -0.5079857227536294,
+    "nota": 443.6890470053404,
+    "theta": -0.5079858694037197,
     "acertos": 9,
     "total_itens": 44,
     "nota_oficial": 443.7,
-    "erro": -0.00885888669643009
+    "erro": -0.010952994659589876
   },
   {
     "ano": 2021,
@@ -1305,12 +1305,12 @@
     "co_prova": 1025,
     "respostas": "BACBC99999AAEBEACEAEEBAABBBEABDABDAACAEACCBAEBACBA",
     "tp_lingua": 0,
-    "nota": 572.3170249207491,
-    "theta": 0.6692973489450689,
+    "nota": 572.3195874160384,
+    "theta": 0.6692968712824413,
     "acertos": 28,
     "total_itens": 44,
     "nota_oficial": 572.3,
-    "erro": 0.01702492074912243
+    "erro": 0.019587416038461924
   },
   {
     "ano": 2021,
@@ -1318,12 +1318,12 @@
     "co_prova": 970,
     "respostas": "99999ACECBCCEAABADABABEBEEEDBACCEBDCAAEEEBAADCAADB",
     "tp_lingua": 1,
-    "nota": 504.88218329376286,
-    "theta": 0.045376544356125106,
+    "nota": 504.8825375834268,
+    "theta": 0.045376487033873314,
     "acertos": 17,
     "total_itens": 44,
     "nota_oficial": 504.9,
-    "erro": -0.017816706237113067
+    "erro": -0.01746241657315295
   },
   {
     "ano": 2021,
@@ -1331,12 +1331,12 @@
     "co_prova": 901,
     "respostas": "EBBEBDCCDDCDCBADABBBCCEABDADCBCCACBDACDCDADCE",
     "tp_lingua": 0,
-    "nota": 446.1926551226448,
-    "theta": -0.41514427257392117,
+    "nota": 446.1973149375166,
+    "theta": -0.4151459136494557,
     "acertos": 11,
     "total_itens": 44,
     "nota_oficial": 446.2,
-    "erro": -0.007344877355194512
+    "erro": -0.0026850624834082737
   },
   {
     "ano": 2021,
@@ -1344,12 +1344,12 @@
     "co_prova": 1008,
     "respostas": "BEBDDCDCABECCBACDBCBEAAACCDBECDBAEEDCAECBACDB",
     "tp_lingua": 1,
-    "nota": 430.83466282125835,
-    "theta": -0.5336347305223663,
+    "nota": 430.83552159422106,
+    "theta": -0.533636055390829,
     "acertos": 10,
     "total_itens": 44,
     "nota_oficial": 430.8,
-    "erro": 0.03466282125833686
+    "erro": 0.035521594221052055
   },
   {
     "ano": 2022,
@@ -1357,12 +1357,12 @@
     "co_prova": 1058,
     "respostas": "DBDBAEACDEEBBDEADEADECBDABCEDABBEACDBCDCBDDCE",
     "tp_lingua": 1,
-    "nota": 498.1590063875592,
-    "theta": -0.02963628044539189,
+    "nota": 498.16057663182903,
+    "theta": -0.02963620985807392,
     "acertos": 16,
     "total_itens": 44,
     "nota_oficial": 498.2,
-    "erro": -0.040993612440786364
+    "erro": -0.03942336817095793
   },
   {
     "ano": 2022,
@@ -1370,12 +1370,12 @@
     "co_prova": 1135,
     "respostas": "BCAAACDBDAACBACABAABDEBDCBAADEDBAAAAADBEBACAB",
     "tp_lingua": 1,
-    "nota": 457.38515421113874,
-    "theta": -0.3926987487562302,
+    "nota": 457.3850074533343,
+    "theta": -0.3926987885289198,
     "acertos": 13,
     "total_itens": 45,
     "nota_oficial": 457.4,
-    "erro": -0.014845788861236997
+    "erro": -0.01499254666566685
   },
   {
     "ano": 2022,
@@ -1383,12 +1383,12 @@
     "co_prova": 1093,
     "respostas": "AEDDCABBDCAACBBDCABCDECCBCAADECBBADCAABBAAACD",
     "tp_lingua": 1,
-    "nota": 533.2620199910007,
-    "theta": 0.2839478719538031,
+    "nota": 533.2585688607417,
+    "theta": 0.2839478051211876,
     "acertos": 12,
     "total_itens": 42,
     "nota_oficial": 533.3,
-    "erro": -0.03798000899928411
+    "erro": -0.041431139258293115
   },
   {
     "ano": 2022,
@@ -1396,12 +1396,12 @@
     "co_prova": 1189,
     "respostas": "BDCADBEEEABCCBAEDEACBBDCECBCDBABBDDEABDCCDABA",
     "tp_lingua": 0,
-    "nota": 407.6356369324885,
-    "theta": -0.8267325837845874,
+    "nota": 407.6377756185841,
+    "theta": -0.8267350960290362,
     "acertos": 7,
     "total_itens": 41,
     "nota_oficial": 407.6,
-    "erro": 0.03563693248850086
+    "erro": 0.037775618584078074
   },
   {
     "ano": 2022,
@@ -1409,12 +1409,12 @@
     "co_prova": 1068,
     "respostas": "DEDCABBDDBAAECAABABBDBBABCDEAECBACEBCECCACEAB",
     "tp_lingua": 0,
-    "nota": 360.9303917026946,
-    "theta": -1.286457806068947,
+    "nota": 360.9298431491869,
+    "theta": -1.28645847087074,
     "acertos": 9,
     "total_itens": 45,
     "nota_oficial": 360.9,
-    "erro": 0.030391702694601008
+    "erro": 0.029843149186945084
   },
   {
     "ano": 2022,
@@ -1422,12 +1422,12 @@
     "co_prova": 1182,
     "respostas": "ADACACCACBACBADEACABEDACDABACBECAABBECAEBADBC",
     "tp_lingua": 1,
-    "nota": 448.50100538360425,
-    "theta": -0.47625985030419377,
+    "nota": 448.5009597763506,
+    "theta": -0.47625985051718167,
     "acertos": 14,
     "total_itens": 45,
     "nota_oficial": 448.5,
-    "erro": 0.0010053836042516195
+    "erro": 0.0009597763506121737
   },
   {
     "ano": 2022,
@@ -1435,12 +1435,12 @@
     "co_prova": 1156,
     "respostas": "CCCBACAEEDCDACECEACDCAADEDBADECBACBADBBBDEADC",
     "tp_lingua": 1,
-    "nota": 484.5315970452851,
-    "theta": -0.11946066958078533,
+    "nota": 484.53170947878164,
+    "theta": -0.11946117546446729,
     "acertos": 15,
     "total_itens": 45,
     "nota_oficial": 484.5,
-    "erro": 0.031597045285082004
+    "erro": 0.03170947878163588
   },
   {
     "ano": 2022,
@@ -1448,12 +1448,12 @@
     "co_prova": 1183,
     "respostas": "DCAADADAEEEAEDBEDBACBADDEAEEECADCCBDBDCECECDE",
     "tp_lingua": 1,
-    "nota": 552.9599926698337,
-    "theta": 0.40834020188645254,
+    "nota": 552.9591366595461,
+    "theta": 0.4083401928038371,
     "acertos": 12,
     "total_itens": 43,
     "nota_oficial": 553.0,
-    "erro": -0.0400073301663042
+    "erro": -0.04086334045393869
   },
   {
     "ano": 2023,
@@ -1461,12 +1461,12 @@
     "co_prova": 1197,
     "respostas": "ABADCBDDEECDEEDECDDDAACBDAAAACACEDAEBEBCBAEEE",
     "tp_lingua": 1,
-    "nota": 465.8943805939906,
-    "theta": -0.3169173476807839,
+    "nota": 465.89602119587164,
+    "theta": -0.3169173669884375,
     "acertos": 15,
     "total_itens": 45,
     "nota_oficial": 465.9,
-    "erro": -0.005619406009373051
+    "erro": -0.003978804128337288
   },
   {
     "ano": 2023,
@@ -1474,12 +1474,12 @@
     "co_prova": 1196,
     "respostas": "ACBCCBCAEECBDBCECECBDAEDBCABDBACDABBCDEDBDAEC",
     "tp_lingua": 0,
-    "nota": 391.4790803627159,
-    "theta": -0.9795340724842644,
+    "nota": 391.4774387001113,
+    "theta": -0.9795347873282031,
     "acertos": 11,
     "total_itens": 45,
     "nota_oficial": 391.5,
-    "erro": -0.020919637284123382
+    "erro": -0.022561299888707254
   },
   {
     "ano": 2023,
@@ -1487,12 +1487,12 @@
     "co_prova": 1229,
     "respostas": "ACECECCEDDBAEAECADBEBCABECBEDAAECEABCDADADADC",
     "tp_lingua": 0,
-    "nota": 395.6182036061135,
-    "theta": -0.9329642770552858,
+    "nota": 395.62297803171754,
+    "theta": -0.9329645656582352,
     "acertos": 11,
     "total_itens": 45,
     "nota_oficial": 395.6,
-    "erro": 0.018203606113502246
+    "erro": 0.022978031717514114
   },
   {
     "ano": 2023,
@@ -1500,12 +1500,12 @@
     "co_prova": 1224,
     "respostas": "CEBDECCDEDBDDCECEEACCBDBCCBCEBCBCECDABACDEDEB",
     "tp_lingua": 0,
-    "nota": 447.8952168996519,
-    "theta": -0.47080986267296054,
+    "nota": 447.89373645665137,
+    "theta": -0.47080988477818575,
     "acertos": 8,
     "total_itens": 45,
     "nota_oficial": 447.9,
-    "erro": -0.004783100348049629
+    "erro": -0.006263543348609346
   },
   {
     "ano": 2023,
@@ -1513,12 +1513,12 @@
     "co_prova": 1283,
     "respostas": "AEDECCDDEEBABAECDCBCCDBBBECDCEBBDECBDCDECDBAD",
     "tp_lingua": 0,
-    "nota": 598.6024502513651,
-    "theta": 0.9124888952501425,
+    "nota": 598.60515804342,
+    "theta": 0.9124881640026321,
     "acertos": 31,
     "total_itens": 45,
     "nota_oficial": 598.6,
-    "erro": 0.0024502513650759283
+    "erro": 0.005158043420010472
   },
   {
     "ano": 2023,
@@ -1526,12 +1526,12 @@
     "co_prova": 1204,
     "respostas": "DBDBCCBADECDDDACDADBBCBCDBAECBECABDCBECAECADD",
     "tp_lingua": 0,
-    "nota": 535.2044439620707,
-    "theta": 0.32590842843566864,
+    "nota": 535.2040478860266,
+    "theta": 0.32590786267905175,
     "acertos": 21,
     "total_itens": 45,
     "nota_oficial": 535.2,
-    "erro": 0.0044439620706953065
+    "erro": 0.004047886026569358
   },
   {
     "ano": 2023,
@@ -1539,12 +1539,12 @@
     "co_prova": 1291,
     "respostas": "EDEDBDBEADDEDECBEECACEABBEDDABBCDBDDCDACADDEE",
     "tp_lingua": 0,
-    "nota": 509.9803233060553,
-    "theta": 0.07682677002903804,
+    "nota": 509.9796741982959,
+    "theta": 0.07682664583738165,
     "acertos": 16,
     "total_itens": 45,
     "nota_oficial": 510.0,
-    "erro": -0.01967669394468885
+    "erro": -0.020325801704075275
   },
   {
     "ano": 2023,
@@ -1552,12 +1552,12 @@
     "co_prova": 1292,
     "respostas": "DBDCADEDCBBABDABCEAEBCACBCBCBEABBCBBACACDEADB",
     "tp_lingua": 1,
-    "nota": 497.9212266503452,
-    "theta": -0.016181328669994624,
+    "nota": 497.92153718022973,
+    "theta": -0.016181399022897395,
     "acertos": 10,
     "total_itens": 45,
     "nota_oficial": 497.9,
-    "erro": 0.02122665034522697
+    "erro": 0.021537180229756814
   },
   {
     "ano": 2024,
@@ -1565,12 +1565,12 @@
     "co_prova": 1388,
     "respostas": "ABECADCBCAEACCCAEECDBCACAABDACAEBECBEBEDBCAAB",
     "tp_lingua": 1,
-    "nota": 512.5151317284544,
-    "theta": 0.09819763538048548,
+    "nota": 512.5175402984115,
+    "theta": 0.09819710689724853,
     "acertos": 18,
     "total_itens": 45,
     "nota_oficial": 512.5,
-    "erro": 0.015131728454434779
+    "erro": 0.01754029841151805
   },
   {
     "ano": 2024,
@@ -1578,12 +1578,12 @@
     "co_prova": 1387,
     "respostas": "ABBCADEEDBADCEBADCBCABCCD.*BCABCADDEC.ABDCEAB",
     "tp_lingua": 1,
-    "nota": 499.0811400901526,
-    "theta": -0.021455753526086693,
+    "nota": 499.07936650724895,
+    "theta": -0.021455374417950812,
     "acertos": 19,
     "total_itens": 45,
     "nota_oficial": 499.1,
-    "erro": -0.018859909847435574
+    "erro": -0.020633492751073845
   },
   {
     "ano": 2024,
@@ -1591,12 +1591,12 @@
     "co_prova": 1373,
     "respostas": "EDEEECEABBCDACEDBDEBEBEBBCBACEBEADAEDAECECDEE",
     "tp_lingua": 1,
-    "nota": 493.46643447094567,
-    "theta": -0.06788148120558352,
+    "nota": 493.4658581170677,
+    "theta": -0.06788155586857599,
     "acertos": 13,
     "total_itens": 45,
     "nota_oficial": 493.5,
-    "erro": -0.033565529054328636
+    "erro": -0.03414188293231746
   },
   {
     "ano": 2024,
@@ -1604,12 +1604,12 @@
     "co_prova": 1426,
     "respostas": "DCCEDEACDCBDECCDADBEDDCADCBDBEBDDBDBEEBABDCAA",
     "tp_lingua": 1,
-    "nota": 458.9944199067193,
-    "theta": -0.37265814346512566,
+    "nota": 458.99491847253955,
+    "theta": -0.37265819563994595,
     "acertos": 10,
     "total_itens": 44,
     "nota_oficial": 459.0,
-    "erro": -0.00558009328068465
+    "erro": -0.0050815274604474325
   },
   {
     "ano": 2024,
@@ -1617,12 +1617,12 @@
     "co_prova": 1399,
     "respostas": "BAADEAACCBEBEDADDEBDDBEABCCEAECEDADCBCDDEDDAC",
     "tp_lingua": 1,
-    "nota": 320.1404534125977,
-    "theta": -1.66381693292924,
+    "nota": 320.1418480602034,
+    "theta": -1.6638246461677617,
     "acertos": 10,
     "total_itens": 45,
     "nota_oficial": 320.1,
-    "erro": 0.0404534125976852
+    "erro": 0.04184806020339238
   },
   {
     "ano": 2024,
@@ -1630,12 +1630,12 @@
     "co_prova": 1402,
     "respostas": "EDAEDBABEAECBEADEBAEAEEACDEDEACCDBEDACEDACEED",
     "tp_lingua": 0,
-    "nota": 349.3810133234897,
-    "theta": -1.393333259973039,
+    "nota": 349.3777204658485,
+    "theta": -1.393337476422813,
     "acertos": 8,
     "total_itens": 45,
     "nota_oficial": 349.4,
-    "erro": -0.01898667651028063
+    "erro": -0.022279534151493863
   },
   {
     "ano": 2024,
@@ -1643,12 +1643,12 @@
     "co_prova": 1409,
     "respostas": "ACBECBACACBBCEBCDADCADBDDAECBCBDADDBBECDCABAB",
     "tp_lingua": 1,
-    "nota": 448.2781714295937,
-    "theta": -0.39907388842452235,
+    "nota": 448.28088251715405,
+    "theta": -0.399074728969268,
     "acertos": 9,
     "total_itens": 45,
     "nota_oficial": 448.3,
-    "erro": -0.021828570406285053
+    "erro": -0.0191174828459566
   },
   {
     "ano": 2024,
@@ -1656,12 +1656,12 @@
     "co_prova": 1409,
     "respostas": "BDACDDCBBACBCEBADEDCBDBBCDCBCDAEDDCCDBACDCDBD",
     "tp_lingua": 1,
-    "nota": 465.74584115741294,
-    "theta": -0.2643437950937396,
+    "nota": 465.74815202230957,
+    "theta": -0.2643444150502916,
     "acertos": 9,
     "total_itens": 45,
     "nota_oficial": 465.7,
-    "erro": 0.04584115741295136
+    "erro": 0.048152022309579934
   },
   {
     "ano": 2025,
@@ -1669,12 +1669,12 @@
     "co_prova": 1455,
     "respostas": "ABCCEDADCEACDBDECEDCABCCDBABAEEDBBAACEABBDABE",
     "tp_lingua": 0,
-    "nota": 408.8638499495387,
-    "theta": -0.8247292110928911,
+    "nota": 408.8636519069006,
+    "theta": -0.8247292621730282,
     "acertos": 9,
     "total_itens": 45,
     "nota_oficial": 408.9,
-    "erro": -0.03615005046128772
+    "erro": -0.036348093099377365
   },
   {
     "ano": 2025,
@@ -1682,12 +1682,12 @@
     "co_prova": 1455,
     "respostas": "BECDAECDDEDBCBABAADEBBEACBCEBCDEEBBEAABBBADBD",
     "tp_lingua": 0,
-    "nota": 397.9420276004843,
-    "theta": -0.9219770800006838,
+    "nota": 397.94129395641096,
+    "theta": -0.921981109849558,
     "acertos": 13,
     "total_itens": 45,
     "nota_oficial": 397.9,
-    "erro": 0.04202760048434584
+    "erro": 0.04129395641098199
   },
   {
     "ano": 2025,
@@ -1695,12 +1695,12 @@
     "co_prova": 1484,
     "respostas": "CCCDAEACBADCCEBEBCAADCEABBDEABCDBBACDEECDBCAE",
     "tp_lingua": 0,
-    "nota": 378.4598649043694,
-    "theta": -1.0847064155352475,
+    "nota": 378.46004099676895,
+    "theta": -1.084711583060749,
     "acertos": 7,
     "total_itens": 42,
     "nota_oficial": 378.5,
-    "erro": -0.040135095630603246
+    "erro": -0.03995900323104706
   },
   {
     "ano": 2025,
@@ -1708,12 +1708,12 @@
     "co_prova": 1486,
     "respostas": "CCDECACBDDCEBACBAAEBABCECBDCABECCDBEBADDBCEEA",
     "tp_lingua": 0,
-    "nota": 564.9707244267302,
-    "theta": 0.5640884159459928,
+    "nota": 564.9430977394528,
+    "theta": 0.5640882464313038,
     "acertos": 16,
     "total_itens": 42,
     "nota_oficial": 564.9,
-    "erro": 0.07072442673018031
+    "erro": 0.043097739452832684
   },
   {
     "ano": 2025,
@@ -1721,12 +1721,12 @@
     "co_prova": 1551,
     "respostas": "BAACBCCDBBDAACBDCDDABCEBAAAEDAAEBAECEBBBAAAEE",
     "tp_lingua": 1,
-    "nota": 537.389569920993,
-    "theta": 0.34585098885739907,
+    "nota": 537.359770167714,
+    "theta": 0.34585237504520744,
     "acertos": 23,
     "total_itens": 45,
     "nota_oficial": 537.4,
-    "erro": -0.010430079006937376
+    "erro": -0.04022983228594512
   },
   {
     "ano": 2025,
@@ -1734,12 +1734,12 @@
     "co_prova": 1461,
     "respostas": "DDAEBABBEEBABCBCAEBCDEEDEBBDBACDDBCCBABCDECCC",
     "tp_lingua": 0,
-    "nota": 554.8571658306199,
-    "theta": 0.5076691415800796,
+    "nota": 554.8375098741395,
+    "theta": 0.5075545565685178,
     "acertos": 25,
     "total_itens": 45,
     "nota_oficial": 554.8,
-    "erro": 0.05716583061996516
+    "erro": 0.037509874139573185
   },
   {
     "ano": 2025,
@@ -1747,12 +1747,12 @@
     "co_prova": 1474,
     "respostas": "ADABBEACEDDDCBDCEACBEACECDBADBCDBCAEBDAEACDBD",
     "tp_lingua": 0,
-    "nota": 414.8138896823972,
-    "theta": -0.6572415303261719,
+    "nota": 414.8103969659557,
+    "theta": -0.6572426712456804,
     "acertos": 14,
     "total_itens": 43,
     "nota_oficial": 414.8,
-    "erro": 0.013889682397177694
+    "erro": 0.010396965955692394
   },
   {
     "ano": 2025,
@@ -1760,11 +1760,11 @@
     "co_prova": 1474,
     "respostas": "CBDBDBECCDCCCDCECDCEEADEBACADBABACDDABDCCAEAE",
     "tp_lingua": 0,
-    "nota": 646.9086890258634,
-    "theta": 1.1327484284305278,
+    "nota": 646.8758931719508,
+    "theta": 1.1327484400936423,
     "acertos": 20,
     "total_itens": 43,
     "nota_oficial": 646.9,
-    "erro": 0.008689025863418465
+    "erro": -0.024106828049184514
   }
 ]

@@ -116,21 +116,14 @@ ORDEM_CORES: List[str] = ['azul', 'amarela', 'rosa', 'cinza', 'branca', 'verde',
 # ============================================================================
 
 TEXTO_SOBRE = f"""
-O cálculo é uma **estimativa por Teoria de Resposta ao Item (TRI)**,
-verificada contra notas oficiais dos microdados do INEP.
+O cálculo usa a **Teoria de Resposta ao Item (TRI)**, a mesma metodologia do
+ENEM. O modelo é o logístico de 3 parâmetros (dificuldade, discriminação e
+acerto ao acaso de cada questão, divulgados pelo INEP), com estimação bayesiana
+(EAP).
 
-**Características:**
-- Modelo Logístico de 3 Parâmetros (ML3) com os parâmetros publicados pelo INEP
-- Estimação EAP (Expected a Posteriori)
-- Conversão para a escala do ENEM ajustada por prova, pelo menor erro médio
+**Nas 262 milhões de notas oficiais dos microdados do ENEM, de 2009 a 2025, a diferença média do cálculo é de 0,03 ponto, e 99,99% ficam a até 2 pontos da nota do INEP.** A precisão da prova escolhida aparece ao lado da nota.
 
-**Validação:**
-- As provas com participantes nos microdados são conferidas com notas
-  oficiais que não foram usadas no ajuste
-- A interface mostra o erro médio e a maior diferença observada
-- Provas com poucos resultados para conferir são indicadas como estimativa
-
-Consulte o [relatório técnico]({APP_VALIDATION_REPORT_URL}) completo, com métricas e erros por prova
+Veja o [relatório técnico]({APP_VALIDATION_REPORT_URL}) completo, com métricas e erros por prova
 """
 
 TEXTO_RECADO = """

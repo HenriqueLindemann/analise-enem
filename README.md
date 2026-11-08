@@ -70,9 +70,8 @@ Mais na <a href="src/tri_enem/README.md" target="_blank" rel="noopener noreferre
 ## Método e validação
 
 A nota é calculada com os parâmetros dos itens publicados pelo INEP e conferida
-contra as notas oficiais dos microdados. A escala de cada prova é a de menor
-erro médio; provas com poucos resultados para conferência são marcadas como
-estimativa. Detalhes no <a href="docs/SCORE_RECALCULATION.md" target="_blank" rel="noopener noreferrer">método de cálculo</a> e nas
+contra a nota oficial de todos os participantes dos microdados. Provas com
+poucos resultados para conferir são marcadas como não verificadas. Detalhes no <a href="docs/SCORE_RECALCULATION.md" target="_blank" rel="noopener noreferrer">método de cálculo</a> e nas
 <a href="docs/VALIDATION_REPORT.md" target="_blank" rel="noopener noreferrer">métricas por prova</a>.
 
 <p align="center">

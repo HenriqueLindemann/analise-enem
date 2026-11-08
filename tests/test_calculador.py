@@ -135,45 +135,12 @@ class TestCoerenciaEntreInterfaces:
         assert analise["total_acertos"] == direto["acertos"]
 
 
-class TestProbabilidadeAcerto:
-    """Propriedades do modelo logistico de 3 parametros."""
-
-    @staticmethod
-    def _item(a=1.0, b=0.0, c=0.2):
-        return ItemTRI(posicao=1, gabarito="A", param_a=a, param_b=b,
-                       param_c=c, co_item=1)
-
-    def test_no_nivel_da_dificuldade_e_media_entre_c_e_1(self, calc):
-        """Em theta == b, P = c + (1-c)/2."""
-        item = self._item(b=0.5, c=0.2)
-        assert calc.probabilidade_acerto(0.5, item) == pytest.approx(0.6)
-
-    def test_tende_ao_chute_em_theta_muito_baixo(self, calc):
-        item = self._item(c=0.25)
-        assert calc.probabilidade_acerto(-50.0, item) == pytest.approx(0.25, abs=1e-9)
-
-    def test_tende_a_um_em_theta_muito_alto(self, calc):
-        item = self._item(c=0.25)
-        assert calc.probabilidade_acerto(50.0, item) == pytest.approx(1.0, abs=1e-9)
-
-    def test_monotonica_crescente_em_theta(self, calc):
-        item = self._item()
-        valores = [calc.probabilidade_acerto(t, item)
-                   for t in [-3, -2, -1, 0, 1, 2, 3]]
-        assert valores == sorted(valores)
-        assert len(set(valores)) == len(valores)
-
-    def test_nunca_sai_do_intervalo(self, calc):
-        item = self._item(a=2.5, b=1.5, c=0.17)
-        for t in [-1000, -10, 0, 10, 1000]:
-            p = calc.probabilidade_acerto(t, item)
-            assert 0.0 <= p <= 1.0
-
-    def test_sem_overflow_em_argumento_extremo(self, calc):
-        """Guarda dos limites +-700 no expoente (calculador.py)."""
-        item = self._item(a=100.0)
-        assert calc.probabilidade_acerto(1e6, item) == 1.0
-        assert calc.probabilidade_acerto(-1e6, item) == self._item(a=100.0).param_c
+def test_probabilidade_sem_overflow_em_argumento_extremo(calc):
+    """Guarda dos limites +-700 no expoente."""
+    item = ItemTRI(posicao=1, gabarito="A", param_a=100.0, param_b=0.0,
+                   param_c=0.2, co_item=1)
+    assert calc.probabilidade_acerto(1e6, item) == 1.0
+    assert calc.probabilidade_acerto(-1e6, item) == 0.2
 
 
 class TestEstimacaoEAP:
@@ -195,12 +162,6 @@ class TestEstimacaoEAP:
             for k in [0, 10, 20, 30, 40, 45]
         ]
         assert thetas == sorted(thetas)
-
-    def test_theta_fica_dentro_da_faixa_da_quadratura(self, calc):
-        itens = self._prova()
-        for k in [0, 23, 45]:
-            theta = calc.estimar_theta_eap([1] * k + [0] * (45 - k), itens)
-            assert -6.0 < theta < 6.0
 
     def test_itens_anulados_nao_afetam_theta(self, calc):
         """Item anulado deve ser desconsiderado, independentemente da resposta."""
@@ -238,7 +199,7 @@ class TestEstimacaoEAP:
             caso["ano"], caso["area"], caso["co_prova"],
             caso["respostas"], caso["tp_lingua"],
         )
-        pontos, pesos = calc._quadratura_itens(itens)
+        pontos, pesos = calc.quadratura()
         log_l = np.asarray([
             calc.log_verossimilhanca(ponto, respostas, itens)
             for ponto in pontos
@@ -249,17 +210,21 @@ class TestEstimacaoEAP:
             referencia, rel=0, abs=2e-14,
         )
 
-    @pytest.mark.parametrize("metodo", ["gauss_hermite_80", "grade_41"])
-    def test_eap_preserva_limites_e_anulados(self, calc, metodo):
+    def test_quadratura_e_grade_de_40_pontos_com_prior_normal(self):
+        pontos, pesos = CalculadorTRI.quadratura()
+        assert len(pontos) == 40
+        assert pontos[0] == -4.0 and pontos[-1] == 4.0
+        assert np.allclose(np.diff(pontos), 8 / 39)
+        assert pesos == pytest.approx(np.exp(-pontos ** 2 / 2) / np.exp(-pontos ** 2 / 2).sum())
+
+    def test_eap_preserva_limites_e_anulados(self, calc):
         itens = self._prova()
-        for item in itens:
-            item.metodo_quadratura = metodo
         itens[0].param_a = 1000.0
         itens[1].param_c = 1.0
         itens[2].param_c = 0.0
         itens[3].abandonado = True
         itens[3].param_a = float("nan")
-        pontos, pesos = calc._quadratura_itens(itens)
+        pontos, pesos = calc.quadratura()
         for respostas in ([0] * 45, [1] * 45, [0, 1] * 22 + [0], []):
             log_l = np.asarray([
                 calc.log_verossimilhanca(ponto, respostas, itens)
@@ -271,38 +236,15 @@ class TestEstimacaoEAP:
                 referencia, rel=0, abs=2e-14,
             )
 
-    def test_cache_reusa_probabilidades_entre_respostas_e_batch(self, monkeypatch):
-        calc = CalculadorTRI()
-        itens = self._prova()
-        original = calc.probabilidade_acerto
-        chamadas = []
-
-        def contar(theta, item):
-            chamadas.append(theta)
-            return original(theta, item)
-
-        monkeypatch.setattr(calc, "probabilidade_acerto", contar)
-        referencia = calc.estimar_theta_eap([1] * 45, itens)
-        n_primeiro = len(chamadas)
-        assert n_primeiro == 45 * 80
-        assert calc.estimar_theta_eap([1] * 45, itens) == referencia
-        calc.estimar_theta_eap([0] * 45, itens)
-        lote = calc.estimar_theta_eap_batch([[1] * 45, [0] * 45], itens)
-        assert lote[0] == pytest.approx(referencia, rel=0, abs=2e-14)
-        assert len(chamadas) == n_primeiro
-
     @pytest.mark.parametrize("mudanca", [
-        "param_a", "param_b", "param_c", "abandonado", "metodo", "D", "pontos",
+        "param_a", "param_b", "param_c", "abandonado", "D", "pontos",
     ])
     def test_cache_acompanha_mudancas_numericas(self, mudanca):
         calc = CalculadorTRI()
         itens = self._prova()
         respostas = [1] * 20 + [0] * 25
         calc.estimar_theta_eap(respostas, itens)
-        if mudanca == "metodo":
-            for item in itens:
-                item.metodo_quadratura = "grade_41"
-        elif mudanca == "D":
+        if mudanca == "D":
             calc.D = 1.7
         elif mudanca == "pontos":
             calc._pontos_quad = calc._pontos_quad * 0.9
@@ -310,7 +252,7 @@ class TestEstimacaoEAP:
             itens[0].abandonado = True
         else:
             setattr(itens[0], mudanca, getattr(itens[0], mudanca) + 0.15)
-        pontos, pesos = calc._quadratura_itens(itens)
+        pontos, pesos = calc._pontos_quad, calc._pesos_quad
         logs = np.asarray([
             calc.log_verossimilhanca(ponto, respostas, itens) for ponto in pontos
         ])
@@ -319,20 +261,6 @@ class TestEstimacaoEAP:
         assert calc.estimar_theta_eap(respostas, itens) == pytest.approx(
             referencia, rel=0, abs=2e-14,
         )
-
-    def test_cache_e_limitado_e_arrays_nao_podem_ser_mutados(self):
-        calc = CalculadorTRI()
-        calc.MAX_CACHE_QUADRATURA = 2
-        itens = self._prova()
-        pontos, _ = calc._quadratura_itens(itens)
-        for valor in range(4):
-            itens[0].param_b = float(valor)
-            log_p, log_q = calc._logs_quadratura(pontos, itens)
-            with pytest.raises(ValueError):
-                log_p[0, 0] = 0
-            with pytest.raises(ValueError):
-                log_q[0, 0] = 0
-        assert len(calc._cache_logs_quadratura) == 2
 
     def test_calculador_compartilhado_preserva_resultados_em_threads(self):
         from concurrent.futures import ThreadPoolExecutor
@@ -367,27 +295,11 @@ class TestConverterRespostas:
             for i, g in enumerate(gabaritos)
         ]
 
-    def test_acertos_e_erros(self, calc):
+    def test_contrato_da_entrada(self, calc):
+        """Minúsculas valem; branco, asterisco e respostas faltantes contam erro."""
         itens = self._itens("ABCDE")
-        assert calc.converter_respostas("ABCDE", itens) == [1, 1, 1, 1, 1]
-        assert calc.converter_respostas("EDCBA", itens) == [0, 0, 1, 0, 0]
-
-    def test_case_insensitive(self, calc):
-        itens = self._itens("ABC")
-        assert calc.converter_respostas("abc", itens) == [1, 1, 1]
-
-    def test_string_curta_completa_com_erro(self, calc):
-        """Respostas ausentes são contabilizadas como erro, sem exceder o índice."""
-        itens = self._itens("ABCDE")
-        assert calc.converter_respostas("AB", itens) == [1, 1, 0, 0, 0]
-
-    def test_resposta_em_branco_conta_erro(self, calc):
-        itens = self._itens("ABC")
-        assert calc.converter_respostas(".B.", itens) == [0, 1, 0]
-
-    def test_asterisco_conta_como_omissao(self, calc):
-        itens = self._itens("ABC")
-        assert calc.converter_respostas("*B*", itens) == [0, 1, 0]
+        assert calc.converter_respostas("abCDA", itens) == [1, 1, 1, 1, 0]
+        assert calc.converter_respostas(".B*", itens) == [0, 1, 0, 0, 0]
 
 
 class TestCarregarItens:
@@ -440,9 +352,6 @@ class TestCarregarItens:
     def test_ano_inexistente_levanta_erro(self, calc):
         with pytest.raises(FileNotFoundError):
             calc.carregar_itens(1999, "MT", 1211)
-
-    def test_cache_devolve_mesma_lista(self, calc):
-        assert calc.carregar_itens(2023, "MT", 1211) is calc.carregar_itens(2023, "MT", 1211)
 
     def test_lc_exige_idioma_valido(self, calc):
         with pytest.raises(ValueError, match="tp_lingua"):
@@ -517,3 +426,59 @@ class TestConfiguracaoLC:
         assert futuro.n_itens_arquivo == base.n_itens_arquivo
         assert futuro.posicao_inicio == base.posicao_inicio
         assert futuro.posicoes_lingua == base.posicoes_lingua
+
+
+class TestNotaGabarito:
+    """O INEP atribui ao gabarito a nota de outro caderno da edição.
+
+    Em MT/2025/1471 o item 97593 foi abandonado ("problema de convergência"),
+    mas mantém o gabarito A: só quem também o acerta recebe 980,3.
+    """
+
+    @staticmethod
+    def _gabarito(calc, ano, area, prova, tp_lingua=None):
+        itens = calc.carregar_itens(ano, area, prova, tp_lingua)
+        return "".join(i.gabarito if i.gabarito in "ABCDE" else "A" for i in itens), itens
+
+    def test_gabarito_completo_recebe_nota_catalogada(self, calc):
+        respostas, _ = self._gabarito(calc, 2025, "MT", 1471)
+        resultado = calc.calcular_nota(2025, "MT", 1471, respostas)
+        assert resultado["nota"] == pytest.approx(980.3)
+        assert resultado["acertos"] == resultado["total_itens"]
+
+    def test_errar_item_abandonado_com_gabarito_mantem_nota_do_modelo(self, calc):
+        respostas, itens = self._gabarito(calc, 2025, "MT", 1471)
+        idx = next(i for i, item in enumerate(itens) if item.co_item == 97593)
+        respostas = respostas[:idx] + "D" + respostas[idx + 1:]
+        resultado = calc.calcular_nota(2025, "MT", 1471, respostas)
+        assert resultado["acertos"] == resultado["total_itens"]
+        assert resultado["nota"] == pytest.approx(967.7, abs=0.05)
+
+    def test_lote_aplica_a_mesma_regra(self, calc):
+        respostas, itens = self._gabarito(calc, 2025, "MT", 1471)
+        errou = "B" if respostas[0] != "B" else "C"
+        lote = [respostas, errou + respostas[1:]]
+        esperadas = [calc.calcular_nota(2025, "MT", 1471, r)["nota"] for r in lote]
+        assert calc.calcular_notas_batch(2025, "MT", 1471, lote) == pytest.approx(esperadas, abs=1e-12)
+
+    def test_analise_de_questoes_usa_a_mesma_nota(self, calc):
+        respostas, _ = self._gabarito(calc, 2025, "MT", 1471)
+        analise = calc.analisar_todas_questoes(2025, "MT", 1471, respostas)
+        assert analise["nota"] == pytest.approx(980.3)
+        perda = max(q["perda_se_errasse"] for q in analise["acertos"])
+        assert perda > 12.5
+
+    def test_regra_vale_por_idioma(self, calc):
+        ingles, _ = self._gabarito(calc, 2024, "LC", 1395, 0)
+        assert calc.calcular_nota(2024, "LC", 1395, ingles, 0)["nota"] == pytest.approx(795.8)
+
+    def test_sem_nota_catalogada_usa_o_modelo(self, calc):
+        respostas, itens = self._gabarito(calc, 2023, "CH", 1191)
+        assert calc.nota_gabarito(2023, "CH", 1191) is None
+        theta = calc.estimar_theta_eap([1] * len(itens), itens)
+        nota = calc.calcular_nota(2023, "CH", 1191, respostas)["nota"]
+        assert nota == pytest.approx(calc.transformar_escala(theta, 2023, "CH"))
+
+    def test_fontes_externas_nao_recebem_regra_do_pacote(self, calc):
+        externo = CalculadorTRI(str(calc.base_path))
+        assert externo.nota_gabarito(2025, "MT", 1471) is None

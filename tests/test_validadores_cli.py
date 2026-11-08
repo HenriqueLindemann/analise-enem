@@ -16,10 +16,10 @@ MANIFESTO = ROOT / "tests" / "fixtures" / "validation_manifest.json"
 RELATORIO = ROOT / "docs" / "VALIDATION_REPORT.md"
 
 
-def test_validador_reprova_catalogo_ok_com_erro_2_01(tmp_path):
+def test_validador_reprova_prova_ok_com_falha_no_censo(tmp_path):
     catalogo = json.loads(CATALOGO.read_text(encoding="utf-8"))
-    if catalogo.get("schema_version") != 3:
-        pytest.skip("catálogo v3 ainda não foi gerado")
+    if catalogo.get("schema_version") != 4:
+        pytest.skip("catálogo v4 ainda não foi gerado")
     chave = next(
         (
             chave
@@ -28,8 +28,8 @@ def test_validador_reprova_catalogo_ok_com_erro_2_01(tmp_path):
         ),
         None,
     )
-    assert chave is not None, "catálogo v3 sem nenhuma prova ok"
-    catalogo["por_prova"][chave]["validacao"]["erro_maximo"] = 2.01
+    assert chave is not None, "catálogo v4 sem nenhuma prova ok"
+    catalogo["por_prova"][chave]["censo"]["acima_2"] = 5
     adulterado = tmp_path / "coeficientes_data.json"
     adulterado.write_text(
         json.dumps(catalogo, ensure_ascii=False), encoding="utf-8"
@@ -46,7 +46,7 @@ def test_validador_reprova_catalogo_ok_com_erro_2_01(tmp_path):
         capture_output=True,
     )
     assert resultado.returncode != 0
-    assert "ok com erro máximo >2" in resultado.stdout
+    assert f"{chave}: status=ok, esperado=erro_raro" in resultado.stdout
 
 
 def test_validador_reprova_relatorio_derivado_adulterado(tmp_path):

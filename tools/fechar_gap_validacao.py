@@ -17,7 +17,6 @@ import hashlib
 import json
 import sys
 import platform
-from collections import defaultdict
 from dataclasses import asdict, replace
 from datetime import datetime, timezone
 from pathlib import Path
@@ -37,7 +36,7 @@ from tools.recalibrar_validacao import (
 )
 from tools.reconstruir_associacao_itens import (
     ajustar_curvas, ajustar_um_item, associar_curvas,
-    refinar_associacao, refinar_trocas, refinar_gabaritos, theta_parametros,
+    refinar_associacao, refinar_trocas, refinar_gabaritos,
 )
 
 VERSION = "item-association-v1"
@@ -140,7 +139,7 @@ def assinatura_casos(casos):
 
 def payload(itens, parametros, origem, inferencia=None, codigo_base=None):
     resultado = {
-        "quadratura": "grade_41", "origem": origem,
+        "origem": origem,
         "itens": [
             {"a": float(p[0]), "b": float(p[1]), "c": float(p[2]),
              "abandonado": bool(p[0] == 0), "gabarito": item.gabarito,
@@ -299,7 +298,7 @@ def candidatos_isolados(calc, splits, candidatos):
             estimada[str(lingua)] = payload(itens, parcial, "associacao_com_parametro_estimado",
                 {**meta, "itens_com_parametros_estimados": [itens[j].co_item] if j is not None else []})
             print(f"{key}/{lingua}: MSE discreto={custo:.6f}", flush=True)
-        candidatos[key].extend([
+        candidatos.setdefault(key, []).extend([
             {"por_idioma": por_lingua, "origem": "parametros_publicados_gabaritos_inferidos"},
             {"por_idioma": estimada, "origem": "associacao_com_parametro_estimado"},
         ])
@@ -332,65 +331,6 @@ def candidatos_isolados(calc, splits, candidatos):
                                                "origem": "transferencia_parametros_publicados"})
 
 
-def extremos_de_treino(calc, splits, candidatos):
-    """Âncoras identificáveis em treino, compartilhadas por curvas equivalentes."""
-    grupos, configuracoes = defaultdict(dict), {}
-    for key, split in splits.items():
-        ano, area, code = key.split(",")
-        ano, code = int(ano), int(code)
-        for config in [None, *candidatos.get(key, [])]:
-            origem = "vigente" if config is None else config["origem"]
-            c = calc if config is None else CalculadorTRI(reconstrucoes={key: config})
-            c._cache_df_itens = calc._cache_df_itens
-            identidades, internos = [], []
-            for lingua in sorted({r.tp_lingua for r in split["treino"]}, key=str):
-                itens = c.carregar_itens(ano, area, code, lingua)
-                ativos = [j for j, t in enumerate(itens) if not t.abandonado]
-                if len(ativos) < 2:
-                    continue
-                identidade = (ano, area, itens[0].metodo_quadratura,
-                    tuple(sorted((t.param_a, t.param_b, t.param_c) for t in itens if not t.abandonado)))
-                padroes = np.zeros((2 + 2 * len(ativos), len(itens)))
-                padroes[1] = 1
-                for j, idx in enumerate(ativos):
-                    padroes[2+j, idx] = 1
-                    padroes[2+len(ativos)+j] = 1
-                    padroes[2+len(ativos)+j, idx] = 0
-                theta = c.estimar_theta_eap_batch(padroes, itens)
-                internos.append((float(theta[2:2+len(ativos)].min()),
-                                 float(theta[2+len(ativos):].max())))
-                identidades.append((identidade, float(theta[0]), float(theta[1])))
-                for r in split["treino"]:
-                    if r.tp_lingua != lingua:
-                        continue
-                    texto = c.normalizar_respostas(r.respostas, area, ano, lingua)
-                    u = np.asarray(c.converter_respostas(texto, itens))[ativos]
-                    if u.sum() in (0, len(ativos)):
-                        extremo = int(u.sum() > 0)
-                        grupos[(identidade, extremo)][r.case_id] = r.nota_oficial
-            if internos:
-                configuracoes[(key, origem)] = (identidades,
-                    [min(t[0] for t in internos), max(t[1] for t in internos)])
-    resultado = {}
-    for key, (identidades, limites) in configuracoes.items():
-        pontos, contagem, ids = {}, 0, set()
-        for identidade, t0, t1 in identidades:
-            for extremo, t in enumerate((t0, t1)):
-                casos = grupos[(identidade, extremo)]
-                notas = list(casos.values())
-                # Respostas equivalentes com notas diferentes não são âncoras.
-                if notas and max(notas) - min(notas) <= .10000001:
-                    tt = round(t, 10)
-                    pontos[tt] = float(np.median(notas))
-                    contagem += len(notas)
-                    ids.update(casos)
-        if pontos:
-            resultado[key] = {"pontos": sorted(map(list, pontos.items())),
-                "limites_internos": limites, "n_treino_extremos": contagem,
-                "training_case_ids_sha256": hashlib.sha256("\n".join(sorted(ids)).encode()).hexdigest()}
-    return resultado
-
-
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--microdados-dir", required=True, type=Path)
@@ -408,8 +348,7 @@ def main():
             args.microdados_dir, list(range(2009, 2026)), provas, disponiveis, 250_000, 160, args.workers)
         splits = dividir_amostra(amostra)
         salvar_amostra(args.cache_amostra, amostra, splits, diagnostico, fontes)
-    candidatos = {f"{a},{ar},{p}": [{"quadratura": "grade_41", "origem": "grade_41"}]
-                  for a, ar, p in provas}
+    candidatos = {}
     arquivos_algoritmo = [Path(__file__), ROOT / "tools/reconstruir_associacao_itens.py",
         ROOT / "tools/recalibrar_validacao.py", ROOT / "src/tri_enem/calibracao_modelos.py",
         ROOT / "src/tri_enem/calculador.py", ROOT / "src/tri_enem/data/itens/manifest.json", args.cache_amostra,
@@ -421,18 +360,16 @@ def main():
     salvos = json.loads(cache_candidatos.read_text()) if cache_candidatos.exists() else {}
     if salvos.get("assinatura") == assinatura:
         candidatos = salvos["candidatos"]
-        extremos = {(k, o): v for k, o, v in salvos["extremos"]}
         print("Reutilizando candidatos conferidos pelo hash do algoritmo e das fontes", flush=True)
     else:
         mapas = candidatos_familias(calc, provas, splits, candidatos)
         candidatos_adaptadas(calc, splits, candidatos, mapas)
         candidatos_isolados(calc, splits, candidatos)
-        extremos = extremos_de_treino(calc, splits, candidatos)
-        cache_candidatos.write_text(json.dumps({"assinatura": assinatura, "candidatos": candidatos,
-            "extremos": [[k, o, v] for (k, o), v in extremos.items()]}, ensure_ascii=False))
+        cache_candidatos.write_text(json.dumps({"assinatura": assinatura, "candidatos": candidatos},
+                                               ensure_ascii=False))
     timestamp = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
     catalogo, holdout = calibrar_catalogo(calc, provas, problemas, amostra, splits,
-        timestamp, candidatos_reconstrucao=candidatos, extremos_estimadores=extremos)
+        timestamp, candidatos_reconstrucao=candidatos)
     validar_artefatos(catalogo, holdout, provas)
     manifesto = criar_manifesto(catalogo, holdout, fontes, amostra, splits,
                                diagnostico, timestamp, not args.nao_publicar)

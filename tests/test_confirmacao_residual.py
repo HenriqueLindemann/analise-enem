@@ -45,13 +45,13 @@ def test_detecta_metricas_adulteradas(artifacts):
     assert any("after.total.mae" in f for f in validar(catalogo, fixtures))
 
 
-def test_detecta_modelo_alterado_mesmo_com_hash_atualizado(artifacts):
+def test_detecta_reparo_alterado_mesmo_com_hash_atualizado(artifacts):
     catalogo, fixtures = artifacts
     data = json.loads(catalogo.read_text())
-    data["por_prova"]["2009,CH,72"]["transformacao"]["intercept"] += 1
+    data["por_prova"]["2009,CH,72"]["reconstrucao_itens"]["itens"][0]["b"] += 1
     catalogo.write_text(json.dumps(data))
     modificar_manifest(fixtures, lambda m: m.update(current_catalogo_sha256=sha256(catalogo)))
-    assert any("modelo publicado diverge" in f for f in validar(catalogo, fixtures))
+    assert any("reparo publicado diverge" in f for f in validar(catalogo, fixtures))
 
 
 def test_detecta_sobreposicao_mesmo_com_hashes_atualizados(artifacts):
@@ -69,11 +69,3 @@ def test_detecta_sobreposicao_mesmo_com_hashes_atualizados(artifacts):
             manifest[role]["case_ids_sha256"] = fingerprint
     modificar_manifest(fixtures, change)
     assert any("sobreposição" in f for f in validar(catalogo, fixtures))
-
-
-def test_relatorio_identifica_diagnostico_de_treino():
-    from tools.recalibrar_validacao import gerar_relatorio
-    catalogo = json.loads((ROOT / "src/tri_enem/coeficientes_data.json").read_text())
-    manifest = json.loads((ROOT / "tests/fixtures/validation_manifest.json").read_text())
-    report = gerar_relatorio(catalogo, manifest)
-    assert "diagnóstico de treino/seleção" in report

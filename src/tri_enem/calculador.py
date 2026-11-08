@@ -4,7 +4,7 @@
 Calculadora Nota TRI ENEM - Módulo Principal de Cálculo
 
 Implementa o modelo logístico de 3 parâmetros (ML3) com estimação bayesiana
-Expected a Posteriori (EAP), com a quadratura definida por prova no catálogo.
+Expected a Posteriori (EAP).
 
 A documentação a seguir registra as decisões que não decorrem do modelo TRI
 padrão e que foram estabelecidas empiricamente por comparação com notas
@@ -14,7 +14,8 @@ Método
 ------
 - Modelo ML3: P(acerto|θ) = c + (1 - c) / (1 + exp(-D·a·(θ - b)))
 - Fator de escala D = 1.0 (e não 1.7, como é usual na literatura)
-- Prior normal: Gauss-Hermite de 80 pontos ou grade de 41 pontos em [-4, 4]
+- Prior normal em grade de 40 pontos equiespaçados em [-4, 4], com pesos
+  exp(-θ²/2)
 - Correções de associação, gabarito e exclusão de itens vêm do catálogo
   (``reconstrucao_itens``); os CSVs oficiais não são alterados
 - Itens anulados são excluídos da verossimilhança, não contados como erro
@@ -22,21 +23,17 @@ Método
 Alternativas medidas e descartadas:
 
     D = 1.7 em vez de 1.0        pior em todos os casos; 2023-MT vai de 0,09 a 8,79
-    relação θ->nota quadrática   não garante monotonicidade nem melhora o holdout
-    GH com 200 pontos            não corrige a diferença de suporte da prior
+    grade de 41 pontos           notas 0,1-0,25 abaixo das oficiais para θ > 3,25
+    Gauss-Hermite 80 pontos      exige transformação por prova para compensar
+    escala por prova             absorve erros de quadratura; a do INEP é fixa
     anulados contam como acerto  efeito nulo; os parâmetros são NaN
 
-Transformação para a escala ENEM
---------------------------------
-A transformação simples nota = 100·θ + 500 não descreve adequadamente as notas
-oficiais observadas. O catálogo pode aplicar uma transformação afim ou
-monotônica linear por partes, escolhida sem reutilizar o holdout final. O
-baseline (slope, intercept), os nós e as métricas ficam em
-coeficientes_data.json.
-
-Toda conversão θ -> nota no motor principal é feita por transformar_escala()
-com co_prova informado. Quando não existe um modelo específico, o catálogo
-fornece a transformação do ano/área.
+Escala e nota de gabarito
+-------------------------
+nota = slope·θ + intercept, com constantes fixas por área (``metadata.escala``
+do catálogo). Quem acerta todos os itens com gabarito A-E, inclusive itens
+abandonados, recebe a ``nota_gabarito`` da prova quando catalogada: o INEP
+atribui a esse padrão a nota de gabarito de outro caderno da edição.
 
 Indexação das respostas
 -----------------------
@@ -75,7 +72,8 @@ from dataclasses import dataclass
 from threading import Lock
 
 from .coeficientes import (
-    aplicar_transformacao, obter_transformacao, obter_reconstrucoes_itens,
+    _DATA as _CATALOGO_EMPACOTADO,
+    escala_catalogo, notas_gabarito_catalogo, reconstrucoes_catalogo,
 )
 from .posicoes import posicao_caderno as calcular_posicao_caderno
 
@@ -91,7 +89,6 @@ class ItemTRI:
     co_item: int
     abandonado: bool = False
     tp_lingua: float | None = None  # 0=inglês, 1=espanhol, NaN=comum
-    metodo_quadratura: str = "gauss_hermite_80"
 
 
 class CalculadorTRI:
@@ -100,9 +97,8 @@ class CalculadorTRI:
     
     Implementação:
     - Modelo Logístico de 3 Parâmetros (ML3)
-    - Estimação EAP com quadratura registrada no catálogo
-    - Prior: N(0, 1) - Normal padrão
-    - Transformação de escala calibrada por prova contra notas oficiais
+    - Estimação EAP em grade de 40 pontos em [-4, 4], prior N(0, 1)
+    - Escala afim fixa por área
     
     LC (Linguagens 2023+): 
     - 50 itens no arquivo (posições 1-45)
@@ -112,20 +108,22 @@ class CalculadorTRI:
     """
     
     D = 1.0  # Fator de escala
-    N_QUADRATURA = 80  # Gauss-Hermite padrão; a grade alternativa tem 41 pontos.
+    N_QUADRATURA = 40
+    LIMITE_QUADRATURA = 4.0
     MAX_CACHE_QUADRATURA = 128
-    
-    # Coeficientes carregados de coeficientes.py
-    # Ver coeficientes.py para adicionar novos coeficientes
-    
-    def __init__(self, itens_path: str = None, reconstrucoes: Dict | None = None):
+
+    def __init__(self, itens_path: str = None, reconstrucoes: Dict | None = None,
+                 catalogo: Dict | None = None):
         """
         Args:
             itens_path: Caminho externo opcional para a pasta de itens.
                 Quando omitido, usa os parâmetros empacotados com ``tri_enem``.
-            reconstrucoes: Ajustes explícitos por ano/área/prova. None usa o
-                catálogo empacotado; {} carrega somente os CSVs originais.
-                Fontes externas não recebem ajustes do pacote implicitamente.
+            reconstrucoes: Ajustes explícitos por ano/área/prova. None usa os
+                do catálogo; {} carrega somente os CSVs originais.
+            catalogo: Conteúdo de ``coeficientes_data.json`` que fornece
+                escala, reconstruções e notas de gabarito. None usa o
+                empacotado. Fontes externas de itens não recebem reconstruções
+                nem notas de gabarito do pacote implicitamente.
         """
         self._packaged_base = Path(
             str(files("tri_enem").joinpath("data", "itens"))
@@ -140,24 +138,15 @@ class CalculadorTRI:
         self._cache_logs_quadratura = OrderedDict()
         self._lock_logs_quadratura = Lock()
         self._mapeador: object | None = None  # Criado sob demanda; ver _ordem_provas.
-        self._pontos_quad, self._pesos_quad = self._calcular_quadratura()
+        self._pontos_quad, self._pesos_quad = self.quadratura()
+        usar_pacote = catalogo is not None or itens_path is None
+        catalogo = _CATALOGO_EMPACOTADO if catalogo is None else catalogo
+        self._escala = escala_catalogo(catalogo)
+        self._notas_gabarito = notas_gabarito_catalogo(catalogo) if usar_pacote else {}
         self.reconstrucoes = (
             deepcopy(reconstrucoes) if reconstrucoes is not None
-            else obter_reconstrucoes_itens() if itens_path is None else {}
+            else reconstrucoes_catalogo(catalogo) if usar_pacote else {}
         )
-        self._usar_ancoras_catalogo = reconstrucoes is None and itens_path is None
-        pontos_grade = np.linspace(-4.0, 4.0, 41)
-        self._quadratura_grade = (pontos_grade, np.exp(-pontos_grade ** 2 / 2))
-
-    def _quadratura_itens(self, itens: List[ItemTRI]):
-        metodos = {item.metodo_quadratura for item in itens}
-        if len(metodos) > 1:
-            raise ValueError("Os itens devem usar o mesmo método de quadratura")
-        if metodos == {"grade_41"}:
-            return self._quadratura_grade
-        if metodos - {"gauss_hermite_80"}:
-            raise ValueError(f"Quadratura desconhecida: {metodos}")
-        return self._pontos_quad, self._pesos_quad
     
     def _ordem_provas(self, ano: int) -> List[str]:
         """Ordem das áreas no caderno, com um único mapeador por instância."""
@@ -167,12 +156,14 @@ class CalculadorTRI:
             self._mapeador = MapeadorProvas()
         return self._mapeador.listar_ordem_provas(ano)
     
-    def _calcular_quadratura(self) -> Tuple[np.ndarray, np.ndarray]:
-        """Calcula pontos e pesos para quadratura Gauss-Hermite sobre N(0,1)"""
-        pontos_h, pesos_h = np.polynomial.hermite.hermgauss(self.N_QUADRATURA)
-        pontos = pontos_h * np.sqrt(2)
-        pesos = pesos_h / np.sqrt(np.pi)
-        return pontos, pesos
+    @classmethod
+    def quadratura(cls) -> Tuple[np.ndarray, np.ndarray]:
+        """Grade equiespaçada com pesos proporcionais à densidade N(0, 1)."""
+        pontos = np.linspace(
+            -cls.LIMITE_QUADRATURA, cls.LIMITE_QUADRATURA, cls.N_QUADRATURA
+        )
+        pesos = np.exp(-pontos ** 2 / 2)
+        return pontos, pesos / pesos.sum()
     
     def _carregar_df_itens(self, ano: int) -> pd.DataFrame:
         """Carrega DataFrame de itens de um ano (com cache)."""
@@ -338,10 +329,6 @@ class CalculadorTRI:
                     raise ValueError(f"{cache_key}: parâmetros reconstruídos inválidos")
                 if not item.abandonado and item.gabarito not in set("ABCDE"):
                     raise ValueError(f"{cache_key}: gabarito reconstruído inválido")
-        metodo = reconstrucao.get("quadratura", "gauss_hermite_80")
-        for item in itens:
-            item.metodo_quadratura = metodo
-        self._quadratura_itens(itens)
         self._cache_itens[cache_key] = itens
         return itens
     
@@ -413,7 +400,7 @@ class CalculadorTRI:
         
         θ_EAP = Σ(X_k * L_k * W_k) / Σ(L_k * W_k)
         """
-        pontos, pesos = self._quadratura_itens(itens)
+        pontos, pesos = self._pontos_quad, self._pesos_quad
         log_p, log_q = self._logs_quadratura(pontos, itens)
         # Preservar a ordem das somas do caminho escalar de referência.
         log_L = np.zeros(len(pontos), dtype=float)
@@ -455,7 +442,7 @@ class CalculadorTRI:
         if batch_size <= 0:
             raise ValueError("batch_size deve ser positivo")
 
-        pontos, pesos = self._quadratura_itens(itens)
+        pontos, pesos = self._pontos_quad, self._pesos_quad
         ativos = np.asarray([not item.abandonado for item in itens])
         matriz = matriz[:, ativos]
         itens_ativos = [item for item in itens if not item.abandonado]
@@ -568,24 +555,80 @@ class CalculadorTRI:
     ) -> Tuple[List[ItemTRI], np.ndarray]:
         """Normaliza e converte um lote de respostas da mesma prova/idioma."""
         itens = self.carregar_itens(ano, area, co_prova, tp_lingua)
-        binarias = []
-        for resposta in respostas:
-            _, vetor, _ = self._preparar_calculo(
-                ano, area, co_prova, resposta, tp_lingua
+        normalizadas = [
+            self.normalizar_respostas(r, area, ano, tp_lingua).upper() for r in respostas
+        ]
+        if not normalizadas:
+            return itens, np.zeros((0, len(itens)), dtype=np.int8)
+        for r in normalizadas:
+            if len(r) != len(itens):
+                raise ValueError(
+                    f"{ano}/{area}/{co_prova}: a prova tem {len(itens)} itens, mas "
+                    f"foram fornecidas {len(r)} respostas"
+                )
+        texto = "".join(normalizadas)
+        invalidos = sorted(set(texto) - set("ABCDE.*"))
+        if invalidos:
+            raise ValueError(
+                f"{ano}/{area}/{co_prova}: respostas contêm caracteres inválidos: "
+                f"{', '.join(repr(c) for c in invalidos)}"
             )
-            binarias.append(vetor)
-        return itens, np.asarray(binarias, dtype=np.int8)
+        matriz = np.frombuffer(texto.encode("ascii"), dtype=np.uint8).reshape(len(normalizadas), -1)
+        gabarito = np.asarray([
+            ord(g) if len(g := item.gabarito.upper()) == 1 and g.isascii() else 0
+            for item in itens
+        ], dtype=np.uint8)
+        return itens, (matriz == gabarito).astype(np.int8)
+
+    def transformar_escala_batch(self, thetas: np.ndarray, area: str) -> np.ndarray:
+        slope, intercept = self._escala[area.upper()]
+        return slope * np.asarray(thetas, dtype=float) + intercept
 
     def transformar_escala(self, theta: float, ano: int = None, area: str = None,
                           co_prova: int = None) -> float:
-        """
-        Transforma θ da escala (0,1) para escala ENEM.
-        
-        Usa a transformação validada por prova, com fallback por área.
-        """
-        transformacao = obter_transformacao(ano or 2023, area or 'MT', co_prova)
-        return aplicar_transformacao(theta, transformacao)
-    
+        """Transforma θ para a escala ENEM da área; ``ano`` e ``co_prova`` não a alteram."""
+        slope, intercept = self._escala[(area or 'MT').upper()]
+        return float(slope * theta + intercept)
+
+    @staticmethod
+    def gabaritou(respostas_bin: Iterable[int], itens: List[ItemTRI]) -> bool:
+        """Acertou todos os itens com gabarito A-E, inclusive abandonados."""
+        return all(
+            resposta == 1
+            for resposta, item in zip(respostas_bin, itens)
+            if item.gabarito.upper() in set("ABCDE")
+        )
+
+    def nota_gabarito(self, ano: int, area: str, co_prova: int,
+                      tp_lingua: int | None = None) -> float | None:
+        """Nota oficial catalogada para o padrão de gabarito, se houver."""
+        lingua = tp_lingua if area.upper() == "LC" else None
+        return self._notas_gabarito.get((int(ano), area.upper(), int(co_prova), lingua))
+
+    def _nota(self, theta: float, gabaritou: bool, ano: int, area: str,
+              co_prova: int, tp_lingua: int | None) -> float:
+        if gabaritou:
+            nota = self.nota_gabarito(ano, area, co_prova, tp_lingua)
+            if nota is not None:
+                return nota
+        return self.transformar_escala(theta, ano, area, co_prova)
+
+    def calcular_notas_batch(self, ano: int, area: str, co_prova: int,
+                             respostas: Iterable[str],
+                             tp_lingua: int | None = None) -> np.ndarray:
+        """Notas de um lote da mesma prova/idioma, com as regras de calcular_nota."""
+        itens, binarias = self.preparar_respostas_batch(
+            ano, area, co_prova, respostas, tp_lingua
+        )
+        if not len(binarias):
+            return np.zeros(0, dtype=float)
+        notas = self.transformar_escala_batch(self.estimar_theta_eap_batch(binarias, itens), area)
+        gabarito = self.nota_gabarito(ano, area, co_prova, tp_lingua)
+        if gabarito is not None:
+            chave = np.asarray([item.gabarito.upper() in set("ABCDE") for item in itens])
+            notas = np.where(binarias[:, chave].all(axis=1), gabarito, notas)
+        return np.asarray(notas, dtype=float)
+
     def calcular_nota(self, ano: int, area: str, co_prova: int, 
                      respostas_str: str, tp_lingua: int | None = None) -> Dict:
         """
@@ -622,7 +665,9 @@ class CalculadorTRI:
         ]
 
         theta = self.estimar_theta_eap(respostas_bin, itens)
-        nota = self.transformar_escala(theta, ano, area, co_prova)
+        nota = self._nota(
+            theta, self.gabaritou(respostas_bin, itens), ano, area, co_prova, tp_lingua
+        )
         
         return {
             'ano': ano,
@@ -685,7 +730,10 @@ class CalculadorTRI:
         )
 
         theta_original = self.estimar_theta_eap(respostas_bin, itens)
-        nota_original = self.transformar_escala(theta_original, ano, area, co_prova)
+        nota_original = self._nota(
+            theta_original, self.gabaritou(respostas_bin, itens),
+            ano, area, co_prova, tp_lingua,
+        )
 
         ordem_provas = self._ordem_provas(ano)
 
@@ -702,6 +750,10 @@ class CalculadorTRI:
                 matriz_mod.append(mod)
             thetas_mod = self.estimar_theta_eap_batch(matriz_mod, itens)
             mapa_thetas_mod = dict(zip(itens_validos_indices, thetas_mod))
+            mapa_gabaritou_mod = {
+                idx: self.gabaritou(mod, itens)
+                for idx, mod in zip(itens_validos_indices, matriz_mod)
+            }
         else:
             mapa_thetas_mod = {}
 
@@ -728,7 +780,9 @@ class CalculadorTRI:
 
             # Simular o cenário oposto (obtido via batch vetorizado)
             theta_mod = float(mapa_thetas_mod[idx])
-            nota_mod = self.transformar_escala(theta_mod, ano, area, co_prova)
+            nota_mod = self._nota(
+                theta_mod, mapa_gabaritou_mod[idx], ano, area, co_prova, tp_lingua
+            )
             
             questao = {
                 'posicao': item.posicao,  # Posição original no microdado

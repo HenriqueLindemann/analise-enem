@@ -9,9 +9,7 @@ locais de desenvolvimento.
 from __future__ import annotations
 
 import argparse
-from collections import defaultdict
 import gzip
-import hashlib
 import json
 from pathlib import Path
 import sys
@@ -19,26 +17,12 @@ import sys
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "src"))
-from tri_enem import CalculadorTRI
-from tri_enem.calibracao_modelos import aplicar_modelo, faixa_nota, metricas_modelo
-
-
-def sha256(path):
-    digest = hashlib.sha256()
-    with path.open("rb") as stream:
-        for block in iter(lambda: stream.read(1024 * 1024), b""):
-            digest.update(block)
-    return digest.hexdigest()
-
-
-def assinatura(ids):
-    return hashlib.sha256("\n".join(sorted(ids)).encode()).hexdigest()
-
-
-def ler_fixture(path):
-    with gzip.open(path, "rt", encoding="utf-8") as stream:
-        return [json.loads(line) for line in stream if line.strip()]
+from tri_enem.calibracao_modelos import faixa_nota  # noqa: E402
+from tools.avaliar_catalogo import (  # noqa: E402
+    assinatura, avaliar, carregar_inconsistentes, ler_fixture, reconstrucao_efetiva, sha256,
+)
 
 
 def comparar(actual, expected, label, failures):
@@ -57,43 +41,13 @@ def comparar(actual, expected, label, failures):
         failures.append(f"{label}: valor diverge")
 
 
-def avaliar(modelos, rows):
-    calc = CalculadorTRI(reconstrucoes={
-        key: info["reconstrucao_itens"] for key, info in modelos.items()
-        if "reconstrucao_itens" in info
-    })
-    grupos = defaultdict(list)
-    for row in rows:
-        grupos[(row["ano"], row["area"], row["co_prova"], row["tp_lingua"])].append(row)
-    thetas, notas, faixas = defaultdict(list), defaultdict(list), defaultdict(list)
-    for (ano, area, code, lingua), casos in sorted(grupos.items()):
-        key = f"{ano},{area},{code}"
-        itens, respostas = calc.preparar_respostas_batch(
-            ano, area, code, [r["respostas"] for r in casos], lingua)
-        thetas[key].extend(calc.estimar_theta_eap_batch(respostas, itens).tolist())
-        notas[key].extend(r["nota_oficial"] for r in casos)
-        faixas[key].extend(r["faixa"] for r in casos)
-    por_prova, errors = {}, []
-    for key in sorted(thetas):
-        modelo = modelos[key]["transformacao"]
-        por_prova[key] = metricas_modelo(thetas[key], notas[key], modelo, faixas[key])
-        errors.extend(abs(aplicar_modelo(thetas[key], modelo) - np.asarray(notas[key])).tolist())
-    errors = np.asarray(errors)
-    if not len(errors) or not np.isfinite(errors).all():
-        raise ValueError("avaliação vazia ou não finita")
-    return {"por_prova": por_prova, "case_ids_sha256": assinatura(r["case_id"] for r in rows),
-            "total": {"n": len(errors), "mae": float(errors.mean()),
-                      "erro_p95": float(np.percentile(errors, 95)),
-                      "erro_maximo": float(errors.max()),
-                      "acima_2": int((errors > 2 + 1e-12).sum())}}
-
-
 def validar(catalogo_path=None, fixtures_dir=None, cache_dir=None):
     fixtures_dir = fixtures_dir or ROOT / "tests/fixtures"
     catalogo_path = catalogo_path or ROOT / "src/tri_enem/coeficientes_data.json"
     manifest = json.loads((fixtures_dir / "residual_confirmation_manifest.json").read_text())
     primary = json.loads((fixtures_dir / "validation_manifest.json").read_text())
-    catalogo = json.loads(catalogo_path.read_text())["por_prova"]
+    catalogo_completo = json.loads(catalogo_path.read_text())
+    catalogo = catalogo_completo["por_prova"]
     failures = []
     hashes = {catalogo_path: manifest.get("current_catalogo_sha256", manifest["published_catalogo_sha256"]),
               fixtures_dir / "residual_confirmation.jsonl.gz": manifest["fixture_sha256"],
@@ -139,14 +93,18 @@ def validar(catalogo_path=None, fixtures_dir=None, cache_dir=None):
             or keys & set(manifest["sem_casos_novos"])):
         failures.append("cobertura dos modelos/casos diverge")
     for key in sorted(keys):
-        frozen = manifest["frozen_models"][key]
-        for field in ("transformacao", "reconstrucao_itens", "slope", "intercept"):
-            if catalogo[key].get(field) != frozen.get(field):
-                failures.append(f"{key}: modelo publicado diverge do congelado: {field}")
-    # A suíte usa somente os modelos distribuídos. O "before" contém métricas
-    # históricas e a identidade da avaliação pareada, não uma implementação antiga.
-    actual = avaliar({k: catalogo[k] for k in keys}, rows)
-    comparar(actual, manifest["after"], "after", failures)
+        # A escala congelada foi substituída pela escala única; os reparos de
+        # itens continuam os mesmos.
+        frozen = reconstrucao_efetiva(manifest["frozen_models"][key].get("reconstrucao_itens"))
+        if catalogo[key].get("reconstrucao_itens") != frozen:
+            failures.append(f"{key}: reparo publicado diverge do congelado: reconstrucao_itens")
+    # O "before" contém métricas históricas e a identidade da avaliação pareada.
+    actual = avaliar(catalogo_completo, rows, carregar_inconsistentes())
+    if actual["excluidos"] != manifest["after"].get("excluded_inconsistent"):
+        failures.append("registros excluídos divergem do manifesto")
+    comparar({k: actual[k] for k in ("total", "por_prova", "case_ids_sha256")},
+             {k: manifest["after"][k] for k in ("total", "por_prova", "case_ids_sha256")},
+             "after", failures)
     for key, metrics in actual["por_prova"].items():
         comparar(catalogo[key].get("validacao_residual"), metrics,
                  f"{key}.validacao_residual", failures)
@@ -197,7 +155,7 @@ def main():
         print("\n".join(failures))
         return 1
     alcance = "desenvolvimento completo" if args.cache_dir else "fixtures primária/secundária"
-    print(f"Confirmação residual: hashes, separação ({alcance}), modelos atuais e métricas conferidos.")
+    print(f"Confirmação residual: hashes, separação ({alcance}), reparos atuais e métricas conferidos.")
     return 0
 
 

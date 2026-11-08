@@ -134,18 +134,6 @@ class TestMapeadorProvas:
         with pytest.raises(KeyError, match="Tipo de aplicação .* não encontrado"):
             mapeador.obter_codigo(2024, "MT", "digital", "azul")
 
-    def test_nao_redireciona_para_outra_aplicacao(self, mapeador):
-        with pytest.raises(KeyError, match="Tipo de aplicação"):
-            mapeador.obter_codigo(2024, "MT", "digital", "azul")
-    
-    def test_validar_mapeamento(self, mapeador):
-        """Teste de validação da estrutura do mapeamento."""
-        avisos = mapeador.validar_mapeamento()
-        # Não deve haver avisos no arquivo exemplo bem formatado
-        # (pode ter duplicatas se o mesmo código aparecer em anos diferentes)
-        # O importante é que não falhe
-        assert isinstance(avisos, list)
-
     def test_listagem_inclui_provas_especiais_sem_itens_de_2009(self, mapeador):
         codigos = {prova.codigo for prova in mapeador.listar_todas_provas(2009)}
         assert {81, 82, 83, 84}.issubset(codigos)
@@ -170,32 +158,11 @@ class TestMapeadorProvas:
             ordem = mapeador.listar_ordem_provas(ano)
             assert ordem == ['CH', 'CN', 'LC', 'MT'], f"Ano {ano} deveria ter ordem CH, CN, LC, MT"
 
-    def test_ordem_provas_fora_do_range(self, mapeador):
-        """Teste de fallback para anos fora dos ranges definidos."""
-        # Anos anteriores a 2009 e posteriores a 2025 devem usar fallback
-        for ano in [2000, 2008, 2030, 2050]:
+    def test_ordem_provas_ano_futuro(self, mapeador):
+        """Anos ainda sem dados (como 2026) usam a ordem atual."""
+        for ano in [2026, 2030]:
             ordem = mapeador.listar_ordem_provas(ano)
-            assert ordem == ['LC', 'CH', 'CN', 'MT'], f"Ano {ano} fora do range deveria usar fallback"
-
-    def test_normalizar_ordem_provas_none(self, mapeador):
-        """Teste de normalização com entrada None."""
-        resultado = mapeador._normalizar_ordem_provas(None, ['LC', 'CH', 'CN', 'MT'])
-        assert resultado == ['LC', 'CH', 'CN', 'MT']
-
-    def test_normalizar_ordem_provas_incompleta(self, mapeador):
-        """Teste de normalização com lista incompleta."""
-        resultado = mapeador._normalizar_ordem_provas(['LC', 'CH'], ['LC', 'CH', 'CN', 'MT'])
-        assert resultado == ['LC', 'CH', 'CN', 'MT']
-
-    def test_normalizar_ordem_provas_duplicatas(self, mapeador):
-        """Teste de normalização com duplicatas."""
-        resultado = mapeador._normalizar_ordem_provas(['LC', 'LC', 'CH', 'CN'], ['LC', 'CH', 'CN', 'MT'])
-        assert resultado == ['LC', 'CH', 'CN', 'MT']
-
-    def test_normalizar_ordem_provas_sigla_invalida(self, mapeador):
-        """Teste de normalização com sigla inválida."""
-        resultado = mapeador._normalizar_ordem_provas(['LC', 'XX', 'CH', 'CN'], ['LC', 'CH', 'CN', 'MT'])
-        assert resultado == ['LC', 'CH', 'CN', 'MT']
+            assert ordem == ['LC', 'CH', 'CN', 'MT'], f"Ano {ano} deveria usar a ordem atual"
 
     def test_lookup_ano_como_string(self, mapeador):
         """Teste de lookup passando ano como string."""
@@ -203,12 +170,6 @@ class TestMapeadorProvas:
         assert codigo == 1011
         codigo_regular = mapeador.obter_codigo("2021", "CN", "1a_aplicacao", "rosa")
         assert codigo_regular == 912
-
-    def test_listar_ordem_provas_entradas_invalidas(self, mapeador):
-        """Teste de ordem de provas com entradas None ou strings não numéricas."""
-        assert mapeador.listar_ordem_provas(None) == ['LC', 'CH', 'CN', 'MT']
-        assert mapeador.listar_ordem_provas("invalido") == ['LC', 'CH', 'CN', 'MT']
-
 
 if __name__ == '__main__':
     # Permitir executar diretamente

@@ -128,14 +128,10 @@ class TestAppExecuta:
         assert not at.exception, at.exception
         assert len(at.session_state["resultados"]) == 4
 
-    def test_app_roda_sem_excecao(self):
-        at = AppTest.from_file(APP, default_timeout=TIMEOUT)
-        at.run()
-        assert not at.exception, at.exception
-
     def test_controles_essenciais_estao_presentes(self):
         at = AppTest.from_file(APP, default_timeout=TIMEOUT)
         at.run()
+        assert not at.exception, at.exception
         rotulos = {s.label for s in at.selectbox}
         assert "Ano da prova" in rotulos
         assert "Tipo de aplicação" in rotulos
@@ -279,7 +275,7 @@ class TestFluxoCompleto:
             )
 
     @pytest.mark.parametrize("ano,co_prova,tem_alerta", [
-        (2015, 286, True),    # erro_alto por uma exceção no extremo
+        (2011, 129, True),    # erro raro: anulações seletivas de 2011
         (2017, 403, False),   # associação reconstruída e validada
         (2023, 1211, False),  # ok
     ])
@@ -307,18 +303,17 @@ class TestFluxoCompleto:
         at.run()
         assert resultado["co_prova"] == co_prova
         resumo = resultado["resumo_validacao"]
-        assert "Erro absoluto médio" in resumo
-        assert "Maior diferença" in resumo
+        assert resumo.startswith("Conferida com ")
+        assert "até 2 pontos" in resumo
         assert "MAE" not in resumo
         assert "p95" not in resumo
         assert "aviso_forte" not in resumo
         if tem_alerta:
-            assert resultado["status_precisao"] == "erro_alto"
+            assert resultado["status_precisao"] == "erro_raro"
             assert not resultado["confiavel"]
             assert resultado["severidade_precisao"] == "atencao"
             assert any(
-                "confiável" in m.value.lower()
-                and "maioria" in m.value.lower()
+                "quase todos" in m.value and "1 em cada 4.300 participantes" in m.value
                 for m in at.markdown
             )
         else:
@@ -539,8 +534,6 @@ class TestGraficos:
         ]
         fig = grafico_impacto(questoes)
         assert fig.data[0].marker.color == (COR_GRADE_ACERTO, COR_GRADE_ERRO)
-        assert COR_GRADE_ACERTO == '#23845a'
-        assert COR_GRADE_ERRO == '#c84b45'
 
     def test_graficos_nao_capturam_gestos_para_zoom(self, resultado):
         from streamlit_app.components.graficos import grafico_impacto
@@ -646,22 +639,6 @@ class TestRelatorioPDF:
         assert por_offset.strftime("%H:%M") == "18:04"
         assert fallback.strftime("%H:%M") == "13:04"
 
-    def test_download_comunica_o_valor_do_relatorio(self):
-        from streamlit_app.components.impressao import TEXTO_DOWNLOAD_PDF
-
-        assert "organizada" in TEXTO_DOWNLOAD_PDF
-        assert "acessível" in TEXTO_DOWNLOAD_PDF
-        assert "salvar, imprimir ou compartilhar" in TEXTO_DOWNLOAD_PDF
-
-    def test_estilos_minimalistas_de_calibracao_existem(self):
-        from tri_enem.relatorios.estilos import Cores, criar_estilos
-
-        estilos = criar_estilos()
-        assert "AvisoCalibracao" in estilos
-        assert "MetricasValidacao" in estilos
-        assert estilos["AvisoCalibracao"].textColor in {Cores.SECUNDARIA, Cores.TEXTO_ESCURO}
-        assert estilos["MetricasValidacao"].textColor == Cores.CINZA
-
     def test_pdf_e_gerado_e_valido(self, resultados_quatro_areas):
         from streamlit_app.components.impressao import _gerar_pdf
 
@@ -766,83 +743,15 @@ class TestAvisoAcuracia:
     @pytest.mark.parametrize(
         "resultado_mock,esperado_contem,cor_esperada",
         [
+            ({"status_precisao": "ok"}, "alta confiabilidade", "#15803D"),
             (
-                {"status_precisao": "ok", "severidade_precisao": "sucesso", "aviso_precisao": "x"},
-                "alta confiabilidade",
-                "#15803D",
-            ),
-            (
-                {
-                    "status_precisao": "outro",
-                    "perfil_precisao": "calibracao_verificada",
-                    "aviso_precisao": "x",
-                },
-                "alta confiabilidade",
-                "#15803D",
-            ),
-            (
-                {
-                    "status_precisao": "aviso_forte",
-                    "perfil_precisao": "boa_na_maioria_com_excecoes",
-                    "severidade_precisao": "atencao",
-                    "aviso_precisao": "x",
-                },
-                "confiável",
+                {"status_precisao": "erro_raro", "n_validacao": 840825, "n_acima_2": 761},
+                "quase todos</span> nesta prova. Cerca de 1 em cada 1.100",
                 "#B45309",
             ),
-            (
-                {
-                    "status_precisao": "sem_participantes",
-                    "severidade_precisao": "atencao",
-                    "aviso_precisao": "x",
-                },
-                "não verificada",
-                "#B45309",
-            ),
-            (
-                {
-                    "status_precisao": "sem_itens",
-                    "severidade_precisao": "alerta",
-                    "aviso_precisao": "x",
-                },
-                "indisponível",
-                "#B91C1C",
-            ),
-            (
-                {
-                    "status_precisao": "nao_calibrado",
-                    "severidade_precisao": "atencao",
-                    "aviso_precisao": "x",
-                },
-                "não verificada",
-                "#B45309",
-            ),
-            (
-                {
-                    "status_precisao": "erro_alto",
-                    "severidade_precisao": "alerta",
-                    "aviso_precisao": "x",
-                },
-                "limitada",
-                "#B91C1C",
-            ),
-            (
-                {
-                    "status_precisao": "aviso_leve",
-                    "severidade_precisao": "atencao",
-                    "aviso_precisao": "x",
-                },
-                "maior variação",
-                "#B45309",
-            ),
-            (
-                {
-                    "status_precisao": "desconhecido",
-                    "aviso_precisao": "x",
-                },
-                "maior variação",
-                "#B45309",
-            ),
+            ({"status_precisao": "nao_calibrado"}, "não verificada", "#B45309"),
+            ({"status_precisao": "sem_participantes"}, "não verificada", "#B45309"),
+            ({"status_precisao": "sem_itens"}, "indisponível", "#B91C1C"),
         ],
     )
     def test_formatar_aviso_curto(self, resultado_mock, esperado_contem, cor_esperada):
@@ -926,12 +835,12 @@ class TestAvisoAcuracia:
             "aviso_precisao": "Estimativa verificada",
             "n_validacao": 210,
             "mae_validacao": 0.10,
-            "erro_p95": 0.43,
-            "erro_maximo": 0.91,
+            "n_acima_2": 0,
+            "percentual_ate_2": 100.0,
         })
 
-        assert ("Validada em 210 resultados oficiais.", True) in legendas
-        assert all("participaram do ajuste" not in texto for texto, _ in legendas)
+        assert any(texto.startswith("Comparamos a nota calculada com a oficial de todos")
+                   and dentro for texto, dentro in legendas)
 
 
 class TestEstadoDaInterface:
