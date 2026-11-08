@@ -50,7 +50,14 @@ Thumbs.db
 .ipynb_checkpoints/
 *.ipynb
 
-video/
+# Saídas e quadros de revisão do vídeo
+video/saida/
+video/**/stills/
+video/**/stills-safe/
+video/**/parts/
+video/**/*.mp4
+video/**/capa-reels.png
+video/**/video-preview.png
 
 # Logs
 *.log
