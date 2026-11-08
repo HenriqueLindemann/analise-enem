@@ -10,6 +10,7 @@ from typing import List, Sequence
 
 from reportlab.lib import colors
 from reportlab.lib.styles import ParagraphStyle
+from reportlab.pdfbase.pdfmetrics import stringWidth
 from reportlab.platypus import Flowable, Paragraph, Spacer, Table, TableStyle
 
 from .base import AreaAnalise, QuestaoAnalise
@@ -367,19 +368,87 @@ def tabela_erros_completa(erros: Sequence[QuestaoAnalise]) -> Table | None:
     )
 
 
+_ABREVIACOES_CADERNO = (
+    ("(2ª oportunidade)", "(2ª op.)"),
+    ("(reaplicação 2)", "(reapl. 2)"),
+    ("(reaplicação)", "(reapl.)"),
+    ("videoprova em Libras", "Libras"),
+    ("atendimento especializado", "atend. esp."),
+    ("adaptada ledor", "ledor"),
+    ("superampliada", "superampl."),
+    ("ampliada", "ampl."),
+    ("adaptada", "adapt."),
+)
+
+
+def _ajustar_texto_largura(
+    texto: str, largura_max: float,
+    fonte: str = "Helvetica", tamanho: float = 8.4,
+) -> str:
+    """Trunca com '...' quando o texto ultrapassa a largura útil da célula."""
+
+    if stringWidth(texto, fonte, tamanho) <= largura_max:
+        return texto
+    reticencias = "..."
+    if stringWidth(reticencias, fonte, tamanho) > largura_max:
+        return ""
+    atual = texto
+    while atual and stringWidth(atual + reticencias, fonte, tamanho) > largura_max:
+        atual = atual[:-1].rstrip()
+    return f"{atual}{reticencias}"
+
+
+def _formatar_caderno_resumo(
+    cor_prova: str | None, co_prova: int | None, largura_max: float,
+    fonte: str = "Helvetica", tamanho: float = 8.4,
+) -> str:
+    """Abrevia nomes longos de caderno e usa '...' em último caso, preservando o código."""
+
+    nome = formatar_cor(cor_prova) if cor_prova else "–"
+    sufixo = f" · {co_prova}" if co_prova else ""
+    completo = f"{nome}{sufixo}"
+    if stringWidth(completo, fonte, tamanho) <= largura_max:
+        return completo
+    for original, curto in _ABREVIACOES_CADERNO:
+        if original in nome:
+            nome = nome.replace(original, curto)
+            candidato = f"{nome}{sufixo}"
+            if stringWidth(candidato, fonte, tamanho) <= largura_max:
+                return candidato
+    largura_sufixo = stringWidth(sufixo, fonte, tamanho)
+    if sufixo and largura_sufixo < largura_max:
+        nome_truncado = _ajustar_texto_largura(
+            nome, largura_max - largura_sufixo, fonte, tamanho,
+        )
+        if nome_truncado:
+            return f"{nome_truncado}{sufixo}"
+    return _ajustar_texto_largura(f"{nome}{sufixo}", largura_max, fonte, tamanho)
+
+
 def tabela_resumo_areas(
     areas: Sequence[AreaAnalise], largura: float | None = None,
 ) -> Table:
     """Resumo com denominador válido e anuladas em coluna própria."""
 
     largura = largura or Medidas.LARGURA_UTIL
+    proporcoes = (0.35, 0.26, 0.09, 0.14, 0.09, 0.07)
+    larguras = [largura * p for p in proporcoes]
+    fonte_corpo = 8.4
+    padding_padrao = 2.5
+    padding_caderno = 6.0
+    largura_area = larguras[0] - 2 * padding_padrao
+    largura_caderno = larguras[1] - 2 * padding_caderno
+
     dados = [["\u00c1rea", "Caderno / prova", "Nota TRI", "Acertos válidos", "Anuladas", "%"]]
     for area in areas:
-        caderno = formatar_cor(area.cor_prova) if area.cor_prova else "–"
-        if area.co_prova:
-            caderno += f" · {area.co_prova}"
+        nome_area = _ajustar_texto_largura(
+            f"{area.sigla} · {area.nome}", largura_area, "Helvetica", fonte_corpo,
+        )
+        caderno = _formatar_caderno_resumo(
+            area.cor_prova, area.co_prova, largura_caderno, "Helvetica", fonte_corpo,
+        )
         dados.append([
-            f"{area.sigla} · {area.nome}", caderno, formatar_numero(area.nota),
+            nome_area, caderno, formatar_numero(area.nota),
             f"{area.acertos}/{area.total_itens_validos}", str(area.total_anulados),
             f"{area.percentual_acertos:.0f}%",
         ])
@@ -394,14 +463,12 @@ def tabela_resumo_areas(
         f"{total_acertos}/{total_validos}", str(total_anuladas), f"{percentual:.0f}%",
     ])
 
-    proporcoes = (0.33, 0.18, 0.12, 0.17, 0.10, 0.10)
-    tabela = tabela_dados(dados, colWidths=[largura * p for p in proporcoes],
-                          repeatRows=1, hAlign="LEFT")
+    tabela = tabela_dados(dados, colWidths=larguras, repeatRows=1, hAlign="LEFT")
     tabela.setStyle(TableStyle([
         ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
         ("FONTNAME", (0, 1), (-1, -2), "Helvetica"),
         ("FONTNAME", (0, -1), (-1, -1), "Helvetica-Bold"),
-        ("FONTSIZE", (0, 0), (-1, -1), 8.4),
+        ("FONTSIZE", (0, 0), (-1, -1), fonte_corpo),
         ("TEXTCOLOR", (0, 0), (-1, -1), Cores.SECUNDARIA),
         ("TEXTCOLOR", (0, 0), (-1, 0), Cores.PRIMARIA),
         ("TEXTCOLOR", (0, -1), (-1, -1), Cores.PRIMARIA),
@@ -413,7 +480,9 @@ def tabela_resumo_areas(
         ("LINEABOVE", (0, -1), (-1, -1), 0.7, Cores.PRIMARIA),
         ("TOPPADDING", (0, 0), (-1, -1), 6.2),
         ("BOTTOMPADDING", (0, 0), (-1, -1), 6.2),
-        ("LEFTPADDING", (0, 0), (-1, -1), 2.5),
-        ("RIGHTPADDING", (0, 0), (-1, -1), 2.5),
+        ("LEFTPADDING", (0, 0), (-1, -1), padding_padrao),
+        ("RIGHTPADDING", (0, 0), (-1, -1), padding_padrao),
+        ("LEFTPADDING", (1, 1), (1, -1), padding_caderno),
+        ("RIGHTPADDING", (1, 1), (1, -1), padding_caderno),
     ]))
     return tabela

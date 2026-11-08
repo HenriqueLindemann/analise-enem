@@ -13,6 +13,7 @@ from typing import List, Sequence
 try:
     from reportlab.lib.pagesizes import A4
     from reportlab.lib.units import cm
+    from reportlab.pdfbase.pdfmetrics import stringWidth
     from reportlab.platypus import (
         BaseDocTemplate, Frame, PageBreak, PageTemplate, Paragraph, Spacer,
         Table, TableStyle,
@@ -414,6 +415,7 @@ class RelatorioPDF:
         total = 0.0
         for elemento in elementos:
             _, altura = elemento.wrap(Medidas.LARGURA_UTIL, Medidas.ALTURA_UTIL)
+            self._validar_largura_elemento(elemento, identificacao)
             total += altura
             if hasattr(elemento, "getSpaceBefore"):
                 total += elemento.getSpaceBefore()
@@ -425,3 +427,56 @@ class RelatorioPDF:
                 f"{total / cm:.1f} cm para {Medidas.ALTURA_UTIL / cm:.1f} cm"
             )
         return total
+
+    def _validar_largura_elemento(self, elemento, identificacao: str) -> None:
+        """Impede texto ou flowable de vazar horizontalmente da sua célula."""
+
+        atual = getattr(elemento, "conteudo", elemento)
+        if not isinstance(atual, Table):
+            return
+        spans = getattr(atual, "_spanRanges", None) or {}
+        for linha, valores in enumerate(atual._cellvalues):
+            for coluna, valor in enumerate(valores):
+                if (coluna, linha) in spans:
+                    span = spans[(coluna, linha)]
+                    if span is None:
+                        continue
+                    c0, _, c1, _ = span
+                    largura_celula = sum(atual._colWidths[c0:c1 + 1])
+                else:
+                    largura_celula = atual._colWidths[coluna]
+                estilo = atual._cellStyles[linha][coluna]
+                largura_util = largura_celula - estilo.leftPadding - estilo.rightPadding
+                if isinstance(valor, str) and valor:
+                    for parte in valor.splitlines():
+                        largura_texto = stringWidth(
+                            parte, estilo.fontname, estilo.fontsize,
+                        )
+                        if largura_texto > largura_util + 0.5:
+                            raise RuntimeError(
+                                f"{identificacao} vaza na célula ({linha}, {coluna}) "
+                                f"com {parte!r}: {largura_texto:.1f} pt para {largura_util:.1f} pt"
+                            )
+                elif isinstance(valor, (list, tuple)):
+                    for item in valor:
+                        self._validar_largura_item_celula(
+                            item, largura_util, identificacao, linha, coluna,
+                        )
+                else:
+                    self._validar_largura_item_celula(
+                        valor, largura_util, identificacao, linha, coluna,
+                    )
+
+    def _validar_largura_item_celula(
+        self, item, largura_util: float, identificacao: str, linha: int, coluna: int,
+    ) -> None:
+        atual = getattr(item, "conteudo", item)
+        if isinstance(atual, Paragraph):
+            largura_minima = atual.minWidth()
+            if largura_minima > largura_util + 0.5:
+                raise RuntimeError(
+                    f"{identificacao} vaza na célula ({linha}, {coluna}): "
+                    f"{largura_minima:.1f} pt para {largura_util:.1f} pt"
+                )
+        elif isinstance(atual, Table):
+            self._validar_largura_elemento(atual, identificacao)

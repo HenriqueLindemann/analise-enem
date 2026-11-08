@@ -438,3 +438,152 @@ def test_descricao_da_grade_lista_cada_resultado():
         "Grade das 5 questões por resultado. "
         "Acertos (2): 3, 4; Erros (2): 1, 2; Anuladas (1): 5."
     )
+
+
+def test_tabela_resumo_areas_abrevia_nomes_longos_e_cabe_em_todo_o_catalogo():
+    from tri_enem.config import NOMES_AREAS
+    from tri_enem.mapeador_provas import MapeadorProvas
+
+    relatorio = RelatorioPDF()
+    mapeador = MapeadorProvas()
+    por_cor = {}
+    for prova in mapeador.listar_todas_provas():
+        if prova.cor not in por_cor or prova.codigo > por_cor[prova.cor].codigo:
+            por_cor[prova.cor] = prova
+
+    provas = list(por_cor.values())
+    for inicio in range(0, len(provas), 4):
+        bloco = (provas[inicio:inicio + 4] + provas[:4])[:4]
+        areas = []
+        for (sigla, nome), prova in zip(NOMES_AREAS.items(), bloco):
+            area = _criar_area_sintetica(
+                sigla, nome, 12, prova=(prova.ano, prova.codigo),
+            )
+            area.cor_prova = prova.cor
+            areas.append(area)
+        pagina = relatorio._pagina_resumo(_dados(areas), areas)
+        relatorio._validar_altura_pagina(pagina, f"capa com bloco {inicio}")
+
+        tabela = next(
+            el for el in pagina
+            if getattr(el, "_cellvalues", None)
+            and el._cellvalues[0][0] == "Área"
+        )
+        for linha, area in enumerate(areas, start=1):
+            assert tabela._cellvalues[linha][0] == f"{area.sigla} · {area.nome}"
+            assert tabela._cellvalues[linha][1].endswith(f" · {area.co_prova}")
+
+    casos = [
+        ("LC", "Linguagens, Códigos e suas Tecnologias", "laranja_atendimento_especializado", 1632),
+        ("CH", "Ciências Humanas e suas Tecnologias", "branca", 1585),
+        ("CN", "Ciências da Natureza e suas Tecnologias", "laranja_ampliada", 1623),
+        ("MT", "Matemática e suas Tecnologias", "roxa_videoprova_libras_superampliada", 1393),
+    ]
+    areas_caso = []
+    for sigla, nome, cor, codigo in casos:
+        area = _criar_area_sintetica(sigla, nome, 10, prova=(2025, codigo))
+        area.cor_prova = cor
+        areas_caso.append(area)
+    resumo = tabela_resumo_areas(areas_caso)
+    assert [resumo._cellvalues[i][1] for i in range(1, 5)] == [
+        "Laranja atend. esp. · 1632",
+        "Branca · 1585",
+        "Laranja ampliada · 1623",
+        "Roxa Libras superampl. · 1393",
+    ]
+
+
+def test_tabela_resumo_areas_usa_reticencias_em_ultimo_caso_e_preserva_codigo():
+    area = _criar_area_sintetica(
+        "LC", "Linguagens, Códigos e suas Tecnologias", 10, prova=(2025, 1632),
+    )
+    area.cor_prova = "caderno_experimental_com_descricao_extremamente_extensa"
+    resumo = tabela_resumo_areas([area])
+    RelatorioPDF()._validar_altura_pagina([resumo], "resumo com reticências")
+    celula = resumo._cellvalues[1][1]
+    assert "..." in celula
+    assert celula.endswith(" · 1632")
+
+
+def test_validador_detecta_vazamento_horizontal_em_tabela():
+    from reportlab.platypus import Table, TableStyle
+
+    tabela = Table([["Texto curto", "Texto excessivamente longo para caber nesta coluna"]], colWidths=[80, 40])
+    tabela.setStyle(TableStyle([
+        ("FONTNAME", (0, 0), (-1, -1), "Helvetica"),
+        ("FONTSIZE", (0, 0), (-1, -1), 8.4),
+    ]))
+    with pytest.raises(RuntimeError, match="vaza na célula"):
+        RelatorioPDF()._validar_altura_pagina([tabela], "tabela inválida")
+
+
+@pytest.mark.parametrize("cenario, definicoes", [
+    ("atendimento_especializado_e_ampliada", [
+        ("LC", "Linguagens, Códigos e suas Tecnologias", "laranja_atendimento_especializado", 1632),
+        ("CH", "Ciências Humanas e suas Tecnologias", "branca", 1585),
+        ("CN", "Ciências da Natureza e suas Tecnologias", "laranja_ampliada", 1623),
+        ("MT", "Matemática e suas Tecnologias", "azul", 1607),
+    ]),
+    ("cadernos_especiais_mais_longos", [
+        ("LC", "Linguagens, Códigos e suas Tecnologias", "roxa_videoprova_libras_superampliada", 1393),
+        ("CH", "Ciências Humanas e suas Tecnologias", "laranja_adaptada_ledor_segunda_oportunidade", 1042),
+        ("CN", "Ciências da Natureza e suas Tecnologias", "laranja_adaptada_ledor_reaplicacao", 1370),
+        ("MT", "Matemática e suas Tecnologias", "verde_superampliada_reaplicacao", 1368),
+    ]),
+    ("reticencias_em_nome_extremo", [
+        ("LC", "Linguagens, Códigos e suas Tecnologias", "caderno_experimental_com_descricao_extremamente_extensa", 1632),
+        ("MT", "Matemática e suas Tecnologias", "roxa_videoprova_libras_ampliada", 1416),
+    ]),
+])
+def test_pdf_gerado_para_provas_especiais_nao_sobrepoe_colunas_na_primeira_pagina(
+    cenario, definicoes, tmp_path,
+):
+    from reportlab.pdfbase.pdfmetrics import stringWidth
+
+    areas = []
+    for sigla, nome, cor, codigo in definicoes:
+        area = _criar_area_sintetica(sigla, nome, 15, prova=(2025, codigo))
+        area.cor_prova = cor
+        areas.append(area)
+
+    caminho, reader = _gerar(tmp_path, areas, f"especiais-{cenario}.pdf")
+    assert caminho.exists()
+    assert len(reader.pages) == len(areas) + 1
+
+    por_linha = {}
+
+    def visitar_texto(texto, cm_mat, tm_mat, font_dict, font_size):
+        limpo = texto.strip()
+        if not limpo:
+            return
+        fonte = (
+            font_dict.get("/BaseFont", "/Helvetica").lstrip("/")
+            if font_dict else "Helvetica"
+        )
+        x = cm_mat[0] * tm_mat[4] + cm_mat[2] * tm_mat[5] + cm_mat[4]
+        y = cm_mat[1] * tm_mat[4] + cm_mat[3] * tm_mat[5] + cm_mat[5]
+        largura = stringWidth(limpo, fonte, font_size)
+        por_linha.setdefault(round(y, 1), []).append((x, x + largura, limpo))
+
+    reader.pages[0].extract_text(visitor_text=visitar_texto)
+    linhas_tabela = [
+         sorted(itens, key=lambda item: item[0])
+        for itens in por_linha.values()
+        if len(itens) == 6
+    ]
+    assert len(linhas_tabela) == 1 + len(areas)
+    for linha in linhas_tabela:
+        for (_, x1, texto_esq), (x0_dir, _, texto_dir) in zip(linha, linha[1:]):
+            assert x1 + 4.0 <= x0_dir, (
+                f"Colisão horizontal na 1ª página entre {texto_esq!r} ({x1:.1f}) "
+                f"e {texto_dir!r} ({x0_dir:.1f})"
+            )
+
+    texto_capa = reader.pages[0].extract_text() or ""
+    for area in areas:
+        assert f"· {area.co_prova}" in texto_capa
+
+    # Nas páginas analíticas individuais o nome completo do caderno continua visível.
+    for pagina, area in zip(reader.pages[1:], areas):
+        texto_pagina = pagina.extract_text() or ""
+        assert f"Prova {area.co_prova} · {formatar_cor(area.cor_prova)}" in texto_pagina
