@@ -133,6 +133,11 @@ def gerar_relatorio(catalogo: Dict[str, Any], manifesto: Dict[str, Any]) -> str:
     treino = sum(int(e.get("n_treino", 0))
                  for e in ((catalogo.get("metadata") or {}).get("escala") or {}).values())
     com_falhas = contagem[PERFIL_BOA_COM_EXCECOES] + contagem[PERFIL_ESTIMATIVA]
+    conferidas = contagem[PERFIL_CALIBRACAO_VERIFICADA] + com_falhas
+    arredondamento = sum(
+        1 for chave, perfil in perfis.items()
+        if perfil != PERFIL_SEM_VALIDACAO
+        and float(metricas[chave].get("maior_diferenca", math.inf)) <= 0.05)
 
     linhas = [
         "# Validação das notas TRI",
@@ -143,12 +148,17 @@ def gerar_relatorio(catalogo: Dict[str, Any], manifesto: Dict[str, Any]) -> str:
         "",
         "## Resumo",
         "",
-        f"- **{_numero(total['mae'])} ponto** de diferença média.",
-        f"- **{total['ate_2']}** das notas a até 2 pontos da oficial.",
-        f"- **{contagem[PERFIL_CALIBRACAO_VERIFICADA]} de {_inteiro(len(por_prova))} provas** "
-        f"verificadas, {com_falhas} com falhas conhecidas e "
-        f"{contagem[PERFIL_SEM_VALIDACAO]} sem dados para conferir. Cada área, cor e "
-        "aplicação conta como uma prova.",
+        f"- **{total['ate_2']}** das notas a até 2 pontos da oficial, com diferença "
+        f"média de {_numero(total['mae'])} ponto.",
+        f"- **{contagem[PERFIL_CALIBRACAO_VERIFICADA]} das {conferidas} provas conferíveis** "
+        "com praticamente todas as notas a até 2 pontos da oficial; em "
+        f"{arredondamento} delas, todas a até 0,05 ponto.",
+        f"- **{com_falhas} provas** com um pequeno grupo de participantes a mais de "
+        "2 pontos ([detalhes](#provas-com-falhas-conhecidas)).",
+        "",
+        "Cada área, cor e aplicação conta como uma prova. Outras "
+        f"{contagem[PERFIL_SEM_VALIDACAO]} não têm notas oficiais para conferir "
+        "([lista](#provas-sem-validação)).",
         "",
         "## Sua prova",
         "",
@@ -273,16 +283,18 @@ def gerar_relatorio(catalogo: Dict[str, Any], manifesto: Dict[str, Any]) -> str:
         "",
         "## Detalhamento por prova",
         "",
-        "| Prova | Situação | Status | Participantes | Diferença média | Até 2 pontos | Acima de 2 |",
-        "|---|---|---|---:|---:|---:|---:|",
+        "| Prova | Situação | Status | Participantes | Diferença média | Até 2 pontos | "
+        "Acima de 2 | Maior diferença |",
+        "|---|---|---|---:|---:|---:|---:|---:|",
     ])
     for chave in sorted(por_prova, key=_ordem):
         info, m = por_prova[chave], metricas[chave]
         if m.get("n"):
             numeros = (f"{_inteiro(int(m['n']))} | {_numero(float(m['mae']))} | "
-                       f"{_percentual(int(m['n']), int(m['acima_2']))} | {_inteiro(int(m['acima_2']))}")
+                       f"{_percentual(int(m['n']), int(m['acima_2']))} | {_inteiro(int(m['acima_2']))} | "
+                       + (_numero(float(m["maior_diferenca"]), 2) if "maior_diferenca" in m else "—"))
         else:
-            numeros = "— | — | — | —"
+            numeros = "— | — | — | — | —"
         linhas.append(
             f"| {_rotulo(chave, info)} | {PERFIS[perfis[chave]]} | "
             f"`{info['qualidade']['status']}` | {numeros} |"

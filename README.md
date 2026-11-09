@@ -2,7 +2,7 @@
 
 Estime sua nota no ENEM (2009–2025) pela Teoria de Resposta ao Item, a partir das suas respostas.
 
-**Usar no navegador: <a href="https://notatri.com/" target="_blank" rel="noopener noreferrer">notatri.com</a>** · <a href="#executar-localmente">Executar localmente</a> · <a href="docs/VALIDATION_REPORT.md" target="_blank" rel="noopener noreferrer">Provas disponíveis</a>
+**Usar no navegador: <a href="https://notatri.com/" target="_blank" rel="noopener noreferrer">notatri.com</a>** · <a href="#executar-localmente">Executar localmente</a> · <a href="docs/VALIDATION_REPORT.md" target="_blank" rel="noopener noreferrer">Precisão por prova</a>
 
 <p align="center">
 <a href="relatorios/EXEMPLO_relatorio.pdf" target="_blank" rel="noopener noreferrer">
@@ -18,7 +18,7 @@ Estime sua nota no ENEM (2009–2025) pela Teoria de Resposta ao Item, a partir 
 - **Nota por área**, calculada com os parâmetros oficiais do INEP.
 - **Impacto por questão:** quanto a nota mudaria ao acertar cada questão errada.
 - **Relatório PDF** com gabarito visual e análise de acertos e erros.
-- **Precisão conhecida:** cada prova é validada contra notas reais dos microdados.
+- **Precisão conferida** com as notas oficiais de todos os participantes desde 2009.
 
 ## Executar localmente
 
@@ -69,10 +69,12 @@ Mais na <a href="src/tri_enem/README.md" target="_blank" rel="noopener noreferre
 
 ## Método e validação
 
-A nota é calculada com os parâmetros dos itens publicados pelo INEP e conferida
-contra a nota oficial de todos os participantes dos microdados. Provas com
-poucos resultados para conferir são marcadas como não verificadas. Detalhes no <a href="docs/SCORE_RECALCULATION.md" target="_blank" rel="noopener noreferrer">método de cálculo</a> e nas
-<a href="docs/VALIDATION_REPORT.md" target="_blank" rel="noopener noreferrer">métricas por prova</a>.
+A calculadora usa os parâmetros das questões publicados pelo INEP. Para
+conferir a precisão, as notas de todos os participantes do ENEM de 2009 a 2025
+foram recalculadas e comparadas com as oficiais. Das 262,7 milhões de notas,
+99,99% ficaram a até 2 pontos da oficial.
+
+Detalhes no <a href="docs/SCORE_RECALCULATION.md" target="_blank" rel="noopener noreferrer">método de cálculo</a> e na <a href="docs/VALIDATION_REPORT.md" target="_blank" rel="noopener noreferrer">validação por prova</a>.
 
 <p align="center">
 <a href="streamlit_app/assets/video-nota-tri.mp4" target="_blank" rel="noopener noreferrer">
