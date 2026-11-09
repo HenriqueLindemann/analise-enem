@@ -8,11 +8,11 @@ Estime sua nota no ENEM (2009–2025) pela Teoria de Resposta ao Item, a partir 
 <a href="relatorios/EXEMPLO_relatorio.pdf" target="_blank" rel="noopener noreferrer">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/imagens/exemplo-matematica-dark.svg">
-    <img src="docs/imagens/exemplo-matematica.svg" alt="Respostas → nota → impacto por questão. Matemática, ENEM 2021: 916,4 pontos e gráfico de impacto das 44 questões válidas." width="1100">
+    <img src="docs/imagens/exemplo-matematica.svg" alt="Respostas → nota → impacto por questão. Matemática, ENEM 2021: 916,4 pontos e gráfico de impacto das 44 questões válidas." width="880">
   </picture>
 </a>
 <br>
-<sub>Matemática, ENEM 2021 · <a href="relatorios/EXEMPLO_relatorio.pdf" target="_blank" rel="noopener noreferrer">ver relatório completo em PDF</a></sub>
+<sub><a href="relatorios/EXEMPLO_relatorio.pdf" target="_blank" rel="noopener noreferrer">Ver relatório completo em PDF</a></sub>
 </p>
 
 - **Nota por área**, calculada com os parâmetros oficiais do INEP.
@@ -112,7 +112,7 @@ sobre privacidade nos microdados do ENEM (*Computers & Security*, 2026).
 <a href="https://doi.org/10.1016/j.cose.2026.105080" target="_blank" rel="noopener noreferrer">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/imagens/artigo-score-linkage-dark.svg">
-    <img src="docs/imagens/artigo-score-linkage.svg" alt="Notas conectam identidade e microdados do ENEM." width="760">
+    <img src="docs/imagens/artigo-score-linkage.svg" alt="Notas conectam identidade e microdados do ENEM." width="880">
   </picture>
 </a>
 </p>

@@ -40,6 +40,6 @@ a verificação de [tests/README.md](../tests/README.md).
   uma prova.
 - `avaliar_catalogo.py`: avaliação compartilhada por ferramentas e validadores.
 - `perfil_streamlit.py`: mede o desempenho do app.
-- `gerar_imagem_readme.py`: imagem de exemplo do README.
+- `gerar_imagem_readme.py`: imagens do README (exemplo e artigo).
 
 Caches de pesquisa ficam em `resultados/investigacao/`, ignorado pelo Git.
