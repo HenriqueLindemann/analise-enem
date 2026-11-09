@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-# SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (c) 2026 Henrique Lindemann
 """Recalcula offline a confirmação residual dos quatro reparos.
 
 As fixtures verificam a separação do holdout primário e da confirmação

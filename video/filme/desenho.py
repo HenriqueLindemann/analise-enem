@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (c) 2026 Henrique Lindemann
 """Vocabulário visual do filme: paleta, easing, texto, formas, bolha e marca-texto (cairo)."""
 import math
 

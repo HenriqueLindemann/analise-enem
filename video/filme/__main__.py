@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (c) 2026 Henrique Lindemann
 """CLI do filme: `python3 -m filme [--formato site|reels] <comando>`."""
 import argparse
 import json

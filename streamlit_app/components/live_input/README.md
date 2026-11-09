@@ -6,7 +6,7 @@ campo de texto que devolve o valor a cada digitação, com debounce.
 ## Proveniência
 
 Adaptado do [`streamlit-keyup` 0.3.0](https://github.com/blackary/streamlit-keyup)
-de Zachary Blackwood (licença MIT, preserved em `LICENSE`). O
+de Zachary Blackwood (licença MIT, preservada em `LICENSE`). O
 `streamlit-component-lib.js` é o trecho mínimo de API do Streamlit divulgado
 no [fórum oficial](https://discuss.streamlit.io/t/code-snippet-create-components-without-any-frontend-tooling-no-react-babel-webpack-etc/13064)
 (crédito no cabeçalho do arquivo).

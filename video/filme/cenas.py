@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (c) 2026 Henrique Lindemann
 """As cenas do filme. A fila de 45 respostas do estudante A atravessa todas elas:
 
 bolhas → ordenadas por dificuldade → pontos no eixo → curvas → sino → campo de
@@ -1364,7 +1366,7 @@ def scene_end(c, t):
     text(c, 'notatri.com', W / 2, y + (1 - a) * 18, size, INK, a, 'black', 'c')
     a = eo3(seg(t, TL.END_REPO, TL.END_REPO + .6)) * clear
     text(c, 'github.com/HenriqueLindemann/analise-enem', W / 2, y + sv(80, 76), sv(26, 30), BLUE, a, 'med', 'c')
-    text(c, 'Projeto aberto, livre para qualquer uso não comercial.', W / 2, y + sv(126, 124), sv(24, 28), MUTED, a,
+    text(c, 'Projeto gratuito e software livre.', W / 2, y + sv(126, 124), sv(24, 28), MUTED, a,
          'med', 'c')
 
 

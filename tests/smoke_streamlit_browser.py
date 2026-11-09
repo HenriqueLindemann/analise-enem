@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (c) 2026 Henrique Lindemann
 """Opt-in browser check against a running app; see streamlit_app/README.md.
 
 Uses real iframe inputs, unlike AppTest. Viewport emulation does not test a

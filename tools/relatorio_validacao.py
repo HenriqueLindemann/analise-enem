@@ -1,4 +1,5 @@
-# SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (c) 2026 Henrique Lindemann
 """Gera ``docs/VALIDATION_REPORT.md`` a partir do catálogo e do manifesto primário.
 
 Os números por prova vêm do censo (todos os participantes); o teste por amostra

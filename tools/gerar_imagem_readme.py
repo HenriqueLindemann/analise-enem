@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (c) 2026 Henrique Lindemann
 """Gera os SVGs do README (exemplo de Matemática e artigo), em versão clara e escura.
 
 Execute da raiz: python tools/gerar_imagem_readme.py

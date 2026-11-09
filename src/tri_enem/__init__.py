@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
+# SPDX-License-Identifier: AGPL-3.0-or-later
 # Copyright (c) 2026 Henrique Lindemann
 """
 Calculadora Nota TRI ENEM - Módulo de Cálculo por Teoria de Resposta ao Item
@@ -64,4 +64,4 @@ __all__ = [
     'normalizar_posicoes_resultados',
     'posicao_caderno',
 ]
-__version__ = '7.0.0'
+__version__ = '7.1.0'

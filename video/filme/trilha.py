@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (c) 2026 Henrique Lindemann
 """Trilha original em clima de bossa nova + foley real, no relógio do filme.
 
 132 BPM (compasso de 2/4 em dobro), fá maior. Camadas entram nas colas:

@@ -54,18 +54,8 @@ validadores, instala o wheel e executa um smoke test fora do checkout.
 Atualizar o catálogo exige os microdados completos; veja
 [`tools/README.md`](tools/README.md).
 
-## Acordo de Licença para Contribuidores (CLA)
+## Licença das contribuições
 
-Ao enviar um Pull Request para este repositório, você concorda com os seguintes termos:
-
-1. **Licenciamento**: Sua contribuição será distribuída sob a mesma licença do projeto ([PolyForm Noncommercial 1.0.0](https://polyformproject.org/licenses/noncommercial/1.0.0))
-
-2. **Permissão Comercial**: Você concede ao mantenedor do projeto (Henrique
-   Lindemann) permissão para:
-
-   - Licenciar sua contribuição sob termos comerciais
-   - Incluir sua contribuição em versões comerciais do software
-
-3. **Originalidade**: Você declara que sua contribuição é trabalho original seu e que tem autoridade para conceder estes direitos
-
-Este acordo é necessário para manter a possibilidade de oferecer licenciamento comercial do projeto.
+Ao enviar um Pull Request, você concorda que sua contribuição seja distribuída
+sob a mesma licença do projeto, a [GNU AGPL-3.0 ou posterior](LICENSE), e
+declara que ela é trabalho seu ou que tem o direito de licenciá-la assim.

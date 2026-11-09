@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-# SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (c) 2026 Henrique Lindemann
 """Mede inicialização, cálculo e reruns offline, sem alterar dados ou fixtures.
 
 Execute na raiz com o ambiente que contém as dependências web:

@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
+# SPDX-License-Identifier: AGPL-3.0-or-later
 # Copyright (c) 2026 Henrique Lindemann
 """
 Wrapper para integração com o módulo tri_enem.

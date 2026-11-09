@@ -20,8 +20,8 @@ name = "tri-enem"
 description = "Calculadora de nota TRI do ENEM (2009-2025) por Teoria de Resposta ao Item"
 readme = "README.md"
 requires-python = ">=3.10"
-license = "PolyForm-Noncommercial-1.0.0"
-license-files = ["LICENSE", "NOTICE"]
+license = "AGPL-3.0-or-later"
+license-files = ["LICENSE"]
 authors = [{ name = "Henrique Lindemann" }]
 
 # As dependencias sao lidas dos requirements.txt, que continuam sendo a fonte

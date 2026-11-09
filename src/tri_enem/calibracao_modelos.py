@@ -1,4 +1,5 @@
-# SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (c) 2026 Henrique Lindemann
 """Faixas de nota, ranking de candidatos e status de precisão."""
 
 from __future__ import annotations

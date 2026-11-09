@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (c) 2026 Henrique Lindemann
 # Gera o vídeo Nota TRI ENEM: dados do motor → trilha → verificação → quadros → MP4 → stills.
 # Uso: ./video/build.sh [site|reels ...]   (PUBLICAR=1 atualiza os arquivos versionados do app/README)
 set -euo pipefail

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-# SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (c) 2026 Henrique Lindemann
 """Reconstrói associações de itens e seleciona EAP sem ajustar ao holdout.
 
 Uso: OPENBLAS_NUM_THREADS=1 python tools/fechar_gap_validacao.py

@@ -103,7 +103,7 @@ python -m pytest
 
 Desenvolvido por **Henrique Lindemann** (Engenharia de Computação, UFRGS) ·
 <a href="https://www.linkedin.com/in/henriquelindemann/" target="_blank" rel="noopener noreferrer">LinkedIn</a>.
-Licença <a href="LICENSE" target="_blank" rel="noopener noreferrer">PolyForm Noncommercial 1.0.0</a> (uso não comercial).
+Software livre (<a href="LICENSE" target="_blank" rel="noopener noreferrer">GNU AGPL-3.0 ou posterior</a>).
 
 **Trabalho relacionado:** <a href="https://doi.org/10.1016/j.cose.2026.105080" target="_blank" rel="noopener noreferrer">Knowing millions of students too well</a>,
 sobre privacidade nos microdados do ENEM (*Computers & Security*, 2026).

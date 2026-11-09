@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (c) 2026 Henrique Lindemann
 """Dados do filme, tirados do motor TRI do projeto. Roda com o .venv do repositório:
 
     .venv/bin/python -m filme dados

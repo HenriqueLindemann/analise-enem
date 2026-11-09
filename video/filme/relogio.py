@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (c) 2026 Henrique Lindemann
 """Relógio do filme, lido pelos quadros e pela trilha.
 
 Tempos em segundos. As colas entre cenas caem em compassos da bossa (132 BPM,

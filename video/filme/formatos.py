@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (c) 2026 Henrique Lindemann
 """Os dois cortes do filme: mesmo roteiro e relógio, enquadramentos diferentes."""
 import os
 from dataclasses import dataclass

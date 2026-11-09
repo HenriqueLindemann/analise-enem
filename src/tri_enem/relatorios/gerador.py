@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
+# SPDX-License-Identifier: AGPL-3.0-or-later
 # Copyright (c) 2026 Henrique Lindemann
 """Composição determinística do relatório A4."""
 
@@ -152,7 +152,7 @@ class RelatorioPDF:
              "Código-fonte do projeto no GitHub"),
             (" · ", None, "Helvetica", None),
             ("LinkedIn", URL_LINKEDIN, "Helvetica-BoldOblique", perfil),
-            (" · PolyForm Noncommercial 1.0.0", None, "Helvetica", None),
+            (" · Software livre", None, "Helvetica", None),
         )
         rodape = self._rodapes[doc.page - 1]
         for texto, url, fonte, descricao in partes_rodape:

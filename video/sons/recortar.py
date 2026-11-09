@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (c) 2026 Henrique Lindemann
 """Regenera os recortes de foley em `video/sons/` a partir das gravações originais.
 
     python3 video/sons/recortar.py [pasta_originais]

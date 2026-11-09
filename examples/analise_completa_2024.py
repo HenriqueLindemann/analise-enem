@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (c) 2026 Henrique Lindemann
 """
 ===============================================================================
             ANALISE COMPLETA DE PROVA - EXEMPLO REAL ENEM 2024

@@ -103,4 +103,4 @@ Consulte o [método](../docs/SCORE_RECALCULATION.md) e as
 
 ## Licença
 
-[PolyForm Noncommercial 1.0.0](../LICENSE) - Uso pessoal e educacional permitido.
+Software livre ([GNU AGPL-3.0 ou posterior](../LICENSE)).

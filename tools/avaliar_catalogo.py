@@ -1,4 +1,5 @@
-# SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (c) 2026 Henrique Lindemann
 """Avaliação de um catálogo contra notas oficiais, compartilhada por ferramentas e validadores.
 
 As notas vêm sempre de ``CalculadorTRI(catalogo=...)``, com as mesmas regras

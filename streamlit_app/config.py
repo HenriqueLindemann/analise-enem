@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
+# SPDX-License-Identifier: AGPL-3.0-or-later
 # Copyright (c) 2026 Henrique Lindemann
 """
 Configurações centralizadas do Streamlit App.
@@ -177,10 +177,7 @@ TEXTO_FOOTER = f"""
         <a href="{APP_GITHUB_URL}" target="_blank">GitHub</a>
     </p>
     <p style="font-size: 0.85rem; color: #666; margin-top: 0.5rem;">
-        Este projeto é <strong>gratuito</strong> e de <strong>uso livre</strong> para estudantes, professores e pesquisadores. Uso comercial requer autorização.
-    </p>
-    <p style="font-size: 0.8rem; color: #888;">
-        Estimativa TRI validada em microdados oficiais; a precisão é informada por prova
+        Projeto <strong>gratuito</strong> e <strong>software livre</strong>. Cálculo validado com as notas oficiais dos Microdados ENEM.
     </p>
 </div>
 
@@ -201,10 +198,10 @@ TEXTO_FOOTER = f"""
 TEXTO_ABOUT_MENU = f"""
 # Calculadora Nota TRI ENEM
 
-Estime sua nota do ENEM usando **Teoria de Resposta ao Item (TRI)**,
-com precisão verificada por prova em microdados oficiais do INEP.
+Estime sua nota do ENEM usando **Teoria de Resposta ao Item (TRI)**.
+Cálculo validado com as notas oficiais dos Microdados ENEM.
 
-Ferramenta gratuita para estudantes, professores e pesquisadores.
+Ferramenta gratuita e software livre.
 
 Acesse: https://notatri.com
 

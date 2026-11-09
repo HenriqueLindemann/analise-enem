@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (c) 2026 Henrique Lindemann
 """Verificações automáticas do filme: dados, enquadramento, marca-texto, colas, trilha e MP4."""
 import json
 import subprocess
