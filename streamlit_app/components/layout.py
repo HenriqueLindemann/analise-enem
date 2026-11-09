@@ -14,6 +14,7 @@ from ..config import (
     TEXTO_SOBRE, TEXTO_PRIVACIDADE, TEXTO_RECADO, TEXTO_FOOTER, TEXTO_ABOUT_MENU,
     TIPOS_APLICACAO, ORDEM_TIPOS, SEO,
 )
+from .acertos import render_botao_acertos
 
 VIDEO_PATH = Path(__file__).parent.parent / "assets" / "video-nota-tri.mp4"
 
@@ -116,6 +117,7 @@ def render_config(mapeador) -> Tuple[int, str | None]:
 def render_aviso_ano_em_breve() -> None:
     with st.container(border=True, key="aviso_ano_em_breve"):
         st.markdown(TEXTO_ENEM_2026)
+        render_botao_acertos()
 
 
 def render_botao_calcular(pode_calcular: bool) -> bool:

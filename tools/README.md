@@ -29,6 +29,10 @@ a verificação de [tests/README.md](../tests/README.md).
 
 - `gerar_dados_itens.py --microdados-dir $M`: publica os CSVs de itens
   normalizados, com manifesto SHA-256.
+- `levantar_notas_por_acertos.py --microdados-dir $M --saida notas.json --app
+  streamlit_app/assets/notas_por_acertos.json`: distribuição da nota oficial
+  por número de acertos. `--app` grava o recorte usado na interface; sem
+  `--microdados-dir`, refaz só o recorte a partir da saída e do `.npz`.
 - `recalibrar_validacao.py` e `fechar_gap_validacao.py`: reamostragem
   completa e pesquisa de reconstrução de itens (associação e gabarito). Use
   `OPENBLAS_NUM_THREADS=1` com `--workers`.

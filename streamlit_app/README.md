@@ -40,7 +40,7 @@ python tests/smoke_streamlit_browser.py
 O script é opt-in e não é coletado pelo pytest; os artefatos (PDF, capturas
 de tela) vão para um diretório temporário.
 
-## Desempenho no Cloud
+## Desempenho
 
 Para medir o app e o motor localmente, sem modificar dados ou fixtures:
 
@@ -53,7 +53,7 @@ O botão continua baixando em um clique, sem reexecutar o app.
 Os gráficos e as tabelas de cada área são renderizados ao abrir seus detalhes.
 Essa interação reexecuta apenas a área, preservando os campos de respostas.
 
-## Estrutura Modular
+## Estrutura
 
 ```
 streamlit_app/
@@ -70,6 +70,7 @@ streamlit_app/
 │   ├── graficos.py     # Gráficos Plotly e grade de questões em HTML/CSS
 │   ├── impressao.py    # Geração de PDF
 │   ├── layout.py       # Estrutura da página (header, configurações, footer)
+│   ├── acertos.py      # Notas oficiais por número de acertos
 │   ├── seo.py          # Meta tags, Schema.org JSON-LD
 │   └── live_input/     # Componente local de digitação em tempo real
 │                        (adaptado do streamlit-keyup; ver live_input/README.md)

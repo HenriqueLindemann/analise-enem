@@ -193,3 +193,16 @@ footer {
     .resumo-barra { grid-area: barra; }
     .resumo-nota { grid-area: nota; }
 }
+
+/* Notas por número de acertos: mediana e faixa de 80%, lado a lado. */
+.acertos-resumo { display: flex; flex-wrap: wrap; gap: 8px 48px; margin: 4px 0 8px; }
+.acertos-resumo p { display: flex; flex-direction: column; gap: 2px; margin: 0; }
+.acertos-resumo span { font-size: 0.875rem; color: #596777; }
+.acertos-resumo strong { font-size: 2.25rem; font-weight: 600; line-height: 1.15; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+/* Campo de acertos: só o número, sem botões +/− nem aviso de Enter. */
+.st-key-acertos [data-testid="stNumberInputStepDown"],
+.st-key-acertos [data-testid="stNumberInputStepUp"],
+.st-key-acertos [data-testid="InputInstructions"] { display: none; }
+.st-key-acertos input { -moz-appearance: textfield; appearance: textfield; }
+.st-key-acertos input::-webkit-inner-spin-button,
+.st-key-acertos input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }

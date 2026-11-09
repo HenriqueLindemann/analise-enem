@@ -315,6 +315,52 @@ def check_lazy_results(browser, url):
     print("PASS lazy results: four independent fragments, repeated PDF, edit and recalculate", flush=True)
 
 
+def check_acertos(browser, url, width, touch, output):
+    """2026: the hit-count dialog fits the screen and the field is a bare number."""
+    page = browser.new_page(viewport={"width": width, "height": 900}, has_touch=touch, is_mobile=touch)
+    errors = []
+    page.on("pageerror", lambda error: errors.append(str(error)))
+    page.goto(url)
+    ano = page.locator(".st-key-ano_prova").get_by_role("combobox")
+    ano.scroll_into_view_if_needed()
+    ano.click()
+    page.get_by_role("option", name="2026", exact=True).click()
+    page.locator(".st-key-abrir_acertos button").click()
+    dialog = page.get_by_role("dialog")
+    field = dialog.locator(".st-key-acertos input")
+    expect(field).to_be_visible()
+    assert field.get_attribute("inputmode") in ("numeric", "decimal") or field.get_attribute("type") == "number"
+    field.fill("30")
+    field.press("Enter")
+    resumo = dialog.locator(".acertos-resumo")
+    expect(resumo).to_be_visible(timeout=15000)
+    antes = resumo.inner_text()
+    expect(dialog.locator(".js-plotly-plot")).to_be_visible()
+    for test_id in ("stNumberInputStepUp", "stNumberInputStepDown", "InputInstructions"):
+        assert dialog.get_by_test_id(test_id).evaluate_all("els => els.every(el => !el.offsetParent)"), test_id
+    field.click()
+    field.fill("12")
+    expect(dialog.get_by_test_id("InputInstructions")).to_be_hidden()
+    field.press("Enter")
+    expect(resumo).not_to_have_text(antes)
+    # Switching area keeps the hit count and redraws the analysis.
+    antes = resumo.inner_text()
+    area = dialog.locator(".st-key-acertos_area").get_by_role("combobox")
+    area.click()
+    page.get_by_role("option", name="Matemática", exact=True).click()
+    expect(field).to_have_value("12")
+    expect(resumo).not_to_have_text(antes)
+    assert dialog.locator("*").evaluate_all(
+        "els => els.every(el => !(el instanceof HTMLElement) || !el.clientWidth || el.scrollWidth <= el.clientWidth + 1 || getComputedStyle(el).overflowX !== 'visible')"
+    ), "Horizontal overflow in dialog"
+    box = dialog.bounding_box()
+    assert box["x"] >= 0 and box["x"] + box["width"] <= width + 1, "Dialog wider than screen"
+    dialog.screenshot(path=str(output / f"acertos-{width}.png"), animations="disabled")
+    assert not errors, errors
+    print(f"PASS {width}px: hit-count dialog", flush=True)
+    page.close()
+
+
 def run(url, executable, output):
     from streamlit_app.calculador import CalculadorEnem
     from tri_enem.formatacao import formatar_numero
@@ -331,6 +377,8 @@ def run(url, executable, output):
         check_year_changes(browser, url, delayed_html=True)
         check_composition(browser, url)
         check_lazy_results(browser, url)
+        for width, touch in ((1440, False), (390, True), (360, True)):
+            check_acertos(browser, url, width, touch, output)
         for width, touch in ((1440, False), (390, False), (390, True)):
             check_answer_sheet(browser, url, width, touch)
         for width in (360, 390, 768, 1024, 1440):
@@ -461,7 +509,7 @@ def run(url, executable, output):
             expect(download).to_have_count(0)
             expect(calculate).to_be_disabled()
             page.get_by_test_id("stPopover").filter(has_text="Sobre o cálculo").get_by_role("button").click()
-            expect(page.get_by_text("Modelo Logístico de 3 Parâmetros (ML3)", exact=False)).to_be_visible()
+            expect(page.get_by_text("logístico de 3 parâmetros", exact=False)).to_be_visible()
             page.keyboard.press("Escape")
             assert not errors, errors
             print(f"PASS {width}px: typing, paste, focus, calculation, PDF, layout", flush=True)

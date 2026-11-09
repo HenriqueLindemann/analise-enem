@@ -203,6 +203,41 @@ class TestAppExecuta:
         assert "estimativa grosseira" in textos
         assert "2009 a 2025" in textos
 
+    def test_2026_abre_analise_por_numero_de_acertos(self):
+        at = AppTest.from_file(APP, default_timeout=TIMEOUT)
+        at.run()
+        at.selectbox(key="ano_prova").set_value(2026).run()
+        at.button(key="abrir_acertos").click().run()
+        assert not at.exception, at.exception
+        assert at.selectbox(key="acertos_area").value == "LC"
+        assert at.number_input(key="acertos").value is None
+        textos = " ".join(bloco.value for bloco in at.markdown)
+        assert "análise histórica, não previsão" in textos
+
+    def test_dialogo_de_acertos_mostra_mediana_e_grafico(self):
+        def dialogo():
+            import sys
+            from pathlib import Path
+            raiz = Path.cwd()
+            sys.path[:0] = [str(raiz), str(raiz / "src")]
+            from streamlit_app.components.acertos import _dialog_acertos
+            _dialog_acertos()
+
+        at = AppTest.from_function(dialogo, default_timeout=TIMEOUT)
+        at.run()
+        assert not at.get("plotly_chart")
+        at.number_input(key="acertos").set_value(30).run()
+        assert not at.exception, at.exception
+        textos = " ".join(bloco.value for bloco in at.markdown)
+        assert "Mediana" in textos and "80% ficaram entre" in textos
+        resumo_lc = textos.split("acertos-resumo")[1]
+        # Trocar de área mantém os acertos e refaz a análise.
+        at.selectbox(key="acertos_area").set_value("MT").run()
+        assert at.number_input(key="acertos").value == 30
+        textos = " ".join(bloco.value for bloco in at.markdown)
+        assert textos.split("acertos-resumo")[1] != resumo_lc
+        assert len(at.get("plotly_chart")) == 1
+
     def test_ida_e_volta_para_2026_preserva_estado_e_limpa_resultados(self):
         at = _app_com_respostas({"LC": "A" * 45, "MT": "B" * 45})
         at.selectbox(key="ano_prova").set_value(2023).run()
@@ -979,3 +1014,53 @@ class TestEstadoDaInterface:
         assert "resultados" not in at.session_state
         assert "pdf_bytes" not in at.session_state
         assert "pdf_download" not in at.session_state
+
+
+class TestNotasPorAcertos:
+    """Recorte dos microdados usado na análise por número de acertos."""
+
+    @pytest.fixture(scope="class")
+    @staticmethod
+    def dados():
+        from streamlit_app.components.acertos import carregar_notas_por_acertos
+        return carregar_notas_por_acertos()
+
+    def test_todo_ano_e_area_tem_de_0_a_45_acertos(self, dados):
+        for area in ("LC", "CH", "CN", "MT"):
+            assert set(dados["geral"][area]) == {str(k) for k in range(46)}
+            anos = dados["edicoes"][area]
+            assert list(anos) == [str(a) for a in range(2009, 2026)]
+            for prova in anos.values():
+                assert set(prova["acertos"]) == {str(k) for k in range(46)}
+
+    def test_faixas_ordenadas_e_mediana_cresce_com_os_acertos(self, dados):
+        for area, linhas in dados["geral"].items():
+            medianas = [linhas[str(k)][2] for k in range(46)]
+            assert medianas == sorted(medianas), area
+            for prova in dados["edicoes"][area].values():
+                for p10, p50, p90, _ in prova["acertos"].values():
+                    assert p10 <= p50 <= p90
+
+    def test_acima_das_validas_vale_o_gabarito(self, dados):
+        prova = dados["edicoes"]["CN"]["2025"]
+        assert prova["itens_validos"] < 45
+        assert prova["acertos"]["45"] == prova["acertos"][str(prova["itens_validos"])]
+
+    def test_grafico_marca_anos_estimados_pelo_modelo(self, dados):
+        from streamlit_app.components.acertos import grafico_acertos, resumo_acertos
+
+        resumo = resumo_acertos(dados, "CN", 44)
+        assert any(v["modelo"] for v in resumo["edicoes"].values())
+        fig = grafico_acertos(resumo)
+        cores = fig.data[2].marker.color
+        assert list(fig.data[2].x) == list(resumo["edicoes"])
+        assert [c == "white" for c in cores] == [v["modelo"] for v in resumo["edicoes"].values()]
+        assert fig.layout.dragmode is False
+
+    def test_eixo_cabe_notas_acima_de_1000(self, dados):
+        from streamlit_app.components.acertos import grafico_acertos, resumo_acertos
+
+        resumo = resumo_acertos(dados, "MT", 45)
+        maior = max(v["ate"] for v in resumo["edicoes"].values())
+        assert maior > 1000
+        assert grafico_acertos(resumo).layout.yaxis.range[1] > maior
