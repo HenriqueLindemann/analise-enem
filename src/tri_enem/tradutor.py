@@ -147,7 +147,7 @@ def deduplicar_itens_por_posicao(lc: pd.DataFrame) -> pd.DataFrame:
     Os pares de língua são filtrados antes desta função e as digitais de 2020
     são separadas por ``TP_VERSAO_DIGITAL``. As adaptadas 187–190 de 2013
     ainda contêm duas coleções sem discriminador público; para que continuem
-    calculáveis, conservamos a primeira coleção na ordem oficial normalizada.
+    calculáveis, conserva-se a primeira coleção na ordem oficial normalizada.
     A precisão observada dessas provas permanece registrada no catálogo e deve
     ser mostrada como aviso junto da estimativa.
     """

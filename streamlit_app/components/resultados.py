@@ -259,7 +259,7 @@ def exibir_aviso_acuracia(resultado: Dict):
     with st.expander("Mais detalhes sobre a precisão", expanded=False):
         if n:
             st.caption(
-                "Comparamos a nota calculada com a oficial de todos os "
+                "Comparação entre a nota calculada e a oficial de todos os "
                 "participantes desta prova."
             )
             c1, c2, c3, c4 = st.columns(4)

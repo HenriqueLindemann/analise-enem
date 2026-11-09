@@ -137,9 +137,9 @@ def gerar_relatorio(catalogo: Dict[str, Any], manifesto: Dict[str, Any]) -> str:
     linhas = [
         "# Validação das notas TRI",
         "",
-        "Quão perto a calculadora chega da nota oficial do INEP? Comparamos as "
+        "Quão perto a calculadora chega da nota oficial do INEP? As "
         f"**{_inteiro(total['n'])} notas** de todos os participantes do ENEM "
-        f"{anos[0]}–{anos[-1]} nos microdados públicos com as calculadas.",
+        f"{anos[0]}–{anos[-1]} nos microdados públicos foram comparadas com as calculadas.",
         "",
         "## Resumo",
         "",

@@ -181,7 +181,7 @@ def candidatos_familias(calc, provas, splits, candidatos):
         ids = [t.co_item for t in itens]
         mapa = dict(zip(ids, par))
         mapas[(ano, area)] = mapa
-        # Um parâmetro ausente pode não existir no banco publicado. Testamos
+        # Um parâmetro ausente pode não existir no banco publicado. Testa-se o
         # ajuste de um único item, como candidato distinto e identificado.
         parcial, custo, j = ajustar_um_item(u, y, par) if diag["mse_discreto_treino"] > .002 else (par, 0, None)
         alternativas = [(mapa, "associacao_parametros_publicados", [])]

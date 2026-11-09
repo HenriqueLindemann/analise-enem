@@ -1,6 +1,6 @@
 # Validação das notas TRI
 
-Quão perto a calculadora chega da nota oficial do INEP? Comparamos as **262.711.274 notas** de todos os participantes do ENEM 2009–2025 nos microdados públicos com as calculadas.
+Quão perto a calculadora chega da nota oficial do INEP? As **262.711.274 notas** de todos os participantes do ENEM 2009–2025 nos microdados públicos foram comparadas com as calculadas.
 
 ## Resumo
 

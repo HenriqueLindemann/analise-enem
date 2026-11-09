@@ -839,7 +839,7 @@ class TestAvisoAcuracia:
             "percentual_ate_2": 100.0,
         })
 
-        assert any(texto.startswith("Comparamos a nota calculada com a oficial de todos")
+        assert any(texto.startswith("Comparação entre a nota calculada e a oficial de todos")
                    and dentro for texto, dentro in legendas)
 
 

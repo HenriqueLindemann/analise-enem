@@ -69,7 +69,6 @@ def _dialog_video(autoplay: bool = False) -> None:
     st.video(str(VIDEO_PATH))
     if autoplay:
         st.html(_JS_AUTOPLAY, unsafe_allow_javascript=True)
-    st.caption("2 min · Matemática, ENEM 2024 · parâmetros reais publicados pelo INEP")
     texto = f"Entenda em 2 minutos como a nota TRI do ENEM é calculada: {APP_VIDEO_SHARE_URL}"
     with st.container(horizontal=True, gap="small"):
         st.link_button("WhatsApp", f"https://wa.me/?text={quote(texto)}",
