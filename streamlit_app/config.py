@@ -126,21 +126,6 @@ acerto ao acaso de cada questão, divulgados pelo INEP), com estimação bayesia
 Veja o [relatório técnico]({APP_VALIDATION_REPORT_URL}) completo, com métricas e erros por prova
 """
 
-TEXTO_RECADO = """
-Para ti que vai fazer o ENEM, primeiro de tudo, se acalme. A prova é longa,
-desafiadora e, além de conhecimento, exige persistência e foco.
-
-Tome um tempo para relaxar, aproveitar o dia, pegar um sol, conversar com
-alguém querido. Não se preocupe tanto e vá fazer a prova leve. Com preparo e
-sabendo que tu é capaz e que trabalhou para isso.
-
-Garanto que, fazendo simulados, provas antigas e acessando este site, já
-está à frente de muita gente :)
-
-Um abraço e desejos de sucesso,  
-Henrique
-"""
-
 ANO_EM_BREVE = 2026
 
 TEXTO_ENEM_2026 = """

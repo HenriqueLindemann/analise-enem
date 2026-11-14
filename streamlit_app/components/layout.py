@@ -11,7 +11,7 @@ from ..config import (
     APP_VERSION, APP_GITHUB_URL, APP_ISSUES_URL,
     APP_VIDEO_SHARE_URL, APP_VIDEO_FILE_URL,
     ANO_EM_BREVE, TEXTO_ENEM_2026,
-    TEXTO_SOBRE, TEXTO_PRIVACIDADE, TEXTO_RECADO, TEXTO_FOOTER, TEXTO_ABOUT_MENU,
+    TEXTO_SOBRE, TEXTO_PRIVACIDADE, TEXTO_FOOTER, TEXTO_ABOUT_MENU,
     TIPOS_APLICACAO, ORDEM_TIPOS, SEO,
 )
 from .acertos import render_botao_acertos
@@ -59,10 +59,7 @@ def render_header() -> None:
     st.markdown("**No ENEM, importa não só quantas questões você acerta, mas quais.**")
     st.caption("Estimativa pela TRI, o mesmo modelo do INEP, com os parâmetros oficiais "
                "da prova. Veja o que mais pesou na sua nota.")
-    with st.container(horizontal=True, gap="small"):
-        render_botao_video()
-        with st.popover("Um recado"):
-            st.markdown(TEXTO_RECADO)
+    render_botao_video()
 
 
 @st.dialog("Como a nota TRI é calculada", width="large")
